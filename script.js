@@ -1,12 +1,15 @@
 /*
 =================================
-HKDMServices v1.0
+HKDMServices v1.1
 Kinde Authentication Setup
 =================================
 */
 
+import createKindeClient from "@kinde-oss/kinde-auth-pkce-js";
+
 
 let kinde;
+
 
 
 async function initializeKinde() {
@@ -24,40 +27,48 @@ async function initializeKinde() {
 
     setupAuthButtons();
 
+    checkUser();
+
 }
+
+
 
 
 
 function setupAuthButtons(){
 
 
-    const loginButton = document.getElementById("login");
+    const loginButtons = document.querySelectorAll(".login-btn");
 
-    const registerButton = document.getElementById("register");
+    const registerButtons = document.querySelectorAll(".register-btn");
 
 
 
-    if(loginButton){
+    loginButtons.forEach(button => {
 
-        loginButton.addEventListener("click", async () => {
+        button.addEventListener("click", async (event)=>{
+
+            event.preventDefault();
 
             await kinde.login();
 
         });
 
-    }
+    });
 
 
 
-    if(registerButton){
+    registerButtons.forEach(button => {
 
-        registerButton.addEventListener("click", async () => {
+        button.addEventListener("click", async (event)=>{
+
+            event.preventDefault();
 
             await kinde.register();
 
         });
 
-    }
+    });
 
 
 }
@@ -65,7 +76,31 @@ function setupAuthButtons(){
 
 
 
+
+async function checkUser(){
+
+    const isAuthenticated = await kinde.isAuthenticated();
+
+
+    if(isAuthenticated){
+
+        console.log("User logged in");
+
+
+        const user = await kinde.getUser();
+
+
+        console.log(user);
+
+    }
+
+}
+
+
+
+
+
 document.addEventListener(
-"DOMContentLoaded",
-initializeKinde
+    "DOMContentLoaded",
+    initializeKinde
 );
