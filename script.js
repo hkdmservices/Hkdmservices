@@ -1,4 +1,4 @@
-console.log("HKDM script started");
+alert("HKDM script is running");
 
 import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
 
