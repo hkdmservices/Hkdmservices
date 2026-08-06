@@ -1,0 +1,187 @@
+/* ==========================
+   HKDMServices Global Styles
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#0f172a;
+    color:#ffffff;
+    line-height:1.6;
+}
+
+.container{
+    width:90%;
+    max-width:1200px;
+    margin:auto;
+}
+
+/* Navigation */
+
+header{
+    background:#111827;
+    padding:18px 0;
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#22c55e;
+}
+
+nav ul{
+    list-style:none;
+    display:flex;
+}
+
+nav ul li{
+    margin-left:25px;
+}
+
+nav ul li a{
+    text-decoration:none;
+    color:white;
+    transition:.3s;
+}
+
+nav ul li a:hover{
+    color:#22c55e;
+}
+
+/* Hero */
+
+.hero{
+    padding:100px 20px;
+    text-align:center;
+}
+
+.hero h1{
+    font-size:48px;
+    margin-bottom:20px;
+}
+
+.hero p{
+    max-width:700px;
+    margin:auto;
+    color:#cbd5e1;
+    font-size:18px;
+}
+
+.buttons{
+    margin-top:40px;
+}
+
+.btn{
+    display:inline-block;
+    padding:14px 30px;
+    margin:10px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+    transition:.3s;
+}
+
+.btn-primary{
+    background:#22c55e;
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#16a34a;
+}
+
+.btn-outline{
+    border:2px solid #22c55e;
+    color:#22c55e;
+}
+
+.btn-outline:hover{
+    background:#22c55e;
+    color:white;
+}
+
+/* Section */
+
+section{
+    padding:80px 20px;
+}
+
+.section-title{
+    text-align:center;
+    margin-bottom:50px;
+    font-size:36px;
+}
+
+/* Cards */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:#1e293b;
+    padding:30px;
+    border-radius:12px;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card h3{
+    margin-bottom:15px;
+}
+
+/* Footer */
+
+footer{
+    background:#111827;
+    padding:30px;
+    text-align:center;
+    color:#94a3b8;
+    margin-top:50px;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+nav{
+    flex-direction:column;
+}
+
+nav ul{
+    flex-direction:column;
+    margin-top:20px;
+}
+
+nav ul li{
+    margin:10px 0;
+}
+
+.hero h1{
+    font-size:34px;
+}
+
+.section-title{
+    font-size:28px;
+}
+
+}
