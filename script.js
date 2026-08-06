@@ -1,120 +1,71 @@
 /*
 =================================
 HKDMServices v1.0
-Main JavaScript File
+Kinde Authentication Setup
 =================================
 */
 
 
-// Wait until page loads
-
-document.addEventListener("DOMContentLoaded", function () {
+let kinde;
 
 
-    console.log("HKDMServices loaded successfully");
+async function initializeKinde() {
 
+    kinde = await createKindeClient({
 
-    /*
-    ===============================
-    Smooth Scrolling
-    ===============================
-    */
+        client_id: "7c2b45233e3d45dbbb2342714b993c50",
 
+        domain: "https://hkdmservices.kinde.com",
 
-    const links = document.querySelectorAll('a[href^="#"]');
-
-
-    links.forEach(link => {
-
-
-        link.addEventListener("click", function(e){
-
-
-            const target = document.querySelector(
-                this.getAttribute("href")
-            );
-
-
-            if(target){
-
-                e.preventDefault();
-
-
-                target.scrollIntoView({
-
-                    behavior: "smooth"
-
-                });
-
-            }
-
-
-        });
-
+        redirect_uri: window.location.origin
 
     });
 
 
+    setupAuthButtons();
+
+}
 
 
 
-    /*
-    ===============================
-    Mobile Navbar Close
-    ===============================
-    */
+function setupAuthButtons(){
 
 
-    const navLinks = document.querySelectorAll(
-        ".navbar-nav .nav-link"
-    );
+    const loginButton = document.getElementById("login");
+
+    const registerButton = document.getElementById("register");
 
 
-    const navbarCollapse = document.querySelector(
-        ".navbar-collapse"
-    );
 
+    if(loginButton){
 
-    navLinks.forEach(link => {
+        loginButton.addEventListener("click", async () => {
 
-
-        link.addEventListener("click", () => {
-
-
-            if(navbarCollapse.classList.contains("show")){
-
-
-                new bootstrap.Collapse(
-                    navbarCollapse
-                ).hide();
-
-
-            }
-
+            await kinde.login();
 
         });
 
-
-    });
-
+    }
 
 
 
+    if(registerButton){
 
-    /*
-    ===============================
-    Future Integrations
-    ===============================
+        registerButton.addEventListener("click", async () => {
 
-    Kinde Authentication
-    Firebase Database
-    Korapay Payment Gateway
-    Render Background Jobs
+            await kinde.register();
 
-    Will be added here.
+        });
 
-    ===============================
-    */
+    }
 
 
-});
+}
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+initializeKinde
+);
