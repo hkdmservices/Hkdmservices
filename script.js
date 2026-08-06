@@ -1,3 +1,5 @@
+console.log("HKDM script started");
+
 import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
 
 
@@ -5,6 +7,8 @@ let kinde;
 
 
 async function initializeKinde(){
+
+    console.log("Initializing Kinde...");
 
     kinde = await createKindeClient({
 
@@ -16,6 +20,8 @@ async function initializeKinde(){
 
     });
 
+
+    console.log("Kinde initialized successfully");
 
 
     document.querySelectorAll(".login-btn").forEach(btn=>{
