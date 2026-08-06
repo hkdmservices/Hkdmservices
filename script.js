@@ -24,24 +24,9 @@ async function initializeKinde() {
     });
 
 
-    setupAuthButtons();
+    document.querySelectorAll(".login-btn").forEach(button => {
 
-}
-
-
-
-function setupAuthButtons(){
-
-
-    const loginButtons = document.querySelectorAll(".login-btn");
-
-    const registerButtons = document.querySelectorAll(".register-btn");
-
-
-
-    loginButtons.forEach(button => {
-
-        button.addEventListener("click", async (event)=>{
+        button.addEventListener("click", async (event) => {
 
             event.preventDefault();
 
@@ -53,9 +38,9 @@ function setupAuthButtons(){
 
 
 
-    registerButtons.forEach(button => {
+    document.querySelectorAll(".register-btn").forEach(button => {
 
-        button.addEventListener("click", async (event)=>{
+        button.addEventListener("click", async (event) => {
 
             event.preventDefault();
 
@@ -70,7 +55,4 @@ function setupAuthButtons(){
 
 
 
-document.addEventListener(
-"DOMContentLoaded",
-initializeKinde
-);
+initializeKinde();
