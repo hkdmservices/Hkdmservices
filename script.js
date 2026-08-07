@@ -1,33 +1,25 @@
-import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
+// Firebase Authentication for HKDMServices
 
-alert("Script loaded");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-async function test() {
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-    try {
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+  authDomain: "hkdmservices-7d59f.firebaseapp.com",
+  projectId: "hkdmservices-7d59f",
+  storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+  messagingSenderId: "839538334772",
+  appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
 
-        alert("Creating Kinde client...");
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-        const kinde = await createKindeClient({
-
-            client_id: "7c2b45233e3d45dbbb2342714b993c50",
-
-            domain: "https://hkdmservices.kinde.com",
-
-            redirect_uri: window.location.origin
-
-        });
-
-        alert("Kinde initialized successfully");
-
-    } catch (error) {
-
-        alert("ERROR: " + error.message);
-
-        console.error(error);
-
-    }
-
-}
-
-test();
+console.log("Firebase Connected");
