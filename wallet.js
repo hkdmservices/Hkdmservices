@@ -50,13 +50,19 @@ payButton.addEventListener("click", () => {
 
         customer: {
 
-            name: currentUser.displayName,
+    name: currentUser.displayName,
 
-            email: currentUser.email
+    email: currentUser.email
 
-        },
+},
 
-        notification_url: "",
+metadata: {
+
+    uid: currentUser.uid
+
+},
+
+notification_url: "https://hkdmservices.vercel.app/api/korapay-webhook",
 
         onClose() {
 
