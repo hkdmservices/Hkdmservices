@@ -1,12 +1,8 @@
 import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
 
-
 let kinde;
 
-
 async function initializeKinde(){
-
-    console.log("Initializing Kinde...");
 
     kinde = await createKindeClient({
 
@@ -17,9 +13,6 @@ async function initializeKinde(){
         redirect_uri: window.location.origin
 
     });
-
-
-    console.log("Kinde initialized successfully");
 
 
     document.querySelectorAll(".login-btn").forEach(btn=>{
@@ -35,7 +28,6 @@ async function initializeKinde(){
     });
 
 
-
     document.querySelectorAll(".register-btn").forEach(btn=>{
 
         btn.onclick = (e)=>{
@@ -48,8 +40,6 @@ async function initializeKinde(){
 
     });
 
-
 }
-
 
 initializeKinde();
