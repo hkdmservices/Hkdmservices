@@ -1,2 +1,9 @@
-npm init -y
-npm install firebase-admin axios
+{
+  "name": "hkdmservices",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "firebase-admin": "^13.4.0"
+  }
+}
