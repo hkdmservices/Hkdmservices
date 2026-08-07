@@ -12,19 +12,15 @@ import {
 
 
 const firebaseConfig = {
+  apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+  authDomain: "hkdmservices-7d59f.firebaseapp.com",
 
-    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+  databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
 
-    authDomain: "hkdmservices-7d59f.firebaseapp.com",
-
-    projectId: "hkdmservices-7d59f",
-
-    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
-
-    messagingSenderId: "839538334772",
-
-    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
-
+  projectId: "hkdmservices-7d59f",
+  storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+  messagingSenderId: "839538334772",
+  appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
 };
 
 const app = initializeApp(firebaseConfig);
