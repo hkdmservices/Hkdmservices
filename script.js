@@ -1,6 +1,8 @@
 /*
+=================================
 HKDMServices
-Kinde Authentication
+Kinde Authentication Setup
+=================================
 */
 
 import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
@@ -9,7 +11,7 @@ import createKindeClient from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
 let kinde;
 
 
-async function initializeKinde(){
+async function initializeKinde() {
 
     kinde = await createKindeClient({
 
@@ -22,26 +24,35 @@ async function initializeKinde(){
     });
 
 
-    document.getElementById("login")
-    ?.addEventListener("click", async (e)=>{
+    const loginButton = document.getElementById("login");
 
-        e.preventDefault();
-
-        await kinde.login();
-
-    });
+    const registerButton = document.getElementById("register");
 
 
+    if(loginButton){
 
-    document.getElementById("register")
-    ?.addEventListener("click", async (e)=>{
+        loginButton.addEventListener("click", async (e)=>{
 
-        e.preventDefault();
+            e.preventDefault();
 
-        await kinde.register();
+            await kinde.login();
 
-    });
+        });
 
+    }
+
+
+    if(registerButton){
+
+        registerButton.addEventListener("click", async (e)=>{
+
+            e.preventDefault();
+
+            await kinde.register();
+
+        });
+
+    }
 
 }
 
