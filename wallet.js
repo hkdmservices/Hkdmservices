@@ -50,13 +50,13 @@ payButton.addEventListener("click", () => {
 
         customer: {
 
-            name: currentUser.displayName || currentUser.email,
+            name: currentUser.displayName,
 
             email: currentUser.email
 
         },
 
-        
+        notification_url: "",
 
         onClose() {
 
