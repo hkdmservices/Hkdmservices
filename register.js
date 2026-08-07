@@ -1,10 +1,13 @@
-import { auth } from "./firebase.js";
+import { auth, database } from "./firebase.js";
 
 import {
   createUserWithEmailAndPassword,
   updateProfile
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
+import {
+    ref,
+    set
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
 
