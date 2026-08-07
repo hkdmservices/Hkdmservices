@@ -37,12 +37,24 @@ form.addEventListener("submit", async (e) => {
         );
 
         await updateProfile(userCredential.user, {
-            displayName: fullName
-        });
+    displayName: fullName
+});
 
-        alert("Account created successfully!");
+await set(
+    ref(database, "users/" + userCredential.user.uid),
+    {
+        fullName: fullName,
+        email: email,
+        wallet: 0,
+        role: "customer",
+        status: "active",
+        createdAt: Date.now()
+    }
+);
 
-        window.location.href = "dashboard.html";
+alert("Account created successfully!");
+
+window.location.href = "dashboard.html";
 
     } catch (error) {
 
