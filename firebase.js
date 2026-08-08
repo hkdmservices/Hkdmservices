@@ -64,7 +64,7 @@ const auth =
 
 
 // ============================================================
-// Keep users signed in after page refresh
+// Authentication Persistence
 // ============================================================
 
 const authPersistence =
