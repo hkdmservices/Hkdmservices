@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Place Order | HKDMservices</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet"
+>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+rel="stylesheet"
+>
+
+<link
+href="style.css"
+rel="stylesheet"
+>
+
+</head>
+
+
+<body>
+
+
+<!-- NAVBAR -->
+
+<nav class="navbar navbar-dark bg-dark">
+
+<div class="container">
+
+<a
+class="navbar-brand fw-bold"
+href="dashboard.html"
+>
+
+<span class="brand-icon">⬢</span>
+
+HKDMservices
+
+</a>
+
+
+<a
+href="services.html"
+class="btn btn-outline-light"
+>
+
+<i class="bi bi-arrow-left"></i>
+
+Services
+
+</a>
+
+</div>
+
+</nav>
+
+
+
+<!-- MAIN CONTENT -->
+
+<section class="py-5">
+
+<div class="container">
+
+
+<!-- PAGE HEADER -->
+
+<div class="text-center mb-5">
+
+<h1 class="fw-bold">
+
+Place an Order
+
+</h1>
+
+<p
+class="text-muted"
+id="platformTitle"
+>
+
+Loading platform...
+
+</p>
+
+</div>
+
+
+
+<!-- ORDER CARD -->
+
+<div class="row justify-content-center">
+
+<div class="col-12 col-lg-7">
+
+
+<div class="card shadow border-0">
+
+<div class="card-body p-4">
+
+
+<!-- SERVICE -->
+
+<div class="mb-4">
+
+<label
+for="service"
+class="form-label fw-bold"
+>
+
+Select Service
+
+</label>
+
+
+<select
+id="service"
+class="form-select"
+>
+
+<option value="">
+
+Loading services...
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- PRICE -->
+
+<div
+class="alert alert-success"
+id="priceBox"
+>
+
+<div class="d-flex justify-content-between">
+
+<span>
+
+Rate
+
+</span>
+
+<strong id="rate">
+
+₦0.00
+
+</strong>
+
+</div>
+
+
+<div class="d-flex justify-content-between mt-2">
+
+<span>
+
+Total
+
+</span>
+
+<strong id="totalPrice">
+
+₦0.00
+
+</strong>
+
+</div>
+
+</div>
+
+
+
+<!-- LINK -->
+
+<div class="mb-4">
+
+<label
+for="link"
+class="form-label fw-bold"
+>
+
+Target Link
+
+</label>
+
+
+<input
+type="url"
+id="link"
+class="form-control"
+placeholder="https://..."
+required
+>
+
+
+<div class="form-text">
+
+Enter the link to your profile, post, video,
+channel or content.
+
+</div>
+
+</div>
+
+
+
+<!-- QUANTITY -->
+
+<div
+class="mb-4"
+id="quantityContainer"
+>
+
+<label
+for="quantity"
+class="form-label fw-bold"
+>
+
+Quantity
+
+</label>
+
+
+<input
+type="number"
+id="quantity"
+class="form-control"
+min="1000"
+step="100"
+value="1000"
+>
+
+
+<div class="form-text">
+
+Minimum quantity: 1,000
+
+</div>
+
+</div>
+
+
+
+<!-- ORDER BUTTON -->
+
+<div class="d-grid">
+
+<button
+type="button"
+id="placeOrder"
+class="btn btn-success btn-lg"
+>
+
+<i class="bi bi-cart-check"></i>
+
+Place Order
+
+</button>
+
+</div>
+
+
+
+<!-- MESSAGE -->
+
+<div
+id="message"
+class="alert mt-4 d-none"
+>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- INFORMATION -->
+
+<div class="row justify-content-center mt-4">
+
+<div class="col-12 col-lg-7">
+
+<div class="card border-0 shadow-sm">
+
+<div class="card-body">
+
+<h5 class="fw-bold">
+
+<i class="bi bi-info-circle text-success"></i>
+
+Order Information
+
+</h5>
+
+<ul class="mb-0 text-muted">
+
+<li>
+Prices are calculated automatically from the official catalogue.
+</li>
+
+<li>
+Per-1,000 services are calculated according to the quantity entered.
+</li>
+
+<li>
+Fixed-price packages use their listed package price.
+</li>
+
+<li>
+Your wallet will only be charged after the order system is fully connected.
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- JAVASCRIPT -->
+
+<script type="module">
+
+import {
+    hkdmservicesOfficialServicePriceCatalogue
+} from "./services.js";
+
+
+
+const serviceSelect =
+    document.getElementById("service");
+
+const platformTitle =
+    document.getElementById("platformTitle");
+
+const rateDisplay =
+    document.getElementById("rate");
+
+const totalDisplay =
+    document.getElementById("totalPrice");
+
+const quantityInput =
+    document.getElementById("quantity");
+
+const quantityContainer =
+    document.getElementById("quantityContainer");
+
+const placeOrderButton =
+    document.getElementById("placeOrder");
+
+const message =
+    document.getElementById("message");
+
+
+
+/*
+    Get platform from URL.
+*/
+
+const urlParams =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const platform =
+    urlParams.get("platform");
+
+
+
+/*
+    Format Nigerian Naira.
+*/
+
+function formatNaira(amount) {
+
+    return "₦" +
+        Number(amount).toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+}
+
+
+
+/*
+    Show message.
+*/
+
+function showMessage(
+    text,
+    type = "danger"
+) {
+
+    message.textContent = text;
+
+    message.className =
+        "alert alert-" + type + " mt-4";
+
+}
+
+
+
+/*
+    Check platform.
+*/
+
+if (!platform) {
+
+    platformTitle.textContent =
+        "No platform selected.";
+
+    serviceSelect.innerHTML = `
+        <option value="">
+            No platform selected
+        </option>
+    `;
+
+    placeOrderButton.disabled = true;
+
+} else {
+
+
+    platformTitle.textContent =
+        platform +
+        " Services";
+
+
+    /*
+        Get services for platform.
+    */
+
+    const platformServices =
+        hkdmservicesOfficialServicePriceCatalogue
+            .filter(
+                item =>
+                    item.platform === platform
+            );
+
+
+    if (platformServices.length === 0) {
+
+        serviceSelect.innerHTML = `
+            <option value="">
+                No services available
+            </option>
+        `;
+
+        placeOrderButton.disabled = true;
+
+    } else {
+
+
+        /*
+            Add services to dropdown.
+        */
+
+        serviceSelect.innerHTML = `
+            <option value="">
+                Select a service
+            </option>
+        `;
+
+
+        platformServices.forEach(
+            service => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    service.id;
+
+
+                option.textContent =
+                    service.service;
+
+
+                serviceSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+
+/*
+    Find selected service.
+*/
+
+function getSelectedService() {
+
+    return hkdmservicesOfficialServicePriceCatalogue
+        .find(
+            item =>
+                item.id ===
+                serviceSelect.value
+        );
+
+}
+
+
+
+/*
+    Calculate total.
+*/
+
+function calculateTotal() {
+
+    const selectedService =
+        getSelectedService();
+
+
+    if (!selectedService) {
+
+        rateDisplay.textContent =
+            "₦0.00";
+
+        totalDisplay.textContent =
+            "₦0.00";
+
+        return;
+
+    }
+
+
+    /*
+        Fixed-price service.
+    */
+
+    if (
+        selectedService.ratePer1000 === null
+    ) {
+
+        rateDisplay.textContent =
+            formatNaira(
+                selectedService.fixedPrice
+            );
+
+
+        totalDisplay.textContent =
+            formatNaira(
+                selectedService.fixedPrice
+            );
+
+
+        quantityContainer.style.display =
+            "none";
+
+
+        return;
+
+    }
+
+
+    /*
+        Per-1,000 service.
+    */
+
+    quantityContainer.style.display =
+        "block";
+
+
+    const quantity =
+        Number(
+            quantityInput.value
+        );
+
+
+    const rate =
+        Number(
+            selectedService.ratePer1000
+        );
+
+
+    const total =
+        (quantity / 1000) * rate;
+
+
+    rateDisplay.textContent =
+        formatNaira(rate);
+
+
+    totalDisplay.textContent =
+        formatNaira(total);
+
+}
+
+
+
+/*
+    Service changed.
+*/
+
+serviceSelect.addEventListener(
+    "change",
+    calculateTotal
+);
+
+
+
+/*
+    Quantity changed.
+*/
+
+quantityInput.addEventListener(
+    "input",
+    calculateTotal
+);
+
+
+
+/*
+    Place order button.
+*/
+
+placeOrderButton.addEventListener(
+    "click",
+    () => {
+
+
+        const selectedService =
+            getSelectedService();
+
+
+        const link =
+            document
+                .getElementById("link")
+                .value
+                .trim();
+
+
+        if (!selectedService) {
+
+            showMessage(
+                "Please select a service."
+            );
+
+            return;
+
+        }
+
+
+        if (!link) {
+
+            showMessage(
+                "Please enter your target link."
+            );
+
+            return;
+
+        }
+
+
+        /*
+            Fixed package.
+        */
+
+        if (
+            selectedService.ratePer1000 === null
+        ) {
+
+            showMessage(
+                "The order system is not connected yet. Your selected fixed package is " +
+                formatNaira(
+                    selectedService.fixedPrice
+                ) +
+                ".",
+                "warning"
+            );
+
+            return;
+
+        }
+
+
+        const quantity =
+            Number(
+                quantityInput.value
+            );
+
+
+        if (
+            !quantity ||
+            quantity < 1000
+        ) {
+
+            showMessage(
+                "Minimum quantity is 1,000."
+            );
+
+            return;
+
+        }
+
+
+        const total =
+            (quantity / 1000) *
+            selectedService.ratePer1000;
+
+
+        showMessage(
+
+            "Order details ready: " +
+            selectedService.service +
+            " — " +
+            quantity.toLocaleString() +
+            " units — " +
+            formatNaira(total) +
+            ". The wallet payment system will be connected next.",
+
+            "success"
+
+        );
+
+    }
+);
+
+
+
+/*
+    Initial calculation.
+*/
+
+calculateTotal();
+
+</script>
+
+
+
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+</body>
+
+</html>
