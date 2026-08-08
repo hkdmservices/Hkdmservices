@@ -4,126 +4,201 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+
 let currentUser = null;
 
-onAuthStateChanged(auth, (user) => {
 
-    if (!user) {
+onAuthStateChanged(
+    auth,
+    (user) => {
 
-        window.location.href = "login.html";
-        return;
+        if (!user) {
 
-    }
+            window.location.href =
+                "login.html";
 
-    currentUser = user;
-
-});
-
-const payButton = document.getElementById("payButton");
-const amountInput = document.getElementById("amount");
-const message = document.getElementById("message");
-
-payButton.addEventListener("click", () => {
-
-    const amount = Number(amountInput.value);
-
-    if (!amount || amount < 100) {
-
-        message.textContent = "Minimum funding amount is ₦100.";
-        return;
-
-    }
-
-    message.textContent = "";
-
-    const reference = "HKDM-" + Date.now();
-
-    window.Korapay.initialize({
-
-        key: "pk_live_RJ4Um9P1C5aaMrQ5nXki39mRS95mV8E6wJc8dkW8",
-
-        reference: reference,
-
-        amount: amount,
-
-        currency: "NGN",
-
-        customer: {
-
-    name: currentUser.displayName,
-
-    email: currentUser.email
-
-},
-
-metadata: {
-
-    uid: currentUser.uid
-
-},
-
-notification_url: "https://hkdmservices.vercel.app/api/korapay-webhook",
-
-        onClose() {
-
-            alert("Payment cancelled.");
-
-        },
-
-        onSuccess(response) {
-
-            verifyPayment(response.reference);
+            return;
 
         }
 
-    });
-
-});
-
-async function verifyPayment(reference) {
-
-    try {
-
-        const response = await fetch("/api/verify-payment", {
-
-            method: "POST",
-
-            headers: {
-
-                "Content-Type": "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-                reference: reference,
-
-                uid: currentUser.uid
-
-            })
-
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-
-            alert("Wallet funded successfully!");
-
-            window.location.href = "dashboard.html";
-
-        } else {
-
-            alert(result.message);
-
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Unable to verify payment.");
+        currentUser = user;
 
     }
+);
+
+
+const payButton =
+    document.getElementById(
+        "payButton"
+    );
+
+const amountInput =
+    document.getElementById(
+        "amount"
+    );
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+
+function showMessage(
+    text,
+    type = "danger"
+) {
+
+    message.textContent =
+        text;
+
+    message.className =
+        "alert alert-" +
+        type;
 
 }
+
+
+payButton.addEventListener(
+    "click",
+    async () => {
+
+        if (!currentUser) {
+
+            showMessage(
+                "Please wait for your account to load."
+            );
+
+            return;
+
+        }
+
+
+        const amount =
+            Number(
+                amountInput.value
+            );
+
+
+        if (
+            !Number.isFinite(amount) ||
+            amount < 100
+        ) {
+
+            showMessage(
+                "Minimum funding amount is ₦100."
+            );
+
+            return;
+
+        }
+
+
+        payButton.disabled =
+            true;
+
+        payButton.textContent =
+            "Connecting to Korapay...";
+
+
+        showMessage(
+            "Initializing secure payment...",
+            "info"
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/create-payment",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                amount,
+
+                                uid:
+                                    currentUser.uid,
+
+                                name:
+                                    currentUser.displayName ||
+                                    "HKDM Customer",
+
+                                email:
+                                    currentUser.email
+
+                            })
+
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !result.success
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Unable to initialize payment."
+                );
+
+            }
+
+
+            if (
+                !result.checkout_url
+            ) {
+
+                throw new Error(
+                    "Korapay checkout URL was not returned."
+                );
+
+            }
+
+
+            /*
+                Send customer to the
+                official Korapay checkout.
+            */
+
+            window.location.href =
+                result.checkout_url;
+
+
+        } catch (error) {
+
+            console.error(
+                "PAYMENT ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to connect to the payment system."
+            );
+
+
+            payButton.disabled =
+                false;
+
+            payButton.innerHTML =
+                '<i class="bi bi-credit-card"></i> Fund Wallet';
+
+        }
+
+    }
+);
