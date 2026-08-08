@@ -28,13 +28,212 @@ rel="stylesheet">
 <body>
 
 
-<!-- =========================
+<!-- =====================================================
+     DASHBOARD TOGGLE BUTTON
+===================================================== -->
+
+<button
+    id="dashboardToggle"
+    class="dashboard-toggle"
+    type="button"
+    aria-label="Open dashboard menu"
+    aria-controls="dashboardPanel"
+    aria-expanded="false"
+>
+
+    <i class="bi bi-list"></i>
+
+</button>
+
+
+
+<!-- =====================================================
+     DASHBOARD SIDE PANEL
+===================================================== -->
+
+<div
+    id="dashboardPanel"
+    class="dashboard-panel"
+    aria-hidden="true"
+>
+
+
+    <!-- PANEL HEADER -->
+
+    <div class="dashboard-panel-header">
+
+        <h3 class="mb-0">
+            Dashboard Menu
+        </h3>
+
+
+        <button
+            id="closeDashboardPanel"
+            class="dashboard-panel-close"
+            type="button"
+            aria-label="Close dashboard menu"
+        >
+
+            <i class="bi bi-x-lg"></i>
+
+        </button>
+
+    </div>
+
+
+
+    <!-- PANEL CONTENT -->
+
+    <div class="dashboard-panel-content">
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+        ================================================= -->
+
+        <div class="card p-4 shadow mb-4">
+
+
+            <h3>
+                Quick Actions
+            </h3>
+
+
+
+            <!-- ADD FUNDS -->
+
+            <a
+                href="wallet.html"
+                class="btn btn-success mt-3"
+            >
+
+                <i class="bi bi-wallet2"></i>
+
+                Add Funds
+
+            </a>
+
+
+
+            <!-- SERVICES & CATALOGUE -->
+
+            <a
+                href="services.html"
+                class="btn btn-outline-success mt-3"
+            >
+
+                <i class="bi bi-grid-3x3-gap"></i>
+
+                Services &amp; Catalogue
+
+            </a>
+
+
+
+            <!-- PLACE ORDER -->
+
+            <a
+                href="services.html"
+                class="btn btn-outline-success mt-3"
+            >
+
+                <i class="bi bi-cart-plus"></i>
+
+                Place Order
+
+            </a>
+
+
+
+            <!-- TRANSACTIONS -->
+
+            <a
+                href="transactions.html"
+                class="btn btn-outline-dark mt-3"
+            >
+
+                <i class="bi bi-receipt"></i>
+
+                View Transactions
+
+            </a>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             RECENT ORDERS
+        ================================================= -->
+
+        <div class="card shadow border-0">
+
+
+            <div class="card-body p-4">
+
+
+                <div class="mb-4">
+
+
+                    <h3 class="mb-1">
+
+                        Recent Orders
+
+                    </h3>
+
+
+                    <p class="text-muted mb-0">
+
+                        Your latest orders
+
+                    </p>
+
+
+                </div>
+
+
+
+                <div
+                    id="recentOrders"
+                    class="table-responsive"
+                >
+
+                    <div
+                        class="text-center text-muted py-4"
+                    >
+
+                        <i
+                            class="bi bi-hourglass-split"
+                        ></i>
+
+                        Loading orders...
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
      NAVBAR
-========================= -->
+===================================================== -->
 
 <nav class="navbar navbar-dark bg-dark">
 
 <div class="container">
+
 
 <a
 class="navbar-brand fw-bold"
@@ -48,6 +247,7 @@ HKDMservices
 </a>
 
 
+
 <button
 id="logout"
 class="btn btn-danger"
@@ -59,15 +259,16 @@ Logout
 
 </button>
 
+
 </div>
 
 </nav>
 
 
 
-<!-- =========================
+<!-- =====================================================
      DASHBOARD
-========================= -->
+===================================================== -->
 
 <section class="py-5">
 
@@ -83,11 +284,12 @@ Welcome,
 
 
 
-<!-- =========================
+<!-- =====================================================
      SUMMARY CARDS
-========================= -->
+===================================================== -->
 
 <div class="row g-4">
+
 
 
 <!-- WALLET -->
@@ -100,17 +302,20 @@ Welcome,
 class="bi bi-wallet2 fs-1 text-success"
 ></i>
 
+
 <h4 class="mt-3">
 
 Wallet Balance
 
 </h4>
 
+
 <h2 id="walletBalance">
 
 ₦0.00
 
 </h2>
+
 
 <p class="mb-0">
 
@@ -134,17 +339,20 @@ Available balance
 class="bi bi-cart-check fs-1 text-success"
 ></i>
 
+
 <h4 class="mt-3">
 
 Orders
 
 </h4>
 
+
 <h2 id="ordersCount">
 
 0
 
 </h2>
+
 
 <p class="mb-0">
 
@@ -168,17 +376,20 @@ Total orders placed
 class="bi bi-grid-3x3-gap fs-1 text-success"
 ></i>
 
+
 <h4 class="mt-3">
 
 Services
 
 </h4>
 
+
 <h2>
 
 36+
 
 </h2>
+
 
 <p class="mb-0">
 
@@ -195,207 +406,9 @@ Available services
 
 
 
-<!-- =========================
-     QUICK ACTIONS
-========================= -->
-
-<div class="mt-5 card p-4 shadow">
-
-
-<h3>
-
-Quick Actions
-
-</h3>
-
-
-
-<!-- ADD FUNDS -->
-
-<a
-href="wallet.html"
-class="btn btn-success mt-3"
->
-
-<i class="bi bi-wallet2"></i>
-
-Add Funds
-
-</a>
-
-
-
-<!-- SERVICES -->
-
-<a
-href="services.html"
-class="btn btn-outline-success mt-3"
->
-
-<i class="bi bi-grid-3x3-gap"></i>
-
-View Services
-
-</a>
-
-
-
-<!-- PLACE ORDER -->
-
-<a
-href="services.html"
-class="btn btn-outline-success mt-3"
->
-
-<i class="bi bi-cart-plus"></i>
-
-Place Order
-
-</a>
-
-
-
-<!-- TRANSACTIONS -->
-
-<a
-href="transactions.html"
-class="btn btn-outline-dark mt-3"
->
-
-View Transactions
-
-</a>
-
-
-</div>
-
-
-
-<!-- =========================
-     RECENT ORDERS
-========================= -->
-
-<div class="mt-5 card shadow border-0">
-
-<div class="card-body p-4">
-
-
-<div class="d-flex
-justify-content-between
-align-items-center
-flex-wrap
-gap-3
-mb-4">
-
-
-<div>
-
-<h3 class="mb-1">
-
-Recent Orders
-
-</h3>
-
-<p class="text-muted mb-0">
-
-Your latest orders
-
-</p>
-
-</div>
-
-
-
-
-</div>
-
-
-
-<div
-id="recentOrders"
-class="table-responsive"
->
-
-<div class="text-center text-muted py-4">
-
-<i class="bi bi-hourglass-split"></i>
-
-Loading orders...
-
-</div>
-
-</div>
-
-
-</div>
-
-</div>
-
-
-
-<!-- =========================
-     SERVICES CATALOGUE
-========================= -->
-
-<div class="mt-5 card shadow border-0">
-
-<div class="card-body p-4">
-
-
-<div class="d-flex
-justify-content-between
-align-items-center
-flex-wrap
-gap-3"
->
-
-
-<div>
-
-<h3 class="mb-1">
-
-HKDMservices Official Service &amp; Price Catalogue
-
-</h3>
-
-
-<p class="text-muted mb-0">
-
-Instagram, TikTok, YouTube, Facebook,
-X, Telegram, Spotify, WhatsApp and Apple Music.
-
-</p>
-
-</div>
-
-
-<a
-href="services.html"
-class="btn btn-success"
->
-
-Browse Catalogue
-
-</a>
-
-
-</div>
-
-
-</div>
-
-</div>
-
-
-</div>
-
-</section>
-
-
-
-<!-- =========================
+<!-- =====================================================
      JAVASCRIPT
-========================= -->
+===================================================== -->
 
 <script
 type="module"
