@@ -3,10 +3,6 @@ import { db } from "./firebase-admin.js";
 
 export default async function handler(req, res) {
 
-    /*
-        Korapay webhook must use POST.
-    */
-
     if (req.method !== "POST") {
 
         return res.status(405).json({
@@ -19,21 +15,15 @@ export default async function handler(req, res) {
 
     try {
 
-        const body =
-            req.body || {};
+        const body = req.body || {};
 
         const data =
-            body.data || body;
+            body.data || {};
 
 
         /*
-            Get the payment reference.
-
-            Korapay documentation uses
-            data.reference for transaction
-            references. We also support
-            payment_reference because some
-            charge responses use that field.
+            Korapay webhook provides the
+            payment reference here.
         */
 
         const reference =
@@ -44,8 +34,7 @@ export default async function handler(req, res) {
         if (!reference) {
 
             console.error(
-                "KORAPAY WEBHOOK: Missing reference",
-                body
+                "KORAPAY WEBHOOK: Missing reference"
             );
 
             return res.status(400).json({
@@ -58,44 +47,7 @@ export default async function handler(req, res) {
 
 
         /*
-            Get Firebase UID.
-
-            Our wallet.js sends:
-
-            metadata: {
-                uid: currentUser.uid
-            }
-
-            We support both possible locations.
-        */
-
-        const uid =
-            data.metadata?.uid ||
-            body.metadata?.uid;
-
-
-        if (!uid) {
-
-            console.error(
-                "KORAPAY WEBHOOK: Missing UID",
-                reference
-            );
-
-            return res.status(400).json({
-                success: false,
-                message: "Missing user ID"
-            });
-
-        }
-
-
-
-        /*
             Prevent duplicate processing.
-
-            If this reference already exists
-            in transactions, we do not credit
-            the wallet again.
         */
 
         const transactionRef =
@@ -124,9 +76,8 @@ export default async function handler(req, res) {
 
 
         /*
-            IMPORTANT:
-            Verify the payment directly with
-            Korapay before touching Firebase.
+            VERIFY THE PAYMENT DIRECTLY
+            WITH KORAPAY.
         */
 
         const verificationResponse =
@@ -135,7 +86,6 @@ export default async function handler(req, res) {
                 `https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(reference)}`,
 
                 {
-
                     headers: {
 
                         Authorization:
@@ -186,7 +136,10 @@ export default async function handler(req, res) {
                 success: true,
 
                 message:
-                    "Payment is not successful"
+                    "Payment is not successful",
+
+                status:
+                    payment.status
 
             });
 
@@ -195,19 +148,56 @@ export default async function handler(req, res) {
 
 
         /*
-            Use the amount actually accepted
-            by Korapay.
+            GET UID FROM THE VERIFIED
+            KORAPAY CHARGE METADATA.
 
-            amount_accepted is preferred when
-            available.
+            This is the important fix.
+        */
+
+        const uid =
+            payment.metadata?.uid;
+
+
+        if (!uid) {
+
+            console.error(
+
+                "KORAPAY WEBHOOK: UID missing from verified payment",
+
+                reference,
+
+                payment.metadata
+
+            );
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "User ID missing from payment metadata"
+
+            });
+
+        }
+
+
+
+        /*
+            Get the amount from Korapay's
+            verified transaction.
+
+            amount_accepted is preferred.
         */
 
         const amount =
             Number(
+
                 payment.amount_accepted ??
                 payment.amount_paid ??
                 payment.amount ??
                 0
+
             );
 
 
@@ -217,8 +207,12 @@ export default async function handler(req, res) {
         ) {
 
             console.error(
+
                 "KORAPAY WEBHOOK: Invalid amount",
-                payment
+
+                reference,
+                amount
+
             );
 
             return res.status(400).json({
@@ -240,7 +234,6 @@ export default async function handler(req, res) {
 
         const currency =
             payment.currency ||
-            data.currency ||
             "NGN";
 
 
@@ -262,7 +255,45 @@ export default async function handler(req, res) {
 
 
         /*
-            Get user's wallet.
+            Check that the Firebase user
+            actually exists.
+        */
+
+        const userRef =
+            db.ref(
+                `users/${uid}`
+            );
+
+
+        const userSnapshot =
+            await userRef.get();
+
+
+        if (!userSnapshot.exists()) {
+
+            console.error(
+
+                "KORAPAY WEBHOOK: Firebase user not found",
+
+                uid
+
+            );
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Firebase user not found"
+
+            });
+
+        }
+
+
+
+        /*
+            Get wallet.
         */
 
         const walletRef =
@@ -272,15 +303,12 @@ export default async function handler(req, res) {
 
 
         /*
-            Atomically credit the wallet.
-
-            This prevents two simultaneous
-            webhook requests from overwriting
-            each other's balance.
+            Atomically add the payment.
         */
 
         const walletTransaction =
             await walletRef.transaction(
+
                 currentValue => {
 
                     const balance =
@@ -290,13 +318,17 @@ export default async function handler(req, res) {
 
 
                     return Number(
+
                         (
                             balance +
                             amount
+
                         ).toFixed(2)
+
                     );
 
                 }
+
             );
 
 
@@ -305,8 +337,11 @@ export default async function handler(req, res) {
         ) {
 
             console.error(
-                "KORAPAY WEBHOOK: Wallet transaction not committed",
+
+                "KORAPAY WEBHOOK: Wallet transaction failed",
+
                 reference
+
             );
 
             return res.status(500).json({
@@ -323,10 +358,7 @@ export default async function handler(req, res) {
 
 
         /*
-            Save the funding transaction.
-
-            We only write this AFTER the wallet
-            transaction succeeds.
+            Save funding transaction.
         */
 
         await transactionRef.set({
@@ -346,7 +378,8 @@ export default async function handler(req, res) {
             description:
                 "Wallet funding via Korapay",
 
-            gateway: "korapay",
+            gateway:
+                "korapay",
 
             createdAt:
                 Date.now()
@@ -355,9 +388,18 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Successful webhook response.
-        */
+        console.log(
+
+            "KORAPAY WEBHOOK: Wallet funded successfully",
+
+            {
+                reference,
+                uid,
+                amount
+            }
+
+        );
+
 
         return res.status(200).json({
 
