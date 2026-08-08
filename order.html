@@ -348,6 +348,12 @@ Your wallet will only be charged after the order system is fully connected.
 
 <script type="module">
 
+import { auth } from "./firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
 import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "./services.js";
@@ -378,9 +384,37 @@ const message =
     document.getElementById("message");
 
 
+let currentUser = null;
+
+
 
 /*
-    Get platform from URL.
+    ================================
+    AUTHENTICATION
+    ================================
+*/
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+    currentUser = user;
+
+});
+
+
+
+/*
+    ================================
+    URL PLATFORM
+    ================================
 */
 
 const urlParams =
@@ -395,7 +429,9 @@ const platform =
 
 
 /*
-    Format Nigerian Naira.
+    ================================
+    FORMAT NAIRA
+    ================================
 */
 
 function formatNaira(amount) {
@@ -414,7 +450,9 @@ function formatNaira(amount) {
 
 
 /*
-    Show message.
+    ================================
+    SHOW MESSAGE
+    ================================
 */
 
 function showMessage(
@@ -425,14 +463,18 @@ function showMessage(
     message.textContent = text;
 
     message.className =
-        "alert alert-" + type + " mt-4";
+        "alert alert-" +
+        type +
+        " mt-4";
 
 }
 
 
 
 /*
-    Check platform.
+    ================================
+    LOAD SERVICES
+    ================================
 */
 
 if (!platform) {
@@ -450,10 +492,8 @@ if (!platform) {
 
 } else {
 
-
     platformTitle.textContent =
-        platform +
-        " Services";
+        platform + " Services";
 
 
     const platformServices =
@@ -475,7 +515,6 @@ if (!platform) {
         placeOrderButton.disabled = true;
 
     } else {
-
 
         serviceSelect.innerHTML = `
             <option value="">
@@ -515,7 +554,9 @@ if (!platform) {
 
 
 /*
-    Find selected service.
+    ================================
+    GET SELECTED SERVICE
+    ================================
 */
 
 function getSelectedService() {
@@ -532,7 +573,9 @@ function getSelectedService() {
 
 
 /*
-    Calculate total.
+    ================================
+    CALCULATE PRICE
+    ================================
 */
 
 function calculateTotal() {
@@ -549,13 +592,16 @@ function calculateTotal() {
         totalDisplay.textContent =
             "₦0.00";
 
+        quantityContainer.style.display =
+            "block";
+
         return;
 
     }
 
 
     /*
-        Fixed-price service.
+        FIXED PRICE PACKAGE
     */
 
     if (
@@ -584,7 +630,7 @@ function calculateTotal() {
 
 
     /*
-        Per-1,000 service.
+        PER 1,000 SERVICE
     */
 
     quantityContainer.style.display =
@@ -604,7 +650,10 @@ function calculateTotal() {
 
 
     const total =
-        (quantity / 1000) * rate;
+        (
+            quantity / 1000
+        ) *
+        rate;
 
 
     rateDisplay.textContent =
@@ -619,7 +668,9 @@ function calculateTotal() {
 
 
 /*
-    Service changed.
+    ================================
+    SERVICE CHANGED
+    ================================
 */
 
 serviceSelect.addEventListener(
@@ -630,7 +681,9 @@ serviceSelect.addEventListener(
 
 
 /*
-    Quantity changed.
+    ================================
+    QUANTITY CHANGED
+    ================================
 */
 
 quantityInput.addEventListener(
@@ -641,111 +694,287 @@ quantityInput.addEventListener(
 
 
 /*
-    Place order button.
+    ================================
+    PLACE ORDER
+    ================================
 */
 
 placeOrderButton.addEventListener(
     "click",
-    () => {
+    async () => {
+
+        try {
+
+            /*
+                USER MUST BE LOGGED IN
+            */
+
+            if (!currentUser) {
+
+                showMessage(
+                    "Please log in before placing an order."
+                );
+
+                return;
+
+            }
 
 
-        const selectedService =
-            getSelectedService();
+            /*
+                SELECTED SERVICE
+            */
+
+            const selectedService =
+                getSelectedService();
 
 
-        const link =
-            document
-                .getElementById("link")
-                .value
-                .trim();
+            if (!selectedService) {
+
+                showMessage(
+                    "Please select a service."
+                );
+
+                return;
+
+            }
 
 
-        if (!selectedService) {
+            /*
+                TARGET LINK
+            */
+
+            const link =
+                document
+                    .getElementById("link")
+                    .value
+                    .trim();
+
+
+            if (!link) {
+
+                showMessage(
+                    "Please enter your target link."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                FIXED PACKAGE
+            */
+
+            if (
+                selectedService.ratePer1000 === null
+            ) {
+
+                showMessage(
+                    "This fixed-price package is not available for online ordering yet.",
+                    "warning"
+                );
+
+                return;
+
+            }
+
+
+            /*
+                QUANTITY
+            */
+
+            const quantity =
+                Number(
+                    quantityInput.value
+                );
+
+
+            if (
+                !Number.isFinite(quantity) ||
+                quantity < 100
+            ) {
+
+                showMessage(
+                    "Minimum quantity is 100."
+                );
+
+                return;
+
+            }
+
+
+            /*
+                PREVENT DOUBLE CLICK
+            */
+
+            placeOrderButton.disabled =
+                true;
+
+
+            placeOrderButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm me-2"></span>
+                 Processing Order...`;
+
+
+
+            /*
+                GET FIREBASE ID TOKEN
+            */
+
+            const idToken =
+                await currentUser.getIdToken(
+                    true
+                );
+
+
+
+            /*
+                SEND ORDER TO BACKEND
+            */
+
+            const response =
+                await fetch(
+                    "/api/create-order",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                "Bearer " +
+                                idToken
+
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                serviceId:
+                                    selectedService.id,
+
+                                link:
+                                    link,
+
+                                quantity:
+                                    quantity
+
+                            })
+
+                    }
+                );
+
+
+
+            /*
+                READ RESPONSE
+            */
+
+            const result =
+                await response.json();
+
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    result.message ||
+                    "Unable to place order."
+                );
+
+                return;
+
+            }
+
+
+
+            /*
+                SUCCESS
+            */
+
+            if (result.success) {
+
+                showMessage(
+
+                    "Order placed successfully! " +
+                    "Order ID: " +
+                    result.orderId,
+
+                    "success"
+
+                );
+
+
+                /*
+                    Update displayed wallet
+                    balance if backend
+                    returned it.
+                */
+
+                if (
+                    result.newBalance !== undefined
+                ) {
+
+                    console.log(
+                        "New wallet balance:",
+                        result.newBalance
+                    );
+
+                }
+
+
+                /*
+                    Clear fields.
+                */
+
+                document
+                    .getElementById("link")
+                    .value = "";
+
+
+                quantityInput.value =
+                    100;
+
+
+                calculateTotal();
+
+            } else {
+
+                showMessage(
+                    result.message ||
+                    "Unable to place order."
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "ORDER ERROR:",
+                error
+            );
+
 
             showMessage(
-                "Please select a service."
+                "Unable to connect to the order system. Please try again."
             );
 
-            return;
+
+        } finally {
+
+            placeOrderButton.disabled =
+                false;
+
+
+            placeOrderButton.innerHTML =
+                `<i class="bi bi-cart-check"></i>
+                 Place Order`;
 
         }
-
-
-        if (!link) {
-
-            showMessage(
-                "Please enter your target link."
-            );
-
-            return;
-
-        }
-
-
-        /*
-            Fixed package.
-        */
-
-        if (
-            selectedService.ratePer1000 === null
-        ) {
-
-            showMessage(
-                "The order system is not connected yet. Your selected fixed package is " +
-                formatNaira(
-                    selectedService.fixedPrice
-                ) +
-                ".",
-                "warning"
-            );
-
-            return;
-
-        }
-
-
-        const quantity =
-            Number(
-                quantityInput.value
-            );
-
-
-        /*
-            NEW MINIMUM: 100
-        */
-
-        if (
-            !quantity ||
-            quantity < 100
-        ) {
-
-            showMessage(
-                "Minimum quantity is 100."
-            );
-
-            return;
-
-        }
-
-
-        const total =
-            (quantity / 1000) *
-            selectedService.ratePer1000;
-
-
-        showMessage(
-
-            "Order details ready: " +
-            selectedService.service +
-            " — " +
-            quantity.toLocaleString() +
-            " units — " +
-            formatNaira(total) +
-            ". The wallet payment system will be connected next.",
-
-            "success"
-
-        );
 
     }
 );
@@ -753,13 +982,14 @@ placeOrderButton.addEventListener(
 
 
 /*
-    Initial calculation.
+    ================================
+    INITIAL CALCULATION
+    ================================
 */
 
 calculateTotal();
 
 </script>
-
 
 
 <script
