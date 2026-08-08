@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Firebase Auth Test</title>
+
+</head>
+
+<body>
+
+<h2>Firebase Authentication Test</h2>
+
+<p id="status">
+Testing Firebase Authentication...
+</p>
+
+<script type="module">
+
+const status =
+    document.getElementById("status");
+
+try {
+
+    const response =
+        await fetch(
+            "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    email:
+                        "firebase-test-hkdm@example.com",
+
+                    password:
+                        "TemporaryTestPassword123!",
+
+                    returnSecureToken:
+                        true
+                })
+            }
+        );
+
+
+    const result =
+        await response.json();
+
+
+    console.log(
+        "FIREBASE AUTH TEST:",
+        result
+    );
+
+
+    status.textContent =
+        "Firebase responded. Check the browser console.";
+
+} catch (error) {
+
+    console.error(
+        "FIREBASE AUTH NETWORK ERROR:",
+        error
+    );
+
+
+    status.textContent =
+        "Firebase request could not be reached.";
+
+}
+
+</script>
+
+</body>
+
+</html>
