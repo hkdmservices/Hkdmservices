@@ -812,3 +812,145 @@ logoutBtn.addEventListener(
 
     }
 );
+
+/*
+    ==================================
+    DASHBOARD TOGGLE PANEL
+    ==================================
+*/
+
+const dashboardToggle =
+    document.getElementById(
+        "dashboardToggle"
+    );
+
+
+const dashboardPanel =
+    document.getElementById(
+        "dashboardPanel"
+    );
+
+
+const closeDashboardPanel =
+    document.getElementById(
+        "closeDashboardPanel"
+    );
+
+
+
+/*
+    OPEN PANEL
+*/
+
+if (
+    dashboardToggle &&
+    dashboardPanel
+) {
+
+    dashboardToggle.addEventListener(
+        "click",
+        () => {
+
+            dashboardPanel.classList.add(
+                "open"
+            );
+
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        }
+    );
+
+}
+
+
+
+/*
+    CLOSE PANEL
+*/
+
+if (
+    closeDashboardPanel &&
+    dashboardPanel
+) {
+
+    closeDashboardPanel.addEventListener(
+        "click",
+        () => {
+
+            dashboardPanel.classList.remove(
+                "open"
+            );
+
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+    );
+
+}
+
+
+
+/*
+    CLOSE WHEN CLICKING OUTSIDE
+*/
+
+document.addEventListener(
+    "click",
+    (event) => {
+
+        if (
+            !dashboardPanel ||
+            !dashboardToggle
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            dashboardPanel.classList.contains(
+                "open"
+            ) &&
+            !dashboardPanel.contains(
+                event.target
+            ) &&
+            !dashboardToggle.contains(
+                event.target
+            )
+        ) {
+
+            dashboardPanel.classList.remove(
+                "open"
+            );
+
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+    }
+);
