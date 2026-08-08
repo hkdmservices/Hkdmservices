@@ -271,6 +271,23 @@ export default async function handler(req, res) {
     }
 
 
+    const setupKey =
+        req.headers["x-setup-key"];
+
+
+    if (
+        !setupKey ||
+        setupKey !== process.env.CATALOGUE_SETUP_KEY
+    ) {
+
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+
+    }
+
+
     try {
 
         const updates = {};
