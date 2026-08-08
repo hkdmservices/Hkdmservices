@@ -182,7 +182,20 @@ export default async function handler(req, res) {
             db.ref(
                 `users/${uid}/wallet`
             );
+const walletSnapshot =
+    await walletRef.once("value");
 
+const currentWalletBalance =
+    Number(walletSnapshot.val() || 0);
+
+console.log(
+    "WALLET DEBUG:",
+    {
+        uid,
+        currentWalletBalance,
+        total
+    }
+);
 
 
         /*
@@ -228,17 +241,17 @@ export default async function handler(req, res) {
             Transaction did not commit.
         */
 
-        if (
-            !transactionResult.committed
-        ) {
+        if (!transactionResult.committed) {
 
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Insufficient wallet balance."
-            });
+    return res.status(400).json({
+        success: false,
+        message:
+            currentWalletBalance < total
+                ? "Insufficient wallet balance."
+                : "Wallet transaction could not be completed."
+    });
 
-        }
+}
 
 
 
