@@ -72,8 +72,6 @@ Services
 <div class="container">
 
 
-<!-- PAGE HEADER -->
-
 <div class="text-center mb-5">
 
 <h1 class="fw-bold">
@@ -94,8 +92,6 @@ Loading platform...
 </div>
 
 
-
-<!-- ORDER CARD -->
 
 <div class="row justify-content-center">
 
@@ -237,15 +233,15 @@ Quantity
 type="number"
 id="quantity"
 class="form-control"
-min="1000"
+min="100"
 step="100"
-value="1000"
+value="100"
 >
 
 
 <div class="form-text">
 
-Minimum quantity: 1,000
+Minimum quantity: 100
 
 </div>
 
@@ -314,6 +310,10 @@ Order Information
 <ul class="mb-0 text-muted">
 
 <li>
+Minimum quantity for standard services is 100.
+</li>
+
+<li>
 Prices are calculated automatically from the official catalogue.
 </li>
 
@@ -346,14 +346,11 @@ Your wallet will only be charged after the order system is fully connected.
 
 
 
-<!-- JAVASCRIPT -->
-
 <script type="module">
 
 import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "./services.js";
-
 
 
 const serviceSelect =
@@ -459,10 +456,6 @@ if (!platform) {
         " Services";
 
 
-    /*
-        Get services for platform.
-    */
-
     const platformServices =
         hkdmservicesOfficialServicePriceCatalogue
             .filter(
@@ -483,10 +476,6 @@ if (!platform) {
 
     } else {
 
-
-        /*
-            Add services to dropdown.
-        */
 
         serviceSelect.innerHTML = `
             <option value="">
@@ -721,13 +710,17 @@ placeOrderButton.addEventListener(
             );
 
 
+        /*
+            NEW MINIMUM: 100
+        */
+
         if (
             !quantity ||
-            quantity < 1000
+            quantity < 100
         ) {
 
             showMessage(
-                "Minimum quantity is 1,000."
+                "Minimum quantity is 100."
             );
 
             return;
