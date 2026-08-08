@@ -1,9 +1,15 @@
-// Firebase Configuration
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+// ============================================================
+// HKDMservices Firebase Configuration
+// ============================================================
 
 import {
-    getAuth
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+    getAuth,
+    setPersistence,
+    browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -11,22 +17,78 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
+// ============================================================
+// Firebase Configuration
+// ============================================================
+
 const firebaseConfig = {
-  apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
-  authDomain: "hkdmservices-7d59f.firebaseapp.com",
 
-  databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    apiKey:
+        "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
 
-  projectId: "hkdmservices-7d59f",
-  storageBucket: "hkdmservices-7d59f.firebasestorage.app",
-  messagingSenderId: "839538334772",
-  appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+    authDomain:
+        "hkdmservices-7d59f.firebaseapp.com",
+
+    databaseURL:
+        "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+
+    projectId:
+        "hkdmservices-7d59f",
+
+    storageBucket:
+        "hkdmservices-7d59f.firebasestorage.app",
+
+    messagingSenderId:
+        "839538334772",
+
+    appId:
+        "1:839538334772:web:7d8785f87363b6e5d8fe61"
+
 };
 
-const app = initializeApp(firebaseConfig);
 
-const auth = getAuth(app);
+// ============================================================
+// Initialize Firebase
+// ============================================================
 
-const database = getDatabase(app);
+const app =
+    initializeApp(firebaseConfig);
 
-export { auth, database };
+
+// ============================================================
+// Initialize Authentication
+// ============================================================
+
+const auth =
+    getAuth(app);
+
+
+// ============================================================
+// Keep users signed in after page refresh
+// ============================================================
+
+const authPersistence =
+    setPersistence(
+        auth,
+        browserLocalPersistence
+    );
+
+
+// ============================================================
+// Initialize Realtime Database
+// ============================================================
+
+const database =
+    getDatabase(app);
+
+
+// ============================================================
+// Exports
+// ============================================================
+
+export {
+    app,
+    auth,
+    database,
+    authPersistence
+};
