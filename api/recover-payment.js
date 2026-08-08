@@ -1,78 +1,40 @@
 import axios from "axios";
-import { admin, db } from "./firebase-admin.js";
+import { db } from "./firebase-admin.js";
+
+const RECOVERY_REFERENCE =
+    "HKDM-1786187655787-ila7bj";
+
+const RECOVERY_AMOUNT = 100;
 
 export default async function handler(req, res) {
 
-    if (req.method !== "POST") {
+    /*
+     * This recovery endpoint is locked to the
+     * single existing ₦100 payment.
+     */
+
+    if (
+        req.method !== "GET" &&
+        req.method !== "POST"
+    ) {
+
         return res.status(405).json({
             success: false,
             message: "Method not allowed"
         });
+
     }
 
     try {
 
         /*
-         * Firebase ID token must be supplied
-         * in the Authorization header.
-         */
-
-        const authorization =
-            req.headers.authorization || "";
-
-        if (
-            !authorization.startsWith("Bearer ")
-        ) {
-
-            return res.status(401).json({
-                success: false,
-                message: "Authentication required"
-            });
-
-        }
-
-        const idToken =
-            authorization.substring(7);
-
-        /*
-         * Verify the Firebase login.
-         */
-
-        const decodedToken =
-            await admin.auth()
-                .verifyIdToken(idToken);
-
-        const loggedInUid =
-            decodedToken.uid;
-
-
-        /*
-         * Payment reference.
-         */
-
-        const {
-            reference
-        } = req.body || {};
-
-        if (!reference) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Payment reference is required"
-            });
-
-        }
-
-
-        /*
-         * Check whether this payment
-         * has already been processed.
+         * Prevent recovery from being run again
+         * after the transaction has already been saved.
          */
 
         const transactionRef =
             db.ref(
-                `transactions/${reference}`
+                `transactions/${RECOVERY_REFERENCE}`
             );
 
         const existing =
@@ -85,7 +47,7 @@ export default async function handler(req, res) {
                 success: true,
 
                 message:
-                    "Payment already processed",
+                    "This payment has already been recovered.",
 
                 transaction:
                     existing.val()
@@ -96,14 +58,13 @@ export default async function handler(req, res) {
 
 
         /*
-         * Verify the payment directly
-         * with Korapay.
+         * Ask Korapay for the original payment.
          */
 
         const response =
             await axios.get(
 
-                `https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(reference)}`,
+                `https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(RECOVERY_REFERENCE)}`,
 
                 {
                     headers: {
@@ -129,7 +90,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Payment not found"
+                    "Korapay could not find the payment."
 
             });
 
@@ -149,7 +110,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Payment is not successful",
+                    "The payment is not successful.",
 
                 status:
                     payment.status
@@ -160,15 +121,15 @@ export default async function handler(req, res) {
 
 
         /*
-         * Get UID from the verified
+         * Get UID from the original
          * Korapay metadata.
          */
 
-        const paymentUid =
+        const uid =
             payment.metadata?.uid;
 
 
-        if (!paymentUid) {
+        if (!uid) {
 
             console.error(
                 "RECOVERY: UID missing",
@@ -180,7 +141,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Firebase UID missing from payment metadata"
+                    "Korapay payment does not contain the Firebase UID."
 
             });
 
@@ -188,47 +149,25 @@ export default async function handler(req, res) {
 
 
         /*
-         * VERY IMPORTANT:
-         *
-         * The logged-in Firebase user must
-         * be the same user attached to the
-         * Korapay payment.
-         */
-
-        if (
-            paymentUid !== loggedInUid
-        ) {
-
-            return res.status(403).json({
-
-                success: false,
-
-                message:
-                    "This payment does not belong to the logged-in user"
-
-            });
-
-        }
-
-
-        /*
-         * Get verified amount.
+         * Get the amount accepted by Korapay.
          */
 
         const amount =
             Number(
-
                 payment.amount_accepted ??
                 payment.amount_paid ??
                 payment.amount ??
                 0
-
             );
 
 
+        /*
+         * Safety check:
+         * this recovery is ONLY for ₦100.
+         */
+
         if (
-            !Number.isFinite(amount) ||
-            amount <= 0
+            amount !== RECOVERY_AMOUNT
         ) {
 
             return res.status(400).json({
@@ -236,7 +175,9 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Invalid payment amount"
+                    "Payment amount does not match the recovery amount.",
+
+                amount
 
             });
 
@@ -244,12 +185,12 @@ export default async function handler(req, res) {
 
 
         /*
-         * Confirm Firebase user exists.
+         * Confirm that the Firebase user exists.
          */
 
         const userRef =
             db.ref(
-                `users/${paymentUid}`
+                `users/${uid}`
             );
 
         const userSnapshot =
@@ -265,7 +206,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Firebase user not found"
+                    "Firebase user was not found."
 
             });
 
@@ -273,68 +214,55 @@ export default async function handler(req, res) {
 
 
         /*
-         * Credit wallet atomically.
+         * Read current wallet balance.
          */
 
         const walletRef =
             db.ref(
-                `users/${paymentUid}/wallet`
+                `users/${uid}/wallet`
             );
 
-
-        const walletResult =
-            await walletRef.transaction(
-
-                currentValue => {
-
-                    const balance =
-                        Number(
-                            currentValue || 0
-                        );
-
-                    return Number(
-
-                        (
-                            balance +
-                            amount
-
-                        ).toFixed(2)
-
-                    );
-
-                }
-
-            );
+        const walletSnapshot =
+            await walletRef.get();
 
 
-        if (
-            !walletResult.committed
-        ) {
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Wallet credit failed"
-
-            });
-
-        }
+        const currentBalance =
+            walletSnapshot.exists()
+                ? Number(walletSnapshot.val())
+                : 0;
 
 
         /*
-         * Record transaction.
+         * Credit exactly ₦100.
+         */
+
+        const newBalance =
+            Number(
+                (
+                    currentBalance +
+                    RECOVERY_AMOUNT
+                ).toFixed(2)
+            );
+
+
+        await walletRef.set(
+            newBalance
+        );
+
+
+        /*
+         * Record the recovered payment.
          */
 
         await transactionRef.set({
 
-            uid:
-                paymentUid,
+            uid,
 
-            reference,
+            reference:
+                RECOVERY_REFERENCE,
 
-            amount,
+            amount:
+                RECOVERY_AMOUNT,
 
             currency:
                 payment.currency ||
@@ -350,7 +278,10 @@ export default async function handler(req, res) {
                 "korapay",
 
             description:
-                "Wallet funding via Korapay",
+                "Recovered Korapay wallet funding",
+
+            recovered:
+                true,
 
             createdAt:
                 Date.now()
@@ -361,9 +292,18 @@ export default async function handler(req, res) {
         console.log(
             "RECOVERY SUCCESS:",
             {
-                reference,
-                uid: paymentUid,
-                amount
+                reference:
+                    RECOVERY_REFERENCE,
+
+                uid,
+
+                amount:
+                    RECOVERY_AMOUNT,
+
+                previousBalance:
+                    currentBalance,
+
+                newBalance
             }
         );
 
@@ -373,11 +313,15 @@ export default async function handler(req, res) {
             success: true,
 
             message:
-                "Payment recovered and wallet funded successfully",
+                "The ₦100 payment was recovered successfully.",
 
-            reference,
+            reference:
+                RECOVERY_REFERENCE,
 
-            amount
+            amount:
+                RECOVERY_AMOUNT,
+
+            newBalance
 
         });
 
@@ -385,18 +329,22 @@ export default async function handler(req, res) {
     } catch (error) {
 
         console.error(
+
             "RECOVERY ERROR:",
+
             error.response?.data ||
             error.message ||
             error
+
         );
+
 
         return res.status(500).json({
 
             success: false,
 
             message:
-                "Payment recovery failed"
+                "Payment recovery failed."
 
         });
 
