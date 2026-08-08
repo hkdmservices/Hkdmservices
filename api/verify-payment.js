@@ -1,72 +1,143 @@
 import axios from "axios";
-import { db } from "./firebase-admin.js";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      message: "Method not allowed"
-    });
-  }
 
-  try {
-    const { reference, uid } = req.body;
+    if (req.method !== "POST") {
 
-    if (!reference || !uid) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing reference or uid"
-      });
+        return res.status(405).json({
+            success: false,
+            message: "Method not allowed"
+        });
+
     }
 
-    const response = await axios.get(
-      `https://api.korapay.com/merchant/api/v1/charges/${reference}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.KORAPAY_SECRET_KEY}`
+
+    try {
+
+        const {
+            reference
+        } = req.body;
+
+
+        if (!reference) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Missing payment reference"
+            });
+
         }
-      }
-    );
 
-    const payment = response.data.data;
 
-    if (!payment || payment.status !== "success") {
-      return res.status(400).json({
-        success: false,
-        message: "Payment not successful"
-      });
+        /*
+            Verify the payment directly with Korapay.
+            This endpoint DOES NOT credit the wallet.
+        */
+
+        const response = await axios.get(
+
+            `https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(reference)}`,
+
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${process.env.KORAPAY_SECRET_KEY}`
+                }
+            }
+
+        );
+
+
+        const payment =
+            response.data?.data;
+
+
+        if (!payment) {
+
+            return res.status(400).json({
+                success: false,
+                message: "Payment could not be found."
+            });
+
+        }
+
+
+        /*
+            Payment status must be successful.
+        */
+
+        if (
+            payment.status !== "success"
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Payment is not successful yet.",
+
+                status:
+                    payment.status || "unknown"
+
+            });
+
+        }
+
+
+        /*
+            Return verification result.
+            Wallet crediting is handled ONLY
+            by the webhook.
+        */
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Payment verified successfully.",
+
+            reference:
+                payment.reference ||
+                reference,
+
+            amount:
+                Number(
+                    payment.amount_paid ??
+                    payment.amount ??
+                    0
+                ),
+
+            currency:
+                payment.currency ||
+                "NGN",
+
+            status:
+                payment.status
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "KORAPAY VERIFICATION ERROR:",
+            error.response?.data ||
+            error.message ||
+            error
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Unable to verify payment."
+
+        });
+
     }
 
-    const amount = Number(payment.amount);
-
-    const walletRef = db.ref(`users/${uid}/wallet`);
-    const snapshot = await walletRef.get();
-
-    const currentBalance = snapshot.exists()
-      ? Number(snapshot.val())
-      : 0;
-
-    await walletRef.set(currentBalance + amount);
-
-    await db.ref(`transactions/${reference}`).set({
-      uid,
-      reference,
-      amount,
-      status: "success",
-      createdAt: Date.now()
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Wallet funded successfully"
-    });
-
-  } catch (error) {
-    console.error(error.response?.data || error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Verification failed"
-    });
-  }
 }
