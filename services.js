@@ -5,122 +5,163 @@
 const hkdmservicesOfficialServicePriceCatalogue = [
 
     // ========================================================
-    // 1. INSTAGRAM SERVICES
+    // 1. INSTAGRAM
     // ========================================================
 
     {
         id: "ig_followers",
         platform: "Instagram",
         service: "Followers",
-        ratePer1000: 6000
+        ratePer1000: 6000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "ig_likes",
         platform: "Instagram",
         service: "Likes",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "ig_views",
         platform: "Instagram",
         service: "Views",
-        ratePer1000: 1500
+        ratePer1000: 1500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "ig_comments",
         platform: "Instagram",
         service: "Comments",
-        ratePer1000: 15000
+        ratePer1000: 15000,
+        minOrder: 10,
+        step: 10,
+        requiresComment: true
+    },
+
+    {
+        id: "ig_live_stream",
+        platform: "Instagram",
+        service: "Live Stream",
+        ratePer1000: 100000,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 2. TIKTOK SERVICES
+    // 2. TIKTOK
     // ========================================================
 
     {
         id: "tt_followers",
         platform: "TikTok",
         service: "Followers",
-        ratePer1000: 6500
+        ratePer1000: 6500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_likes",
         platform: "TikTok",
         service: "Likes",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_views",
         platform: "TikTok",
         service: "Views",
-        ratePer1000: 1500
+        ratePer1000: 1500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_shares",
         platform: "TikTok",
         service: "Shares",
-        ratePer1000: 2000
+        ratePer1000: 2000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_live_viewers",
         platform: "TikTok",
         service: "Livestream Engagement - Viewers",
-        ratePer1000: 100000
+        ratePer1000: 100000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_live_likes",
         platform: "TikTok",
         service: "Livestream Engagement - Likes",
-        ratePer1000: 2000
+        ratePer1000: 2000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tt_live_comments",
         platform: "TikTok",
         service: "Livestream Engagement - Comments",
-        ratePer1000: 5000
+        ratePer1000: 5000,
+        minOrder: 10,
+        step: 10,
+        requiresComment: true
     },
 
     {
         id: "tt_live_shares",
         platform: "TikTok",
         service: "Livestream Engagement - Shares",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 3. YOUTUBE SERVICES
+    // 3. YOUTUBE
     // ========================================================
 
     {
         id: "yt_subscribers",
         platform: "YouTube",
         service: "Subscribers",
-        ratePer1000: 30000
+        ratePer1000: 30000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "yt_likes",
         platform: "YouTube",
         service: "Likes",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "yt_views",
         platform: "YouTube",
         service: "Views",
-        ratePer1000: 2500
+        ratePer1000: 2500,
+        minOrder: 100,
+        step: 100
     },
 
     {
@@ -128,80 +169,102 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Watch Time (4000hr Package)",
         ratePer1000: null,
-        fixedPrice: 100000
+        fixedPrice: 100000,
+        minOrder: 1,
+        step: 1,
+        fixedPackage: true
     },
 
     {
         id: "yt_comments",
         platform: "YouTube",
         service: "Comments",
-        ratePer1000: 15000
+        ratePer1000: 15000,
+        minOrder: 10,
+        step: 10,
+        requiresComment: true
     },
 
 
     // ========================================================
-    // 4. FACEBOOK SERVICES
+    // 4. FACEBOOK
     // ========================================================
 
     {
         id: "fb_followers",
         platform: "Facebook",
         service: "Followers",
-        ratePer1000: 6050
+        ratePer1000: 6050,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "fb_post_likes",
         platform: "Facebook",
         service: "Post Likes",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "fb_video_views",
         platform: "Facebook",
         service: "Video Views",
-        ratePer1000: 1500
+        ratePer1000: 1500,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 5. X (TWITTER) SERVICES
+    // 5. X / TWITTER
     // ========================================================
 
     {
         id: "tw_followers",
         platform: "X (Twitter)",
         service: "Followers",
-        ratePer1000: 15000
+        ratePer1000: 15000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tw_likes",
         platform: "X (Twitter)",
         service: "Likes",
-        ratePer1000: 3000
+        ratePer1000: 3000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tw_retweets",
         platform: "X (Twitter)",
         service: "Retweets",
-        ratePer1000: 2500
+        ratePer1000: 2500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tw_views",
         platform: "X (Twitter)",
         service: "Views",
-        ratePer1000: 1500
+        ratePer1000: 1500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tw_poll_votes",
         platform: "X (Twitter)",
         service: "Poll Votes",
-        ratePer1000: 3050
+        ratePer1000: 3050,
+        minOrder: 100,
+        step: 100
     },
 
     {
@@ -209,97 +272,120 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Live Listeners",
         ratePer1000: null,
-        fixedPrice: 50000
+        fixedPrice: 50000,
+        minOrder: 1,
+        step: 1,
+        fixedPackage: true
     },
 
 
     // ========================================================
-    // 6. TELEGRAM SERVICES
+    // 6. TELEGRAM
     // ========================================================
 
     {
         id: "tg_members",
         platform: "Telegram",
         service: "Channel / Group Members",
-        ratePer1000: 5000
+        ratePer1000: 5000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tg_views",
         platform: "Telegram",
         service: "Post Views",
-        ratePer1000: 1500
+        ratePer1000: 1500,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "tg_reactions",
         platform: "Telegram",
         service: "Reactions",
-        ratePer1000: 3500
+        ratePer1000: 3500,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 7. SPOTIFY SERVICES
+    // 7. SPOTIFY
     // ========================================================
 
     {
         id: "sp_followers",
         platform: "Spotify",
         service: "Followers",
-        ratePer1000: 10000
+        ratePer1000: 10000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "sp_monthly_listeners",
         platform: "Spotify",
         service: "Monthly Listeners",
-        ratePer1000: 10000
+        ratePer1000: 10000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "sp_plays",
         platform: "Spotify",
         service: "Plays",
-        ratePer1000: 8000
+        ratePer1000: 8000,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 8. WHATSAPP SERVICES
+    // 8. WHATSAPP
     // ========================================================
 
     {
         id: "wa_channel_followers",
         platform: "WhatsApp",
         service: "Channel Followers",
-        ratePer1000: 15000
+        ratePer1000: 15000,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "wa_post_reactions",
         platform: "WhatsApp",
         service: "Channel Post Reactions",
-        ratePer1000: 3500
+        ratePer1000: 3500,
+        minOrder: 100,
+        step: 100
     },
 
 
     // ========================================================
-    // 9. APPLE MUSIC SERVICES
+    // 9. APPLE MUSIC
     // ========================================================
 
     {
         id: "am_followers",
         platform: "Apple Music",
         service: "Followers",
-        ratePer1000: 10000
+        ratePer1000: 100,
+        minOrder: 100,
+        step: 100
     },
 
     {
         id: "am_plays",
         platform: "Apple Music",
         service: "Plays",
-        ratePer1000: 9000
+        ratePer1000: 9000,
+        minOrder: 100,
+        step: 100
     }
 
 ];
