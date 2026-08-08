@@ -14,6 +14,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
 const userName =
     document.getElementById("userName");
 
@@ -31,11 +36,9 @@ const logoutBtn =
 
 
 
-/*
-    ==================================
-    FORMAT NAIRA
-    ==================================
-*/
+/* =========================================================
+   FORMAT NAIRA
+========================================================= */
 
 function formatNaira(amount) {
 
@@ -52,11 +55,9 @@ function formatNaira(amount) {
 
 
 
-/*
-    ==================================
-    FORMAT DATE
-    ==================================
-*/
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
 function formatDate(timestamp) {
 
@@ -66,25 +67,21 @@ function formatDate(timestamp) {
 
     }
 
-
-    return new Date(timestamp)
-        .toLocaleString(
-            "en-NG",
-            {
-                dateStyle: "medium",
-                timeStyle: "short"
-            }
-        );
+    return new Date(timestamp).toLocaleString(
+        "en-NG",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
 
 }
 
 
 
-/*
-    ==================================
-    STATUS BADGE
-    ==================================
-*/
+/* =========================================================
+   STATUS BADGE
+========================================================= */
 
 function statusBadge(status) {
 
@@ -93,14 +90,11 @@ function statusBadge(status) {
             status || "pending"
         ).toLowerCase();
 
-
     let badgeClass =
         "bg-secondary";
 
 
-    if (
-        safeStatus === "pending"
-    ) {
+    if (safeStatus === "pending") {
 
         badgeClass =
             "bg-warning text-dark";
@@ -108,9 +102,7 @@ function statusBadge(status) {
     }
 
 
-    if (
-        safeStatus === "processing"
-    ) {
+    if (safeStatus === "processing") {
 
         badgeClass =
             "bg-info text-dark";
@@ -118,9 +110,7 @@ function statusBadge(status) {
     }
 
 
-    if (
-        safeStatus === "completed"
-    ) {
+    if (safeStatus === "completed") {
 
         badgeClass =
             "bg-success";
@@ -149,30 +139,121 @@ function statusBadge(status) {
 
 
 
-/*
-    ==================================
-    LOAD RECENT ORDERS
-    ==================================
-*/
+/* =========================================================
+   LOAD USER INFORMATION
+========================================================= */
 
-async function loadRecentOrders(uid) {
+async function loadUserInformation(user) {
 
     try {
 
-        const ordersSnapshot =
-            await get(
-                ref(
-                    database,
-                    "orders"
-                )
+        const userRef =
+            ref(
+                database,
+                "users/" + user.uid
             );
 
 
+        const snapshot =
+            await get(userRef);
+
+
+        if (!snapshot.exists()) {
+
+            console.warn(
+                "USER DATA NOT FOUND"
+            );
+
+            userName.textContent =
+                user.displayName || "User";
+
+            return;
+
+        }
+
+
+        const data =
+            snapshot.val();
+
+
+        userName.textContent =
+            data.fullName ||
+            user.displayName ||
+            "User";
+
+
         /*
-            NO ORDERS
+            IMPORTANT:
+
+            Only update the wallet when
+            Firebase actually returned user data.
+
+            We NEVER replace a valid balance
+            with ₦0.00 because of another error.
         */
 
-        if (!ordersSnapshot.exists()) {
+        walletBalance.textContent =
+            formatNaira(
+                data.wallet
+            );
+
+
+    } catch (error) {
+
+        console.error(
+            "USER DATA ERROR:",
+            error
+        );
+
+
+        /*
+            DO NOT RESET THE WALLET HERE.
+
+            If the previous value was loaded,
+            leave it visible.
+        */
+
+        userName.textContent =
+            user.displayName ||
+            "User";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   LOAD ORDERS
+========================================================= */
+
+async function loadRecentOrders(uid) {
+
+    if (!recentOrders) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const ordersRef =
+            ref(
+                database,
+                "orders"
+            );
+
+
+        const snapshot =
+            await get(ordersRef);
+
+
+        /*
+            NO ORDERS AT ALL
+        */
+
+        if (!snapshot.exists()) {
 
             ordersCount.textContent =
                 "0";
@@ -180,13 +261,18 @@ async function loadRecentOrders(uid) {
 
             recentOrders.innerHTML = `
 
-                <div class="text-center text-muted py-4">
+                <div
+                    class="text-center text-muted py-4"
+                >
 
-                    <i class="bi bi-cart-x fs-2"></i>
+                    <i
+                        class="bi bi-cart-x fs-2"
+                    ></i>
 
                     <p class="mt-2 mb-0">
 
-                        You have not placed any orders yet.
+                        You have not placed
+                        any orders yet.
 
                     </p>
 
@@ -199,17 +285,12 @@ async function loadRecentOrders(uid) {
         }
 
 
-
-        /*
-            GET ALL ORDERS
-        */
-
         const orders =
-            ordersSnapshot.val();
+            snapshot.val();
 
 
         /*
-            ONLY THIS USER'S ORDERS
+            FILTER CURRENT USER
         */
 
         const userOrders =
@@ -232,18 +313,18 @@ async function loadRecentOrders(uid) {
                 );
 
 
-
         /*
             UPDATE ORDER COUNT
         */
 
         ordersCount.textContent =
-            userOrders.length;
-
+            String(
+                userOrders.length
+            );
 
 
         /*
-            NO USER ORDERS
+            NO ORDERS FOR THIS USER
         */
 
         if (
@@ -252,13 +333,18 @@ async function loadRecentOrders(uid) {
 
             recentOrders.innerHTML = `
 
-                <div class="text-center text-muted py-4">
+                <div
+                    class="text-center text-muted py-4"
+                >
 
-                    <i class="bi bi-cart-x fs-2"></i>
+                    <i
+                        class="bi bi-cart-x fs-2"
+                    ></i>
 
                     <p class="mt-2 mb-0">
 
-                        You have not placed any orders yet.
+                        You have not placed
+                        any orders yet.
 
                     </p>
 
@@ -271,9 +357,8 @@ async function loadRecentOrders(uid) {
         }
 
 
-
         /*
-            SHOW FIVE NEWEST ORDERS
+            SHOW FIVE MOST RECENT
         */
 
         const latestOrders =
@@ -284,11 +369,9 @@ async function loadRecentOrders(uid) {
 
 
 
-        /*
-            ==================================
-            DESKTOP TABLE
-            ==================================
-        */
+        /* =================================================
+           DESKTOP TABLE
+        ================================================= */
 
         let desktopHtml = `
 
@@ -297,7 +380,8 @@ async function loadRecentOrders(uid) {
                 <div class="table-responsive">
 
                     <table
-                        class="table table-hover align-middle mb-0"
+                        class="table table-hover
+                        align-middle mb-0"
                     >
 
                         <thead>
@@ -337,7 +421,6 @@ async function loadRecentOrders(uid) {
         `;
 
 
-
         latestOrders.forEach(
             order => {
 
@@ -366,12 +449,16 @@ async function loadRecentOrders(uid) {
                         <td>
 
                             <strong>
+
                                 ${order.platform || "—"}
+
                             </strong>
 
                             <br>
 
-                            <small class="text-muted">
+                            <small
+                                class="text-muted"
+                            >
 
                                 ${order.service || "—"}
 
@@ -433,7 +520,6 @@ async function loadRecentOrders(uid) {
         );
 
 
-
         desktopHtml += `
 
                         </tbody>
@@ -448,18 +534,15 @@ async function loadRecentOrders(uid) {
 
 
 
-        /*
-            ==================================
-            MOBILE ORDER CARDS
-            ==================================
-        */
+        /* =================================================
+           MOBILE CARDS
+        ================================================= */
 
         let mobileHtml = `
 
             <div class="d-md-none">
 
         `;
-
 
 
         latestOrders.forEach(
@@ -477,13 +560,12 @@ async function loadRecentOrders(uid) {
                 mobileHtml += `
 
                     <div
-                        class="card border shadow-sm mb-3"
+                        class="card border
+                        shadow-sm mb-3"
                     >
 
                         <div class="card-body">
 
-
-                            <!-- ORDER ID -->
 
                             <div
                                 class="d-flex
@@ -527,8 +609,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- SERVICE -->
-
                             <div class="mb-3">
 
                                 <small
@@ -559,8 +639,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- QUANTITY -->
-
                             <div class="mb-3">
 
                                 <small
@@ -587,8 +665,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- AMOUNT -->
-
                             <div class="mb-3">
 
                                 <small
@@ -600,7 +676,8 @@ async function loadRecentOrders(uid) {
                                 </small>
 
                                 <div
-                                    class="fw-bold text-success"
+                                    class="fw-bold
+                                    text-success"
                                 >
 
                                     ${formatNaira(
@@ -612,8 +689,6 @@ async function loadRecentOrders(uid) {
                             </div>
 
 
-
-                            <!-- DATE -->
 
                             <div>
 
@@ -646,7 +721,6 @@ async function loadRecentOrders(uid) {
         );
 
 
-
         mobileHtml += `
 
             </div>
@@ -654,15 +728,13 @@ async function loadRecentOrders(uid) {
         `;
 
 
-
         /*
-            COMBINE DESKTOP + MOBILE
+            INSERT ORDERS
         */
 
         recentOrders.innerHTML =
             desktopHtml +
             mobileHtml;
-
 
 
     } catch (error) {
@@ -673,13 +745,30 @@ async function loadRecentOrders(uid) {
         );
 
 
+        /*
+            IMPORTANT:
+
+            Do NOT set ordersCount to 0 here.
+
+            If Firebase temporarily fails,
+            we don't want a real order count
+            to disappear.
+        */
+
         recentOrders.innerHTML = `
 
             <div
-                class="alert alert-danger mb-0"
+                class="alert alert-warning mb-0"
             >
 
-                Unable to load your recent orders.
+                <i
+                    class="bi bi-wifi-off"
+                ></i>
+
+                Recent orders could not
+                be loaded right now.
+
+                Please refresh the page.
 
             </div>
 
@@ -691,15 +780,17 @@ async function loadRecentOrders(uid) {
 
 
 
-/*
-    ==================================
-    AUTHENTICATION
-    ==================================
-*/
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
 
 onAuthStateChanged(
     auth,
     async (user) => {
+
+        /*
+            USER NOT LOGGED IN
+        */
 
         if (!user) {
 
@@ -711,105 +802,58 @@ onAuthStateChanged(
         }
 
 
-        try {
+        /*
+            IMPORTANT:
 
-            /*
-                LOAD USER INFORMATION
-            */
+            Load USER DATA and ORDERS
+            independently.
 
-            const userSnapshot =
-                await get(
-                    ref(
-                        database,
-                        "users/" +
-                        user.uid
-                    )
+            An error loading orders
+            will NOT erase the wallet.
+        */
+
+        await Promise.allSettled([
+
+            loadUserInformation(user),
+
+            loadRecentOrders(user.uid)
+
+        ]);
+
+    }
+);
+
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await signOut(auth);
+
+
+                window.location.href =
+                    "login.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "LOGOUT ERROR:",
+                    error
                 );
-
-
-            if (
-                userSnapshot.exists()
-            ) {
-
-                const data =
-                    userSnapshot.val();
-
-
-                userName.textContent =
-                    data.fullName ||
-                    user.displayName ||
-                    "User";
-
-
-                walletBalance.textContent =
-                    formatNaira(
-                        data.wallet
-                    );
 
             }
 
-
-
-            /*
-                LOAD ORDERS
-            */
-
-            await loadRecentOrders(
-                user.uid
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "DASHBOARD ERROR:",
-                error
-            );
-
-
-            walletBalance.textContent =
-                "₦0.00";
-
-            ordersCount.textContent =
-                "0";
-
         }
+    );
 
-    }
-);
-
-
-
-/*
-    ==================================
-    LOGOUT
-    ==================================
-*/
-
-logoutBtn.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            await signOut(
-                auth
-            );
-
-
-            window.location.href =
-                "login.html";
-
-
-        } catch (error) {
-
-            console.error(
-                "LOGOUT ERROR:",
-                error
-            );
-
-        }
-
-    }
-);
-
+}
