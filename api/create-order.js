@@ -1,5 +1,10 @@
 import { admin, db } from "../firebase-admin.js";
 
+import {
+    hkdmservicesOfficialServicePriceCatalogue
+} from "../services.js";
+
+
 export default async function handler(req, res) {
 
     if (req.method !== "POST") {
@@ -15,8 +20,9 @@ export default async function handler(req, res) {
     try {
 
         /*
-            Get Firebase ID token
-            from Authorization header.
+            ================================
+            1. VERIFY FIREBASE USER
+            ================================
         */
 
         const authorization =
@@ -27,60 +33,50 @@ export default async function handler(req, res) {
 
             return res.status(401).json({
                 success: false,
-                message: "Authentication required"
+                message: "Please log in again."
             });
 
         }
 
 
         const idToken =
-            authorization.split("Bearer ")[1];
+            authorization.substring(7);
 
-
-        /*
-            Verify the Firebase user.
-        */
 
         const decodedToken =
-            await admin.auth().verifyIdToken(
-                idToken
-            );
+            await admin
+                .auth()
+                .verifyIdToken(idToken);
 
 
         const uid =
             decodedToken.uid;
 
 
+
         /*
-            Get order information.
+            ================================
+            2. GET ORDER DATA
+            ================================
         */
 
         const {
             serviceId,
-            platform,
-            service,
             link,
-            quantity,
-            total
+            quantity
         } = req.body;
 
 
-        /*
-            Basic validation.
-        */
-
         if (
             !serviceId ||
-            !platform ||
-            !service ||
             !link ||
-            !quantity ||
-            total === undefined
+            quantity === undefined
         ) {
 
             return res.status(400).json({
                 success: false,
-                message: "Missing order information"
+                message:
+                    "Please provide the service, link and quantity."
             });
 
         }
@@ -90,10 +86,6 @@ export default async function handler(req, res) {
             Number(quantity);
 
 
-        const requestedTotal =
-            Number(total);
-
-
         if (
             !Number.isFinite(numericQuantity) ||
             numericQuantity < 100
@@ -101,64 +93,22 @@ export default async function handler(req, res) {
 
             return res.status(400).json({
                 success: false,
-                message: "Minimum quantity is 100."
-            });
-
-        }
-
-
-        if (
-            !Number.isFinite(requestedTotal) ||
-            requestedTotal <= 0
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Invalid order amount."
-            });
-
-        }
-
-
-        /*
-            IMPORTANT:
-            Do not trust the price sent by
-            the browser.
-
-            The server will read the current
-            service catalogue here.
-        */
-
-        const catalogueRef =
-            db.ref("serviceCatalog");
-
-
-        const catalogueSnapshot =
-            await catalogueRef.get();
-
-
-        /*
-            If the catalogue has not yet been
-            stored in Firebase, stop safely.
-        */
-
-        if (!catalogueSnapshot.exists()) {
-
-            return res.status(500).json({
-                success: false,
                 message:
-                    "Service catalogue is not configured on the server yet."
+                    "Minimum quantity is 100."
             });
 
         }
 
 
-        const catalogue =
-            catalogueSnapshot.val();
 
+        /*
+            ================================
+            3. FIND SERVICE
+            ================================
+        */
 
         const selectedService =
-            Object.values(catalogue).find(
+            hkdmservicesOfficialServicePriceCatalogue.find(
                 item =>
                     item.id === serviceId
             );
@@ -168,49 +118,43 @@ export default async function handler(req, res) {
 
             return res.status(400).json({
                 success: false,
-                message: "Service not found."
+                message:
+                    "Selected service was not found."
             });
 
         }
 
 
-        /*
-            Make sure the platform and service
-            match the server catalogue.
-        */
-
-        if (
-            selectedService.platform !== platform ||
-            selectedService.service !== service
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Invalid service information."
-            });
-
-        }
-
 
         /*
-            Calculate the real price.
+            ================================
+            4. CALCULATE PRICE
+            ================================
         */
 
-        let finalTotal;
+        let total;
 
 
         if (
             selectedService.ratePer1000 === null
         ) {
 
-            finalTotal =
+            /*
+                Fixed-price package
+            */
+
+            total =
                 Number(
                     selectedService.fixedPrice
                 );
 
         } else {
 
-            finalTotal =
+            /*
+                Per-1,000 service
+            */
+
+            total =
                 (
                     numericQuantity / 1000
                 ) *
@@ -221,34 +165,17 @@ export default async function handler(req, res) {
         }
 
 
-        finalTotal =
+        total =
             Number(
-                finalTotal.toFixed(2)
+                total.toFixed(2)
             );
 
 
-        /*
-            Make sure browser did not
-            manipulate the price.
-        */
-
-        if (
-            Math.abs(
-                finalTotal - requestedTotal
-            ) > 0.01
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Order price verification failed."
-            });
-
-        }
-
 
         /*
-            Wallet reference.
+            ================================
+            5. WALLET REFERENCE
+            ================================
         */
 
         const walletRef =
@@ -257,13 +184,14 @@ export default async function handler(req, res) {
             );
 
 
+
         /*
-            Transactionally deduct the wallet.
-            This protects against concurrent
-            balance changes.
+            ================================
+            6. ATOMIC WALLET DEDUCTION
+            ================================
         */
 
-        const walletResult =
+        const transactionResult =
             await walletRef.transaction(
                 currentBalance => {
 
@@ -273,8 +201,12 @@ export default async function handler(req, res) {
                         );
 
 
+                    /*
+                        Not enough balance.
+                    */
+
                     if (
-                        balance < finalTotal
+                        balance < total
                     ) {
 
                         return;
@@ -284,8 +216,7 @@ export default async function handler(req, res) {
 
                     return Number(
                         (
-                            balance -
-                            finalTotal
+                            balance - total
                         ).toFixed(2)
                     );
 
@@ -294,12 +225,11 @@ export default async function handler(req, res) {
 
 
         /*
-            Transaction was cancelled because
-            there wasn't enough money.
+            Transaction did not commit.
         */
 
         if (
-            !walletResult.committed
+            !transactionResult.committed
         ) {
 
             return res.status(400).json({
@@ -311,8 +241,11 @@ export default async function handler(req, res) {
         }
 
 
+
         /*
-            Create unique order reference.
+            ================================
+            7. CREATE ORDER ID
+            ================================
         */
 
         const orderRef =
@@ -329,11 +262,14 @@ export default async function handler(req, res) {
 
             uid,
 
-            platform,
+            platform:
+                selectedService.platform,
 
-            serviceId,
+            serviceId:
+                selectedService.id,
 
-            service,
+            service:
+                selectedService.service,
 
             link,
 
@@ -341,11 +277,12 @@ export default async function handler(req, res) {
                 numericQuantity,
 
             amount:
-                finalTotal,
+                total,
 
-            status: "pending",
+            status:
+                "pending",
 
-            paymentStatus:
+            paymentMethod:
                 "wallet",
 
             createdAt:
@@ -354,8 +291,11 @@ export default async function handler(req, res) {
         };
 
 
+
         /*
-            Save the order.
+            ================================
+            8. SAVE ORDER
+            ================================
         */
 
         await orderRef.set(
@@ -363,12 +303,17 @@ export default async function handler(req, res) {
         );
 
 
+
         /*
-            Record the wallet transaction.
+            ================================
+            9. SAVE TRANSACTION
+            ================================
         */
 
         const transactionRef =
-            db.ref("transactions").push();
+            db
+                .ref("transactions")
+                .push();
 
 
         await transactionRef.set({
@@ -377,15 +322,17 @@ export default async function handler(req, res) {
 
             orderId,
 
-            type: "order",
+            type:
+                "order",
 
             amount:
-                finalTotal,
+                total,
 
-            status: "success",
+            status:
+                "success",
 
             description:
-                `Order for ${service}`,
+                `Order - ${selectedService.platform} ${selectedService.service}`,
 
             createdAt:
                 Date.now()
@@ -393,8 +340,11 @@ export default async function handler(req, res) {
         });
 
 
+
         /*
-            Return success.
+            ================================
+            10. SUCCESS
+            ================================
         */
 
         return res.status(200).json({
@@ -407,7 +357,12 @@ export default async function handler(req, res) {
             orderId,
 
             amount:
-                finalTotal
+                total,
+
+            newBalance:
+                Number(
+                    transactionResult.snapshot.val()
+                )
 
         });
 
@@ -425,7 +380,7 @@ export default async function handler(req, res) {
             success: false,
 
             message:
-                "Unable to create order."
+                "Unable to place order."
 
         });
 
