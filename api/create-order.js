@@ -178,12 +178,12 @@ export default async function handler(req, res) {
             ================================
         */
 
-        const walletRef =
+const walletRef =
     db.ref(`users/${uid}/wallet`);
 
 
 /*
-    Read current wallet balance first.
+    Read current wallet balance.
 */
 
 const walletSnapshot =
@@ -194,7 +194,7 @@ const currentBalance =
 
 
 /*
-    Check balance before transaction.
+    Check balance.
 */
 
 if (currentBalance < total) {
@@ -208,39 +208,45 @@ if (currentBalance < total) {
 
 
 /*
-    Deduct wallet atomically.
+    Deduct wallet.
 */
 
-const transactionResult =
-    await walletRef.transaction(
-        currentValue => {
+let transactionResult;
 
-            const balance =
-                Number(currentValue || 0);
+try {
 
+    transactionResult =
+        await walletRef.transaction(
+            currentValue => {
 
-            /*
-                Stop if another request
-                changed the balance.
-            */
+                const balance =
+                    Number(currentValue || 0);
 
-            if (balance < total) {
-
-                return undefined;
+                return Number(
+                    (balance - total).toFixed(2)
+                );
 
             }
+        );
 
+} catch (transactionError) {
 
-            return Number(
-                (balance - total).toFixed(2)
-            );
-
-        }
+    console.error(
+        "WALLET TRANSACTION ERROR:",
+        transactionError
     );
+
+    return res.status(500).json({
+        success: false,
+        message:
+            "Unable to update wallet balance."
+    });
+
+}
 
 
 /*
-    Transaction did not commit.
+    Confirm transaction.
 */
 
 if (!transactionResult.committed) {
@@ -248,7 +254,7 @@ if (!transactionResult.committed) {
     return res.status(409).json({
         success: false,
         message:
-            "Wallet balance changed. Please try the order again."
+            "Wallet transaction was not committed."
     });
 
 }
