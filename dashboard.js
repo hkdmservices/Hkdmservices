@@ -813,181 +813,144 @@ logoutBtn.addEventListener(
     }
 );
 
-/* =========================================================
-   HKDMservices DASHBOARD TOGGLE
-========================================================= */
+/*
+    ==================================
+    DASHBOARD TOGGLE PANEL
+    ==================================
+*/
 
-.dashboard-toggle {
-    position: fixed !important;
-    top: 80px !important;
-    left: 15px !important;
-
-    width: 52px !important;
-    height: 52px !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    background: #198754 !important;
-    color: #ffffff !important;
-
-    border: none !important;
-    border-radius: 12px !important;
-
-    font-size: 25px !important;
-
-    cursor: pointer !important;
-
-    z-index: 99999 !important;
-
-    pointer-events: auto !important;
-
-    box-shadow: 0 5px 18px rgba(0,0,0,0.25);
-
-    transition: 0.25s ease;
-}
-
-.dashboard-toggle:hover {
-    background: #157347 !important;
-    transform: scale(1.05);
-}
+const dashboardToggle =
+    document.getElementById(
+        "dashboardToggle"
+    );
 
 
-/* =========================================================
-   SIDE PANEL
-========================================================= */
+const dashboardPanel =
+    document.getElementById(
+        "dashboardPanel"
+    );
 
-.dashboard-panel {
-    position: fixed !important;
 
-    top: 0 !important;
-    left: -450px !important;
+const closeDashboardPanel =
+    document.getElementById(
+        "closeDashboardPanel"
+    );
 
-    width: 430px !important;
-    max-width: 92vw !important;
 
-    height: 100vh !important;
 
-    background: #f8f9fa !important;
+/*
+    OPEN PANEL
+*/
 
-    z-index: 99998 !important;
+if (
+    dashboardToggle &&
+    dashboardPanel
+) {
 
-    overflow-y: auto !important;
+    dashboardToggle.addEventListener(
+        "click",
+        () => {
 
-    box-shadow: 8px 0 30px rgba(0,0,0,0.25);
+            dashboardPanel.classList.add(
+                "open"
+            );
 
-    transition: left 0.3s ease !important;
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "true"
+            );
 
-    visibility: hidden;
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        }
+    );
+
 }
 
 
-/* OPEN */
 
-.dashboard-panel.open {
-    left: 0 !important;
-    visibility: visible !important;
+/*
+    CLOSE PANEL
+*/
+
+if (
+    closeDashboardPanel &&
+    dashboardPanel
+) {
+
+    closeDashboardPanel.addEventListener(
+        "click",
+        () => {
+
+            dashboardPanel.classList.remove(
+                "open"
+            );
+
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+    );
+
 }
 
 
-/* =========================================================
-   PANEL HEADER
-========================================================= */
 
-.dashboard-panel-header {
-    position: sticky;
+/*
+    CLOSE WHEN CLICKING OUTSIDE
+*/
 
-    top: 0;
+document.addEventListener(
+    "click",
+    (event) => {
 
-    z-index: 10;
+        if (
+            !dashboardPanel ||
+            !dashboardToggle
+        ) {
 
-    background: #212529;
+            return;
 
-    color: white;
-
-    padding: 18px 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-}
+        }
 
 
-/* =========================================================
-   CLOSE BUTTON
-========================================================= */
+        if (
+            dashboardPanel.classList.contains(
+                "open"
+            ) &&
+            !dashboardPanel.contains(
+                event.target
+            ) &&
+            !dashboardToggle.contains(
+                event.target
+            )
+        ) {
 
-.dashboard-panel-close {
-    width: 42px;
+            dashboardPanel.classList.remove(
+                "open"
+            );
 
-    height: 42px;
+            dashboardToggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
 
-    border: none;
+            dashboardPanel.setAttribute(
+                "aria-hidden",
+                "true"
+            );
 
-    border-radius: 10px;
+        }
 
-    background: #dc3545;
-
-    color: white;
-
-    font-size: 18px;
-
-    cursor: pointer;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-}
-
-
-/* =========================================================
-   PANEL CONTENT
-========================================================= */
-
-.dashboard-panel-content {
-    padding: 20px;
-}
-
-
-/* =========================================================
-   PANEL BUTTONS
-========================================================= */
-
-.dashboard-panel-content .btn {
-    width: 100%;
-
-    padding: 12px;
-
-    font-size: 16px;
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 576px) {
-
-    .dashboard-toggle {
-        top: 75px !important;
-        left: 12px !important;
-
-        width: 48px !important;
-        height: 48px !important;
     }
-
-    .dashboard-panel {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    .dashboard-panel-content {
-        padding: 15px;
-    }
-
-}
+);
