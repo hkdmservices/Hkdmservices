@@ -10,13 +10,28 @@ content="width=device-width, initial-scale=1.0">
 
 <title>HKDMservices Dashboard</title>
 
+
+<!-- =====================================================
+     BOOTSTRAP
+===================================================== -->
+
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
 rel="stylesheet">
 
+
+<!-- =====================================================
+     BOOTSTRAP ICONS
+===================================================== -->
+
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
 rel="stylesheet">
+
+
+<!-- =====================================================
+     HKDMservices CSS
+===================================================== -->
 
 <link
 href="style.css"
@@ -26,6 +41,7 @@ rel="stylesheet">
 
 
 <body>
+
 
 
 <!-- =====================================================
@@ -58,13 +74,19 @@ rel="stylesheet">
 >
 
 
-    <!-- PANEL HEADER -->
+    <!-- =================================================
+         PANEL HEADER
+    ================================================= -->
 
     <div class="dashboard-panel-header">
 
+
         <h3 class="mb-0">
+
             Dashboard Menu
+
         </h3>
+
 
 
         <button
@@ -78,13 +100,17 @@ rel="stylesheet">
 
         </button>
 
+
     </div>
 
 
 
-    <!-- PANEL CONTENT -->
+    <!-- =================================================
+         PANEL CONTENT
+    ================================================= -->
 
     <div class="dashboard-panel-content">
+
 
 
         <!-- =================================================
@@ -95,12 +121,16 @@ rel="stylesheet">
 
 
             <h3>
+
                 Quick Actions
+
             </h3>
 
 
 
-            <!-- ADD FUNDS -->
+            <!-- =================================================
+                 ADD FUNDS
+            ================================================= -->
 
             <a
                 href="wallet.html"
@@ -115,7 +145,9 @@ rel="stylesheet">
 
 
 
-            <!-- SERVICES & CATALOGUE -->
+            <!-- =================================================
+                 SERVICES & CATALOGUE
+            ================================================= -->
 
             <a
                 href="services.html"
@@ -130,10 +162,12 @@ rel="stylesheet">
 
 
 
-            <!-- PLACE ORDER -->
+            <!-- =================================================
+                 PLACE ORDER
+            ================================================= -->
 
             <a
-                href="services.html"
+                href="order.html"
                 class="btn btn-outline-success mt-3"
             >
 
@@ -145,7 +179,9 @@ rel="stylesheet">
 
 
 
-            <!-- TRANSACTIONS -->
+            <!-- =================================================
+                 TRANSACTIONS
+            ================================================= -->
 
             <a
                 href="transactions.html"
@@ -159,68 +195,28 @@ rel="stylesheet">
             </a>
 
 
-        </div>
 
+            <!-- =================================================
+                 RECENT ORDERS
+            ================================================= -->
 
+            <a
+                href="recent-orders.html"
+                class="btn btn-outline-success mt-3"
+            >
 
-        <!-- =================================================
-             RECENT ORDERS
-        ================================================= -->
+                <i class="bi bi-clock-history"></i>
 
-        <div class="card shadow border-0">
+                Recent Orders
 
-
-            <div class="card-body p-4">
-
-
-                <div class="mb-4">
-
-
-                    <h3 class="mb-1">
-
-                        Recent Orders
-
-                    </h3>
-
-
-                    <p class="text-muted mb-0">
-
-                        Your latest orders
-
-                    </p>
-
-
-                </div>
-
-
-
-                <div
-                    id="recentOrders"
-                    class="table-responsive"
-                >
-
-                    <div
-                        class="text-center text-muted py-4"
-                    >
-
-                        <i
-                            class="bi bi-hourglass-split"
-                        ></i>
-
-                        Loading orders...
-
-                    </div>
-
-                </div>
-
-
-            </div>
+            </a>
 
 
         </div>
 
 
     </div>
+
 
 </div>
 
@@ -235,29 +231,33 @@ rel="stylesheet">
 <div class="container">
 
 
-<a
-class="navbar-brand fw-bold"
-href="index.html"
->
+    <!-- BRAND -->
 
-<span class="brand-icon">⬢</span>
+    <a
+        class="navbar-brand fw-bold"
+        href="index.html"
+    >
 
-HKDMservices
+        <span class="brand-icon">⬢</span>
 
-</a>
+        HKDMservices
+
+    </a>
 
 
 
-<button
-id="logout"
-class="btn btn-danger"
->
+    <!-- LOGOUT -->
 
-<i class="bi bi-box-arrow-right"></i>
+    <button
+        id="logout"
+        class="btn btn-danger"
+    >
 
-Logout
+        <i class="bi bi-box-arrow-right"></i>
 
-</button>
+        Logout
+
+    </button>
 
 
 </div>
@@ -267,7 +267,7 @@ Logout
 
 
 <!-- =====================================================
-     DASHBOARD
+     MAIN DASHBOARD
 ===================================================== -->
 
 <section class="py-5">
@@ -275,262 +275,341 @@ Logout
 <div class="container">
 
 
-<h1 class="mb-4">
 
-Welcome,
-<span id="userName">User</span>
+    <!-- =================================================
+         WELCOME
+    ================================================= -->
 
-</h1>
+    <h1 class="mb-4">
+
+        Welcome,
+        <span id="userName">User</span>
+
+    </h1>
+
+
+
+    <!-- =================================================
+         SUMMARY CARDS
+    ================================================= -->
+
+    <div class="row g-4">
+
+
+
+        <!-- =================================================
+             WALLET BALANCE
+        ================================================= -->
+
+        <div class="col-12 col-md-4">
+
+            <div class="card p-4 shadow h-100">
+
+
+                <i
+                    class="bi bi-wallet2 fs-1 text-success"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    Wallet Balance
+
+                </h4>
+
+
+                <h2 id="walletBalance">
+
+                    ₦0.00
+
+                </h2>
+
+
+                <p class="mb-0">
+
+                    Available balance
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ORDERS
+        ================================================= -->
+
+        <div class="col-12 col-md-4">
+
+            <div class="card p-4 shadow h-100">
+
+
+                <i
+                    class="bi bi-cart-check fs-1 text-success"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    Orders
+
+                </h4>
+
+
+                <h2 id="ordersCount">
+
+                    0
+
+                </h2>
+
+
+                <p class="mb-0">
+
+                    Total orders placed
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             SERVICES
+        ================================================= -->
+
+        <div class="col-12 col-md-4">
+
+            <div class="card p-4 shadow h-100">
+
+
+                <i
+                    class="bi bi-grid-3x3-gap fs-1 text-success"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    Services
+
+                </h4>
+
+
+                <h2>
+
+                    36+
+
+                </h2>
+
+
+                <p class="mb-0">
+
+                    Available services
+
+                </p>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+</section>
 
 
 
 <!-- =====================================================
-     SUMMARY CARDS
-===================================================== -->
-
-<div class="row g-4">
-
-
-
-<!-- WALLET -->
-
-<div class="col-12 col-md-4">
-
-<div class="card p-4 shadow h-100">
-
-<i
-class="bi bi-wallet2 fs-1 text-success"
-></i>
-
-
-<h4 class="mt-3">
-
-Wallet Balance
-
-</h4>
-
-
-<h2 id="walletBalance">
-
-₦0.00
-
-</h2>
-
-
-<p class="mb-0">
-
-Available balance
-
-</p>
-
-</div>
-
-</div>
-
-
-
-<!-- ORDERS -->
-
-<div class="col-12 col-md-4">
-
-<div class="card p-4 shadow h-100">
-
-<i
-class="bi bi-cart-check fs-1 text-success"
-></i>
-
-
-<h4 class="mt-3">
-
-Orders
-
-</h4>
-
-
-<h2 id="ordersCount">
-
-0
-
-</h2>
-
-
-<p class="mb-0">
-
-Total orders placed
-
-</p>
-
-</div>
-
-</div>
-
-
-
-<!-- SERVICES -->
-
-<div class="col-12 col-md-4">
-
-<div class="card p-4 shadow h-100">
-
-<i
-class="bi bi-grid-3x3-gap fs-1 text-success"
-></i>
-
-
-<h4 class="mt-3">
-
-Services
-
-</h4>
-
-
-<h2>
-
-36+
-
-</h2>
-
-
-<p class="mb-0">
-
-Available services
-
-</p>
-
-</div>
-
-</div>
-
-
-</div>
-
-
-
-<!-- =====================================================
-     JAVASCRIPT
+     DASHBOARD JAVASCRIPT
 ===================================================== -->
 
 <script
-type="module"
-src="dashboard.js"
+    type="module"
+    src="dashboard.js"
 ></script>
 
 
+
+<!-- =====================================================
+     TOGGLE JAVASCRIPT
+===================================================== -->
+
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
-
-    const toggleButton =
-        document.getElementById("dashboardToggle");
-
-    const dashboardPanel =
-        document.getElementById("dashboardPanel");
-
-    const closeButton =
-        document.getElementById("closeDashboardPanel");
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
 
-    /* OPEN PANEL */
+        /* ================================================
+           ELEMENTS
+        ================================================ */
 
-    if (toggleButton && dashboardPanel) {
+        const toggleButton =
+            document.getElementById(
+                "dashboardToggle"
+            );
 
-        toggleButton.addEventListener(
+
+        const dashboardPanel =
+            document.getElementById(
+                "dashboardPanel"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "closeDashboardPanel"
+            );
+
+
+
+        /* ================================================
+           OPEN PANEL
+        ================================================ */
+
+        if (
+            toggleButton &&
+            dashboardPanel
+        ) {
+
+            toggleButton.addEventListener(
+                "click",
+                function (event) {
+
+                    event.stopPropagation();
+
+
+                    dashboardPanel.classList.add(
+                        "open"
+                    );
+
+
+                    toggleButton.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+
+                    dashboardPanel.setAttribute(
+                        "aria-hidden",
+                        "false"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ================================================
+           CLOSE PANEL
+        ================================================ */
+
+        if (
+            closeButton &&
+            dashboardPanel
+        ) {
+
+            closeButton.addEventListener(
+                "click",
+                function () {
+
+
+                    dashboardPanel.classList.remove(
+                        "open"
+                    );
+
+
+                    toggleButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+
+                    dashboardPanel.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ================================================
+           CLOSE WHEN CLICKING OUTSIDE
+        ================================================ */
+
+        document.addEventListener(
             "click",
             function (event) {
 
-                event.stopPropagation();
 
-                dashboardPanel.classList.add("open");
+                if (
+                    !dashboardPanel ||
+                    !toggleButton
+                ) {
 
-                toggleButton.setAttribute(
-                    "aria-expanded",
-                    "true"
-                );
+                    return;
 
-                dashboardPanel.setAttribute(
-                    "aria-hidden",
-                    "false"
-                );
+                }
+
+
+                if (
+                    dashboardPanel.classList.contains(
+                        "open"
+                    ) &&
+
+                    !dashboardPanel.contains(
+                        event.target
+                    ) &&
+
+                    !toggleButton.contains(
+                        event.target
+                    )
+                ) {
+
+
+                    dashboardPanel.classList.remove(
+                        "open"
+                    );
+
+
+                    toggleButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+
+                    dashboardPanel.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                }
 
             }
         );
 
-    }
-
-
-    /* CLOSE PANEL */
-
-    if (closeButton && dashboardPanel) {
-
-        closeButton.addEventListener(
-            "click",
-            function () {
-
-                dashboardPanel.classList.remove("open");
-
-                toggleButton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-                dashboardPanel.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-            }
-        );
 
     }
-
-
-    /* CLOSE WHEN CLICKING OUTSIDE */
-
-    document.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                !dashboardPanel ||
-                !toggleButton
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                dashboardPanel.classList.contains("open") &&
-                !dashboardPanel.contains(event.target) &&
-                !toggleButton.contains(event.target)
-            ) {
-
-                dashboardPanel.classList.remove("open");
-
-                toggleButton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-                dashboardPanel.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-            }
-
-        }
-    );
-
-});
+);
 
 </script>
 
-
-</body>
-
-</html>
 
 
 </body>
