@@ -813,144 +813,181 @@ logoutBtn.addEventListener(
     }
 );
 
-/*
-    ==================================
-    DASHBOARD TOGGLE PANEL
-    ==================================
-*/
+/* =========================================================
+   HKDMservices DASHBOARD TOGGLE
+========================================================= */
 
-const dashboardToggle =
-    document.getElementById(
-        "dashboardToggle"
-    );
+.dashboard-toggle {
+    position: fixed !important;
+    top: 80px !important;
+    left: 15px !important;
 
+    width: 52px !important;
+    height: 52px !important;
 
-const dashboardPanel =
-    document.getElementById(
-        "dashboardPanel"
-    );
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 
+    background: #198754 !important;
+    color: #ffffff !important;
 
-const closeDashboardPanel =
-    document.getElementById(
-        "closeDashboardPanel"
-    );
+    border: none !important;
+    border-radius: 12px !important;
 
+    font-size: 25px !important;
 
+    cursor: pointer !important;
 
-/*
-    OPEN PANEL
-*/
+    z-index: 99999 !important;
 
-if (
-    dashboardToggle &&
-    dashboardPanel
-) {
+    pointer-events: auto !important;
 
-    dashboardToggle.addEventListener(
-        "click",
-        () => {
+    box-shadow: 0 5px 18px rgba(0,0,0,0.25);
 
-            dashboardPanel.classList.add(
-                "open"
-            );
+    transition: 0.25s ease;
+}
 
-            dashboardToggle.setAttribute(
-                "aria-expanded",
-                "true"
-            );
-
-            dashboardPanel.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-        }
-    );
-
+.dashboard-toggle:hover {
+    background: #157347 !important;
+    transform: scale(1.05);
 }
 
 
+/* =========================================================
+   SIDE PANEL
+========================================================= */
 
-/*
-    CLOSE PANEL
-*/
+.dashboard-panel {
+    position: fixed !important;
 
-if (
-    closeDashboardPanel &&
-    dashboardPanel
-) {
+    top: 0 !important;
+    left: -450px !important;
 
-    closeDashboardPanel.addEventListener(
-        "click",
-        () => {
+    width: 430px !important;
+    max-width: 92vw !important;
 
-            dashboardPanel.classList.remove(
-                "open"
-            );
+    height: 100vh !important;
 
-            dashboardToggle.setAttribute(
-                "aria-expanded",
-                "false"
-            );
+    background: #f8f9fa !important;
 
-            dashboardPanel.setAttribute(
-                "aria-hidden",
-                "true"
-            );
+    z-index: 99998 !important;
 
-        }
-    );
+    overflow-y: auto !important;
 
+    box-shadow: 8px 0 30px rgba(0,0,0,0.25);
+
+    transition: left 0.3s ease !important;
+
+    visibility: hidden;
 }
 
 
+/* OPEN */
 
-/*
-    CLOSE WHEN CLICKING OUTSIDE
-*/
-
-document.addEventListener(
-    "click",
-    (event) => {
-
-        if (
-            !dashboardPanel ||
-            !dashboardToggle
-        ) {
-
-            return;
-
-        }
+.dashboard-panel.open {
+    left: 0 !important;
+    visibility: visible !important;
+}
 
 
-        if (
-            dashboardPanel.classList.contains(
-                "open"
-            ) &&
-            !dashboardPanel.contains(
-                event.target
-            ) &&
-            !dashboardToggle.contains(
-                event.target
-            )
-        ) {
+/* =========================================================
+   PANEL HEADER
+========================================================= */
 
-            dashboardPanel.classList.remove(
-                "open"
-            );
+.dashboard-panel-header {
+    position: sticky;
 
-            dashboardToggle.setAttribute(
-                "aria-expanded",
-                "false"
-            );
+    top: 0;
 
-            dashboardPanel.setAttribute(
-                "aria-hidden",
-                "true"
-            );
+    z-index: 10;
 
-        }
+    background: #212529;
 
+    color: white;
+
+    padding: 18px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.dashboard-panel-close {
+    width: 42px;
+
+    height: 42px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #dc3545;
+
+    color: white;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+/* =========================================================
+   PANEL CONTENT
+========================================================= */
+
+.dashboard-panel-content {
+    padding: 20px;
+}
+
+
+/* =========================================================
+   PANEL BUTTONS
+========================================================= */
+
+.dashboard-panel-content .btn {
+    width: 100%;
+
+    padding: 12px;
+
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .dashboard-toggle {
+        top: 75px !important;
+        left: 12px !important;
+
+        width: 48px !important;
+        height: 48px !important;
     }
-);
+
+    .dashboard-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .dashboard-panel-content {
+        padding: 15px;
+    }
+
+}
