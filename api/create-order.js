@@ -179,76 +179,76 @@ export default async function handler(req, res) {
         */
 
         const walletRef =
-            db.ref(
-                `users/${uid}/wallet`
-            );
+    db.ref(`users/${uid}/wallet`);
+
+
+/*
+    Read current wallet balance first.
+*/
+
 const walletSnapshot =
     await walletRef.once("value");
 
-const currentWalletBalance =
+const currentBalance =
     Number(walletSnapshot.val() || 0);
 
-console.log(
-    "WALLET DEBUG:",
-    {
-        uid,
-        currentWalletBalance,
-        total
-    }
-);
 
+/*
+    Check balance before transaction.
+*/
 
-        /*
-            ================================
-            6. ATOMIC WALLET DEDUCTION
-            ================================
-        */
-
-        const transactionResult =
-            await walletRef.transaction(
-                currentBalance => {
-
-                    const balance =
-                        Number(
-                            currentBalance || 0
-                        );
-
-
-                    /*
-                        Not enough balance.
-                    */
-
-                    if (
-                        balance < total
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    return Number(
-                        (
-                            balance - total
-                        ).toFixed(2)
-                    );
-
-                }
-            );
-
-
-        /*
-            Transaction did not commit.
-        */
-
-        if (!transactionResult.committed) {
+if (currentBalance < total) {
 
     return res.status(400).json({
         success: false,
+        message: "Insufficient wallet balance."
+    });
+
+}
+
+
+/*
+    Deduct wallet atomically.
+*/
+
+const transactionResult =
+    await walletRef.transaction(
+        currentValue => {
+
+            const balance =
+                Number(currentValue || 0);
+
+
+            /*
+                Stop if another request
+                changed the balance.
+            */
+
+            if (balance < total) {
+
+                return undefined;
+
+            }
+
+
+            return Number(
+                (balance - total).toFixed(2)
+            );
+
+        }
+    );
+
+
+/*
+    Transaction did not commit.
+*/
+
+if (!transactionResult.committed) {
+
+    return res.status(409).json({
+        success: false,
         message:
-            currentWalletBalance < total
-                ? "Insufficient wallet balance."
-                : "Wallet transaction could not be completed."
+            "Wallet balance changed. Please try the order again."
     });
 
 }
