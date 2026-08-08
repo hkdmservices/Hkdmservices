@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>User Profile | HKDMservices</title>
+
+
+<!-- =====================================================
+     BOOTSTRAP
+===================================================== -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+
+<!-- =====================================================
+     BOOTSTRAP ICONS
+===================================================== -->
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+rel="stylesheet">
+
+
+<!-- =====================================================
+     HKDMservices CSS
+===================================================== -->
+
+<link
+href="style.css"
+rel="stylesheet">
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar navbar-dark bg-dark">
+
+<div class="container">
+
+
+    <a
+        class="navbar-brand fw-bold"
+        href="dashboard.html"
+    >
+
+        <span class="brand-icon">⬢</span>
+
+        HKDMservices
+
+    </a>
+
+
+    <a
+        href="dashboard.html"
+        class="btn btn-outline-light"
+    >
+
+        <i class="bi bi-arrow-left"></i>
+
+        Dashboard
+
+    </a>
+
+
+</div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     PROFILE PAGE
+===================================================== -->
+
+<section class="py-5">
+
+<div class="container">
+
+
+    <!-- =================================================
+         PAGE TITLE
+    ================================================= -->
+
+    <div class="text-center mb-5">
+
+        <i
+            class="bi bi-person-circle text-success"
+            style="font-size: 70px;"
+        ></i>
+
+        <h1 class="mt-3">
+
+            User Profile
+
+        </h1>
+
+        <p class="text-muted">
+
+            Manage and view your HKDMservices account
+
+        </p>
+
+    </div>
+
+
+
+    <!-- =================================================
+         PROFILE CARD
+    ================================================= -->
+
+    <div class="row justify-content-center">
+
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body p-4 p-md-5">
+
+
+                    <!-- =================================================
+                         FULL NAME
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Full Name
+
+                        </label>
+
+
+                        <div
+                            class="form-control bg-light"
+                            id="profileName"
+                        >
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         EMAIL
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Email Address
+
+                        </label>
+
+
+                        <div
+                            class="form-control bg-light"
+                            id="profileEmail"
+                        >
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         EMAIL VERIFICATION
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Email Verification
+
+                        </label>
+
+
+                        <div
+                            id="emailVerification"
+                        >
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         WALLET BALANCE
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Wallet Balance
+
+                        </label>
+
+
+                        <div
+                            class="form-control bg-light fw-bold text-success"
+                            id="profileWallet"
+                        >
+
+                            ₦0.00
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         TOTAL ORDERS
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Total Orders
+
+                        </label>
+
+
+                        <div
+                            class="form-control bg-light fw-bold"
+                            id="profileOrders"
+                        >
+
+                            0
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACCOUNT STATUS
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Account Status
+
+                        </label>
+
+
+                        <div
+                            id="accountStatus"
+                        >
+
+                            <span
+                                class="badge bg-success"
+                            >
+
+                                Active
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         USER ID
+                    ================================================= -->
+
+                    <div class="mb-4">
+
+                        <label
+                            class="form-label text-muted"
+                        >
+
+                            Account ID
+
+                        </label>
+
+
+                        <div
+                            class="form-control bg-light small text-break"
+                            id="profileUid"
+                        >
+
+                            Loading...
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACTIONS
+                    ================================================= -->
+
+                    <div
+                        class="d-grid gap-2 mt-4"
+                    >
+
+
+                        <a
+                            href="dashboard.html"
+                            class="btn btn-success"
+                        >
+
+                            <i class="bi bi-speedometer2"></i>
+
+                            Back to Dashboard
+
+                        </a>
+
+
+                        <button
+                            id="logout"
+                            type="button"
+                            class="btn btn-outline-danger"
+                        >
+
+                            <i
+                                class="bi bi-box-arrow-right"
+                            ></i>
+
+                            Logout
+
+                        </button>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     PROFILE JAVASCRIPT
+===================================================== -->
+
+<script
+    type="module"
+    src="profile.js"
+></script>
+
+
+</body>
+
+</html>
