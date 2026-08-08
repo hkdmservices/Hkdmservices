@@ -18,11 +18,13 @@ form.addEventListener("submit", async (e) => {
 
     try {
 
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+    await authPersistence;
+
+    await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+    );
 
         window.location.href = "dashboard.html";
 
