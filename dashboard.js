@@ -155,9 +155,7 @@ function statusBadge(status) {
     ==================================
 */
 
-async function loadRecentOrders(
-    uid
-) {
+async function loadRecentOrders(uid) {
 
     try {
 
@@ -170,9 +168,11 @@ async function loadRecentOrders(
             );
 
 
-        if (
-            !ordersSnapshot.exists()
-        ) {
+        /*
+            NO ORDERS
+        */
+
+        if (!ordersSnapshot.exists()) {
 
             ordersCount.textContent =
                 "0";
@@ -185,7 +185,9 @@ async function loadRecentOrders(
                     <i class="bi bi-cart-x fs-2"></i>
 
                     <p class="mt-2 mb-0">
+
                         You have not placed any orders yet.
+
                     </p>
 
                 </div>
@@ -197,17 +199,28 @@ async function loadRecentOrders(
         }
 
 
+
+        /*
+            GET ALL ORDERS
+        */
+
         const orders =
             ordersSnapshot.val();
 
 
+        /*
+            ONLY THIS USER'S ORDERS
+        */
+
         const userOrders =
             Object.values(orders)
+
                 .filter(
                     order =>
                         order &&
                         order.uid === uid
                 )
+
                 .sort(
                     (a, b) =>
                         Number(
@@ -219,9 +232,19 @@ async function loadRecentOrders(
                 );
 
 
+
+        /*
+            UPDATE ORDER COUNT
+        */
+
         ordersCount.textContent =
             userOrders.length;
 
+
+
+        /*
+            NO USER ORDERS
+        */
 
         if (
             userOrders.length === 0
@@ -234,7 +257,9 @@ async function loadRecentOrders(
                     <i class="bi bi-cart-x fs-2"></i>
 
                     <p class="mt-2 mb-0">
+
                         You have not placed any orders yet.
+
                     </p>
 
                 </div>
@@ -246,8 +271,9 @@ async function loadRecentOrders(
         }
 
 
+
         /*
-            Show the five newest orders.
+            SHOW FIVE NEWEST ORDERS
         */
 
         const latestOrders =
@@ -257,44 +283,59 @@ async function loadRecentOrders(
             );
 
 
-        let html = `
 
-            <table class="table table-hover align-middle mb-0">
+        /*
+            ==================================
+            DESKTOP TABLE
+            ==================================
+        */
 
-                <thead>
+        let desktopHtml = `
 
-                    <tr>
+            <div class="d-none d-md-block">
 
-                        <th>
-                            Order ID
-                        </th>
+                <div class="table-responsive">
 
-                        <th>
-                            Service
-                        </th>
+                    <table
+                        class="table table-hover align-middle mb-0"
+                    >
 
-                        <th>
-                            Quantity
-                        </th>
+                        <thead>
 
-                        <th>
-                            Amount
-                        </th>
+                            <tr>
 
-                        <th>
-                            Status
-                        </th>
+                                <th>
+                                    Order ID
+                                </th>
 
-                        <th>
-                            Date
-                        </th>
+                                <th>
+                                    Service
+                                </th>
 
-                    </tr>
+                                <th>
+                                    Quantity
+                                </th>
 
-                </thead>
+                                <th>
+                                    Amount
+                                </th>
 
-                <tbody>
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
         `;
+
 
 
         latestOrders.forEach(
@@ -309,7 +350,7 @@ async function loadRecentOrders(
                     );
 
 
-                html += `
+                desktopHtml += `
 
                     <tr>
 
@@ -324,12 +365,13 @@ async function loadRecentOrders(
 
                         <td>
 
-                            ${order.platform || "—"}
+                            <strong>
+                                ${order.platform || "—"}
+                            </strong>
 
                             <br>
 
-                            <small
-                                class="text-muted">
+                            <small class="text-muted">
 
                                 ${order.service || "—"}
 
@@ -351,9 +393,13 @@ async function loadRecentOrders(
 
                         <td>
 
-                            ${formatNaira(
-                                order.amount
-                            )}
+                            <strong>
+
+                                ${formatNaira(
+                                    order.amount
+                                )}
+
+                            </strong>
 
                         </td>
 
@@ -387,17 +433,236 @@ async function loadRecentOrders(
         );
 
 
-        html += `
 
-                </tbody>
+        desktopHtml += `
 
-            </table>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         `;
 
 
+
+        /*
+            ==================================
+            MOBILE ORDER CARDS
+            ==================================
+        */
+
+        let mobileHtml = `
+
+            <div class="d-md-none">
+
+        `;
+
+
+
+        latestOrders.forEach(
+            order => {
+
+                const shortOrderId =
+                    String(
+                        order.orderId || ""
+                    ).slice(
+                        0,
+                        12
+                    );
+
+
+                mobileHtml += `
+
+                    <div
+                        class="card border shadow-sm mb-3"
+                    >
+
+                        <div class="card-body">
+
+
+                            <!-- ORDER ID -->
+
+                            <div
+                                class="d-flex
+                                justify-content-between
+                                align-items-start
+                                mb-3"
+                            >
+
+                                <div>
+
+                                    <small
+                                        class="text-muted"
+                                    >
+
+                                        Order ID
+
+                                    </small>
+
+                                    <div>
+
+                                        <code>
+
+                                            ${shortOrderId}
+
+                                        </code>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div>
+
+                                    ${statusBadge(
+                                        order.status
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- SERVICE -->
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Service
+
+                                </small>
+
+                                <div
+                                    class="fw-bold"
+                                >
+
+                                    ${order.platform || "—"}
+
+                                </div>
+
+                                <div
+                                    class="text-muted"
+                                >
+
+                                    ${order.service || "—"}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- QUANTITY -->
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Quantity
+
+                                </small>
+
+                                <div
+                                    class="fw-bold"
+                                >
+
+                                    ${Number(
+                                        order.quantity || 0
+                                    ).toLocaleString(
+                                        "en-NG"
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- AMOUNT -->
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Amount
+
+                                </small>
+
+                                <div
+                                    class="fw-bold text-success"
+                                >
+
+                                    ${formatNaira(
+                                        order.amount
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- DATE -->
+
+                            <div>
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Date
+
+                                </small>
+
+                                <div>
+
+                                    ${formatDate(
+                                        order.createdAt
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+
+        mobileHtml += `
+
+            </div>
+
+        `;
+
+
+
+        /*
+            COMBINE DESKTOP + MOBILE
+        */
+
         recentOrders.innerHTML =
-            html;
+            desktopHtml +
+            mobileHtml;
+
 
 
     } catch (error) {
@@ -410,7 +675,9 @@ async function loadRecentOrders(
 
         recentOrders.innerHTML = `
 
-            <div class="alert alert-danger mb-0">
+            <div
+                class="alert alert-danger mb-0"
+            >
 
                 Unable to load your recent orders.
 
@@ -454,7 +721,8 @@ onAuthStateChanged(
                 await get(
                     ref(
                         database,
-                        "users/" + user.uid
+                        "users/" +
+                        user.uid
                     )
                 );
 
@@ -479,6 +747,7 @@ onAuthStateChanged(
                     );
 
             }
+
 
 
             /*
@@ -526,6 +795,7 @@ logoutBtn.addEventListener(
             await signOut(
                 auth
             );
+
 
             window.location.href =
                 "login.html";
