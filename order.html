@@ -5,23 +5,29 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>Place Order | HKDMservices</title>
 
-<link
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-rel="stylesheet"
->
 
 <link
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
-rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet"
 >
 
+
 <link
-href="style.css"
-rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+    rel="stylesheet"
+>
+
+
+<link
+    href="style.css"
+    rel="stylesheet"
 >
 
 </head>
@@ -30,34 +36,38 @@ rel="stylesheet"
 <body>
 
 
-<!-- NAVBAR -->
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
 <nav class="navbar navbar-dark bg-dark">
 
 <div class="container">
 
+
 <a
-class="navbar-brand fw-bold"
-href="dashboard.html"
+    class="navbar-brand fw-bold"
+    href="dashboard.html"
 >
 
-<span class="brand-icon">⬢</span>
+    <span class="brand-icon">⬢</span>
 
-HKDMservices
+    HKDMservices
 
 </a>
 
 
 <a
-href="services.html"
-class="btn btn-outline-light"
+    href="services.html"
+    class="btn btn-outline-light"
 >
 
-<i class="bi bi-arrow-left"></i>
+    <i class="bi bi-arrow-left"></i>
 
-Services
+    Services
 
 </a>
+
 
 </div>
 
@@ -65,7 +75,9 @@ Services
 
 
 
-<!-- MAIN CONTENT -->
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
 <section class="py-5">
 
@@ -76,16 +88,17 @@ Services
 
 <h1 class="fw-bold">
 
-Place an Order
+    Place an Order
 
 </h1>
 
+
 <p
-class="text-muted"
-id="platformTitle"
+    class="text-muted"
+    id="platformTitle"
 >
 
-Loading platform...
+    Loading platform...
 
 </p>
 
@@ -103,30 +116,32 @@ Loading platform...
 <div class="card-body p-4">
 
 
-<!-- SERVICE -->
+<!-- =================================================
+     SERVICE
+================================================= -->
 
 <div class="mb-4">
 
 <label
-for="service"
-class="form-label fw-bold"
+    for="service"
+    class="form-label fw-bold"
 >
 
-Select Service
+    Select Service
 
 </label>
 
 
 <select
-id="service"
-class="form-select"
+    id="service"
+    class="form-select"
 >
 
-<option value="">
+    <option value="">
 
-Loading services...
+        Loading services...
 
-</option>
+    </option>
 
 </select>
 
@@ -134,24 +149,27 @@ Loading services...
 
 
 
-<!-- PRICE -->
+<!-- =================================================
+     PRICE
+================================================= -->
 
 <div
-class="alert alert-success"
-id="priceBox"
+    class="alert alert-success"
+    id="priceBox"
 >
 
 <div class="d-flex justify-content-between">
 
 <span>
 
-Rate
+    Rate
 
 </span>
 
+
 <strong id="rate">
 
-₦0.00
+    ₦0.00
 
 </strong>
 
@@ -162,13 +180,14 @@ Rate
 
 <span>
 
-Total
+    Total
 
 </span>
 
+
 <strong id="totalPrice">
 
-₦0.00
+    ₦0.00
 
 </strong>
 
@@ -178,33 +197,35 @@ Total
 
 
 
-<!-- LINK -->
+<!-- =================================================
+     TARGET LINK
+================================================= -->
 
 <div class="mb-4">
 
 <label
-for="link"
-class="form-label fw-bold"
+    for="link"
+    class="form-label fw-bold"
 >
 
-Target Link
+    Target Link
 
 </label>
 
 
 <input
-type="url"
-id="link"
-class="form-control"
-placeholder="https://..."
-required
+    type="url"
+    id="link"
+    class="form-control"
+    placeholder="https://..."
+    required
 >
 
 
 <div class="form-text">
 
-Enter the link to your profile, post, video,
-channel or content.
+    Enter the link to your profile, post,
+    video, channel, livestream or content.
 
 </div>
 
@@ -212,36 +233,78 @@ channel or content.
 
 
 
-<!-- QUANTITY -->
+<!-- =================================================
+     QUANTITY
+================================================= -->
 
 <div
-class="mb-4"
-id="quantityContainer"
+    class="mb-4"
+    id="quantityContainer"
 >
 
 <label
-for="quantity"
-class="form-label fw-bold"
+    for="quantity"
+    class="form-label fw-bold"
 >
 
-Quantity
+    Quantity
 
 </label>
 
 
 <input
-type="number"
-id="quantity"
-class="form-control"
-min="100"
-step="100"
-value="100"
+    type="number"
+    id="quantity"
+    class="form-control"
+    min="100"
+    step="100"
+    value="100"
 >
+
+
+<div
+    class="form-text"
+    id="quantityHelp"
+>
+
+    Minimum quantity: 100
+
+</div>
+
+</div>
+
+
+
+<!-- =================================================
+     CUSTOM COMMENTS
+================================================= -->
+
+<div
+    class="mb-4 d-none"
+    id="commentContainer"
+>
+
+<label
+    for="comment"
+    class="form-label fw-bold"
+>
+
+    Custom Comments
+
+</label>
+
+
+<textarea
+    id="comment"
+    class="form-control"
+    rows="5"
+    placeholder="Enter the comment(s) you want delivered..."
+></textarea>
 
 
 <div class="form-text">
 
-Minimum quantity: 100
+    Enter the comment you want used for this order.
 
 </div>
 
@@ -249,19 +312,21 @@ Minimum quantity: 100
 
 
 
-<!-- ORDER BUTTON -->
+<!-- =================================================
+     PLACE ORDER
+================================================= -->
 
 <div class="d-grid">
 
 <button
-type="button"
-id="placeOrder"
-class="btn btn-success btn-lg"
+    type="button"
+    id="placeOrder"
+    class="btn btn-success btn-lg"
 >
 
-<i class="bi bi-cart-check"></i>
+    <i class="bi bi-cart-check"></i>
 
-Place Order
+    Place Order
 
 </button>
 
@@ -269,11 +334,13 @@ Place Order
 
 
 
-<!-- MESSAGE -->
+<!-- =================================================
+     MESSAGE
+================================================= -->
 
 <div
-id="message"
-class="alert mt-4 d-none"
+    id="message"
+    class="alert mt-4 d-none"
 >
 
 </div>
@@ -289,7 +356,9 @@ class="alert mt-4 d-none"
 
 
 
-<!-- INFORMATION -->
+<!-- =====================================================
+     INFORMATION
+===================================================== -->
 
 <div class="row justify-content-center mt-4">
 
@@ -299,37 +368,61 @@ class="alert mt-4 d-none"
 
 <div class="card-body">
 
+
 <h5 class="fw-bold">
 
-<i class="bi bi-info-circle text-success"></i>
+    <i class="bi bi-info-circle text-success"></i>
 
-Order Information
+    Order Information
 
 </h5>
 
+
 <ul class="mb-0 text-muted">
 
-<li>
-Minimum quantity for standard services is 100.
-</li>
 
 <li>
-Prices are calculated automatically from the official catalogue.
+
+    Minimum quantity is displayed
+    automatically for each service.
+
 </li>
 
-<li>
-Per-1,000 services are calculated according to the quantity entered.
-</li>
 
 <li>
-Fixed-price packages use their listed package price.
+
+    Prices are calculated automatically
+    from the official catalogue.
+
 </li>
 
+
 <li>
-Your wallet will only be charged after the order system is fully connected.
+
+    Per-1,000 services are calculated
+    according to the quantity entered.
+
 </li>
+
+
+<li>
+
+    Fixed-price packages display their
+    package price and package quantity.
+
+</li>
+
+
+<li>
+
+    Comment services require a custom
+    comment before the order can be submitted.
+
+</li>
+
 
 </ul>
+
 
 </div>
 
@@ -346,654 +439,18 @@ Your wallet will only be charged after the order system is fully connected.
 
 
 
-<script type="module">
-
-import { auth } from "./firebase.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-import {
-    hkdmservicesOfficialServicePriceCatalogue
-} from "./services.js";
-
-
-const serviceSelect =
-    document.getElementById("service");
-
-const platformTitle =
-    document.getElementById("platformTitle");
-
-const rateDisplay =
-    document.getElementById("rate");
-
-const totalDisplay =
-    document.getElementById("totalPrice");
-
-const quantityInput =
-    document.getElementById("quantity");
-
-const quantityContainer =
-    document.getElementById("quantityContainer");
-
-const placeOrderButton =
-    document.getElementById("placeOrder");
-
-const message =
-    document.getElementById("message");
-
-
-let currentUser = null;
-
-
-
-/*
-    ================================
-    AUTHENTICATION
-    ================================
-*/
-
-onAuthStateChanged(auth, (user) => {
-
-    if (!user) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-
-    }
-
-    currentUser = user;
-
-});
-
-
-
-/*
-    ================================
-    URL PLATFORM
-    ================================
-*/
-
-const urlParams =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-const platform =
-    urlParams.get("platform");
-
-
-
-/*
-    ================================
-    FORMAT NAIRA
-    ================================
-*/
-
-function formatNaira(amount) {
-
-    return "₦" +
-        Number(amount).toLocaleString(
-            "en-NG",
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        );
-
-}
-
-
-
-/*
-    ================================
-    SHOW MESSAGE
-    ================================
-*/
-
-function showMessage(
-    text,
-    type = "danger"
-) {
-
-    message.textContent = text;
-
-    message.className =
-        "alert alert-" +
-        type +
-        " mt-4";
-
-}
-
-
-
-/*
-    ================================
-    LOAD SERVICES
-    ================================
-*/
-
-if (!platform) {
-
-    platformTitle.textContent =
-        "No platform selected.";
-
-    serviceSelect.innerHTML = `
-        <option value="">
-            No platform selected
-        </option>
-    `;
-
-    placeOrderButton.disabled = true;
-
-} else {
-
-    platformTitle.textContent =
-        platform + " Services";
-
-
-    const platformServices =
-        hkdmservicesOfficialServicePriceCatalogue
-            .filter(
-                item =>
-                    item.platform === platform
-            );
-
-
-    if (platformServices.length === 0) {
-
-        serviceSelect.innerHTML = `
-            <option value="">
-                No services available
-            </option>
-        `;
-
-        placeOrderButton.disabled = true;
-
-    } else {
-
-        serviceSelect.innerHTML = `
-            <option value="">
-                Select a service
-            </option>
-        `;
-
-
-        platformServices.forEach(
-            service => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    service.id;
-
-
-                option.textContent =
-                    service.service;
-
-
-                serviceSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-    }
-
-}
-
-
-
-/*
-    ================================
-    GET SELECTED SERVICE
-    ================================
-*/
-
-function getSelectedService() {
-
-    return hkdmservicesOfficialServicePriceCatalogue
-        .find(
-            item =>
-                item.id ===
-                serviceSelect.value
-        );
-
-}
-
-
-
-/*
-    ================================
-    CALCULATE PRICE
-    ================================
-*/
-
-function calculateTotal() {
-
-    const selectedService =
-        getSelectedService();
-
-
-    if (!selectedService) {
-
-        rateDisplay.textContent =
-            "₦0.00";
-
-        totalDisplay.textContent =
-            "₦0.00";
-
-        quantityContainer.style.display =
-            "block";
-
-        return;
-
-    }
-
-
-    /*
-        FIXED PRICE PACKAGE
-    */
-
-    if (
-        selectedService.ratePer1000 === null
-    ) {
-
-        rateDisplay.textContent =
-            formatNaira(
-                selectedService.fixedPrice
-            );
-
-
-        totalDisplay.textContent =
-            formatNaira(
-                selectedService.fixedPrice
-            );
-
-
-        quantityContainer.style.display =
-            "none";
-
-
-        return;
-
-    }
-
-
-    /*
-        PER 1,000 SERVICE
-    */
-
-    quantityContainer.style.display =
-        "block";
-
-
-    const quantity =
-        Number(
-            quantityInput.value
-        );
-
-
-    const rate =
-        Number(
-            selectedService.ratePer1000
-        );
-
-
-    const total =
-        (
-            quantity / 1000
-        ) *
-        rate;
-
-
-    rateDisplay.textContent =
-        formatNaira(rate);
-
-
-    totalDisplay.textContent =
-        formatNaira(total);
-
-}
-
-
-
-/*
-    ================================
-    SERVICE CHANGED
-    ================================
-*/
-
-serviceSelect.addEventListener(
-    "change",
-    calculateTotal
-);
-
-
-
-/*
-    ================================
-    QUANTITY CHANGED
-    ================================
-*/
-
-quantityInput.addEventListener(
-    "input",
-    calculateTotal
-);
-
-
-
-/*
-    ================================
-    PLACE ORDER
-    ================================
-*/
-
-placeOrderButton.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            /*
-                USER MUST BE LOGGED IN
-            */
-
-            if (!currentUser) {
-
-                showMessage(
-                    "Please log in before placing an order."
-                );
-
-                return;
-
-            }
-
-
-            /*
-                SELECTED SERVICE
-            */
-
-            const selectedService =
-                getSelectedService();
-
-
-            if (!selectedService) {
-
-                showMessage(
-                    "Please select a service."
-                );
-
-                return;
-
-            }
-
-
-            /*
-                TARGET LINK
-            */
-
-            const link =
-                document
-                    .getElementById("link")
-                    .value
-                    .trim();
-
-
-            if (!link) {
-
-                showMessage(
-                    "Please enter your target link."
-                );
-
-                return;
-
-            }
-
-
-            /*
-                FIXED PACKAGE
-            */
-
-            if (
-                selectedService.ratePer1000 === null
-            ) {
-
-                showMessage(
-                    "This fixed-price package is not available for online ordering yet.",
-                    "warning"
-                );
-
-                return;
-
-            }
-
-
-            /*
-                QUANTITY
-            */
-
-            const quantity =
-                Number(
-                    quantityInput.value
-                );
-
-
-            if (
-                !Number.isFinite(quantity) ||
-                quantity < 100
-            ) {
-
-                showMessage(
-                    "Minimum quantity is 100."
-                );
-
-                return;
-
-            }
-
-
-            /*
-                PREVENT DOUBLE CLICK
-            */
-
-            placeOrderButton.disabled =
-                true;
-
-
-            placeOrderButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm me-2"></span>
-                 Processing Order...`;
-
-
-
-            /*
-                GET FIREBASE ID TOKEN
-            */
-
-            const idToken =
-                await currentUser.getIdToken(
-                    true
-                );
-
-
-
-            /*
-                SEND ORDER TO BACKEND
-            */
-
-            const response =
-                await fetch(
-                    "/api/create-order",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                "Bearer " +
-                                idToken
-
-                        },
-
-                        body:
-                            JSON.stringify({
-
-                                serviceId:
-                                    selectedService.id,
-
-                                link:
-                                    link,
-
-                                quantity:
-                                    quantity
-
-                            })
-
-                    }
-                );
-
-
-
-            /*
-                READ RESPONSE
-            */
-
-            const result =
-                await response.json();
-
-
-
-            if (!response.ok) {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-                return;
-
-            }
-
-
-
-            /*
-                SUCCESS
-            */
-
-            if (result.success) {
-
-                showMessage(
-
-                    "Order placed successfully! " +
-                    "Order ID: " +
-                    result.orderId,
-
-                    "success"
-
-                );
-
-
-                /*
-                    Update displayed wallet
-                    balance if backend
-                    returned it.
-                */
-
-                if (
-                    result.newBalance !== undefined
-                ) {
-
-                    console.log(
-                        "New wallet balance:",
-                        result.newBalance
-                    );
-
-                }
-
-
-                /*
-                    Clear fields.
-                */
-
-                document
-                    .getElementById("link")
-                    .value = "";
-
-
-                quantityInput.value =
-                    100;
-
-
-                calculateTotal();
-
-            } else {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "ORDER ERROR:",
-                error
-            );
-
-
-            showMessage(
-                "Unable to connect to the order system. Please try again."
-            );
-
-
-        } finally {
-
-            placeOrderButton.disabled =
-                false;
-
-
-            placeOrderButton.innerHTML =
-                `<i class="bi bi-cart-check"></i>
-                 Place Order`;
-
-        }
-
-    }
-);
-
-
-
-/*
-    ================================
-    INITIAL CALCULATION
-    ================================
-*/
-
-calculateTotal();
-
-</script>
+<!-- =====================================================
+     ORDER JAVASCRIPT
+===================================================== -->
+
+<script
+    type="module"
+    src="order.js"
+></script>
 
 
 <script
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
 ></script>
 
 
