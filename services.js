@@ -13,8 +13,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Followers",
         ratePer1000: 6000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -22,8 +21,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -31,8 +29,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -41,16 +38,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Comments",
         ratePer1000: 15000,
         minQuantity: 100,
-        inputType: "comments"
-    },
-
-    {
-        id: "ig_live_stream",
-        platform: "Instagram",
-        service: "Live Stream",
-        ratePer1000: 100000,
-        minQuantity: 100,
-        inputType: "link"
+        requiresComment: true
     },
 
 
@@ -63,8 +51,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Followers",
         ratePer1000: 6500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -72,8 +59,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -81,8 +67,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -90,8 +75,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Shares",
         ratePer1000: 2000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -99,8 +83,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Viewers",
         ratePer1000: 100000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -108,8 +91,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Likes",
         ratePer1000: 2000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -118,7 +100,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Livestream Engagement - Comments",
         ratePer1000: 5000,
         minQuantity: 100,
-        inputType: "comments"
+        requiresComment: true
     },
 
     {
@@ -126,8 +108,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Shares",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
 
@@ -140,8 +121,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Subscribers",
         ratePer1000: 30000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -149,8 +129,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -158,8 +137,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Views",
         ratePer1000: 2500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -169,7 +147,6 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         ratePer1000: null,
         fixedPrice: 100000,
         minQuantity: 1,
-        inputType: "link",
         fixedPackage: true
     },
 
@@ -179,7 +156,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Comments",
         ratePer1000: 15000,
         minQuantity: 100,
-        inputType: "comments"
+        requiresComment: true
     },
 
 
@@ -192,8 +169,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Followers",
         ratePer1000: 6050,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -201,8 +177,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Post Likes",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -210,8 +185,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Video Views",
         ratePer1000: 1500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
 
@@ -224,8 +198,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Followers",
         ratePer1000: 15000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -233,8 +206,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -242,8 +214,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Retweets",
         ratePer1000: 2500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -251,8 +222,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -260,17 +230,17 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Poll Votes",
         ratePer1000: 3050,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
         id: "tw_live_listeners",
         platform: "X (Twitter)",
         service: "Live Listeners",
-        ratePer1000: 50000,
-        minQuantity: 100,
-        inputType: "link"
+        ratePer1000: null,
+        fixedPrice: 50000,
+        minQuantity: 1,
+        fixedPackage: true
     },
 
 
@@ -283,8 +253,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Channel / Group Members",
         ratePer1000: 5000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -292,8 +261,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Post Views",
         ratePer1000: 1500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -301,8 +269,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Reactions",
         ratePer1000: 3500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
 
@@ -315,8 +282,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Followers",
         ratePer1000: 10000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -324,8 +290,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Monthly Listeners",
         ratePer1000: 10000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -333,8 +298,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Plays",
         ratePer1000: 8000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
 
@@ -347,8 +311,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Followers",
         ratePer1000: 15000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -356,8 +319,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Post Reactions",
         ratePer1000: 3500,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
 
@@ -370,8 +332,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Followers",
         ratePer1000: 10000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     },
 
     {
@@ -379,8 +340,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Plays",
         ratePer1000: 9000,
-        minQuantity: 100,
-        inputType: "link"
+        minQuantity: 100
     }
 
 ];
