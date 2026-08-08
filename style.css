@@ -484,3 +484,229 @@ footer p {
 
 
 }
+
+/* =========================================================
+   DASHBOARD TOGGLE BUTTON
+========================================================= */
+
+.dashboard-toggle {
+
+    position: fixed;
+
+    top: 85px;
+
+    left: 18px;
+
+    width: 52px;
+
+    height: 52px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #198754;
+
+    color: #ffffff;
+
+    font-size: 26px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    z-index: 1300;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0, 0, 0, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+
+}
+
+
+.dashboard-toggle:hover {
+
+    transform: scale(1.05);
+
+    background: #157347;
+
+}
+
+
+/* =========================================================
+   SIDE PANEL
+========================================================= */
+
+.dashboard-panel {
+
+    position: fixed;
+
+    top: 0;
+
+    left: -430px;
+
+    width: 420px;
+
+    max-width: 92vw;
+
+    height: 100vh;
+
+    background: #f8f9fa;
+
+    z-index: 1400;
+
+    box-shadow:
+        8px 0 30px
+        rgba(0, 0, 0, 0.22);
+
+    transition:
+        left 0.3s ease;
+
+    overflow-y: auto;
+
+}
+
+
+/* OPEN PANEL */
+
+.dashboard-panel.open {
+
+    left: 0;
+
+}
+
+
+/* =========================================================
+   PANEL HEADER
+========================================================= */
+
+.dashboard-panel-header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 10;
+
+    background: #212529;
+
+    color: #ffffff;
+
+    padding: 18px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.dashboard-panel-close {
+
+    width: 42px;
+
+    height: 42px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #dc3545;
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.dashboard-panel-close:hover {
+
+    background: #bb2d3b;
+
+}
+
+
+/* =========================================================
+   PANEL CONTENT
+========================================================= */
+
+.dashboard-panel-content {
+
+    padding: 20px;
+
+}
+
+
+/* =========================================================
+   PANEL BUTTONS
+========================================================= */
+
+.dashboard-panel-content .btn {
+
+    width: 100%;
+
+    padding: 12px;
+
+    font-size: 16px;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .dashboard-toggle {
+
+        top: 75px;
+
+        left: 12px;
+
+        width: 48px;
+
+        height: 48px;
+
+    }
+
+
+    .dashboard-panel {
+
+        width: 100%;
+
+        max-width: 100%;
+
+    }
+
+
+    .dashboard-panel-content {
+
+        padding: 15px;
+
+    }
+
+}
