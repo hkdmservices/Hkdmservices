@@ -416,6 +416,123 @@ src="dashboard.js"
 ></script>
 
 
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const toggleButton =
+        document.getElementById("dashboardToggle");
+
+    const dashboardPanel =
+        document.getElementById("dashboardPanel");
+
+    const closeButton =
+        document.getElementById("closeDashboardPanel");
+
+
+    /* OPEN PANEL */
+
+    if (toggleButton && dashboardPanel) {
+
+        toggleButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+                dashboardPanel.classList.add("open");
+
+                toggleButton.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
+
+                dashboardPanel.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* CLOSE PANEL */
+
+    if (closeButton && dashboardPanel) {
+
+        closeButton.addEventListener(
+            "click",
+            function () {
+
+                dashboardPanel.classList.remove("open");
+
+                toggleButton.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                dashboardPanel.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+        );
+
+    }
+
+
+    /* CLOSE WHEN CLICKING OUTSIDE */
+
+    document.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                !dashboardPanel ||
+                !toggleButton
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                dashboardPanel.classList.contains("open") &&
+                !dashboardPanel.contains(event.target) &&
+                !toggleButton.contains(event.target)
+            ) {
+
+                dashboardPanel.classList.remove("open");
+
+                toggleButton.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
+
+                dashboardPanel.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+
+</body>
+
+</html>
+
+
 </body>
 
 </html>
