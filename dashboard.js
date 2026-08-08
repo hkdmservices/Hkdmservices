@@ -10,39 +10,166 @@ import {
     get
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-const userName = document.getElementById("userName");
-const walletBalance = document.getElementById("walletBalance");
-const logoutBtn = document.getElementById("logout");
+
+const userName =
+    document.getElementById("userName");
+
+const walletBalance =
+    document.getElementById("walletBalance");
+
+const ordersCount =
+    document.getElementById("ordersCount");
+
+const logoutBtn =
+    document.getElementById("logout");
+
+
 
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
 
-        window.location.href = "login.html";
+        window.location.href =
+            "login.html";
+
         return;
 
     }
 
-    const snapshot = await get(
-        ref(database, "users/" + user.uid)
-    );
 
-    if (snapshot.exists()) {
+    try {
 
-        const data = snapshot.val();
+        /*
+            ==================================
+            LOAD USER INFORMATION
+            ==================================
+        */
 
-        userName.textContent = data.fullName;
-        walletBalance.textContent =
-            "₦" + Number(data.wallet).toLocaleString();
+        const userSnapshot =
+            await get(
+                ref(
+                    database,
+                    "users/" + user.uid
+                )
+            );
+
+
+        if (userSnapshot.exists()) {
+
+            const data =
+                userSnapshot.val();
+
+
+            userName.textContent =
+                data.fullName ||
+                user.displayName ||
+                "User";
+
+
+            walletBalance.textContent =
+                "₦" +
+                Number(
+                    data.wallet || 0
+                ).toLocaleString(
+                    "en-NG",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+        }
+
+
+
+        /*
+            ==================================
+            LOAD USER ORDERS
+            ==================================
+        */
+
+        const ordersSnapshot =
+            await get(
+                ref(
+                    database,
+                    "orders"
+                )
+            );
+
+
+        let totalOrders = 0;
+
+
+        if (ordersSnapshot.exists()) {
+
+            const orders =
+                ordersSnapshot.val();
+
+
+            Object.values(orders).forEach(
+                order => {
+
+                    if (
+                        order &&
+                        order.uid === user.uid
+                    ) {
+
+                        totalOrders++;
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        ordersCount.textContent =
+            totalOrders;
+
+
+
+    } catch (error) {
+
+        console.error(
+            "DASHBOARD ERROR:",
+            error
+        );
+
+        ordersCount.textContent =
+            "0";
 
     }
 
 });
 
-logoutBtn.addEventListener("click", async () => {
 
-    await signOut(auth);
 
-    window.location.href = "login.html";
+/*
+    ==================================
+    LOGOUT
+    ==================================
+*/
 
-});
+logoutBtn.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href =
+                "login.html";
+
+        } catch (error) {
+
+            console.error(
+                "LOGOUT ERROR:",
+                error
+            );
+
+        }
+
+    }
+);
