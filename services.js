@@ -2,10 +2,11 @@
 // HKDMservices Official Service & Price Catalogue
 // ============================================================
 
+
 const hkdmservicesOfficialServicePriceCatalogue = [
 
     // ========================================================
-    // INSTAGRAM
+    // 1. INSTAGRAM SERVICES
     // ========================================================
 
     {
@@ -13,7 +14,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Followers",
         ratePer1000: 6000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -21,7 +22,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -29,7 +30,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -37,13 +38,20 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Comments",
         ratePer1000: 15000,
-        minQuantity: 100,
-        requiresComment: true
+        minimumQuantity: 100
+    },
+
+    {
+        id: "ig_live_stream",
+        platform: "Instagram",
+        service: "Live Stream",
+        ratePer1000: 100000,
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // TIKTOK
+    // 2. TIKTOK SERVICES
     // ========================================================
 
     {
@@ -51,7 +59,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Followers",
         ratePer1000: 6500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -59,7 +67,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -67,7 +75,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -75,7 +83,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Shares",
         ratePer1000: 2000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -83,7 +91,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Viewers",
         ratePer1000: 100000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -91,7 +99,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Likes",
         ratePer1000: 2000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -99,8 +107,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Comments",
         ratePer1000: 5000,
-        minQuantity: 100,
-        requiresComment: true
+        minimumQuantity: 100
     },
 
     {
@@ -108,12 +115,12 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Shares",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // YOUTUBE
+    // 3. YOUTUBE SERVICES
     // ========================================================
 
     {
@@ -121,7 +128,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Subscribers",
         ratePer1000: 30000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -129,7 +136,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -137,7 +144,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Views",
         ratePer1000: 2500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -146,8 +153,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Watch Time (4000hr Package)",
         ratePer1000: null,
         fixedPrice: 100000,
-        minQuantity: 1,
-        fixedPackage: true
+        minimumQuantity: 1
     },
 
     {
@@ -155,13 +161,12 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Comments",
         ratePer1000: 15000,
-        minQuantity: 100,
-        requiresComment: true
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // FACEBOOK
+    // 4. FACEBOOK SERVICES
     // ========================================================
 
     {
@@ -169,7 +174,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Followers",
         ratePer1000: 6050,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -177,7 +182,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Post Likes",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -185,12 +190,20 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Video Views",
         ratePer1000: 1500,
-        minQuantity: 100
+        minimumQuantity: 100
+    },
+
+    {
+        id: "fb_comments",
+        platform: "Facebook",
+        service: "Comments",
+        ratePer1000: 10000,
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // X / TWITTER
+    // 5. X (TWITTER) SERVICES
     // ========================================================
 
     {
@@ -198,7 +211,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Followers",
         ratePer1000: 15000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -206,7 +219,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Likes",
         ratePer1000: 3000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -214,7 +227,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Retweets",
         ratePer1000: 2500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -222,7 +235,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Views",
         ratePer1000: 1500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -230,22 +243,28 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Poll Votes",
         ratePer1000: 3050,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
         id: "tw_live_listeners",
         platform: "X (Twitter)",
         service: "Live Listeners",
-        ratePer1000: null,
-        fixedPrice: 50000,
-        minQuantity: 1,
-        fixedPackage: true
+        ratePer1000: 50000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tw_comments",
+        platform: "X (Twitter)",
+        service: "Comments",
+        ratePer1000: 10000,
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // TELEGRAM
+    // 6. TELEGRAM SERVICES
     // ========================================================
 
     {
@@ -253,7 +272,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Channel / Group Members",
         ratePer1000: 5000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -261,7 +280,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Post Views",
         ratePer1000: 1500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -269,12 +288,20 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Reactions",
         ratePer1000: 3500,
-        minQuantity: 100
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tg_comments",
+        platform: "Telegram",
+        service: "Comments",
+        ratePer1000: 10000,
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // SPOTIFY
+    // 7. SPOTIFY SERVICES
     // ========================================================
 
     {
@@ -282,7 +309,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Followers",
         ratePer1000: 10000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -290,7 +317,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Monthly Listeners",
         ratePer1000: 10000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -298,12 +325,12 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Plays",
         ratePer1000: 8000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // WHATSAPP
+    // 8. WHATSAPP SERVICES
     // ========================================================
 
     {
@@ -311,7 +338,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Followers",
         ratePer1000: 15000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -319,12 +346,12 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Post Reactions",
         ratePer1000: 3500,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
 
     // ========================================================
-    // APPLE MUSIC
+    // 9. APPLE MUSIC SERVICES
     // ========================================================
 
     {
@@ -332,7 +359,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Followers",
         ratePer1000: 10000,
-        minQuantity: 100
+        minimumQuantity: 100
     },
 
     {
@@ -340,10 +367,11 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Plays",
         ratePer1000: 9000,
-        minQuantity: 100
+        minimumQuantity: 100
     }
 
 ];
+
 
 
 // ============================================================
@@ -351,5 +379,7 @@ const hkdmservicesOfficialServicePriceCatalogue = [
 // ============================================================
 
 export {
+
     hkdmservicesOfficialServicePriceCatalogue
+
 };
