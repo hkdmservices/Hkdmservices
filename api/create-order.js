@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     try {
 
         // ====================================================
-        // 1. VERIFY USER
+        // 1. VERIFY FIREBASE USER
         // ====================================================
 
         const authorization =
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 2. GET REQUEST DATA
+        // 2. GET ORDER DATA
         // ====================================================
 
         const {
@@ -166,8 +166,6 @@ export default async function handler(req, res) {
                     );
 
 
-            // Minimum 100 comments
-
             if (
                 cleanedComments.length < 100
             ) {
@@ -184,15 +182,9 @@ export default async function handler(req, res) {
             }
 
 
-            // Quantity is the actual
-            // number of comments
-
             numericQuantity =
                 cleanedComments.length;
 
-
-            // Make sure browser quantity
-            // matches actual comments
 
             if (
                 Number(quantity) !==
@@ -351,16 +343,6 @@ export default async function handler(req, res) {
         // 9. USER REFERENCE
         // ====================================================
 
-        /*
-            IMPORTANT:
-
-            We transact on the entire user object
-            instead of only users/UID/wallet.
-
-            This avoids the wallet transaction
-            problem we were seeing.
-        */
-
         const userRef =
             db.ref(
                 `users/${uid}`
@@ -369,7 +351,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 10. READ USER
+        // 10. GET CURRENT USER
         // ====================================================
 
         const userSnapshot =
@@ -471,30 +453,38 @@ export default async function handler(req, res) {
                     currentUserData => {
 
                         /*
-                            Firebase gives us the
-                            latest user object here.
-                        */
+                         * IMPORTANT:
+                         *
+                         * Firebase may call the transaction
+                         * handler with null on the first attempt.
+                         *
+                         * If that happens, DO NOT abort.
+                         * Return null so Firebase can continue
+                         * the transaction process.
+                         */
 
                         if (
-                            currentUserData === null ||
-                            currentUserData === undefined
+                            currentUserData === null
                         ) {
 
-                            return;
+                            return null;
 
                         }
 
 
                         /*
-                            Make a copy so we don't
-                            accidentally modify the
-                            Firebase object directly.
-                        */
+                         * Make a copy.
+                         */
 
-                        const updatedUser = {
-                            ...currentUserData
-                        };
+                        const updatedUser =
+                            {
+                                ...currentUserData
+                            };
 
+
+                        /*
+                         * Read wallet.
+                         */
 
                         const balance =
                             Number(
@@ -503,8 +493,8 @@ export default async function handler(req, res) {
 
 
                         /*
-                            Invalid wallet
-                        */
+                         * Invalid balance.
+                         */
 
                         if (
                             !Number.isFinite(
@@ -512,27 +502,32 @@ export default async function handler(req, res) {
                             )
                         ) {
 
-                            return;
+                            throw new Error(
+                                "Invalid wallet balance inside transaction."
+                            );
 
                         }
 
 
                         /*
-                            Not enough money
-                        */
+                         * Balance changed and is
+                         * no longer enough.
+                         */
 
                         if (
                             balance < total
                         ) {
 
-                            return;
+                            throw new Error(
+                                "INSUFFICIENT_BALANCE"
+                            );
 
                         }
 
 
                         /*
-                            Deduct amount
-                        */
+                         * Deduct money.
+                         */
 
                         updatedUser.wallet =
                             Number(
@@ -544,11 +539,9 @@ export default async function handler(req, res) {
 
 
                         /*
-                            RETURN THE UPDATED
-                            USER OBJECT.
-
-                            This is critical.
-                        */
+                         * Return the complete
+                         * updated user object.
+                         */
 
                         return updatedUser;
 
@@ -564,6 +557,23 @@ export default async function handler(req, res) {
                 "WALLET TRANSACTION ERROR:",
                 walletError
             );
+
+
+            if (
+                walletError.message ===
+                "INSUFFICIENT_BALANCE"
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Insufficient wallet balance."
+
+                });
+
+            }
 
 
             return res.status(500).json({
@@ -583,66 +593,13 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 13. CHECK COMMIT
+        // 13. CONFIRM TRANSACTION
         // ====================================================
 
         if (
             !walletTransaction ||
             !walletTransaction.committed
         ) {
-
-            /*
-                Read the wallet again.
-            */
-
-            const latestSnapshot =
-                await userRef.once(
-                    "value"
-                );
-
-
-            const latestUser =
-                latestSnapshot.val();
-
-
-            const latestBalance =
-                latestUser
-                    ? Number(
-                        latestUser.wallet
-                    )
-                    : NaN;
-
-
-            if (
-                Number.isFinite(
-                    latestBalance
-                ) &&
-                latestBalance < total
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Insufficient wallet balance. Your balance is ₦${latestBalance.toLocaleString(
-                            "en-NG",
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        )}, but this order costs ₦${total.toLocaleString(
-                            "en-NG",
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        )}.`
-
-                });
-
-            }
-
 
             return res.status(409).json({
 
@@ -684,7 +641,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to confirm your new wallet balance."
+                    "Unable to confirm new wallet balance."
 
             });
 
@@ -705,6 +662,11 @@ export default async function handler(req, res) {
         const orderId =
             orderRef.key;
 
+
+
+        // ====================================================
+        // 16. ORDER DATA
+        // ====================================================
 
         const orderData = {
 
@@ -741,11 +703,6 @@ export default async function handler(req, res) {
         };
 
 
-        /*
-            Save comments for
-            comment services.
-        */
-
         if (
             isCommentService
         ) {
@@ -758,7 +715,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 16. SAVE ORDER
+        // 17. SAVE ORDER
         // ====================================================
 
         try {
@@ -778,10 +735,8 @@ export default async function handler(req, res) {
 
 
             /*
-                ORDER FAILED.
-
-                Refund the wallet.
-            */
+             * Refund wallet.
+             */
 
             try {
 
@@ -793,14 +748,15 @@ export default async function handler(req, res) {
                             !currentUserData
                         ) {
 
-                            return;
+                            return null;
 
                         }
 
 
-                        const refundUser = {
-                            ...currentUserData
-                        };
+                        const refundUser =
+                            {
+                                ...currentUserData
+                            };
 
 
                         const balance =
@@ -815,7 +771,7 @@ export default async function handler(req, res) {
                             )
                         ) {
 
-                            return;
+                            return null;
 
                         }
 
@@ -861,7 +817,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 17. SAVE TRANSACTION
+        // 18. SAVE TRANSACTION RECORD
         // ====================================================
 
         try {
@@ -906,9 +862,8 @@ export default async function handler(req, res) {
 
 
             /*
-                Remove the order because
-                the transaction record failed.
-            */
+             * Remove order.
+             */
 
             try {
 
@@ -927,8 +882,8 @@ export default async function handler(req, res) {
 
 
             /*
-                Refund the wallet.
-            */
+             * Refund wallet.
+             */
 
             try {
 
@@ -940,14 +895,15 @@ export default async function handler(req, res) {
                             !currentUserData
                         ) {
 
-                            return;
+                            return null;
 
                         }
 
 
-                        const refundUser = {
-                            ...currentUserData
-                        };
+                        const refundUser =
+                            {
+                                ...currentUserData
+                            };
 
 
                         const balance =
@@ -962,7 +918,7 @@ export default async function handler(req, res) {
                             )
                         ) {
 
-                            return;
+                            return null;
 
                         }
 
@@ -1008,7 +964,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 18. SUCCESS
+        // 19. SUCCESS
         // ====================================================
 
         return res.status(200).json({
