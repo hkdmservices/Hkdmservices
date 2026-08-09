@@ -10,6 +10,9 @@ import {
 
 import {
     ref,
+    query,
+    orderByChild,
+    equalTo,
     get
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
@@ -62,33 +65,47 @@ function formatNaira(amount) {
 
 
 /* =========================================================
-   LOAD PROFILE
+   LOAD BASIC PROFILE INFORMATION
 ========================================================= */
 
-async function loadProfile(user) {
+async function loadUserData(user) {
 
-    try {
+    /*
+        Basic Firebase Authentication information
+    */
 
-        /*
-            BASIC FIREBASE AUTH INFORMATION
-        */
+    if (profileName) {
 
         profileName.textContent =
             user.displayName ||
             "User";
 
+    }
+
+
+    if (profileEmail) {
+
         profileEmail.textContent =
             user.email ||
             "Not available";
+
+    }
+
+
+    if (profileUid) {
 
         profileUid.textContent =
             user.uid ||
             "Not available";
 
+    }
 
-        /*
-            EMAIL VERIFICATION
-        */
+
+    /*
+        EMAIL VERIFICATION
+    */
+
+    if (emailVerification) {
 
         if (user.emailVerified) {
 
@@ -120,10 +137,14 @@ async function loadProfile(user) {
 
         }
 
+    }
 
-        /*
-            ACCOUNT STATUS
-        */
+
+    /*
+        ACCOUNT STATUS
+    */
+
+    if (accountStatus) {
 
         accountStatus.innerHTML = `
 
@@ -137,10 +158,14 @@ async function loadProfile(user) {
 
         `;
 
+    }
 
-        /*
-            LOAD USER DATA FROM REALTIME DATABASE
-        */
+
+    /*
+        LOAD USER DATABASE RECORD
+    */
+
+    try {
 
         const userRef =
             ref(
@@ -153,68 +178,130 @@ async function loadProfile(user) {
             await get(userRef);
 
 
-        if (userSnapshot.exists()) {
+        if (!userSnapshot.exists()) {
 
-            const userData =
-                userSnapshot.val();
+            console.warn(
+                "USER DATA NOT FOUND"
+            );
+
+            if (profileWallet) {
+
+                profileWallet.textContent =
+                    "₦0.00";
+
+            }
+
+            return;
+
+        }
 
 
-            /*
-                FULL NAME
+        const userData =
+            userSnapshot.val();
 
-                Your database uses fullName,
-                so use it when available.
-            */
+
+        /*
+            FULL NAME
+        */
+
+        if (profileName) {
 
             profileName.textContent =
                 userData.fullName ||
                 user.displayName ||
                 "User";
 
+        }
 
-            /*
-                WALLET BALANCE
-            */
+
+        /*
+            WALLET BALANCE
+        */
+
+        if (profileWallet) {
 
             profileWallet.textContent =
                 formatNaira(
                     userData.wallet
                 );
 
-        } else {
-
-            /*
-                USER DATABASE RECORD
-                DOES NOT EXIST
-            */
-
-            profileWallet.textContent =
-                "₦0.00";
-
         }
 
 
+    } catch (error) {
+
+        console.error(
+            "PROFILE USER DATA ERROR:",
+            error
+        );
+
+
         /*
-            LOAD USER ORDERS
+            Only wallet is affected
+            if user data fails.
         */
 
-        const ordersRef =
-            ref(
-                database,
-                "orders"
+        if (profileWallet) {
+
+            profileWallet.textContent =
+                "Unable to load";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD USER ORDERS
+========================================================= */
+
+async function loadUserOrders(user) {
+
+    try {
+
+        /*
+            IMPORTANT:
+
+            Only query orders belonging
+            to the authenticated user.
+
+            This matches our Firebase
+            security rules.
+        */
+
+        const ordersQuery =
+            query(
+                ref(
+                    database,
+                    "orders"
+                ),
+                orderByChild("uid"),
+                equalTo(user.uid)
             );
 
 
         const ordersSnapshot =
-            await get(ordersRef);
+            await get(
+                ordersQuery
+            );
 
+
+        /*
+            NO ORDERS
+        */
 
         if (
             !ordersSnapshot.exists()
         ) {
 
-            profileOrders.textContent =
-                "0";
+            if (profileOrders) {
+
+                profileOrders.textContent =
+                    "0";
+
+            }
 
             return;
 
@@ -226,44 +313,42 @@ async function loadProfile(user) {
 
 
         /*
-            COUNT ONLY ORDERS
-            BELONGING TO THIS USER
+            Count returned user orders.
         */
 
         const userOrders =
-            Object.values(orders)
-                .filter(
-                    order =>
-                        order &&
-                        order.uid === user.uid
+            Object.values(
+                orders
+            ).filter(
+                order =>
+                    order &&
+                    String(order.uid) ===
+                    String(user.uid)
+            );
+
+
+        if (profileOrders) {
+
+            profileOrders.textContent =
+                String(
+                    userOrders.length
                 );
 
-
-        profileOrders.textContent =
-            String(
-                userOrders.length
-            );
+        }
 
 
     } catch (error) {
 
         console.error(
-            "PROFILE ERROR:",
+            "PROFILE ORDERS ERROR:",
             error
         );
 
 
         /*
-            Do not crash the page.
+            Only order count is affected
+            if the order request fails.
         */
-
-        if (profileWallet) {
-
-            profileWallet.textContent =
-                "Unable to load";
-
-        }
-
 
         if (profileOrders) {
 
@@ -273,6 +358,36 @@ async function loadProfile(user) {
         }
 
     }
+
+}
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+async function loadProfile(user) {
+
+    /*
+        Run profile data and orders
+        independently.
+
+        This prevents an order-loading
+        error from replacing the wallet
+        information with "Unable to load".
+    */
+
+    await Promise.allSettled([
+
+        loadUserData(
+            user
+        ),
+
+        loadUserOrders(
+            user
+        )
+
+    ]);
 
 }
 
@@ -300,10 +415,15 @@ onAuthStateChanged(
 
 
         /*
-            USER IS LOGGED IN
+            USER IS AUTHENTICATED
+
+            Only now do we load
+            Firebase user data.
         */
 
-        await loadProfile(user);
+        await loadProfile(
+            user
+        );
 
     }
 );
@@ -321,7 +441,9 @@ if (logoutBtn) {
 
             try {
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
 
 
                 window.location.href =
