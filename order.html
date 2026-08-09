@@ -13,11 +13,19 @@
 <title>Place Order | HKDMservices</title>
 
 
+<!-- =====================================================
+     BOOTSTRAP
+===================================================== -->
+
 <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
     rel="stylesheet"
 >
 
+
+<!-- =====================================================
+     BOOTSTRAP ICONS
+===================================================== -->
 
 <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
@@ -25,57 +33,15 @@
 >
 
 
+<!-- =====================================================
+     HKDMservices CSS
+===================================================== -->
+
 <link
     href="style.css"
     rel="stylesheet"
 >
 
-
-<style>
-
-.order-card {
-
-    border-radius: 18px;
-
-}
-
-
-.price-box {
-
-    background: #d1e7dd;
-
-    border: 1px solid #a3cfbb;
-
-    color: #0f5132;
-
-    border-radius: 14px;
-
-}
-
-
-.comment-box {
-
-    display: none;
-
-}
-
-
-.comment-box textarea {
-
-    min-height: 140px;
-
-    resize: vertical;
-
-}
-
-
-.fixed-package-note {
-
-    display: none;
-
-}
-
-</style>
 
 </head>
 
@@ -97,9 +63,9 @@
     href="dashboard.html"
 >
 
-<span class="brand-icon">⬢</span>
+    <span class="brand-icon">⬢</span>
 
-HKDMservices
+    HKDMservices
 
 </a>
 
@@ -109,9 +75,9 @@ HKDMservices
     class="btn btn-outline-light"
 >
 
-<i class="bi bi-arrow-left"></i>
+    <i class="bi bi-arrow-left"></i>
 
-Services
+    Services
 
 </a>
 
@@ -123,7 +89,7 @@ Services
 
 
 <!-- =====================================================
-     MAIN
+     MAIN CONTENT
 ===================================================== -->
 
 <section class="py-5">
@@ -135,7 +101,7 @@ Services
 
 <h1 class="fw-bold">
 
-Place an Order
+    Place an Order
 
 </h1>
 
@@ -145,7 +111,7 @@ Place an Order
     id="platformTitle"
 >
 
-Loading platform...
+    Loading platform...
 
 </p>
 
@@ -158,7 +124,7 @@ Loading platform...
 <div class="col-12 col-lg-7">
 
 
-<div class="card shadow border-0 order-card">
+<div class="card shadow border-0">
 
 <div class="card-body p-4">
 
@@ -174,7 +140,7 @@ Loading platform...
     class="form-label fw-bold"
 >
 
-Select Service
+    Select Service
 
 </label>
 
@@ -184,11 +150,11 @@ Select Service
     class="form-select"
 >
 
-<option value="">
+    <option value="">
 
-Loading services...
+        Loading services...
 
-</option>
+    </option>
 
 </select>
 
@@ -201,7 +167,7 @@ Loading services...
 ================================================= -->
 
 <div
-    class="alert price-box"
+    class="alert alert-success"
     id="priceBox"
 >
 
@@ -209,14 +175,14 @@ Loading services...
 
 <span>
 
-Rate
+    Rate
 
 </span>
 
 
 <strong id="rate">
 
-₦0.00
+    ₦0.00
 
 </strong>
 
@@ -227,14 +193,14 @@ Rate
 
 <span>
 
-Total
+    Total
 
 </span>
 
 
 <strong id="totalPrice">
 
-₦0.00
+    ₦0.00
 
 </strong>
 
@@ -245,7 +211,7 @@ Total
 
 
 <!-- =================================================
-     LINK
+     TARGET LINK
 ================================================= -->
 
 <div class="mb-4">
@@ -255,7 +221,7 @@ Total
     class="form-label fw-bold"
 >
 
-Target Link
+    Target Link
 
 </label>
 
@@ -265,14 +231,13 @@ Target Link
     id="link"
     class="form-control"
     placeholder="https://..."
-    required
 >
 
 
 <div class="form-text">
 
-Enter the link to your profile, post, video,
-channel, livestream or content.
+    Enter the link to your profile, post, video,
+    channel, livestream or content.
 
 </div>
 
@@ -281,36 +246,36 @@ channel, livestream or content.
 
 
 <!-- =================================================
-     COMMENT FIELD
+     CUSTOM COMMENTS
+     SHOWN ONLY FOR COMMENT SERVICES
 ================================================= -->
 
 <div
-    class="mb-4 comment-box"
-    id="commentContainer"
+    class="mb-4 d-none"
+    id="commentsContainer"
 >
 
 <label
-    for="comment"
+    for="comments"
     class="form-label fw-bold"
 >
 
-Custom Comments
+    Comments
 
 </label>
 
 
 <textarea
-    id="comment"
+    id="comments"
     class="form-control"
-    placeholder="Enter the comments you want delivered. You can enter multiple comments, one per line."
+    rows="5"
+    placeholder="Enter the comments you want to use. You can enter multiple comments, one per line."
 ></textarea>
 
 
 <div class="form-text">
 
-Enter the comments you want used for this
-comment service. For multiple comments,
-put each comment on a new line.
+    Enter your custom comments, one comment per line.
 
 </div>
 
@@ -332,7 +297,7 @@ put each comment on a new line.
     class="form-label fw-bold"
 >
 
-Quantity
+    Quantity
 
 </label>
 
@@ -343,7 +308,7 @@ Quantity
     class="form-control"
     min="1"
     step="1"
-    value="100"
+    value="1"
 >
 
 
@@ -352,7 +317,7 @@ Quantity
     id="quantityHelp"
 >
 
-Minimum quantity: 100
+    Minimum quantity: 1
 
 </div>
 
@@ -361,25 +326,7 @@ Minimum quantity: 100
 
 
 <!-- =================================================
-     FIXED PACKAGE MESSAGE
-================================================= -->
-
-<div
-    id="fixedPackageNote"
-    class="alert alert-info fixed-package-note"
->
-
-<i class="bi bi-info-circle"></i>
-
-This is a fixed-price package.
-Quantity represents the number of packages.
-
-</div>
-
-
-
-<!-- =================================================
-     PLACE ORDER
+     ORDER BUTTON
 ================================================= -->
 
 <div class="d-grid">
@@ -390,9 +337,9 @@ Quantity represents the number of packages.
     class="btn btn-success btn-lg"
 >
 
-<i class="bi bi-cart-check"></i>
+    <i class="bi bi-cart-check"></i>
 
-Place Order
+    Place Order
 
 </button>
 
@@ -422,9 +369,9 @@ Place Order
 
 
 
-<!-- =================================================
+<!-- =====================================================
      INFORMATION
-================================================= -->
+===================================================== -->
 
 <div class="row justify-content-center mt-4">
 
@@ -446,29 +393,44 @@ Order Information
 <ul class="mb-0 text-muted">
 
 <li>
-Minimum quantity is displayed automatically
-for each service.
+
+    Minimum quantity is automatically determined
+    for each service.
+
 </li>
 
-<li>
-Prices are calculated automatically from the
-official catalogue.
-</li>
 
 <li>
-Per-1,000 services are calculated according to
-the quantity entered.
+
+    Prices are calculated automatically from
+    the official catalogue.
+
 </li>
 
-<li>
-Fixed-price packages use their listed package
-price multiplied by the package quantity.
-</li>
 
 <li>
-Comment services allow customers to provide
-their own comments.
+
+    Per-1,000 services are calculated according
+    to the quantity entered.
+
 </li>
+
+
+<li>
+
+    Fixed-price packages use their listed package
+    price multiplied by the package quantity.
+
+</li>
+
+
+<li>
+
+    Comment services allow you to enter
+    customized comments.
+
+</li>
+
 
 </ul>
 
@@ -494,15 +456,21 @@ their own comments.
 <script type="module">
 
 
-import {
-    auth
-} from "./firebase.js";
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+import { auth } from "./firebase.js";
 
 
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+
+/* =====================================================
+   SERVICE CATALOGUE
+===================================================== */
 
 import {
     hkdmservicesOfficialServicePriceCatalogue
@@ -515,77 +483,53 @@ import {
 ===================================================== */
 
 const serviceSelect =
-    document.getElementById(
-        "service"
-    );
+    document.getElementById("service");
 
 
 const platformTitle =
-    document.getElementById(
-        "platformTitle"
-    );
+    document.getElementById("platformTitle");
 
 
 const rateDisplay =
-    document.getElementById(
-        "rate"
-    );
+    document.getElementById("rate");
 
 
 const totalDisplay =
-    document.getElementById(
-        "totalPrice"
-    );
+    document.getElementById("totalPrice");
 
 
 const quantityInput =
-    document.getElementById(
-        "quantity"
-    );
+    document.getElementById("quantity");
 
 
 const quantityContainer =
-    document.getElementById(
-        "quantityContainer"
-    );
+    document.getElementById("quantityContainer");
 
 
 const quantityHelp =
-    document.getElementById(
-        "quantityHelp"
-    );
+    document.getElementById("quantityHelp");
 
 
-const commentContainer =
-    document.getElementById(
-        "commentContainer"
-    );
+const commentsContainer =
+    document.getElementById("commentsContainer");
 
 
-const commentInput =
-    document.getElementById(
-        "comment"
-    );
-
-
-const fixedPackageNote =
-    document.getElementById(
-        "fixedPackageNote"
-    );
+const commentsInput =
+    document.getElementById("comments");
 
 
 const placeOrderButton =
-    document.getElementById(
-        "placeOrder"
-    );
+    document.getElementById("placeOrder");
 
 
 const message =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
 
 
+
+/* =====================================================
+   CURRENT USER
+===================================================== */
 
 let currentUser = null;
 
@@ -608,6 +552,7 @@ onAuthStateChanged(
 
         }
 
+
         currentUser = user;
 
     }
@@ -616,7 +561,7 @@ onAuthStateChanged(
 
 
 /* =====================================================
-   PLATFORM
+   URL PLATFORM
 ===================================================== */
 
 const urlParams =
@@ -626,9 +571,7 @@ const urlParams =
 
 
 const platform =
-    urlParams.get(
-        "platform"
-    );
+    urlParams.get("platform");
 
 
 
@@ -639,9 +582,7 @@ const platform =
 function formatNaira(amount) {
 
     return "₦" +
-        Number(
-            amount || 0
-        ).toLocaleString(
+        Number(amount || 0).toLocaleString(
             "en-NG",
             {
                 minimumFractionDigits: 2,
@@ -654,7 +595,7 @@ function formatNaira(amount) {
 
 
 /* =====================================================
-   MESSAGE
+   SHOW MESSAGE
 ===================================================== */
 
 function showMessage(
@@ -664,6 +605,7 @@ function showMessage(
 
     message.textContent =
         text;
+
 
     message.className =
         "alert alert-" +
@@ -692,135 +634,228 @@ function getSelectedService() {
 
 
 /* =====================================================
-   UPDATE SERVICE FIELDS
+   GET MINIMUM QUANTITY
 ===================================================== */
 
-function updateServiceFields() {
+function getMinimumQuantity(service) {
 
-    const selectedService =
-        getSelectedService();
+    if (!service) {
+
+        return 1;
+
+    }
 
 
-    if (!selectedService) {
+    /*
+        If a service has its own
+        minimumQuantity, use it.
+    */
 
-        rateDisplay.textContent =
-            "₦0.00";
+    if (
+        Number.isFinite(
+            Number(service.minimumQuantity)
+        )
+    ) {
 
-        totalDisplay.textContent =
-            "₦0.00";
+        return Number(
+            service.minimumQuantity
+        );
 
-        quantityInput.value =
-            100;
+    }
+
+
+    /*
+        Fixed-price packages
+        default to 1 package.
+    */
+
+    if (
+        service.ratePer1000 === null
+    ) {
+
+        return 1;
+
+    }
+
+
+    /*
+        Normal services
+        default to 100.
+    */
+
+    return 100;
+
+}
+
+
+
+/* =====================================================
+   IS COMMENT SERVICE?
+===================================================== */
+
+function isCommentService(service) {
+
+    if (!service) {
+
+        return false;
+
+    }
+
+
+    const serviceName =
+        String(
+            service.service || ""
+        ).toLowerCase();
+
+
+    return serviceName.includes(
+        "comment"
+    );
+
+}
+
+
+
+/* =====================================================
+   UPDATE COMMENTS FIELD
+===================================================== */
+
+function updateCommentsField(service) {
+
+    if (
+        isCommentService(service)
+    ) {
+
+        commentsContainer.classList.remove(
+            "d-none"
+        );
+
+
+        commentsInput.required =
+            true;
+
+    } else {
+
+        commentsContainer.classList.add(
+            "d-none"
+        );
+
+
+        commentsInput.required =
+            false;
+
+
+        commentsInput.value =
+            "";
+
+    }
+
+}
+
+
+
+/* =====================================================
+   UPDATE QUANTITY FIELD
+===================================================== */
+
+function updateQuantityField(service) {
+
+    if (!service) {
+
+        quantityContainer.classList.remove(
+            "d-none"
+        );
+
 
         quantityInput.min =
-            100;
+            "1";
+
+
+        quantityInput.step =
+            "1";
+
+
+        quantityInput.value =
+            "1";
+
 
         quantityHelp.textContent =
-            "Minimum quantity: 100";
-
-        quantityContainer.style.display =
-            "block";
-
-        commentContainer.style.display =
-            "none";
-
-        fixedPackageNote.style.display =
-            "none";
+            "Minimum quantity: 1";
 
         return;
 
     }
 
 
-
-    /* =================================================
-       MINIMUM QUANTITY
-    ================================================= */
-
-    const minimumQuantity =
-        Number(
-            selectedService.minQuantity ||
-            (
-                selectedService.fixedPackage
-                    ? 1
-                    : 100
-            )
+    const minimum =
+        getMinimumQuantity(
+            service
         );
 
 
     quantityInput.min =
-        minimumQuantity;
+        String(minimum);
 
 
-    quantityInput.value =
-        minimumQuantity;
+    quantityInput.step =
+        service.ratePer1000 === null
+            ? "1"
+            : "1";
 
 
-    quantityHelp.textContent =
-        selectedService.fixedPackage
+    /*
+        IMPORTANT:
+        Fixed package = quantity remains visible.
+        It represents number of packages.
+    */
 
-            ? "Minimum package quantity: " +
-              minimumQuantity
-
-            : "Minimum quantity: " +
-              minimumQuantity;
+    quantityContainer.classList.remove(
+        "d-none"
+    );
 
 
+    /*
+        Reset quantity if current
+        quantity is below minimum.
+    */
 
-    /* =================================================
-       FIXED PACKAGE
-    ================================================= */
+    const currentQuantity =
+        Number(
+            quantityInput.value
+        );
+
 
     if (
-        selectedService.fixedPackage
+        !Number.isFinite(
+            currentQuantity
+        ) ||
+        currentQuantity < minimum
     ) {
 
-        quantityContainer.style.display =
-            "block";
-
-        fixedPackageNote.style.display =
-            "block";
-
-        rateDisplay.textContent =
-            formatNaira(
-                selectedService.fixedPrice
-            );
-
-
-        calculateTotal();
-
-    } else {
-
-        quantityContainer.style.display =
-            "block";
-
-        fixedPackageNote.style.display =
-            "none";
-
-        calculateTotal();
+        quantityInput.value =
+            minimum;
 
     }
 
 
-
-    /* =================================================
-       COMMENT FIELD
-    ================================================= */
-
     if (
-        selectedService.requiresComment === true
+        service.ratePer1000 === null
     ) {
 
-        commentContainer.style.display =
-            "block";
+        quantityHelp.textContent =
+            "Minimum package quantity: " +
+            minimum +
+            ". Each package costs " +
+            formatNaira(
+                service.fixedPrice
+            ) +
+            ".";
 
     } else {
 
-        commentContainer.style.display =
-            "none";
-
-        commentInput.value =
-            "";
+        quantityHelp.textContent =
+            "Minimum quantity: " +
+            minimum;
 
     }
 
@@ -843,33 +878,62 @@ function calculateTotal() {
         rateDisplay.textContent =
             "₦0.00";
 
+
         totalDisplay.textContent =
             "₦0.00";
+
+
+        updateQuantityField(
+            null
+        );
+
+
+        updateCommentsField(
+            null
+        );
+
 
         return;
 
     }
 
 
-    const quantity =
-        Number(
-            quantityInput.value
-        ) || 0;
+    const minimum =
+        getMinimumQuantity(
+            selectedService
+        );
 
 
-
-    /* =================================================
-       FIXED PRICE
-    ================================================= */
+    /*
+        FIXED PRICE PACKAGE
+    */
 
     if (
-        selectedService.fixedPackage === true
+        selectedService.ratePer1000 === null
     ) {
+
+        const packageQuantity =
+            Math.max(
+                Number(
+                    quantityInput.value
+                ) || minimum,
+                minimum
+            );
+
+
+        quantityInput.value =
+            packageQuantity;
+
 
         const packagePrice =
             Number(
                 selectedService.fixedPrice
             );
+
+
+        const total =
+            packageQuantity *
+            packagePrice;
 
 
         rateDisplay.textContent =
@@ -880,9 +944,18 @@ function calculateTotal() {
 
         totalDisplay.textContent =
             formatNaira(
-                packagePrice *
-                quantity
+                total
             );
+
+
+        updateQuantityField(
+            selectedService
+        );
+
+
+        updateCommentsField(
+            selectedService
+        );
 
 
         return;
@@ -890,10 +963,22 @@ function calculateTotal() {
     }
 
 
+    /*
+        NORMAL PER-1,000 SERVICE
+    */
 
-    /* =================================================
-       NORMAL PER-1000 SERVICE
-    ================================================= */
+    const quantity =
+        Math.max(
+            Number(
+                quantityInput.value
+            ) || minimum,
+            minimum
+        );
+
+
+    quantityInput.value =
+        quantity;
+
 
     const rate =
         Number(
@@ -919,363 +1004,17 @@ function calculateTotal() {
             total
         );
 
+
+    updateQuantityField(
+        selectedService
+    );
+
+
+    updateCommentsField(
+        selectedService
+    );
+
 }
-
-
-
-/* =====================================================
-   SERVICE CHANGED
-===================================================== */
-
-serviceSelect.addEventListener(
-    "change",
-    updateServiceFields
-);
-
-
-
-/* =====================================================
-   QUANTITY CHANGED
-===================================================== */
-
-quantityInput.addEventListener(
-    "input",
-    calculateTotal
-);
-
-
-
-/* =====================================================
-   PLACE ORDER
-===================================================== */
-
-placeOrderButton.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-
-            /* =========================================
-               AUTH
-            ========================================= */
-
-            if (!currentUser) {
-
-                showMessage(
-                    "Please log in before placing an order."
-                );
-
-                return;
-
-            }
-
-
-
-            /* =========================================
-               SERVICE
-            ========================================= */
-
-            const selectedService =
-                getSelectedService();
-
-
-            if (!selectedService) {
-
-                showMessage(
-                    "Please select a service."
-                );
-
-                return;
-
-            }
-
-
-
-            /* =========================================
-               LINK
-            ========================================= */
-
-            const link =
-                document
-                    .getElementById(
-                        "link"
-                    )
-                    .value
-                    .trim();
-
-
-            if (!link) {
-
-                showMessage(
-                    "Please enter your target link."
-                );
-
-                return;
-
-            }
-
-
-
-            /* =========================================
-               QUANTITY
-            ========================================= */
-
-            const quantity =
-                Number(
-                    quantityInput.value
-                );
-
-
-            const minimumQuantity =
-                Number(
-                    selectedService.minQuantity ||
-                    (
-                        selectedService.fixedPackage
-                            ? 1
-                            : 100
-                    )
-                );
-
-
-            if (
-                !Number.isFinite(quantity) ||
-                quantity < minimumQuantity
-            ) {
-
-                showMessage(
-                    selectedService.fixedPackage
-
-                        ? "Minimum package quantity is " +
-                          minimumQuantity +
-                          "."
-
-                        : "Minimum quantity is " +
-                          minimumQuantity +
-                          "."
-                );
-
-                return;
-
-            }
-
-
-
-            /* =========================================
-               COMMENT
-            ========================================= */
-
-            let comment = "";
-
-
-            if (
-                selectedService.requiresComment === true
-            ) {
-
-                comment =
-                    commentInput
-                        .value
-                        .trim();
-
-
-                if (!comment) {
-
-                    showMessage(
-                        "Please enter the comments you want for this service."
-                    );
-
-                    return;
-
-                }
-
-            }
-
-
-
-            /* =========================================
-               PREVENT DOUBLE CLICK
-            ========================================= */
-
-            placeOrderButton.disabled =
-                true;
-
-
-            placeOrderButton.innerHTML =
-
-                `<span
-                    class="spinner-border
-                    spinner-border-sm
-                    me-2"
-                ></span>
-
-                Processing Order...`;
-
-
-
-            /* =========================================
-               FIREBASE TOKEN
-            ========================================= */
-
-            const idToken =
-                await currentUser.getIdToken(
-                    true
-                );
-
-
-
-            /* =========================================
-               BACKEND
-            ========================================= */
-
-            const response =
-                await fetch(
-                    "/api/create-order",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                "Bearer " +
-                                idToken
-
-                        },
-
-
-                        body:
-                            JSON.stringify({
-
-                                serviceId:
-                                    selectedService.id,
-
-                                link:
-                                    link,
-
-                                quantity:
-                                    quantity,
-
-                                comment:
-                                    comment
-
-                            })
-
-                    }
-                );
-
-
-
-            /* =========================================
-               RESPONSE
-            ========================================= */
-
-            const result =
-                await response.json();
-
-
-
-            if (!response.ok) {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-                return;
-
-            }
-
-
-
-            /* =========================================
-               SUCCESS
-            ========================================= */
-
-            if (
-                result.success
-            ) {
-
-                showMessage(
-
-                    "Order placed successfully! " +
-                    "Order ID: " +
-                    (
-                        result.orderId ||
-                        "Pending"
-                    ),
-
-                    "success"
-
-                );
-
-
-                document
-                    .getElementById(
-                        "link"
-                    )
-                    .value =
-                    "";
-
-
-                commentInput.value =
-                    "";
-
-
-                quantityInput.value =
-                    Number(
-                        selectedService.minQuantity ||
-                        (
-                            selectedService.fixedPackage
-                                ? 1
-                                : 100
-                        )
-                    );
-
-
-                calculateTotal();
-
-            } else {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "ORDER ERROR:",
-                error
-            );
-
-
-            showMessage(
-                "Unable to connect to the order system. Please try again."
-            );
-
-
-        } finally {
-
-            placeOrderButton.disabled =
-                false;
-
-
-            placeOrderButton.innerHTML =
-
-                `<i class="bi bi-cart-check"></i>
-
-                 Place Order`;
-
-        }
-
-    }
-);
 
 
 
@@ -1379,6 +1118,394 @@ if (!platform) {
 }
 
 
+
+/* =====================================================
+   SERVICE CHANGED
+===================================================== */
+
+serviceSelect.addEventListener(
+    "change",
+    () => {
+
+        const selectedService =
+            getSelectedService();
+
+
+        updateQuantityField(
+            selectedService
+        );
+
+
+        updateCommentsField(
+            selectedService
+        );
+
+
+        calculateTotal();
+
+    }
+);
+
+
+
+/* =====================================================
+   QUANTITY CHANGED
+===================================================== */
+
+quantityInput.addEventListener(
+    "input",
+    () => {
+
+        calculateTotal();
+
+    }
+);
+
+
+
+/* =====================================================
+   PLACE ORDER
+===================================================== */
+
+placeOrderButton.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+
+            /* =========================================
+               AUTHENTICATION
+            ========================================= */
+
+            if (!currentUser) {
+
+                showMessage(
+                    "Please log in before placing an order."
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               SERVICE
+            ========================================= */
+
+            const selectedService =
+                getSelectedService();
+
+
+            if (!selectedService) {
+
+                showMessage(
+                    "Please select a service."
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               LINK
+            ========================================= */
+
+            const link =
+                document
+                    .getElementById(
+                        "link"
+                    )
+                    .value
+                    .trim();
+
+
+            if (!link) {
+
+                showMessage(
+                    "Please enter your target link."
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               QUANTITY
+            ========================================= */
+
+            const minimum =
+                getMinimumQuantity(
+                    selectedService
+                );
+
+
+            const quantity =
+                Number(
+                    quantityInput.value
+                );
+
+
+            if (
+                !Number.isFinite(
+                    quantity
+                ) ||
+                quantity < minimum
+            ) {
+
+                showMessage(
+                    "Minimum quantity for this service is " +
+                    minimum +
+                    "."
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               CUSTOM COMMENTS
+            ========================================= */
+
+            let comments = "";
+
+
+            if (
+                isCommentService(
+                    selectedService
+                )
+            ) {
+
+                comments =
+                    commentsInput.value.trim();
+
+
+                if (!comments) {
+
+                    showMessage(
+                        "Please enter the comments you want to use."
+                    );
+
+                    commentsInput.focus();
+
+                    return;
+
+                }
+
+            }
+
+
+
+            /* =========================================
+               PREVENT DOUBLE CLICK
+            ========================================= */
+
+            placeOrderButton.disabled =
+                true;
+
+
+            placeOrderButton.innerHTML = `
+
+                <span
+                    class="spinner-border
+                    spinner-border-sm
+                    me-2"
+                ></span>
+
+                Processing Order...
+
+            `;
+
+
+
+            /* =========================================
+               FIREBASE ID TOKEN
+            ========================================= */
+
+            const idToken =
+                await currentUser.getIdToken(
+                    true
+                );
+
+
+
+            /* =========================================
+               SEND ORDER
+            ========================================= */
+
+            const response =
+                await fetch(
+                    "/api/create-order",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Authorization":
+                                "Bearer " +
+                                idToken
+
+                        },
+
+
+                        body:
+                            JSON.stringify({
+
+                                serviceId:
+                                    selectedService.id,
+
+                                platform:
+                                    selectedService.platform,
+
+                                service:
+                                    selectedService.service,
+
+                                link:
+                                    link,
+
+                                quantity:
+                                    quantity,
+
+                                comments:
+                                    comments
+
+                            })
+
+                    }
+                );
+
+
+
+            /* =========================================
+               RESPONSE
+            ========================================= */
+
+            const result =
+                await response.json();
+
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    result.message ||
+                    "Unable to place order."
+                );
+
+                return;
+
+            }
+
+
+
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            if (
+                result.success
+            ) {
+
+                showMessage(
+
+                    "Order placed successfully! " +
+                    "Order ID: " +
+                    result.orderId,
+
+                    "success"
+
+                );
+
+
+                /*
+                    Clear target link.
+                */
+
+                document
+                    .getElementById(
+                        "link"
+                    )
+                    .value =
+                    "";
+
+
+                /*
+                    Clear comments.
+                */
+
+                commentsInput.value =
+                    "";
+
+
+                /*
+                    Reset quantity
+                    to service minimum.
+                */
+
+                quantityInput.value =
+                    minimum;
+
+
+                calculateTotal();
+
+            } else {
+
+                showMessage(
+                    result.message ||
+                    "Unable to place order."
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "ORDER ERROR:",
+                error
+            );
+
+
+            showMessage(
+                "Unable to connect to the order system. Please try again."
+            );
+
+
+        } finally {
+
+            placeOrderButton.disabled =
+                false;
+
+
+            placeOrderButton.innerHTML = `
+
+                <i class="bi bi-cart-check"></i>
+
+                Place Order
+
+            `;
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   INITIAL STATE
+===================================================== */
 
 calculateTotal();
 
