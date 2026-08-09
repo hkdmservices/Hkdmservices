@@ -9,10 +9,10 @@ import {
 
 import {
     ref,
-    get,
     query,
     orderByChild,
-    equalTo
+    equalTo,
+    get
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -26,11 +26,6 @@ const message =
         "message"
     );
 
-
-
-/* =========================================================
-   FORMAT NAIRA
-========================================================= */
 
 function formatNaira(amount) {
 
@@ -46,11 +41,6 @@ function formatNaira(amount) {
 }
 
 
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
 function formatDate(timestamp) {
 
     if (!timestamp) {
@@ -58,7 +48,6 @@ function formatDate(timestamp) {
         return "—";
 
     }
-
 
     return new Date(
         timestamp
@@ -73,11 +62,6 @@ function formatDate(timestamp) {
 }
 
 
-
-/* =========================================================
-   SHOW MESSAGE
-========================================================= */
-
 function showMessage(
     text,
     type = "danger"
@@ -89,7 +73,6 @@ function showMessage(
 
     }
 
-
     message.textContent =
         text;
 
@@ -100,314 +83,6 @@ function showMessage(
 
 }
 
-
-
-/* =========================================================
-   LOAD USER TRANSACTIONS
-========================================================= */
-
-async function loadTransactions(uid) {
-
-    try {
-
-        /*
-            IMPORTANT:
-
-            Only request transactions belonging
-            to the currently logged-in user.
-
-            Firebase rules will require this
-            exact query.
-        */
-
-        const transactionsQuery =
-            query(
-                ref(
-                    database,
-                    "transactions"
-                ),
-
-                orderByChild(
-                    "uid"
-                ),
-
-                equalTo(
-                    uid
-                )
-            );
-
-
-        const snapshot =
-            await get(
-                transactionsQuery
-            );
-
-
-
-        /* =================================================
-           NO TRANSACTIONS
-        ================================================= */
-
-        if (
-            !snapshot.exists()
-        ) {
-
-            transactionsBody.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="5"
-                        class="text-center py-5 text-muted"
-                    >
-
-                        No transactions yet.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-
-        /* =================================================
-           CONVERT DATA TO ARRAY
-        ================================================= */
-
-        const data =
-            snapshot.val();
-
-
-        const userTransactions =
-            Object.entries(data)
-
-                .map(
-                    ([id, transaction]) => ({
-
-                        id,
-
-                        ...transaction
-
-                    })
-                )
-
-                .sort(
-                    (a, b) =>
-                        Number(
-                            b.createdAt || 0
-                        ) -
-                        Number(
-                            a.createdAt || 0
-                        )
-                );
-
-
-
-        /* =================================================
-           SAFETY CHECK
-        ================================================= */
-
-        if (
-            userTransactions.length === 0
-        ) {
-
-            transactionsBody.innerHTML = `
-
-                <tr>
-
-                    <td
-                        colspan="5"
-                        class="text-center py-5 text-muted"
-                    >
-
-                        No transactions yet.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-            return;
-
-        }
-
-
-
-        /* =================================================
-           DISPLAY TRANSACTIONS
-        ================================================= */
-
-        transactionsBody.innerHTML =
-            "";
-
-
-
-        userTransactions.forEach(
-            transaction => {
-
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                const type =
-                    transaction.type ||
-                    "transaction";
-
-
-                const amount =
-                    Number(
-                        transaction.amount ||
-                        0
-                    );
-
-
-                const status =
-                    String(
-                        transaction.status ||
-                        "pending"
-                    ).toLowerCase();
-
-
-                let statusClass =
-                    "bg-warning text-dark";
-
-
-                if (
-                    status === "success"
-                ) {
-
-                    statusClass =
-                        "bg-success";
-
-                }
-
-
-                if (
-                    status === "failed"
-                ) {
-
-                    statusClass =
-                        "bg-danger";
-
-                }
-
-
-
-                row.innerHTML = `
-
-                    <td>
-
-                        ${formatDate(
-                            transaction.createdAt
-                        )}
-
-                    </td>
-
-
-                    <td>
-
-                        <span
-                            class="badge bg-secondary"
-                        >
-
-                            ${type}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-
-                        ${transaction.description ||
-                        "—"}
-
-                    </td>
-
-
-                    <td
-                        class="fw-bold"
-                    >
-
-                        ${formatNaira(
-                            amount
-                        )}
-
-                    </td>
-
-
-                    <td>
-
-                        <span
-                            class="badge ${statusClass}"
-                        >
-
-                            ${status}
-
-                        </span>
-
-                    </td>
-
-                `;
-
-
-                transactionsBody.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "TRANSACTIONS ERROR:",
-            error
-        );
-
-
-        transactionsBody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="5"
-                    class="text-center py-5 text-danger"
-                >
-
-                    Unable to load transactions.
-
-                    Please try again.
-
-                </td>
-
-            </tr>
-
-        `;
-
-
-        showMessage(
-            "Unable to load your transactions. Please try again."
-        );
-
-    }
-
-}
-
-
-
-/* =========================================================
-   AUTHENTICATION
-========================================================= */
 
 onAuthStateChanged(
     auth,
@@ -423,9 +98,240 @@ onAuthStateChanged(
         }
 
 
-        await loadTransactions(
-            user.uid
-        );
+        try {
+
+            /*
+                SECURITY:
+                Only request transactions
+                belonging to the logged-in user.
+            */
+
+            const transactionsQuery =
+                query(
+                    ref(
+                        database,
+                        "transactions"
+                    ),
+                    orderByChild("uid"),
+                    equalTo(user.uid)
+                );
+
+
+            const snapshot =
+                await get(
+                    transactionsQuery
+                );
+
+
+            if (!snapshot.exists()) {
+
+                transactionsBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="text-center py-5 text-muted"
+                        >
+
+                            No transactions yet.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            const data =
+                snapshot.val();
+
+
+            const userTransactions =
+                Object.entries(data)
+
+                    .map(
+                        ([id, transaction]) => ({
+
+                            id,
+
+                            ...transaction
+
+                        })
+                    )
+
+                    .sort(
+                        (a, b) =>
+                            Number(
+                                b.createdAt || 0
+                            ) -
+                            Number(
+                                a.createdAt || 0
+                            )
+                    );
+
+
+            if (
+                userTransactions.length === 0
+            ) {
+
+                transactionsBody.innerHTML = `
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="text-center py-5 text-muted"
+                        >
+
+                            No transactions yet.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+                return;
+
+            }
+
+
+            transactionsBody.innerHTML =
+                "";
+
+
+            userTransactions.forEach(
+                transaction => {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    const type =
+                        transaction.type ||
+                        "transaction";
+
+
+                    const amount =
+                        Number(
+                            transaction.amount ||
+                            0
+                        );
+
+
+                    const status =
+                        transaction.status ||
+                        "pending";
+
+
+                    const statusClass =
+                        status === "success"
+                            ? "bg-success"
+                            : status === "failed"
+                                ? "bg-danger"
+                                : "bg-warning text-dark";
+
+
+                    row.innerHTML = `
+
+                        <td>
+
+                            ${formatDate(
+                                transaction.createdAt
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge bg-secondary"
+                            >
+
+                                ${type}
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            ${transaction.description ||
+                            "—"}
+
+                        </td>
+
+                        <td
+                            class="fw-bold"
+                        >
+
+                            ${formatNaira(
+                                amount
+                            )}
+
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge ${statusClass}"
+                            >
+
+                                ${status}
+
+                            </span>
+
+                        </td>
+
+                    `;
+
+
+                    transactionsBody.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "TRANSACTIONS ERROR:",
+                error
+            );
+
+
+            transactionsBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="text-center py-5 text-danger"
+                    >
+
+                        Unable to load transactions.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            showMessage(
+                "Unable to load your transactions. Please refresh the page."
+            );
+
+        }
 
     }
 );
