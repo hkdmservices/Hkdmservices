@@ -117,7 +117,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 5. VALIDATE COMMENTS
+        // 5. VALIDATE QUANTITY / COMMENTS
         // ====================================================
 
         let cleanedComments = [];
@@ -125,11 +125,12 @@ export default async function handler(req, res) {
         let numericQuantity;
 
 
-        if (isCommentService) {
 
-            /*
-                Comments must arrive as an array.
-            */
+        // ====================================================
+        // COMMENT SERVICE
+        // ====================================================
+
+        if (isCommentService) {
 
             if (!Array.isArray(comments)) {
 
@@ -145,10 +146,11 @@ export default async function handler(req, res) {
             }
 
 
+
             /*
                 Clean comments.
 
-                Empty lines are ignored.
+                Empty lines are removed.
                 Spaces around comments are removed.
             */
 
@@ -189,13 +191,19 @@ export default async function handler(req, res) {
 
 
             /*
-                Quantity MUST equal
-                the actual number of comments.
+                Quantity is ALWAYS the
+                actual number of comments.
             */
 
             numericQuantity =
                 cleanedComments.length;
 
+
+
+            /*
+                Prevent the browser from
+                sending a fake quantity.
+            */
 
             if (
                 Number(quantity) !==
@@ -218,7 +226,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 6. FIXED PACKAGE
+        // FIXED PACKAGE
         // ====================================================
 
         else if (
@@ -258,7 +266,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 7. NORMAL SERVICE
+        // NORMAL SERVICE
         // ====================================================
 
         else {
@@ -296,14 +304,15 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 8. CALCULATE ORDER PRICE
+        // 6. CALCULATE TOTAL
         // ====================================================
 
         let total;
 
 
+
         /*
-            FIXED PACKAGE
+            Fixed-price package
         */
 
         if (
@@ -319,8 +328,9 @@ export default async function handler(req, res) {
         }
 
 
+
         /*
-            PER-1000 SERVICE
+            Per-1000 service
         */
 
         else {
@@ -345,7 +355,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 9. WALLET REFERENCE
+        // 7. WALLET TRANSACTION
         // ====================================================
 
         const walletRef =
@@ -354,27 +364,6 @@ export default async function handler(req, res) {
             );
 
 
-
-        // ====================================================
-        // 10. ATOMIC WALLET TRANSACTION
-        // ====================================================
-        /*
-            IMPORTANT:
-
-            We do NOT read the wallet first.
-
-            Firebase gives the transaction the
-            current wallet balance.
-
-            If the balance is enough,
-            subtract the order amount.
-
-            If the balance is not enough,
-            abort the transaction.
-
-            This prevents race conditions and
-            prevents the wallet from becoming negative.
-        */
 
         let transactionResult;
 
@@ -386,18 +375,19 @@ export default async function handler(req, res) {
                     currentValue => {
 
                         /*
-                            Convert Firebase value
-                            into a number.
+                            Firebase may give us null
+                            if the wallet does not exist.
                         */
 
                         const balance =
                             Number(
-                                currentValue || 0
+                                currentValue ?? 0
                             );
 
 
                         /*
-                            Invalid wallet balance.
+                            Safety check for invalid
+                            wallet data.
                         */
 
                         if (
@@ -407,35 +397,43 @@ export default async function handler(req, res) {
                         ) {
 
                             console.error(
-                                "INVALID WALLET BALANCE:",
+                                "INVALID WALLET VALUE:",
                                 currentValue
                             );
+
+
+                            /*
+                                Abort transaction.
+                            */
 
                             return;
 
                         }
 
 
-                        /*
-                            INSUFFICIENT BALANCE
 
-                            Returning undefined aborts
-                            the transaction.
+                        /*
+                            IMPORTANT:
+                            If balance is insufficient,
+                            return the CURRENT VALUE,
+                            NOT undefined.
+
+                            This allows us to detect
+                            the failed transaction cleanly.
                         */
 
                         if (
                             balance < total
                         ) {
 
-                            return;
+                            return balance;
 
                         }
 
 
-                        /*
-                            SUFFICIENT BALANCE
 
-                            Deduct the order amount.
+                        /*
+                            Deduct amount.
                         */
 
                         const newBalance =
@@ -467,7 +465,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to update wallet balance."
+                    "Unable to process wallet transaction."
 
             });
 
@@ -476,80 +474,12 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 11. TRANSACTION WAS ABORTED
+        // 8. CHECK TRANSACTION RESULT
         // ====================================================
 
         if (
             !transactionResult.committed
         ) {
-
-            /*
-                Read the latest balance only so
-                we can give the user the correct
-                error message.
-            */
-
-            let latestBalance = 0;
-
-
-            try {
-
-                const latestSnapshot =
-                    await walletRef.once(
-                        "value"
-                    );
-
-
-                latestBalance =
-                    Number(
-                        latestSnapshot.val() || 0
-                    );
-
-            } catch (
-                balanceError
-            ) {
-
-                console.error(
-                    "BALANCE CHECK ERROR:",
-                    balanceError
-                );
-
-            }
-
-
-
-            /*
-                If balance is genuinely insufficient,
-                tell the user exactly what happened.
-            */
-
-            if (
-                latestBalance < total
-            ) {
-
-                return res.status(400).json({
-
-                    success: false,
-
-                    message:
-                        `Insufficient wallet balance. Your balance is ₦${latestBalance.toLocaleString("en-NG", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}, but this order costs ₦${total.toLocaleString("en-NG", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}.`
-
-                });
-
-            }
-
-
-            /*
-                If balance is enough but transaction
-                still didn't commit, report the
-                transaction problem.
-            */
 
             return res.status(409).json({
 
@@ -565,20 +495,50 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 12. GET NEW WALLET BALANCE
+        // 9. GET NEW BALANCE
         // ====================================================
 
         const newBalance =
             Number(
                 transactionResult
                     .snapshot
-                    .val() || 0
+                    .val()
             );
 
 
 
+        /*
+            If the transaction committed but
+            the balance did not decrease,
+            the wallet was insufficient.
+        */
+
+        if (
+            newBalance ===
+            Number(
+                transactionResult
+                    .snapshot
+                    .val()
+            )
+            &&
+            newBalance < total
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Insufficient wallet balance."
+
+            });
+
+        }
+
+
+
         // ====================================================
-        // 13. CREATE ORDER ID
+        // 10. CREATE ORDER
         // ====================================================
 
         const orderRef =
@@ -593,7 +553,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 14. CREATE ORDER DATA
+        // 11. ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -633,7 +593,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 15. SAVE COMMENTS
+        // 12. SAVE COMMENTS
         // ====================================================
 
         if (
@@ -648,7 +608,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 16. SAVE ORDER
+        // 13. SAVE ORDER
         // ====================================================
 
         try {
@@ -657,9 +617,7 @@ export default async function handler(req, res) {
                 orderData
             );
 
-        } catch (
-            orderError
-        ) {
+        } catch (orderError) {
 
             console.error(
                 "ORDER SAVE ERROR:",
@@ -669,11 +627,8 @@ export default async function handler(req, res) {
 
             /*
                 IMPORTANT:
-
-                Wallet has already been deducted.
-
-                We therefore attempt to refund the
-                wallet if saving the order fails.
+                If order saving fails after
+                wallet deduction, refund the wallet.
             */
 
             try {
@@ -683,7 +638,7 @@ export default async function handler(req, res) {
 
                         const balance =
                             Number(
-                                currentValue || 0
+                                currentValue ?? 0
                             );
 
 
@@ -697,12 +652,10 @@ export default async function handler(req, res) {
                     }
                 );
 
-            } catch (
-                refundError
-            ) {
+            } catch (refundError) {
 
                 console.error(
-                    "REFUND ERROR:",
+                    "WALLET REFUND ERROR:",
                     refundError
                 );
 
@@ -714,7 +667,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to save your order. Your wallet was not charged."
+                    "Order could not be saved. Your wallet deduction has been reversed."
 
             });
 
@@ -723,7 +676,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 17. SAVE TRANSACTION RECORD
+        // 14. SAVE TRANSACTION RECORD
         // ====================================================
 
         try {
@@ -757,9 +710,7 @@ export default async function handler(req, res) {
 
             });
 
-        } catch (
-            transactionRecordError
-        ) {
+        } catch (transactionRecordError) {
 
             console.error(
                 "TRANSACTION RECORD ERROR:",
@@ -767,11 +718,8 @@ export default async function handler(req, res) {
             );
 
             /*
-                The order has already been created
-                and wallet has already been charged.
-
-                We do NOT refund here because the
-                actual order exists successfully.
+                We don't cancel the order here because
+                the wallet and order have already succeeded.
             */
 
         }
@@ -779,7 +727,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 18. SUCCESS
+        // 15. SUCCESS
         // ====================================================
 
         return res.status(200).json({
