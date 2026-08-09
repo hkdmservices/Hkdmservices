@@ -11,6 +11,9 @@ import {
 
 import {
     ref,
+    query,
+    orderByChild,
+    equalTo,
     get
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
@@ -19,7 +22,6 @@ const ordersContainer =
     document.getElementById(
         "ordersContainer"
     );
-
 
 
 /*
@@ -40,7 +42,6 @@ function formatNaira(amount) {
         );
 
 }
-
 
 
 /*
@@ -70,7 +71,6 @@ function formatDate(timestamp) {
 }
 
 
-
 /*
     ==================================
     STATUS BADGE
@@ -89,7 +89,9 @@ function statusBadge(status) {
         "bg-secondary";
 
 
-    if (safeStatus === "pending") {
+    if (
+        safeStatus === "pending"
+    ) {
 
         badgeClass =
             "bg-warning text-dark";
@@ -97,7 +99,9 @@ function statusBadge(status) {
     }
 
 
-    if (safeStatus === "processing") {
+    if (
+        safeStatus === "processing"
+    ) {
 
         badgeClass =
             "bg-info text-dark";
@@ -105,7 +109,9 @@ function statusBadge(status) {
     }
 
 
-    if (safeStatus === "completed") {
+    if (
+        safeStatus === "completed"
+    ) {
 
         badgeClass =
             "bg-success";
@@ -133,7 +139,6 @@ function statusBadge(status) {
 }
 
 
-
 /*
     ==================================
     LOAD ORDERS
@@ -144,12 +149,26 @@ async function loadOrders(uid) {
 
     try {
 
-        const snapshot =
-            await get(
+        /*
+            SECURITY:
+            Only request orders belonging
+            to the logged-in user.
+        */
+
+        const ordersQuery =
+            query(
                 ref(
                     database,
                     "orders"
-                )
+                ),
+                orderByChild("uid"),
+                equalTo(uid)
+            );
+
+
+        const snapshot =
+            await get(
+                ordersQuery
             );
 
 
@@ -157,7 +176,9 @@ async function loadOrders(uid) {
 
             ordersContainer.innerHTML = `
 
-                <div class="text-center text-muted py-5">
+                <div
+                    class="text-center text-muted py-5"
+                >
 
                     <i class="bi bi-cart-x fs-1"></i>
 
@@ -192,23 +213,26 @@ async function loadOrders(uid) {
 
 
         const userOrders =
-            Object.values(orders)
+            Object.values(
+                orders
+            )
 
-                .filter(
-                    order =>
-                        order &&
-                        order.uid === uid
-                )
+            .filter(
+                order =>
+                    order &&
+                    String(order.uid) ===
+                    String(uid)
+            )
 
-                .sort(
-                    (a, b) =>
-                        Number(
-                            b.createdAt || 0
-                        ) -
-                        Number(
-                            a.createdAt || 0
-                        )
-                );
+            .sort(
+                (a, b) =>
+                    Number(
+                        b.createdAt || 0
+                    ) -
+                    Number(
+                        a.createdAt || 0
+                    )
+            );
 
 
         if (
@@ -217,7 +241,9 @@ async function loadOrders(uid) {
 
             ordersContainer.innerHTML = `
 
-                <div class="text-center text-muted py-5">
+                <div
+                    class="text-center text-muted py-5"
+                >
 
                     <i class="bi bi-cart-x fs-1"></i>
 
@@ -245,7 +271,6 @@ async function loadOrders(uid) {
             return;
 
         }
-
 
 
         let html = `
@@ -288,8 +313,8 @@ async function loadOrders(uid) {
 
 
                 <tbody>
-        `;
 
+        `;
 
 
         userOrders.forEach(
@@ -326,7 +351,9 @@ async function loadOrders(uid) {
                             <small
                                 class="text-muted"
                             >
+
                                 ${order.service || "—"}
+
                             </small>
 
                         </td>
@@ -381,7 +408,6 @@ async function loadOrders(uid) {
         );
 
 
-
         html += `
 
                 </tbody>
@@ -418,7 +444,6 @@ async function loadOrders(uid) {
     }
 
 }
-
 
 
 /*
