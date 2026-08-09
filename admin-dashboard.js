@@ -51,7 +51,7 @@ document.getElementById(“completedOrders”);
 ACCESS DENIED
 ========================================================= */
 
-function showAccessDenied(message) {
+function showAccessDenied(text) {
 
 if (adminLoading) {
     adminLoading.style.display = "none";
@@ -66,7 +66,7 @@ if (accessDenied) {
         accessDenied.querySelector("p");
     if (paragraph) {
         paragraph.textContent =
-            message;
+            text;
     }
 }
 
@@ -99,27 +99,14 @@ LOAD ADMIN STATISTICS
 
 async function loadAdminStatistics() {
 
-/*
- * Reset the statistics first.
- */
-if (totalUsers) {
-    totalUsers.textContent = "Loading...";
-}
-if (totalOrders) {
-    totalOrders.textContent = "Loading...";
-}
-if (pendingOrders) {
-    pendingOrders.textContent = "Loading...";
-}
-if (completedOrders) {
-    completedOrders.textContent = "Loading...";
-}
 try {
     /*
-     =====================================================
-     USERS
-     =====================================================
-    */
+     * USERS
+     */
+    if (totalUsers) {
+        totalUsers.textContent =
+            "Loading...";
+    }
     const usersSnapshot =
         await get(
             ref(
@@ -132,21 +119,27 @@ try {
         const users =
             usersSnapshot.val();
         usersCount =
-            Object.keys(
-                users
-            ).length;
+            Object.keys(users).length;
     }
     if (totalUsers) {
         totalUsers.textContent =
-            String(
-                usersCount
-            );
+            String(usersCount);
     }
     /*
-     =====================================================
-     ORDERS
-     =====================================================
-    */
+     * ORDERS
+     */
+    if (totalOrders) {
+        totalOrders.textContent =
+            "Loading...";
+    }
+    if (pendingOrders) {
+        pendingOrders.textContent =
+            "Loading...";
+    }
+    if (completedOrders) {
+        completedOrders.textContent =
+            "Loading...";
+    }
     const ordersSnapshot =
         await get(
             ref(
@@ -197,19 +190,15 @@ try {
     }
     if (pendingOrders) {
         pendingOrders.textContent =
-            String(
-                pending
-            );
+            String(pending);
     }
     if (completedOrders) {
         completedOrders.textContent =
-            String(
-                completed
-            );
+            String(completed);
     }
 } catch (error) {
     console.error(
-        "ADMIN DATA ERROR:",
+        "ADMIN DATABASE ERROR:",
         error
     );
     if (totalUsers) {
@@ -233,16 +222,13 @@ try {
 }
 
 /* =========================================================
-AUTHENTICATION + ADMIN VERIFICATION
+AUTHENTICATION
 ========================================================= */
 
 onAuthStateChanged(
 auth,
 async (user) => {
 
-    /*
-     * NOT LOGGED IN
-     */
     if (!user) {
         showAccessDenied(
             "You must be logged in to access the admin dashboard."
@@ -255,73 +241,61 @@ async (user) => {
                 "Checking administrator privileges...";
         }
         /*
-         * Force Firebase to issue a fresh
-         * ID token so the latest custom
-         * claims are available.
+         * Make sure Firebase has a fresh token.
          */
-        await user.getIdToken(
-            true
-        );
+        await user.getIdToken(true);
         /*
-         * Read the refreshed token.
+         * Get the token result.
          */
         const tokenResult =
-            await user.getIdTokenResult(
-                true
-            );
+            await user.getIdTokenResult();
+        console.log(
+            "ADMIN USER:",
+            user.email
+        );
         console.log(
             "ADMIN UID:",
             user.uid
-        );
-        console.log(
-            "ADMIN EMAIL:",
-            user.email
         );
         console.log(
             "ADMIN CLAIMS:",
             tokenResult.claims
         );
         /*
-         * ADMIN CLAIM CHECK
+         * CHECK ADMIN CLAIM
          */
-        const isAdmin =
-            tokenResult.claims.admin === true;
-        if (!isAdmin) {
-            console.error(
-                "ADMIN ACCESS DENIED",
-                tokenResult.claims
-            );
+        if (
+            tokenResult.claims.admin !== true
+        ) {
             showAccessDenied(
-                "Firebase does not currently recognize this account as an administrator."
+                "Your account is logged in, but Firebase does not see the admin claim."
             );
             return;
         }
         /*
          * ADMIN VERIFIED
          */
-        console.log(
-            "ADMIN ACCESS GRANTED"
-        );
         if (adminEmail) {
             adminEmail.textContent =
                 user.email ||
                 "Administrator";
         }
-        /*
-         * Show dashboard.
-         */
         showAdminContent();
         /*
-         * Load admin statistics.
+         * Load statistics.
          */
         await loadAdminStatistics();
     } catch (error) {
         console.error(
-            "ADMIN DASHBOARD ERROR:",
+            "ADMIN VERIFICATION ERROR:",
             error
         );
         showAccessDenied(
-            "Unable to verify administrator access."
+            "Admin verification failed: " +
+            (
+                error.message ||
+                "Unknown error"
+            )
         );
     }
 }
