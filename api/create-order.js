@@ -61,7 +61,7 @@ export default async function handler(req, res) {
             link,
             quantity,
             comments
-        } = req.body;
+        } = req.body || {};
 
 
         if (
@@ -152,13 +152,12 @@ export default async function handler(req, res) {
             }
 
 
-
             cleanedComments =
                 comments
                     .map(
                         comment =>
                             String(
-                                comment || ""
+                                comment ?? ""
                             ).trim()
                     )
                     .filter(
@@ -167,8 +166,9 @@ export default async function handler(req, res) {
                     );
 
 
-
-            // Minimum 100 comments
+            // ------------------------------------------------
+            // MINIMUM 100 COMMENTS
+            // ------------------------------------------------
 
             if (
                 cleanedComments.length < 100
@@ -186,15 +186,17 @@ export default async function handler(req, res) {
             }
 
 
-
-            // Quantity = actual comment count
+            // ------------------------------------------------
+            // QUANTITY = NUMBER OF COMMENTS
+            // ------------------------------------------------
 
             numericQuantity =
                 cleanedComments.length;
 
 
-
-            // Browser quantity must match comments
+            // ------------------------------------------------
+            // MAKE SURE BROWSER QUANTITY MATCHES
+            // ------------------------------------------------
 
             if (
                 Number(quantity) !==
@@ -295,14 +297,15 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 8. CALCULATE PRICE
+        // 8. CALCULATE TOTAL
         // ====================================================
 
         let total;
 
 
-
-        // Fixed package
+        // ----------------------------------------------------
+        // FIXED PACKAGE
+        // ----------------------------------------------------
 
         if (
             selectedService.ratePer1000 === null
@@ -317,8 +320,9 @@ export default async function handler(req, res) {
         }
 
 
-
-        // Per 1,000
+        // ----------------------------------------------------
+        // PER 1,000 SERVICE
+        // ----------------------------------------------------
 
         else {
 
@@ -340,6 +344,23 @@ export default async function handler(req, res) {
             );
 
 
+        if (
+            !Number.isFinite(total) ||
+            total <= 0
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Unable to calculate a valid order amount."
+
+            });
+
+        }
+
+
 
         // ====================================================
         // 9. WALLET REFERENCE
@@ -353,70 +374,23 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 10. CHECK CURRENT WALLET
+        // 10. ATOMIC WALLET TRANSACTION
         // ====================================================
 
-        const initialWalletSnapshot =
-            await walletRef.once(
-                "value"
-            );
+        /*
+            IMPORTANT:
 
+            We do NOT perform a separate balance check
+            before this transaction.
 
-        const initialBalance =
-            Number(
-                initialWalletSnapshot.val() || 0
-            );
+            Firebase transactions can retry when another
+            write happens at the same location. The callback
+            therefore always works from the current value.
 
-
-
-        // ====================================================
-        // 11. INITIAL INSUFFICIENT BALANCE CHECK
-        // ====================================================
-
-        if (
-            !Number.isFinite(
-                initialBalance
-            )
-        ) {
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Your wallet balance is invalid."
-
-            });
-
-        }
-
-
-        if (
-            initialBalance < total
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    `Insufficient wallet balance. Your balance is ₦${initialBalance.toLocaleString("en-NG", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    })}, but this order costs ₦${total.toLocaleString("en-NG", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    })}.`
-
-            });
-
-        }
-
-
-
-        // ====================================================
-        // 12. DEDUCT WALLET USING TRANSACTION
-        // ====================================================
+            If the balance is insufficient, returning
+            undefined aborts the transaction and DOES NOT
+            deduct money.
+        */
 
         let walletTransaction;
 
@@ -425,19 +399,32 @@ export default async function handler(req, res) {
 
             walletTransaction =
                 await walletRef.transaction(
+
                     currentValue => {
+
+                        // ------------------------------------
+                        // WALLET DOES NOT EXIST
+                        // ------------------------------------
+
+                        if (
+                            currentValue === null ||
+                            currentValue === undefined
+                        ) {
+
+                            return;
+
+                        }
+
 
                         const balance =
                             Number(
-                                currentValue ?? 0
+                                currentValue
                             );
 
 
-                        /*
-                            If another transaction changed
-                            the balance and there is no longer
-                            enough money, abort safely.
-                        */
+                        // ------------------------------------
+                        // INVALID WALLET
+                        // ------------------------------------
 
                         if (
                             !Number.isFinite(
@@ -450,6 +437,10 @@ export default async function handler(req, res) {
                         }
 
 
+                        // ------------------------------------
+                        // INSUFFICIENT BALANCE
+                        // ------------------------------------
+
                         if (
                             balance < total
                         ) {
@@ -459,9 +450,9 @@ export default async function handler(req, res) {
                         }
 
 
-                        /*
-                            Deduct the order amount.
-                        */
+                        // ------------------------------------
+                        // DEDUCT MONEY
+                        // ------------------------------------
 
                         return Number(
                             (
@@ -470,12 +461,15 @@ export default async function handler(req, res) {
                             ).toFixed(2)
                         );
 
-                    }
+                    },
+
+                    undefined,
+
+                    false
+
                 );
 
-        } catch (
-            walletError
-        ) {
+        } catch (walletError) {
 
             console.error(
                 "WALLET TRANSACTION ERROR:",
@@ -488,7 +482,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to process wallet transaction."
+                    "Unable to process your wallet. Please try again."
 
             });
 
@@ -497,34 +491,48 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 13. HANDLE TRANSACTION NOT COMMITTED
+        // 11. CHECK TRANSACTION RESULT
         // ====================================================
 
         if (
+            !walletTransaction ||
             !walletTransaction.committed
         ) {
 
-            /*
-                The transaction did NOT deduct money.
+            let latestBalance = 0;
 
-                Read the wallet again so we can determine
-                whether this was actually an insufficient
-                balance situation.
-            */
 
-            const latestWalletSnapshot =
-                await walletRef.once(
-                    "value"
+            try {
+
+                const latestSnapshot =
+                    await walletRef.once(
+                        "value"
+                    );
+
+
+                latestBalance =
+                    Number(
+                        latestSnapshot.val()
+                    );
+
+            } catch (readError) {
+
+                console.error(
+                    "LATEST WALLET READ ERROR:",
+                    readError
                 );
 
+            }
 
-            const latestBalance =
-                Number(
-                    latestWalletSnapshot.val() || 0
-                );
 
+            // ----------------------------------------------
+            // ACTUALLY INSUFFICIENT
+            // ----------------------------------------------
 
             if (
+                Number.isFinite(
+                    latestBalance
+                ) &&
                 latestBalance < total
             ) {
 
@@ -533,25 +541,35 @@ export default async function handler(req, res) {
                     success: false,
 
                     message:
-                        `Insufficient wallet balance. Your balance is ₦${latestBalance.toLocaleString("en-NG", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}, but this order costs ₦${total.toLocaleString("en-NG", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}.`
+                        `Insufficient wallet balance. Your balance is ₦${latestBalance.toLocaleString(
+                            "en-NG",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}, but this order costs ₦${total.toLocaleString(
+                            "en-NG",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}.`
 
                 });
 
             }
 
 
+            // ----------------------------------------------
+            // TRANSACTION WAS ABORTED FOR ANOTHER REASON
+            // ----------------------------------------------
+
             return res.status(409).json({
 
                 success: false,
 
                 message:
-                    "Wallet transaction could not be completed. Please try again."
+                    "Wallet transaction was not committed. Your balance was not charged. Please try again."
 
             });
 
@@ -560,7 +578,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 14. GET NEW BALANCE
+        // 12. GET NEW BALANCE
         // ====================================================
 
         const newBalance =
@@ -571,9 +589,27 @@ export default async function handler(req, res) {
             );
 
 
+        if (
+            !Number.isFinite(
+                newBalance
+            )
+        ) {
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Wallet balance could not be confirmed."
+
+            });
+
+        }
+
+
 
         // ====================================================
-        // 15. CREATE ORDER ID
+        // 13. CREATE ORDER REFERENCE
         // ====================================================
 
         const orderRef =
@@ -588,7 +624,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 16. CREATE ORDER DATA
+        // 14. CREATE ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -626,10 +662,9 @@ export default async function handler(req, res) {
         };
 
 
-
-        // ====================================================
-        // 17. SAVE COMMENTS
-        // ====================================================
+        // ----------------------------------------------------
+        // SAVE COMMENTS
+        // ----------------------------------------------------
 
         if (
             isCommentService
@@ -643,7 +678,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 18. SAVE ORDER
+        // 15. SAVE ORDER
         // ====================================================
 
         try {
@@ -652,9 +687,7 @@ export default async function handler(req, res) {
                 orderData
             );
 
-        } catch (
-            orderError
-        ) {
+        } catch (orderError) {
 
             console.error(
                 "ORDER SAVE ERROR:",
@@ -662,21 +695,31 @@ export default async function handler(req, res) {
             );
 
 
-            /*
-                ORDER FAILED AFTER WALLET DEDUCTION.
-
-                REFUND CUSTOMER.
-            */
+            // ----------------------------------------------
+            // REFUND WALLET
+            // ----------------------------------------------
 
             try {
 
                 await walletRef.transaction(
+
                     currentValue => {
 
                         const balance =
                             Number(
                                 currentValue ?? 0
                             );
+
+
+                        if (
+                            !Number.isFinite(
+                                balance
+                            )
+                        ) {
+
+                            return;
+
+                        }
 
 
                         return Number(
@@ -686,15 +729,18 @@ export default async function handler(req, res) {
                             ).toFixed(2)
                         );
 
-                    }
+                    },
+
+                    undefined,
+
+                    false
+
                 );
 
-            } catch (
-                refundError
-            ) {
+            } catch (refundError) {
 
                 console.error(
-                    "REFUND ERROR:",
+                    "ORDER REFUND ERROR:",
                     refundError
                 );
 
@@ -706,7 +752,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Order could not be created. Your wallet deduction has been reversed."
+                    "Order could not be created. Your wallet deduction was reversed."
 
             });
 
@@ -715,12 +761,15 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 19. SAVE TRANSACTION RECORD
+        // 16. SAVE TRANSACTION RECORD
         // ====================================================
+
+        let transactionRef;
+
 
         try {
 
-            const transactionRef =
+            transactionRef =
                 db
                     .ref("transactions")
                     .push();
@@ -749,21 +798,99 @@ export default async function handler(req, res) {
 
             });
 
-        } catch (
-            transactionRecordError
-        ) {
+        } catch (transactionRecordError) {
 
             console.error(
                 "TRANSACTION RECORD ERROR:",
                 transactionRecordError
             );
 
+
+            // ----------------------------------------------
+            // REMOVE ORDER
+            // ----------------------------------------------
+
+            try {
+
+                await orderRef.remove();
+
+            } catch (deleteOrderError) {
+
+                console.error(
+                    "ORDER ROLLBACK ERROR:",
+                    deleteOrderError
+                );
+
+            }
+
+
+            // ----------------------------------------------
+            // REFUND WALLET
+            // ----------------------------------------------
+
+            try {
+
+                await walletRef.transaction(
+
+                    currentValue => {
+
+                        const balance =
+                            Number(
+                                currentValue ?? 0
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                balance
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        return Number(
+                            (
+                                balance +
+                                total
+                            ).toFixed(2)
+                        );
+
+                    },
+
+                    undefined,
+
+                    false
+
+                );
+
+            } catch (refundError) {
+
+                console.error(
+                    "TRANSACTION REFUND ERROR:",
+                    refundError
+                );
+
+            }
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "The order could not be completed. Your wallet deduction was reversed."
+
+            });
+
         }
 
 
 
         // ====================================================
-        // 20. SUCCESS
+        // 17. SUCCESS
         // ====================================================
 
         return res.status(200).json({
