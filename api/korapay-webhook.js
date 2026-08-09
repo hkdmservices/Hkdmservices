@@ -1,13 +1,24 @@
+import crypto from "crypto";
 import axios from "axios";
+
 import { db } from "./firebase-admin.js";
 
+
 export default async function handler(req, res) {
+
+    // ====================================================
+    // 1. ONLY ACCEPT POST
+    // ====================================================
 
     if (req.method !== "POST") {
 
         return res.status(405).json({
+
             success: false,
-            message: "Method not allowed"
+
+            message:
+                "Method not allowed"
+
         });
 
     }
@@ -15,16 +26,195 @@ export default async function handler(req, res) {
 
     try {
 
-        const body = req.body || {};
+        // ====================================================
+        // 2. GET WEBHOOK BODY
+        // ====================================================
+
+        const body =
+            req.body || {};
 
         const data =
             body.data || {};
 
 
+        // ====================================================
+        // 3. VERIFY KORAPAY SIGNATURE
+        // ====================================================
+
+        const receivedSignature =
+            req.headers["x-korapay-signature"];
+
+
+        if (!receivedSignature) {
+
+            console.error(
+                "KORAPAY WEBHOOK: Missing signature"
+            );
+
+            /*
+                Return 200 so invalid requests are
+                not repeatedly retried.
+            */
+
+            return res.status(200).json({
+
+                success: false,
+
+                message:
+                    "Invalid webhook request"
+
+            });
+
+        }
+
+
+        const secretKey =
+            process.env.KORAPAY_SECRET_KEY;
+
+
+        if (!secretKey) {
+
+            console.error(
+                "KORAPAY WEBHOOK: KORAPAY_SECRET_KEY is missing"
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Webhook configuration error"
+
+            });
+
+        }
+
+
         /*
-            Korapay webhook provides the
-            payment reference here.
+            Korapay signs ONLY the data object.
         */
+
+        const generatedSignature =
+            crypto
+                .createHmac(
+                    "sha256",
+                    secretKey
+                )
+                .update(
+                    JSON.stringify(data)
+                )
+                .digest("hex");
+
+
+        /*
+            Use timingSafeEqual to prevent
+            timing attacks.
+        */
+
+        let signatureIsValid = false;
+
+
+        try {
+
+            const receivedBuffer =
+                Buffer.from(
+                    String(
+                        receivedSignature
+                    ),
+                    "utf8"
+                );
+
+
+            const generatedBuffer =
+                Buffer.from(
+                    generatedSignature,
+                    "utf8"
+                );
+
+
+            if (
+                receivedBuffer.length ===
+                generatedBuffer.length
+            ) {
+
+                signatureIsValid =
+                    crypto.timingSafeEqual(
+                        receivedBuffer,
+                        generatedBuffer
+                    );
+
+            }
+
+        } catch (
+            signatureError
+        ) {
+
+            console.error(
+                "KORAPAY SIGNATURE ERROR:",
+                signatureError
+            );
+
+            signatureIsValid =
+                false;
+
+        }
+
+
+        if (!signatureIsValid) {
+
+            console.error(
+                "KORAPAY WEBHOOK: Invalid signature"
+            );
+
+            return res.status(200).json({
+
+                success: false,
+
+                message:
+                    "Invalid webhook signature"
+
+            });
+
+        }
+
+
+
+        // ====================================================
+        // 4. CHECK EVENT
+        // ====================================================
+
+        const event =
+            body.event;
+
+
+        if (
+            event !== "charge.success"
+        ) {
+
+            /*
+                We only fund wallets when
+                Korapay confirms charge.success.
+            */
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Webhook event ignored",
+
+                event:
+                    event || "unknown"
+
+            });
+
+        }
+
+
+
+        // ====================================================
+        // 5. GET PAYMENT REFERENCE
+        // ====================================================
 
         const reference =
             data.reference ||
@@ -34,21 +224,25 @@ export default async function handler(req, res) {
         if (!reference) {
 
             console.error(
-                "KORAPAY WEBHOOK: Missing reference"
+                "KORAPAY WEBHOOK: Missing payment reference"
             );
 
-            return res.status(400).json({
+            return res.status(200).json({
+
                 success: false,
-                message: "Missing payment reference"
+
+                message:
+                    "Missing payment reference"
+
             });
 
         }
 
 
 
-        /*
-            Prevent duplicate processing.
-        */
+        // ====================================================
+        // 6. DUPLICATE CHECK
+        // ====================================================
 
         const transactionRef =
             db.ref(
@@ -57,17 +251,23 @@ export default async function handler(req, res) {
 
 
         const existingTransaction =
-            await transactionRef.get();
+            await transactionRef.once(
+                "value"
+            );
 
 
-        if (existingTransaction.exists()) {
+        if (
+            existingTransaction.exists()
+        ) {
 
             return res.status(200).json({
 
                 success: true,
 
                 message:
-                    "Transaction already processed"
+                    "Transaction already processed",
+
+                reference
 
             });
 
@@ -75,10 +275,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            VERIFY THE PAYMENT DIRECTLY
-            WITH KORAPAY.
-        */
+        // ====================================================
+        // 7. VERIFY PAYMENT DIRECTLY WITH KORAPAY
+        // ====================================================
 
         const verificationResponse =
             await axios.get(
@@ -86,10 +285,11 @@ export default async function handler(req, res) {
                 `https://api.korapay.com/merchant/api/v1/charges/${encodeURIComponent(reference)}`,
 
                 {
+
                     headers: {
 
                         Authorization:
-                            `Bearer ${process.env.KORAPAY_SECRET_KEY}`
+                            `Bearer ${secretKey}`
 
                     }
 
@@ -99,7 +299,9 @@ export default async function handler(req, res) {
 
 
         const payment =
-            verificationResponse.data?.data;
+            verificationResponse
+                .data
+                ?.data;
 
 
         if (!payment) {
@@ -109,7 +311,7 @@ export default async function handler(req, res) {
                 reference
             );
 
-            return res.status(400).json({
+            return res.status(200).json({
 
                 success: false,
 
@@ -122,10 +324,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Only successful payments
-            can fund the wallet.
-        */
+        // ====================================================
+        // 8. VERIFY PAYMENT STATUS
+        // ====================================================
 
         if (
             payment.status !== "success"
@@ -139,7 +340,10 @@ export default async function handler(req, res) {
                     "Payment is not successful",
 
                 status:
-                    payment.status
+                    payment.status ||
+                    "unknown",
+
+                reference
 
             });
 
@@ -147,30 +351,31 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            GET UID FROM THE VERIFIED
-            KORAPAY CHARGE METADATA.
-
-            This is the important fix.
-        */
+        // ====================================================
+        // 9. GET UID FROM VERIFIED PAYMENT
+        // ====================================================
 
         const uid =
-            payment.metadata?.uid;
+            payment.metadata?.uid ||
+            data.metadata?.uid;
 
 
         if (!uid) {
 
             console.error(
 
-                "KORAPAY WEBHOOK: UID missing from verified payment",
+                "KORAPAY WEBHOOK: UID missing",
 
-                reference,
-
-                payment.metadata
+                {
+                    reference,
+                    metadata:
+                        payment.metadata ||
+                        data.metadata
+                }
 
             );
 
-            return res.status(400).json({
+            return res.status(200).json({
 
                 success: false,
 
@@ -183,19 +388,16 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Get the amount from Korapay's
-            verified transaction.
-
-            amount_accepted is preferred.
-        */
+        // ====================================================
+        // 10. VERIFY AMOUNT
+        // ====================================================
 
         const amount =
             Number(
 
-                payment.amount_accepted ??
                 payment.amount_paid ??
                 payment.amount ??
+                data.amount ??
                 0
 
             );
@@ -210,12 +412,14 @@ export default async function handler(req, res) {
 
                 "KORAPAY WEBHOOK: Invalid amount",
 
-                reference,
-                amount
+                {
+                    reference,
+                    amount
+                }
 
             );
 
-            return res.status(400).json({
+            return res.status(200).json({
 
                 success: false,
 
@@ -228,20 +432,36 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Currency check.
-        */
+        // ====================================================
+        // 11. VERIFY CURRENCY
+        // ====================================================
 
         const currency =
-            payment.currency ||
-            "NGN";
+            String(
+
+                payment.currency ||
+                data.currency ||
+                "NGN"
+
+            ).toUpperCase();
 
 
         if (
             currency !== "NGN"
         ) {
 
-            return res.status(400).json({
+            console.error(
+
+                "KORAPAY WEBHOOK: Unsupported currency",
+
+                {
+                    reference,
+                    currency
+                }
+
+            );
+
+            return res.status(200).json({
 
                 success: false,
 
@@ -254,10 +474,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Check that the Firebase user
-            actually exists.
-        */
+        // ====================================================
+        // 12. CHECK FIREBASE USER
+        // ====================================================
 
         const userRef =
             db.ref(
@@ -266,20 +485,27 @@ export default async function handler(req, res) {
 
 
         const userSnapshot =
-            await userRef.get();
+            await userRef.once(
+                "value"
+            );
 
 
-        if (!userSnapshot.exists()) {
+        if (
+            !userSnapshot.exists()
+        ) {
 
             console.error(
 
-                "KORAPAY WEBHOOK: Firebase user not found",
+                "KORAPAY WEBHOOK: User not found",
 
-                uid
+                {
+                    uid,
+                    reference
+                }
 
             );
 
-            return res.status(400).json({
+            return res.status(200).json({
 
                 success: false,
 
@@ -292,9 +518,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Get wallet.
-        */
+        // ====================================================
+        // 13. WALLET REFERENCE
+        // ====================================================
 
         const walletRef =
             db.ref(
@@ -302,25 +528,37 @@ export default async function handler(req, res) {
             );
 
 
-        /*
-            Atomically add the payment.
-        */
+
+        // ====================================================
+        // 14. CREDIT WALLET
+        // ====================================================
 
         const walletTransaction =
             await walletRef.transaction(
 
                 currentValue => {
 
-                    const balance =
+                    const currentBalance =
                         Number(
-                            currentValue || 0
+                            currentValue ?? 0
                         );
+
+
+                    if (
+                        !Number.isFinite(
+                            currentBalance
+                        )
+                    ) {
+
+                        return;
+
+                    }
 
 
                     return Number(
 
                         (
-                            balance +
+                            currentBalance +
                             amount
 
                         ).toFixed(2)
@@ -332,17 +570,31 @@ export default async function handler(req, res) {
             );
 
 
+
+        // ====================================================
+        // 15. CONFIRM WALLET CREDIT
+        // ====================================================
+
         if (
             !walletTransaction.committed
         ) {
 
             console.error(
 
-                "KORAPAY WEBHOOK: Wallet transaction failed",
+                "KORAPAY WEBHOOK: Wallet transaction not committed",
 
-                reference
+                {
+                    uid,
+                    reference,
+                    amount
+                }
 
             );
+
+            /*
+                Return non-200 so Korapay can retry
+                the webhook.
+            */
 
             return res.status(500).json({
 
@@ -357,45 +609,98 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Save funding transaction.
-        */
+        // ====================================================
+        // 16. GET NEW BALANCE
+        // ====================================================
 
-        await transactionRef.set({
-
-            uid,
-
-            reference,
-
-            amount,
-
-            currency,
-
-            status: "success",
-
-            type: "wallet_funding",
-
-            description:
-                "Wallet funding via Korapay",
-
-            gateway:
-                "korapay",
-
-            createdAt:
-                Date.now()
-
-        });
+        const newBalance =
+            Number(
+                walletTransaction
+                    .snapshot
+                    .val()
+            );
 
 
+
+        // ====================================================
+        // 17. SAVE FUNDING TRANSACTION
+        // ====================================================
+
+        try {
+
+            await transactionRef.set({
+
+                uid,
+
+                reference,
+
+                amount,
+
+                currency,
+
+                status:
+                    "success",
+
+                type:
+                    "wallet_funding",
+
+                description:
+                    "Wallet funding via Korapay",
+
+                gateway:
+                    "korapay",
+
+                createdAt:
+                    Date.now()
+
+            });
+
+        } catch (
+            transactionSaveError
+        ) {
+
+            /*
+                IMPORTANT:
+                The wallet has already been credited.
+
+                Do NOT credit it again if saving the
+                transaction record fails.
+
+                Log the error so it can be repaired
+                manually.
+            */
+
+            console.error(
+
+                "KORAPAY TRANSACTION RECORD ERROR:",
+
+                {
+                    reference,
+                    uid,
+                    amount,
+                    error:
+                        transactionSaveError
+                }
+
+            );
+
+        }
+
+
+
+        // ====================================================
+        // 18. SUCCESS
+        // ====================================================
 
         console.log(
 
-            "KORAPAY WEBHOOK: Wallet funded successfully",
+            "KORAPAY WEBHOOK: WALLET FUNDED",
 
             {
                 reference,
                 uid,
-                amount
+                amount,
+                newBalance
             }
 
         );
@@ -410,7 +715,9 @@ export default async function handler(req, res) {
 
             reference,
 
-            amount
+            amount,
+
+            newBalance
 
         });
 
@@ -427,6 +734,11 @@ export default async function handler(req, res) {
 
         );
 
+
+        /*
+            Return 500 for genuine processing errors.
+            Korapay can retry the webhook.
+        */
 
         return res.status(500).json({
 
