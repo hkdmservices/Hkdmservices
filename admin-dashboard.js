@@ -1,5 +1,6 @@
 import {
-    auth
+    auth,
+    database
 } from "./firebase.js";
 
 import {
@@ -7,22 +8,23 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+import {
+    ref,
+    get
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
 
 const adminLoading =
     document.getElementById("adminLoading");
+
+const loadingMessage =
+    document.getElementById("loadingMessage");
 
 const accessDenied =
     document.getElementById("accessDenied");
 
 const adminContent =
     document.getElementById("adminContent");
-
-const loadingMessage =
-    document.getElementById("loadingMessage");
 
 const adminEmail =
     document.getElementById("adminEmail");
@@ -43,413 +45,314 @@ const completedOrders =
     document.getElementById("completedOrders");
 
 
-/* =========================================================
-   SHOW / HIDE
-========================================================= */
-
-function showLoading(message) {
+function showAccessDenied(message) {
 
     if (adminLoading) {
-
-        adminLoading.style.display =
-            "block";
-
-    }
-
-    if (accessDenied) {
-
-        accessDenied.style.display =
-            "none";
-
+        adminLoading.style.display = "none";
     }
 
     if (adminContent) {
-
-        adminContent.style.display =
-            "none";
-
+        adminContent.style.display = "none";
     }
 
-    if (loadingMessage) {
+    if (accessDenied) {
+        accessDenied.style.display = "block";
 
-        loadingMessage.textContent =
-            message;
+        const paragraph =
+            accessDenied.querySelector("p");
 
+        if (paragraph) {
+            paragraph.textContent = message;
+        }
     }
 
 }
 
 
-function showDenied() {
+function showAdminContent() {
 
     if (adminLoading) {
-
-        adminLoading.style.display =
-            "none";
-
-    }
-
-    if (adminContent) {
-
-        adminContent.style.display =
-            "none";
-
+        adminLoading.style.display = "none";
     }
 
     if (accessDenied) {
+        accessDenied.style.display = "none";
+    }
 
-        accessDenied.style.display =
-            "block";
-
+    if (adminContent) {
+        adminContent.style.display = "block";
     }
 
 }
 
 
-function showAdminDashboard() {
-
-    if (adminLoading) {
-
-        adminLoading.style.display =
-            "none";
-
-    }
-
-    if (accessDenied) {
-
-        accessDenied.style.display =
-            "none";
-
-    }
-
-    if (adminContent) {
-
-        adminContent.style.display =
-            "block";
-
-    }
-
-}
-
-
-/* =========================================================
-   ADMIN CHECK
-========================================================= */
-
-async function checkAdmin(user) {
+async function loadAdminStatistics() {
 
     try {
 
         /*
-         * Force-refresh the ID token so the
-         * newly-created admin claim is available.
+         * USERS
          */
 
-        const tokenResult =
-            await user.getIdTokenResult(
-                true
+        const usersSnapshot =
+            await get(
+                ref(
+                    database,
+                    "users"
+                )
             );
 
 
-        const isAdmin =
-            tokenResult.claims &&
-            tokenResult.claims.admin === true;
+        let usersCount = 0;
 
 
-        console.log(
-            "ADMIN CLAIM:",
-            tokenResult.claims
-        );
+        if (usersSnapshot.exists()) {
 
+            const users =
+                usersSnapshot.val();
 
-        if (!isAdmin) {
-
-            console.warn(
-                "ADMIN ACCESS DENIED:",
-                user.uid
-            );
-
-            showDenied();
-
-            return false;
+            usersCount =
+                Object.keys(users).length;
 
         }
+
+
+        if (totalUsers) {
+            totalUsers.textContent =
+                usersCount;
+        }
+
 
 
         /*
-         * Admin verified.
+         * ORDERS
          */
 
-        if (adminEmail) {
-
-            adminEmail.textContent =
-                user.email ||
-                "Administrator";
-
-        }
-
-
-        showAdminDashboard();
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "ADMIN CHECK ERROR:",
-            error
-        );
-
-        showDenied();
-
-        return false;
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD ADMIN STATISTICS
-========================================================= */
-
-async function loadAdminStatistics(user) {
-
-    /*
-     * We will load the statistics through the
-     * protected admin API endpoint.
-     *
-     * This avoids giving the browser unrestricted
-     * access to the users/orders database nodes.
-     */
-
-    try {
-
-        if (loadingMessage) {
-
-            loadingMessage.textContent =
-                "Loading administrator data...";
-
-        }
-
-
-        const idToken =
-            await user.getIdToken(
-                true
+        const ordersSnapshot =
+            await get(
+                ref(
+                    database,
+                    "orders"
+                )
             );
 
 
-        const response =
-            await fetch(
-                "/api/admin-stats",
-                {
+        let allOrders = [];
+        let pending = 0;
+        let completed = 0;
 
-                    method: "GET",
 
-                    headers: {
+        if (ordersSnapshot.exists()) {
 
-                        "Authorization":
-                            "Bearer " +
-                            idToken
+            const orders =
+                ordersSnapshot.val();
 
+
+            allOrders =
+                Object.values(orders)
+                    .filter(
+                        order =>
+                            order &&
+                            typeof order === "object"
+                    );
+
+
+            allOrders.forEach(
+                order => {
+
+                    const status =
+                        String(
+                            order.status ||
+                            "pending"
+                        ).toLowerCase();
+
+
+                    if (
+                        status === "pending"
+                    ) {
+                        pending++;
+                    }
+
+
+                    if (
+                        status === "completed"
+                    ) {
+                        completed++;
                     }
 
                 }
             );
 
-
-        const result =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                result.message ||
-                "Unable to load administrator statistics."
-            );
-
         }
 
-
-        /*
-         * TOTAL USERS
-         */
-
-        if (totalUsers) {
-
-            totalUsers.textContent =
-                Number(
-                    result.totalUsers || 0
-                ).toLocaleString(
-                    "en-NG"
-                );
-
-        }
-
-
-        /*
-         * TOTAL ORDERS
-         */
 
         if (totalOrders) {
-
             totalOrders.textContent =
-                Number(
-                    result.totalOrders || 0
-                ).toLocaleString(
-                    "en-NG"
-                );
-
+                allOrders.length;
         }
 
-
-        /*
-         * PENDING ORDERS
-         */
 
         if (pendingOrders) {
-
             pendingOrders.textContent =
-                Number(
-                    result.pendingOrders || 0
-                ).toLocaleString(
-                    "en-NG"
-                );
-
+                pending;
         }
 
 
-        /*
-         * COMPLETED ORDERS
-         */
-
         if (completedOrders) {
-
             completedOrders.textContent =
-                Number(
-                    result.completedOrders || 0
-                ).toLocaleString(
-                    "en-NG"
-                );
-
+                completed;
         }
 
 
     } catch (error) {
 
         console.error(
-            "ADMIN STATISTICS ERROR:",
+            "ADMIN DATA ERROR:",
             error
         );
 
-
-        /*
-         * Don't destroy the dashboard.
-         * Show a clear message in the statistics.
-         */
-
         if (totalUsers) {
-
             totalUsers.textContent =
-                "—";
-
+                "Unable to load";
         }
 
         if (totalOrders) {
-
             totalOrders.textContent =
-                "—";
-
+                "Unable to load";
         }
 
         if (pendingOrders) {
-
             pendingOrders.textContent =
-                "—";
-
+                "Unable to load";
         }
 
         if (completedOrders) {
-
             completedOrders.textContent =
-                "—";
-
+                "Unable to load";
         }
-
-
-        console.error(
-            "Statistics could not be loaded:",
-            error.message
-        );
 
     }
 
 }
-
-
-/* =========================================================
-   AUTHENTICATION
-========================================================= */
-
-showLoading(
-    "Checking your Firebase account..."
-);
 
 
 onAuthStateChanged(
     auth,
     async (user) => {
 
-        /*
-         * NOT LOGGED IN
-         */
-
         if (!user) {
 
-            showDenied();
-
-            window.location.href =
-                "login.html";
+            showAccessDenied(
+                "You must be logged in to access the admin dashboard."
+            );
 
             return;
 
         }
 
 
-        /*
-         * CHECK ADMIN CLAIM
-         */
+        try {
 
-        const isAdmin =
-            await checkAdmin(
-                user
+            if (loadingMessage) {
+
+                loadingMessage.textContent =
+                    "Refreshing administrator credentials...";
+
+            }
+
+
+            /*
+             * FORCE A NEW ID TOKEN
+             */
+
+            await user.getIdToken(true);
+
+
+            /*
+             * READ THE NEW TOKEN CLAIMS
+             */
+
+            const tokenResult =
+                await user.getIdTokenResult();
+
+
+            console.log(
+                "ADMIN UID:",
+                user.uid
             );
 
 
-        if (!isAdmin) {
+            console.log(
+                "ADMIN CLAIMS:",
+                tokenResult.claims
+            );
 
-            return;
+
+            console.log(
+                "ADMIN CLAIM VALUE:",
+                tokenResult.claims.admin
+            );
+
+
+            /*
+             * CHECK ADMIN CLAIM
+             */
+
+            if (
+                tokenResult.claims.admin !== true
+            ) {
+
+                console.error(
+                    "ADMIN CLAIM IS NOT TRUE",
+                    tokenResult.claims
+                );
+
+
+                showAccessDenied(
+                    "Firebase does not currently see your account as an administrator."
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * ADMIN VERIFIED
+             */
+
+            if (adminEmail) {
+
+                adminEmail.textContent =
+                    user.email ||
+                    "Administrator";
+
+            }
+
+
+            showAdminContent();
+
+
+            await loadAdminStatistics();
+
+
+        } catch (error) {
+
+            console.error(
+                "ADMIN DASHBOARD ERROR:",
+                error
+            );
+
+
+            showAccessDenied(
+                "Unable to verify administrator access."
+            );
 
         }
-
-
-        /*
-         * ADMIN VERIFIED
-         */
-
-        await loadAdminStatistics(
-            user
-        );
 
     }
 );
 
-
-/* =========================================================
-   LOGOUT
-========================================================= */
 
 if (logoutBtn) {
 
@@ -459,35 +362,17 @@ if (logoutBtn) {
 
             try {
 
-                logoutBtn.disabled =
-                    true;
-
-                logoutBtn.innerHTML =
-                    '<span class="spinner-border spinner-border-sm me-1"></span> Logging out...';
-
-
-                await signOut(
-                    auth
-                );
-
+                await signOut(auth);
 
                 window.location.href =
                     "login.html";
 
-
             } catch (error) {
 
                 console.error(
-                    "ADMIN LOGOUT ERROR:",
+                    "LOGOUT ERROR:",
                     error
                 );
-
-
-                logoutBtn.disabled =
-                    false;
-
-                logoutBtn.innerHTML =
-                    '<i class="bi bi-box-arrow-right"></i> Logout';
 
             }
 
