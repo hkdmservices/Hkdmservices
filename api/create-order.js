@@ -20,9 +20,9 @@ export default async function handler(req, res) {
     try {
 
         /*
-            ================================
+            ============================================
             1. VERIFY FIREBASE USER
-            ================================
+            ============================================
         */
 
         const authorization =
@@ -55,15 +55,16 @@ export default async function handler(req, res) {
 
 
         /*
-            ================================
+            ============================================
             2. GET ORDER DATA
-            ================================
+            ============================================
         */
 
         const {
             serviceId,
             link,
-            quantity
+            quantity,
+            comment
         } = req.body;
 
 
@@ -82,29 +83,11 @@ export default async function handler(req, res) {
         }
 
 
-        const numericQuantity =
-            Number(quantity);
-
-
-        if (
-            !Number.isFinite(numericQuantity) ||
-            numericQuantity < 100
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Minimum quantity is 100."
-            });
-
-        }
-
-
 
         /*
-            ================================
+            ============================================
             3. FIND SERVICE
-            ================================
+            ============================================
         */
 
         const selectedService =
@@ -127,32 +110,147 @@ export default async function handler(req, res) {
 
 
         /*
-            ================================
-            4. CALCULATE PRICE
-            ================================
+            ============================================
+            4. DETERMINE SERVICE TYPE
+            ============================================
+        */
+
+        const isFixedPrice =
+            selectedService.ratePer1000 === null;
+
+
+        const numericQuantity =
+            Number(quantity);
+
+
+
+        /*
+            ============================================
+            5. QUANTITY VALIDATION
+            ============================================
+        */
+
+        if (
+            !Number.isFinite(numericQuantity) ||
+            numericQuantity < 1
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Minimum quantity is 1."
+            });
+
+        }
+
+
+        /*
+            FIXED PRICE SERVICES
+            Example:
+            YouTube Watch Time
+            X/Twitter Live Listeners
+        */
+
+        if (isFixedPrice) {
+
+            if (numericQuantity < 1) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Minimum package quantity is 1."
+                });
+
+            }
+
+        }
+
+
+        /*
+            STANDARD SERVICES
+            Minimum quantity = 100
+        */
+
+        else {
+
+            if (numericQuantity < 100) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Minimum quantity is 100."
+                });
+
+            }
+
+        }
+
+
+
+        /*
+            ============================================
+            6. COMMENT VALIDATION
+            ============================================
+        */
+
+        const isCommentService =
+            selectedService.service
+                .toLowerCase()
+                .includes("comment");
+
+
+        let customComment = "";
+
+
+        if (isCommentService) {
+
+            customComment =
+                String(comment || "").trim();
+
+
+            if (!customComment) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Please enter the comment you want to use."
+                });
+
+            }
+
+        }
+
+
+
+        /*
+            ============================================
+            7. CALCULATE PRICE
+            ============================================
         */
 
         let total;
 
 
-        if (
-            selectedService.ratePer1000 === null
-        ) {
+        /*
+            FIXED PRICE PACKAGE
+        */
 
-            /*
-                Fixed-price package
-            */
+        if (isFixedPrice) {
 
             total =
                 Number(
                     selectedService.fixedPrice
-                );
+                ) *
+                numericQuantity;
 
-        } else {
+        }
 
-            /*
-                Per-1,000 service
-            */
+
+        /*
+            STANDARD PER-1,000 SERVICE
+        */
+
+        else {
 
             total =
                 (
@@ -173,98 +271,131 @@ export default async function handler(req, res) {
 
 
         /*
-            ================================
-            5. WALLET REFERENCE
-            ================================
+            ============================================
+            8. WALLET REFERENCE
+            ============================================
         */
 
-const walletRef =
-    db.ref(`users/${uid}/wallet`);
-
-
-/*
-    Read current wallet balance.
-*/
-
-const walletSnapshot =
-    await walletRef.once("value");
-
-const currentBalance =
-    Number(walletSnapshot.val() || 0);
-
-
-/*
-    Check balance.
-*/
-
-if (currentBalance < total) {
-
-    return res.status(400).json({
-        success: false,
-        message: "Insufficient wallet balance."
-    });
-
-}
-
-
-/*
-    Deduct wallet.
-*/
-
-let transactionResult;
-
-try {
-
-    transactionResult =
-        await walletRef.transaction(
-            currentValue => {
-
-                const balance =
-                    Number(currentValue || 0);
-
-                return Number(
-                    (balance - total).toFixed(2)
-                );
-
-            }
-        );
-
-} catch (transactionError) {
-
-    console.error(
-        "WALLET TRANSACTION ERROR:",
-        transactionError
-    );
-
-    return res.status(500).json({
-        success: false,
-        message:
-            "Unable to update wallet balance."
-    });
-
-}
-
-
-/*
-    Confirm transaction.
-*/
-
-if (!transactionResult.committed) {
-
-    return res.status(409).json({
-        success: false,
-        message:
-            "Wallet transaction was not committed."
-    });
-
-}
+        const walletRef =
+            db.ref(
+                `users/${uid}/wallet`
+            );
 
 
 
         /*
-            ================================
-            7. CREATE ORDER ID
-            ================================
+            READ CURRENT WALLET BALANCE
+        */
+
+        const walletSnapshot =
+            await walletRef.once("value");
+
+
+        const currentBalance =
+            Number(
+                walletSnapshot.val() || 0
+            );
+
+
+
+        /*
+            CHECK BALANCE
+        */
+
+        if (currentBalance < total) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Insufficient wallet balance."
+            });
+
+        }
+
+
+
+        /*
+            ============================================
+            9. DEDUCT WALLET
+            ============================================
+        */
+
+        let transactionResult;
+
+
+        try {
+
+            transactionResult =
+                await walletRef.transaction(
+                    currentValue => {
+
+                        const balance =
+                            Number(
+                                currentValue || 0
+                            );
+
+
+                        /*
+                            Prevent negative wallet
+                            balance during transaction.
+                        */
+
+                        if (balance < total) {
+
+                            return;
+
+                        }
+
+
+                        return Number(
+                            (
+                                balance - total
+                            ).toFixed(2)
+                        );
+
+                    }
+                );
+
+        } catch (transactionError) {
+
+            console.error(
+                "WALLET TRANSACTION ERROR:",
+                transactionError
+            );
+
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    "Unable to update wallet balance."
+            });
+
+        }
+
+
+
+        /*
+            ============================================
+            10. CONFIRM WALLET TRANSACTION
+            ============================================
+        */
+
+        if (!transactionResult.committed) {
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    "Wallet transaction was not committed."
+            });
+
+        }
+
+
+
+        /*
+            ============================================
+            11. CREATE ORDER ID
+            ============================================
         */
 
         const orderRef =
@@ -274,6 +405,13 @@ if (!transactionResult.committed) {
         const orderId =
             orderRef.key;
 
+
+
+        /*
+            ============================================
+            12. CREATE ORDER DATA
+            ============================================
+        */
 
         const orderData = {
 
@@ -312,9 +450,23 @@ if (!transactionResult.committed) {
 
 
         /*
-            ================================
-            8. SAVE ORDER
-            ================================
+            SAVE CUSTOM COMMENT
+            ONLY FOR COMMENT SERVICES
+        */
+
+        if (isCommentService) {
+
+            orderData.comment =
+                customComment;
+
+        }
+
+
+
+        /*
+            ============================================
+            13. SAVE ORDER
+            ============================================
         */
 
         await orderRef.set(
@@ -324,9 +476,9 @@ if (!transactionResult.committed) {
 
 
         /*
-            ================================
-            9. SAVE TRANSACTION
-            ================================
+            ============================================
+            14. SAVE TRANSACTION
+            ============================================
         */
 
         const transactionRef =
@@ -361,9 +513,9 @@ if (!transactionResult.committed) {
 
 
         /*
-            ================================
-            10. SUCCESS
-            ================================
+            ============================================
+            15. SUCCESS
+            ============================================
         */
 
         return res.status(200).json({
