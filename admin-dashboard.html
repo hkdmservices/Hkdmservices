@@ -1,661 +1,711 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
-
 <title>HKDMservices Admin Dashboard</title>
-
-
-<!-- =====================================================
-     BOOTSTRAP
-===================================================== -->
-
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
 rel="stylesheet">
-
-
-<!-- =====================================================
-     BOOTSTRAP ICONS
-===================================================== -->
-
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
 rel="stylesheet">
-
-
-<!-- =====================================================
-     HKDMservices CSS
-===================================================== -->
-
 <link
 href="style.css"
 rel="stylesheet">
-
-
 <style>
-
-    body {
-        background: #f5f7fa;
-    }
-
-    .admin-navbar {
-        background: #111827;
-    }
-
-    .admin-brand {
-        font-weight: 700;
-        letter-spacing: .3px;
-    }
-
-    .admin-card {
-        border: 0;
-        border-radius: 14px;
-    }
-
-    .stat-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-    }
-
-    .admin-section-title {
-        font-weight: 700;
-    }
-
-    .admin-loading {
-        min-height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #adminContent {
-        display: none;
-    }
-
+body {
+    background: #f5f7fa;
+}
+.admin-navbar {
+    background: #111827;
+}
+.admin-brand {
+    font-weight: 700;
+}
+.admin-card {
+    border: 0;
+    border-radius: 14px;
+}
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.admin-loading {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#adminContent {
+    display: none;
+}
+.admin-nav-btn {
+    min-width: 150px;
+}
+.management-section {
+    display: none;
+}
+.management-section.active {
+    display: block;
+}
+.table-responsive {
+    border-radius: 10px;
+}
+.action-btn {
+    min-width: 80px;
+}
+.service-status-active {
+    color: #198754;
+    font-weight: 600;
+}
+.service-status-inactive {
+    color: #dc3545;
+    font-weight: 600;
+}
 </style>
-
 </head>
-
-
 <body>
-
-
 <!-- =====================================================
-     ADMIN NAVBAR
+     NAVBAR
 ===================================================== -->
-
 <nav class="navbar navbar-dark admin-navbar">
-
 <div class="container">
-
-    <a
-        href="admin-dashboard.html"
-        class="navbar-brand admin-brand"
-    >
-
-        <span class="me-2">
-            ⬢
-        </span>
-
-        HKDMservices Admin
-
-    </a>
-
-
-    <div class="d-flex align-items-center gap-2">
-
-        <span
-            id="adminEmail"
-            class="text-white-50 small d-none d-md-inline"
-        >
-            Checking...
-        </span>
-
-
-        <button
-            id="logout"
-            type="button"
-            class="btn btn-danger btn-sm"
-        >
-
-            <i class="bi bi-box-arrow-right"></i>
-
-            Logout
-
-        </button>
-
-    </div>
-
+<a
+href="admin-dashboard.html"
+class="navbar-brand admin-brand">
+<span class="me-2">⬢</span>
+HKDMservices Admin
+</a>
+<div class="d-flex align-items-center gap-2">
+<span
+id="adminEmail"
+class="text-white-50 small d-none d-md-inline">
+Checking...
+</span>
+<button
+id="logout"
+type="button"
+class="btn btn-danger btn-sm">
+<i class="bi bi-box-arrow-right"></i>
+Logout
+</button>
 </div>
-
+</div>
 </nav>
-
-
-
 <!-- =====================================================
-     ACCESS CHECK / LOADING
+     LOADING
 ===================================================== -->
-
 <div
-    id="adminLoading"
-    class="container py-5"
->
-
-    <div class="card shadow-sm admin-card">
-
-        <div class="card-body admin-loading">
-
-            <div class="text-center">
-
-                <div
-                    class="spinner-border text-success mb-3"
-                    role="status"
-                ></div>
-
-                <h5>
-                    Verifying admin access...
-                </h5>
-
-                <p
-                    id="loadingMessage"
-                    class="text-muted mb-0"
-                >
-                    Please wait.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
+id="adminLoading"
+class="container py-5">
+<div class="card shadow-sm admin-card">
+<div class="card-body admin-loading">
+<div class="text-center">
+<div
+class="spinner-border text-success mb-3"
+role="status">
 </div>
-
-
-
+<h5>
+Verifying admin access...
+</h5>
+<p
+id="loadingMessage"
+class="text-muted mb-0">
+Please wait.
+</p>
+</div>
+</div>
+</div>
+</div>
 <!-- =====================================================
-     ADMIN ACCESS DENIED
+     ACCESS DENIED
 ===================================================== -->
-
 <div
-    id="accessDenied"
-    class="container py-5"
-    style="display:none;"
->
-
-    <div class="card shadow-sm admin-card">
-
-        <div class="card-body text-center py-5">
-
-            <i
-                class="bi bi-shield-x text-danger"
-                style="font-size: 60px;"
-            ></i>
-
-            <h2 class="mt-3">
-                Access Denied
-            </h2>
-
-            <p class="text-muted">
-
-                You do not have administrator
-                privileges for this area.
-
-            </p>
-
-            <a
-                href="dashboard.html"
-                class="btn btn-success"
-            >
-
-                <i class="bi bi-speedometer2"></i>
-
-                Return to Dashboard
-
-            </a>
-
-        </div>
-
-    </div>
-
+id="accessDenied"
+class="container py-5"
+style="display:none;">
+<div class="card shadow-sm admin-card">
+<div class="card-body text-center py-5">
+<i
+class="bi bi-shield-x text-danger"
+style="font-size:60px;">
+</i>
+<h2 class="mt-3">
+Access Denied
+</h2>
+<p class="text-muted">
+You do not have administrator privileges
+for this area.
+</p>
+<a
+href="dashboard.html"
+class="btn btn-success">
+<i class="bi bi-speedometer2"></i>
+Return to Dashboard
+</a>
 </div>
-
-
-
+</div>
+</div>
 <!-- =====================================================
      ADMIN CONTENT
 ===================================================== -->
-
 <main
-    id="adminContent"
-    class="container py-5"
->
-
-
-    <!-- =================================================
-         HEADER
-    ================================================= -->
-
-    <div class="d-flex
-                flex-column
-                flex-md-row
-                justify-content-between
-                align-items-md-center
-                gap-3
-                mb-4">
-
-        <div>
-
-            <h1 class="mb-1">
-                Admin Dashboard
-            </h1>
-
-            <p class="text-muted mb-0">
-
-                Manage HKDMservices from one place.
-
-            </p>
-
-        </div>
-
-
-        <span
-            class="badge bg-success fs-6 px-3 py-2"
-        >
-
-            <i class="bi bi-shield-check"></i>
-
-            Administrator
-
-        </span>
-
-    </div>
-
-
-
-    <!-- =================================================
-         STATISTICS
-    ================================================= -->
-
-    <div class="row g-4 mb-5">
-
-
-        <!-- USERS -->
-
-        <div class="col-12 col-md-6 col-xl-3">
-
-            <div class="card shadow-sm admin-card h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex
-                                justify-content-between
-                                align-items-start">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Total Users
-                            </p>
-
-                            <h2
-                                id="totalUsers"
-                                class="mb-0"
-                            >
-                                —
-                            </h2>
-
-                        </div>
-
-                        <div
-                            class="stat-icon
-                                   bg-primary-subtle
-                                   text-primary"
-                        >
-
-                            <i class="bi bi-people"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- ORDERS -->
-
-        <div class="col-12 col-md-6 col-xl-3">
-
-            <div class="card shadow-sm admin-card h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex
-                                justify-content-between
-                                align-items-start">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Total Orders
-                            </p>
-
-                            <h2
-                                id="totalOrders"
-                                class="mb-0"
-                            >
-                                —
-                            </h2>
-
-                        </div>
-
-                        <div
-                            class="stat-icon
-                                   bg-success-subtle
-                                   text-success"
-                        >
-
-                            <i class="bi bi-cart-check"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- PENDING -->
-
-        <div class="col-12 col-md-6 col-xl-3">
-
-            <div class="card shadow-sm admin-card h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex
-                                justify-content-between
-                                align-items-start">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Pending Orders
-                            </p>
-
-                            <h2
-                                id="pendingOrders"
-                                class="mb-0"
-                            >
-                                —
-                            </h2>
-
-                        </div>
-
-                        <div
-                            class="stat-icon
-                                   bg-warning-subtle
-                                   text-warning"
-                        >
-
-                            <i class="bi bi-hourglass-split"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- COMPLETED -->
-
-        <div class="col-12 col-md-6 col-xl-3">
-
-            <div class="card shadow-sm admin-card h-100">
-
-                <div class="card-body">
-
-                    <div class="d-flex
-                                justify-content-between
-                                align-items-start">
-
-                        <div>
-
-                            <p class="text-muted mb-1">
-                                Completed Orders
-                            </p>
-
-                            <h2
-                                id="completedOrders"
-                                class="mb-0"
-                            >
-                                —
-                            </h2>
-
-                        </div>
-
-                        <div
-                            class="stat-icon
-                                   bg-success-subtle
-                                   text-success"
-                        >
-
-                            <i class="bi bi-check-circle"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =================================================
-         ADMIN QUICK ACTIONS
-    ================================================= -->
-
-    <div class="card shadow-sm admin-card mb-4">
-
-        <div class="card-body">
-
-            <h4 class="admin-section-title mb-3">
-
-                <i class="bi bi-grid"></i>
-
-                Admin Management
-
-            </h4>
-
-
-            <div class="row g-3">
-
-
-                <div class="col-12 col-md-6 col-lg-3">
-
-                    <button
-                        class="btn btn-outline-primary
-                               w-100 py-3"
-                        type="button"
-                        disabled
-                    >
-
-                        <i class="bi bi-people fs-4 d-block mb-1"></i>
-
-                        Users
-
-                        <small
-                            class="d-block text-muted"
-                        >
-                            Coming next
-                        </small>
-
-                    </button>
-
-                </div>
-
-
-
-                <div class="col-12 col-md-6 col-lg-3">
-
-                    <button
-                        class="btn btn-outline-success
-                               w-100 py-3"
-                        type="button"
-                        disabled
-                    >
-
-                        <i class="bi bi-cart-check fs-4 d-block mb-1"></i>
-
-                        Orders
-
-                        <small
-                            class="d-block text-muted"
-                        >
-                            Coming next
-                        </small>
-
-                    </button>
-
-                </div>
-
-
-
-                <div class="col-12 col-md-6 col-lg-3">
-
-                    <button
-                        class="btn btn-outline-dark
-                               w-100 py-3"
-                        type="button"
-                        disabled
-                    >
-
-                        <i class="bi bi-receipt fs-4 d-block mb-1"></i>
-
-                        Transactions
-
-                        <small
-                            class="d-block text-muted"
-                        >
-                            Coming next
-                        </small>
-
-                    </button>
-
-                </div>
-
-
-
-                <div class="col-12 col-md-6 col-lg-3">
-
-                    <button
-                        class="btn btn-outline-warning
-                               w-100 py-3"
-                        type="button"
-                        disabled
-                    >
-
-                        <i class="bi bi-grid-3x3-gap fs-4 d-block mb-1"></i>
-
-                        Services
-
-                        <small
-                            class="d-block text-muted"
-                        >
-                            Coming next
-                        </small>
-
-                    </button>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =================================================
-         SYSTEM STATUS
-    ================================================= -->
-
-    <div class="card shadow-sm admin-card">
-
-        <div class="card-body">
-
-            <h4 class="admin-section-title mb-3">
-
-                <i class="bi bi-shield-check"></i>
-
-                Admin Status
-
-            </h4>
-
-
-            <div
-                id="adminStatus"
-                class="alert alert-success mb-0"
-            >
-
-                <i class="bi bi-check-circle"></i>
-
-                Admin authentication verified.
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
+id="adminContent"
+class="container py-5">
+<!-- =====================================================
+     HEADER
+===================================================== -->
+<div
+class="d-flex
+flex-column
+flex-md-row
+justify-content-between
+align-items-md-center
+gap-3
+mb-4">
+<div>
+<h1 class="mb-1">
+Admin Dashboard
+</h1>
+<p class="text-muted mb-0">
+Manage HKDMservices from one place.
+</p>
+</div>
+<span
+class="badge bg-success fs-6 px-3 py-2">
+<i class="bi bi-shield-check"></i>
+Administrator
+</span>
+</div>
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+<div class="row g-4 mb-4">
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Total Users
+</p>
+<h2
+id="totalUsers"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-primary-subtle
+text-primary">
+<i class="bi bi-people"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Total Orders
+</p>
+<h2
+id="totalOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-success-subtle
+text-success">
+<i class="bi bi-cart-check"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Pending Orders
+</p>
+<h2
+id="pendingOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-warning-subtle
+text-warning">
+<i class="bi bi-hourglass-split"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Completed Orders
+</p>
+<h2
+id="completedOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-success-subtle
+text-success">
+<i class="bi bi-check-circle"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     MANAGEMENT NAVIGATION
+===================================================== -->
+<div class="card shadow-sm admin-card mb-4">
+<div class="card-body">
+<div
+class="d-flex
+flex-wrap
+gap-2">
+<button
+class="btn btn-primary admin-nav-btn"
+data-section="usersSection">
+<i class="bi bi-people"></i>
+Users
+</button>
+<button
+class="btn btn-outline-success admin-nav-btn"
+data-section="ordersSection">
+<i class="bi bi-cart-check"></i>
+Orders
+</button>
+<button
+class="btn btn-outline-dark admin-nav-btn"
+data-section="transactionsSection">
+<i class="bi bi-receipt"></i>
+Transactions
+</button>
+<button
+class="btn btn-outline-warning admin-nav-btn"
+data-section="servicesSection">
+<i class="bi bi-grid-3x3-gap"></i>
+Services
+</button>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     USERS
+===================================================== -->
+<section
+id="usersSection"
+class="management-section active">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-people"></i>
+Users
+</h4>
+<button
+id="refreshUsers"
+class="btn btn-outline-primary btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="usersMessage"
+class="text-muted mb-3">
+Loading users...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Wallet</th>
+<th>Orders</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody
+id="usersTableBody">
+<tr>
+<td
+colspan="5"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     ORDERS
+===================================================== -->
+<section
+id="ordersSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-cart-check"></i>
+Orders
+</h4>
+<button
+id="refreshOrders"
+class="btn btn-outline-success btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="ordersMessage"
+class="text-muted mb-3">
+Loading orders...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Order ID</th>
+<th>User</th>
+<th>Service</th>
+<th>Quantity</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody
+id="ordersTableBody">
+<tr>
+<td
+colspan="7"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     TRANSACTIONS
+===================================================== -->
+<section
+id="transactionsSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-receipt"></i>
+Transactions
+</h4>
+<button
+id="refreshTransactions"
+class="btn btn-outline-dark btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="transactionsMessage"
+class="text-muted mb-3">
+Loading transactions...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Transaction</th>
+<th>User</th>
+<th>Type</th>
+<th>Description</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody
+id="transactionsTableBody">
+<tr>
+<td
+colspan="7"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     SERVICES
+===================================================== -->
+<section
+id="servicesSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+flex-column
+flex-md-row
+justify-content-between
+gap-3
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-grid-3x3-gap"></i>
+Services
+</h4>
+<button
+id="addServiceBtn"
+class="btn btn-warning">
+<i class="bi bi-plus-circle"></i>
+Add Service
+</button>
+</div>
+<div
+id="servicesMessage"
+class="text-muted mb-3">
+No services have been created yet.
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Platform</th>
+<th>Service</th>
+<th>Price / 1,000</th>
+<th>Min</th>
+<th>Max</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody
+id="servicesTableBody">
+<tr>
+<td
+colspan="7"
+class="text-center text-muted">
+No services yet.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     ADMIN STATUS
+===================================================== -->
+<div class="card shadow-sm admin-card mt-4">
+<div class="card-body">
+<h4>
+<i class="bi bi-shield-check"></i>
+Admin Status
+</h4>
+<div
+id="adminStatus"
+class="alert alert-success mb-0">
+<i class="bi bi-check-circle"></i>
+Admin authentication verified.
+</div>
+</div>
+</div>
 </main>
-
-
-
+<!-- =====================================================
+     ADD / EDIT SERVICE MODAL
+===================================================== -->
+<div
+class="modal fade"
+id="serviceModal"
+tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5
+id="serviceModalTitle"
+class="modal-title">
+Add Service
+</h5>
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+</div>
+<div class="modal-body">
+<form id="serviceForm">
+<input
+type="hidden"
+id="serviceId">
+<div class="mb-3">
+<label
+class="form-label">
+Platform
+</label>
+<input
+type="text"
+id="servicePlatform"
+class="form-control"
+placeholder="Instagram"
+required>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Service Name
+</label>
+<input
+type="text"
+id="serviceName"
+class="form-control"
+placeholder="Instagram Followers"
+required>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Price per 1,000
+</label>
+<input
+type="number"
+id="servicePrice"
+class="form-control"
+min="0"
+step="0.01"
+required>
+</div>
+<div class="row">
+<div class="col-6">
+<div class="mb-3">
+<label
+class="form-label">
+Minimum
+</label>
+<input
+type="number"
+id="serviceMin"
+class="form-control"
+min="1"
+required>
+</div>
+</div>
+<div class="col-6">
+<div class="mb-3">
+<label
+class="form-label">
+Maximum
+</label>
+<input
+type="number"
+id="serviceMax"
+class="form-control"
+min="1"
+required>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Status
+</label>
+<select
+id="serviceStatus"
+class="form-select">
+<option value="active">
+Active
+</option>
+<option value="inactive">
+Inactive
+</option>
+</select>
+</div>
+<button
+type="submit"
+class="btn btn-warning w-100">
+Save Service
+</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     BOOTSTRAP JS
+===================================================== -->
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
 <!-- =====================================================
      ADMIN JAVASCRIPT
 ===================================================== -->
-
 <script
-    type="module"
-    src="admin-dashboard.js"
-></script>
-
-
+type="module"
+src="admin-dashboard.js">
+</script>
 </body>
-
 </html>
