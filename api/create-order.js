@@ -19,11 +19,9 @@ export default async function handler(req, res) {
 
     try {
 
-        /*
-            ============================================
-            1. VERIFY FIREBASE USER
-            ============================================
-        */
+        // ====================================================
+        // 1. VERIFY FIREBASE USER
+        // ====================================================
 
         const authorization =
             req.headers.authorization || "";
@@ -54,17 +52,15 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            2. GET ORDER DATA
-            ============================================
-        */
+        // ====================================================
+        // 2. GET ORDER DATA
+        // ====================================================
 
         const {
             serviceId,
             link,
             quantity,
-            comment
+            comments
         } = req.body;
 
 
@@ -84,11 +80,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            3. FIND SERVICE
-            ============================================
-        */
+        // ====================================================
+        // 3. FIND SERVICE
+        // ====================================================
 
         const selectedService =
             hkdmservicesOfficialServicePriceCatalogue.find(
@@ -109,111 +103,117 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            4. DETERMINE SERVICE TYPE
-            ============================================
-        */
-
-        const isFixedPrice =
-            selectedService.ratePer1000 === null;
-
-
-        const numericQuantity =
-            Number(quantity);
-
-
-
-        /*
-            ============================================
-            5. QUANTITY VALIDATION
-            ============================================
-        */
-
-        if (
-            !Number.isFinite(numericQuantity) ||
-            numericQuantity < 1
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Minimum quantity is 1."
-            });
-
-        }
-
-
-        /*
-            FIXED PRICE SERVICES
-            Example:
-            YouTube Watch Time
-            X/Twitter Live Listeners
-        */
-
-        if (isFixedPrice) {
-
-            if (numericQuantity < 1) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Minimum package quantity is 1."
-                });
-
-            }
-
-        }
-
-
-        /*
-            STANDARD SERVICES
-            Minimum quantity = 100
-        */
-
-        else {
-
-            if (numericQuantity < 100) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Minimum quantity is 100."
-                });
-
-            }
-
-        }
-
-
-
-        /*
-            ============================================
-            6. COMMENT VALIDATION
-            ============================================
-        */
+        // ====================================================
+        // 4. CHECK IF COMMENT SERVICE
+        // ====================================================
 
         const isCommentService =
-            selectedService.service
+            String(
+                selectedService.service || ""
+            )
                 .toLowerCase()
                 .includes("comment");
 
 
-        let customComment = "";
+
+        // ====================================================
+        // 5. VALIDATE COMMENTS
+        // ====================================================
+
+        let cleanedComments = [];
+
+        let numericQuantity;
+
 
 
         if (isCommentService) {
 
-            customComment =
-                String(comment || "").trim();
+            /*
+                Comments must be an array.
+            */
 
-
-            if (!customComment) {
+            if (!Array.isArray(comments)) {
 
                 return res.status(400).json({
+
                     success: false,
+
                     message:
-                        "Please enter the comment you want to use."
+                        "Please provide your comments, one per line."
+
+                });
+
+            }
+
+
+
+            /*
+                Remove empty lines and
+                trim each comment.
+            */
+
+            cleanedComments =
+                comments
+                    .map(
+                        comment =>
+                            String(comment || "").trim()
+                    )
+                    .filter(
+                        comment =>
+                            comment.length > 0
+                    );
+
+
+
+            /*
+                Minimum 100 comments.
+            */
+
+            if (
+                cleanedComments.length < 100
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        `Minimum order is 100 comments. You provided ${cleanedComments.length}.`
+
+                });
+
+            }
+
+
+
+            /*
+                Quantity is automatically
+                the number of comments.
+            */
+
+            numericQuantity =
+                cleanedComments.length;
+
+
+
+            /*
+                Make sure the quantity sent
+                by the browser matches the
+                actual number of comments.
+            */
+
+            if (
+                Number(quantity) !==
+                numericQuantity
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "Comment quantity does not match the number of comments provided."
+
                 });
 
             }
@@ -222,20 +222,102 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            7. CALCULATE PRICE
-            ============================================
-        */
+        // ====================================================
+        // 6. FIXED PACKAGE
+        // ====================================================
+
+        else if (
+            selectedService.ratePer1000 === null
+        ) {
+
+            numericQuantity =
+                Number(quantity);
+
+
+            const minimum =
+                Number(
+                    selectedService.minimumQuantity || 1
+                );
+
+
+            if (
+                !Number.isFinite(
+                    numericQuantity
+                ) ||
+                numericQuantity < minimum
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        `Minimum package quantity is ${minimum}.`
+
+                });
+
+            }
+
+        }
+
+
+
+        // ====================================================
+        // 7. NORMAL SERVICE
+        // ====================================================
+
+        else {
+
+            numericQuantity =
+                Number(quantity);
+
+
+            const minimum =
+                Number(
+                    selectedService.minimumQuantity || 100
+                );
+
+
+            if (
+                !Number.isFinite(
+                    numericQuantity
+                ) ||
+                numericQuantity < minimum
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        `Minimum quantity is ${minimum}.`
+
+                });
+
+            }
+
+        }
+
+
+
+        // ====================================================
+        // 8. CALCULATE PRICE
+        // ====================================================
 
         let total;
 
 
-        /*
-            FIXED PRICE PACKAGE
-        */
+        if (
+            selectedService.ratePer1000 === null
+        ) {
 
-        if (isFixedPrice) {
+            /*
+                Fixed-price package.
+
+                Example:
+                Watch Time package
+                = ₦100,000 per package.
+            */
 
             total =
                 Number(
@@ -243,14 +325,11 @@ export default async function handler(req, res) {
                 ) *
                 numericQuantity;
 
-        }
+        } else {
 
-
-        /*
-            STANDARD PER-1,000 SERVICE
-        */
-
-        else {
+            /*
+                Per-1,000 service.
+            */
 
             total =
                 (
@@ -270,11 +349,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            8. WALLET REFERENCE
-            ============================================
-        */
+        // ====================================================
+        // 9. WALLET REFERENCE
+        // ====================================================
 
         const walletRef =
             db.ref(
@@ -283,12 +360,14 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            READ CURRENT WALLET BALANCE
-        */
+        // ====================================================
+        // 10. READ WALLET
+        // ====================================================
 
         const walletSnapshot =
-            await walletRef.once("value");
+            await walletRef.once(
+                "value"
+            );
 
 
         const currentBalance =
@@ -298,27 +377,30 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            CHECK BALANCE
-        */
+        // ====================================================
+        // 11. CHECK BALANCE
+        // ====================================================
 
-        if (currentBalance < total) {
+        if (
+            currentBalance < total
+        ) {
 
             return res.status(400).json({
+
                 success: false,
+
                 message:
                     "Insufficient wallet balance."
+
             });
 
         }
 
 
 
-        /*
-            ============================================
-            9. DEDUCT WALLET
-            ============================================
-        */
+        // ====================================================
+        // 12. DEDUCT WALLET
+        // ====================================================
 
         let transactionResult;
 
@@ -336,11 +418,12 @@ export default async function handler(req, res) {
 
 
                         /*
-                            Prevent negative wallet
-                            balance during transaction.
+                            Prevent negative balance.
                         */
 
-                        if (balance < total) {
+                        if (
+                            balance < total
+                        ) {
 
                             return;
 
@@ -349,14 +432,17 @@ export default async function handler(req, res) {
 
                         return Number(
                             (
-                                balance - total
+                                balance -
+                                total
                             ).toFixed(2)
                         );
 
                     }
                 );
 
-        } catch (transactionError) {
+        } catch (
+            transactionError
+        ) {
 
             console.error(
                 "WALLET TRANSACTION ERROR:",
@@ -365,41 +451,47 @@ export default async function handler(req, res) {
 
 
             return res.status(500).json({
+
                 success: false,
+
                 message:
                     "Unable to update wallet balance."
+
             });
 
         }
 
 
 
-        /*
-            ============================================
-            10. CONFIRM WALLET TRANSACTION
-            ============================================
-        */
+        // ====================================================
+        // 13. CONFIRM WALLET TRANSACTION
+        // ====================================================
 
-        if (!transactionResult.committed) {
+        if (
+            !transactionResult.committed
+        ) {
 
             return res.status(409).json({
+
                 success: false,
+
                 message:
                     "Wallet transaction was not committed."
+
             });
 
         }
 
 
 
-        /*
-            ============================================
-            11. CREATE ORDER ID
-            ============================================
-        */
+        // ====================================================
+        // 14. CREATE ORDER
+        // ====================================================
 
         const orderRef =
-            db.ref("orders").push();
+            db
+                .ref("orders")
+                .push();
 
 
         const orderId =
@@ -407,11 +499,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            12. CREATE ORDER DATA
-            ============================================
-        */
+        // ====================================================
+        // 15. ORDER DATA
+        // ====================================================
 
         const orderData = {
 
@@ -450,24 +540,24 @@ export default async function handler(req, res) {
 
 
         /*
-            SAVE CUSTOM COMMENT
-            ONLY FOR COMMENT SERVICES
+            Save comments only for
+            comment services.
         */
 
-        if (isCommentService) {
+        if (
+            isCommentService
+        ) {
 
-            orderData.comment =
-                customComment;
+            orderData.comments =
+                cleanedComments;
 
         }
 
 
 
-        /*
-            ============================================
-            13. SAVE ORDER
-            ============================================
-        */
+        // ====================================================
+        // 16. SAVE ORDER
+        // ====================================================
 
         await orderRef.set(
             orderData
@@ -475,11 +565,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            14. SAVE TRANSACTION
-            ============================================
-        */
+        // ====================================================
+        // 17. SAVE TRANSACTION
+        // ====================================================
 
         const transactionRef =
             db
@@ -512,11 +600,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            ============================================
-            15. SUCCESS
-            ============================================
-        */
+        // ====================================================
+        // 18. SUCCESS
+        // ====================================================
 
         return res.status(200).json({
 
@@ -530,9 +616,14 @@ export default async function handler(req, res) {
             amount:
                 total,
 
+            quantity:
+                numericQuantity,
+
             newBalance:
                 Number(
-                    transactionResult.snapshot.val()
+                    transactionResult
+                        .snapshot
+                        .val()
                 )
 
         });
