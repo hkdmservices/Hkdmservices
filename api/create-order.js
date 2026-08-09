@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     try {
 
         // ====================================================
-        // 1. VERIFY FIREBASE USER
+        // 1. VERIFY USER
         // ====================================================
 
         const authorization =
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 2. GET ORDER DATA
+        // 2. GET REQUEST DATA
         // ====================================================
 
         const {
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 5. VALIDATE QUANTITY / COMMENTS
+        // 5. VALIDATE QUANTITY
         // ====================================================
 
         let cleanedComments = [];
@@ -184,14 +184,15 @@ export default async function handler(req, res) {
             }
 
 
-            // Quantity automatically equals
-            // the number of non-empty comments
+            // Quantity is the actual
+            // number of comments
 
             numericQuantity =
                 cleanedComments.length;
 
 
-            // Browser quantity must match
+            // Make sure browser quantity
+            // matches actual comments
 
             if (
                 Number(quantity) !==
@@ -338,7 +339,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to calculate a valid order amount."
+                    "Invalid order amount."
 
             });
 
@@ -347,51 +348,60 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 9. WALLET REFERENCE
+        // 9. USER REFERENCE
         // ====================================================
 
-        const walletRef =
+        /*
+            IMPORTANT:
+
+            We transact on the entire user object
+            instead of only users/UID/wallet.
+
+            This avoids the wallet transaction
+            problem we were seeing.
+        */
+
+        const userRef =
             db.ref(
-                `users/${uid}/wallet`
+                `users/${uid}`
             );
 
 
 
         // ====================================================
-        // 10. READ WALLET FIRST
+        // 10. READ USER
         // ====================================================
 
-        const walletSnapshot =
-            await walletRef.once(
+        const userSnapshot =
+            await userRef.once(
                 "value"
             );
 
 
-        const walletValue =
-            walletSnapshot.val();
-
-
-        const currentBalance =
-            Number(
-                walletValue
-            );
-
-
         if (
-            walletValue === null ||
-            walletValue === undefined
+            !userSnapshot.exists()
         ) {
 
-            return res.status(400).json({
+            return res.status(404).json({
 
                 success: false,
 
                 message:
-                    "Wallet balance could not be found."
+                    "User account could not be found."
 
             });
 
         }
+
+
+        const userData =
+            userSnapshot.val();
+
+
+        const currentBalance =
+            Number(
+                userData.wallet
+            );
 
 
         if (
@@ -411,6 +421,11 @@ export default async function handler(req, res) {
 
         }
 
+
+
+        // ====================================================
+        // 11. CHECK BALANCE
+        // ====================================================
 
         if (
             currentBalance < total
@@ -442,7 +457,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 11. ATOMIC WALLET TRANSACTION
+        // 12. DEDUCT WALLET
         // ====================================================
 
         let walletTransaction;
@@ -451,13 +466,18 @@ export default async function handler(req, res) {
         try {
 
             walletTransaction =
-                await walletRef.transaction(
+                await userRef.transaction(
 
-                    currentValue => {
+                    currentUserData => {
+
+                        /*
+                            Firebase gives us the
+                            latest user object here.
+                        */
 
                         if (
-                            currentValue === null ||
-                            currentValue === undefined
+                            currentUserData === null ||
+                            currentUserData === undefined
                         ) {
 
                             return;
@@ -465,11 +485,26 @@ export default async function handler(req, res) {
                         }
 
 
+                        /*
+                            Make a copy so we don't
+                            accidentally modify the
+                            Firebase object directly.
+                        */
+
+                        const updatedUser = {
+                            ...currentUserData
+                        };
+
+
                         const balance =
                             Number(
-                                currentValue
+                                updatedUser.wallet
                             );
 
+
+                        /*
+                            Invalid wallet
+                        */
 
                         if (
                             !Number.isFinite(
@@ -482,6 +517,10 @@ export default async function handler(req, res) {
                         }
 
 
+                        /*
+                            Not enough money
+                        */
+
                         if (
                             balance < total
                         ) {
@@ -491,12 +530,27 @@ export default async function handler(req, res) {
                         }
 
 
-                        return Number(
-                            (
-                                balance -
-                                total
-                            ).toFixed(2)
-                        );
+                        /*
+                            Deduct amount
+                        */
+
+                        updatedUser.wallet =
+                            Number(
+                                (
+                                    balance -
+                                    total
+                                ).toFixed(2)
+                            );
+
+
+                        /*
+                            RETURN THE UPDATED
+                            USER OBJECT.
+
+                            This is critical.
+                        */
+
+                        return updatedUser;
 
                     }
 
@@ -517,7 +571,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to process wallet transaction. Please try again.",
+                    "Unable to process wallet transaction.",
 
                 error:
                     walletError.message
@@ -529,7 +583,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 12. VERIFY WALLET TRANSACTION
+        // 13. CHECK COMMIT
         // ====================================================
 
         if (
@@ -537,20 +591,26 @@ export default async function handler(req, res) {
             !walletTransaction.committed
         ) {
 
+            /*
+                Read the wallet again.
+            */
+
             const latestSnapshot =
-                await walletRef.once(
+                await userRef.once(
                     "value"
                 );
 
 
-            const latestValue =
+            const latestUser =
                 latestSnapshot.val();
 
 
             const latestBalance =
-                Number(
-                    latestValue
-                );
+                latestUser
+                    ? Number(
+                        latestUser.wallet
+                    )
+                    : NaN;
 
 
             if (
@@ -598,14 +658,18 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 13. GET NEW BALANCE
+        // 14. GET NEW BALANCE
         // ====================================================
+
+        const committedUser =
+            walletTransaction
+                .snapshot
+                .val();
+
 
         const newBalance =
             Number(
-                walletTransaction
-                    .snapshot
-                    .val()
+                committedUser.wallet
             );
 
 
@@ -620,7 +684,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "New wallet balance could not be confirmed."
+                    "Unable to confirm your new wallet balance."
 
             });
 
@@ -629,7 +693,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 14. CREATE ORDER
+        // 15. CREATE ORDER
         // ====================================================
 
         const orderRef =
@@ -677,7 +741,10 @@ export default async function handler(req, res) {
         };
 
 
-        // Save comments for comment services
+        /*
+            Save comments for
+            comment services.
+        */
 
         if (
             isCommentService
@@ -691,7 +758,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 15. SAVE ORDER
+        // 16. SAVE ORDER
         // ====================================================
 
         try {
@@ -710,19 +777,35 @@ export default async function handler(req, res) {
             );
 
 
-            // ----------------------------------------------
-            // REFUND WALLET
-            // ----------------------------------------------
+            /*
+                ORDER FAILED.
+
+                Refund the wallet.
+            */
 
             try {
 
-                await walletRef.transaction(
+                await userRef.transaction(
 
-                    currentValue => {
+                    currentUserData => {
+
+                        if (
+                            !currentUserData
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const refundUser = {
+                            ...currentUserData
+                        };
+
 
                         const balance =
                             Number(
-                                currentValue
+                                refundUser.wallet
                             );
 
 
@@ -737,12 +820,16 @@ export default async function handler(req, res) {
                         }
 
 
-                        return Number(
-                            (
-                                balance +
-                                total
-                            ).toFixed(2)
-                        );
+                        refundUser.wallet =
+                            Number(
+                                (
+                                    balance +
+                                    total
+                                ).toFixed(2)
+                            );
+
+
+                        return refundUser;
 
                     }
 
@@ -753,7 +840,7 @@ export default async function handler(req, res) {
             ) {
 
                 console.error(
-                    "ORDER REFUND ERROR:",
+                    "REFUND ERROR:",
                     refundError
                 );
 
@@ -774,7 +861,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 16. SAVE TRANSACTION RECORD
+        // 17. SAVE TRANSACTION
         // ====================================================
 
         try {
@@ -818,7 +905,10 @@ export default async function handler(req, res) {
             );
 
 
-            // Remove incomplete order
+            /*
+                Remove the order because
+                the transaction record failed.
+            */
 
             try {
 
@@ -829,24 +919,40 @@ export default async function handler(req, res) {
             ) {
 
                 console.error(
-                    "ORDER ROLLBACK ERROR:",
+                    "ORDER REMOVE ERROR:",
                     removeError
                 );
 
             }
 
 
-            // Refund wallet
+            /*
+                Refund the wallet.
+            */
 
             try {
 
-                await walletRef.transaction(
+                await userRef.transaction(
 
-                    currentValue => {
+                    currentUserData => {
+
+                        if (
+                            !currentUserData
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const refundUser = {
+                            ...currentUserData
+                        };
+
 
                         const balance =
                             Number(
-                                currentValue
+                                refundUser.wallet
                             );
 
 
@@ -861,12 +967,16 @@ export default async function handler(req, res) {
                         }
 
 
-                        return Number(
-                            (
-                                balance +
-                                total
-                            ).toFixed(2)
-                        );
+                        refundUser.wallet =
+                            Number(
+                                (
+                                    balance +
+                                    total
+                                ).toFixed(2)
+                            );
+
+
+                        return refundUser;
 
                     }
 
@@ -898,7 +1008,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 17. SUCCESS
+        // 18. SUCCESS
         // ====================================================
 
         return res.status(200).json({
