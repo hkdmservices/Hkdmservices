@@ -104,7 +104,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 4. CHECK IF COMMENT SERVICE
+        // 4. DETECT COMMENT SERVICE
         // ====================================================
 
         const isCommentService =
@@ -125,11 +125,10 @@ export default async function handler(req, res) {
         let numericQuantity;
 
 
-
         if (isCommentService) {
 
             /*
-                Comments must be an array.
+                Comments must arrive as an array.
             */
 
             if (!Array.isArray(comments)) {
@@ -146,17 +145,20 @@ export default async function handler(req, res) {
             }
 
 
-
             /*
-                Remove empty lines and
-                trim each comment.
+                Clean comments.
+
+                Empty lines are ignored.
+                Spaces around comments are removed.
             */
 
             cleanedComments =
                 comments
                     .map(
                         comment =>
-                            String(comment || "").trim()
+                            String(
+                                comment || ""
+                            ).trim()
                     )
                     .filter(
                         comment =>
@@ -187,20 +189,13 @@ export default async function handler(req, res) {
 
 
             /*
-                Quantity is automatically
-                the number of comments.
+                Quantity MUST equal
+                the actual number of comments.
             */
 
             numericQuantity =
                 cleanedComments.length;
 
-
-
-            /*
-                Make sure the quantity sent
-                by the browser matches the
-                actual number of comments.
-            */
 
             if (
                 Number(quantity) !==
@@ -301,23 +296,19 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 8. CALCULATE PRICE
+        // 8. CALCULATE ORDER PRICE
         // ====================================================
 
         let total;
 
 
+        /*
+            FIXED PACKAGE
+        */
+
         if (
             selectedService.ratePer1000 === null
         ) {
-
-            /*
-                Fixed-price package.
-
-                Example:
-                Watch Time package
-                = ₦100,000 per package.
-            */
 
             total =
                 Number(
@@ -325,15 +316,19 @@ export default async function handler(req, res) {
                 ) *
                 numericQuantity;
 
-        } else {
+        }
 
-            /*
-                Per-1,000 service.
-            */
+
+        /*
+            PER-1000 SERVICE
+        */
+
+        else {
 
             total =
                 (
-                    numericQuantity / 1000
+                    numericQuantity /
+                    1000
                 ) *
                 Number(
                     selectedService.ratePer1000
@@ -361,46 +356,25 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 10. READ WALLET
+        // 10. ATOMIC WALLET TRANSACTION
         // ====================================================
+        /*
+            IMPORTANT:
 
-        const walletSnapshot =
-            await walletRef.once(
-                "value"
-            );
+            We do NOT read the wallet first.
 
+            Firebase gives the transaction the
+            current wallet balance.
 
-        const currentBalance =
-            Number(
-                walletSnapshot.val() || 0
-            );
+            If the balance is enough,
+            subtract the order amount.
 
+            If the balance is not enough,
+            abort the transaction.
 
-
-        // ====================================================
-        // 11. CHECK BALANCE
-        // ====================================================
-
-        if (
-            currentBalance < total
-        ) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message:
-                    "Insufficient wallet balance."
-
-            });
-
-        }
-
-
-
-        // ====================================================
-        // 12. DEDUCT WALLET
-        // ====================================================
+            This prevents race conditions and
+            prevents the wallet from becoming negative.
+        */
 
         let transactionResult;
 
@@ -411,6 +385,11 @@ export default async function handler(req, res) {
                 await walletRef.transaction(
                     currentValue => {
 
+                        /*
+                            Convert Firebase value
+                            into a number.
+                        */
+
                         const balance =
                             Number(
                                 currentValue || 0
@@ -418,7 +397,30 @@ export default async function handler(req, res) {
 
 
                         /*
-                            Prevent negative balance.
+                            Invalid wallet balance.
+                        */
+
+                        if (
+                            !Number.isFinite(
+                                balance
+                            )
+                        ) {
+
+                            console.error(
+                                "INVALID WALLET BALANCE:",
+                                currentValue
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                            INSUFFICIENT BALANCE
+
+                            Returning undefined aborts
+                            the transaction.
                         */
 
                         if (
@@ -430,12 +432,22 @@ export default async function handler(req, res) {
                         }
 
 
-                        return Number(
-                            (
-                                balance -
-                                total
-                            ).toFixed(2)
-                        );
+                        /*
+                            SUFFICIENT BALANCE
+
+                            Deduct the order amount.
+                        */
+
+                        const newBalance =
+                            Number(
+                                (
+                                    balance -
+                                    total
+                                ).toFixed(2)
+                            );
+
+
+                        return newBalance;
 
                     }
                 );
@@ -464,19 +476,87 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 13. CONFIRM WALLET TRANSACTION
+        // 11. TRANSACTION WAS ABORTED
         // ====================================================
 
         if (
             !transactionResult.committed
         ) {
 
+            /*
+                Read the latest balance only so
+                we can give the user the correct
+                error message.
+            */
+
+            let latestBalance = 0;
+
+
+            try {
+
+                const latestSnapshot =
+                    await walletRef.once(
+                        "value"
+                    );
+
+
+                latestBalance =
+                    Number(
+                        latestSnapshot.val() || 0
+                    );
+
+            } catch (
+                balanceError
+            ) {
+
+                console.error(
+                    "BALANCE CHECK ERROR:",
+                    balanceError
+                );
+
+            }
+
+
+
+            /*
+                If balance is genuinely insufficient,
+                tell the user exactly what happened.
+            */
+
+            if (
+                latestBalance < total
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        `Insufficient wallet balance. Your balance is ₦${latestBalance.toLocaleString("en-NG", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}, but this order costs ₦${total.toLocaleString("en-NG", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}.`
+
+                });
+
+            }
+
+
+            /*
+                If balance is enough but transaction
+                still didn't commit, report the
+                transaction problem.
+            */
+
             return res.status(409).json({
 
                 success: false,
 
                 message:
-                    "Wallet transaction was not committed."
+                    "Wallet transaction could not be completed. Please try again."
 
             });
 
@@ -485,7 +565,20 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 14. CREATE ORDER
+        // 12. GET NEW WALLET BALANCE
+        // ====================================================
+
+        const newBalance =
+            Number(
+                transactionResult
+                    .snapshot
+                    .val() || 0
+            );
+
+
+
+        // ====================================================
+        // 13. CREATE ORDER ID
         // ====================================================
 
         const orderRef =
@@ -500,7 +593,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 15. ORDER DATA
+        // 14. CREATE ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -539,10 +632,9 @@ export default async function handler(req, res) {
 
 
 
-        /*
-            Save comments only for
-            comment services.
-        */
+        // ====================================================
+        // 15. SAVE COMMENTS
+        // ====================================================
 
         if (
             isCommentService
@@ -559,44 +651,130 @@ export default async function handler(req, res) {
         // 16. SAVE ORDER
         // ====================================================
 
-        await orderRef.set(
-            orderData
-        );
+        try {
+
+            await orderRef.set(
+                orderData
+            );
+
+        } catch (
+            orderError
+        ) {
+
+            console.error(
+                "ORDER SAVE ERROR:",
+                orderError
+            );
+
+
+            /*
+                IMPORTANT:
+
+                Wallet has already been deducted.
+
+                We therefore attempt to refund the
+                wallet if saving the order fails.
+            */
+
+            try {
+
+                await walletRef.transaction(
+                    currentValue => {
+
+                        const balance =
+                            Number(
+                                currentValue || 0
+                            );
+
+
+                        return Number(
+                            (
+                                balance +
+                                total
+                            ).toFixed(2)
+                        );
+
+                    }
+                );
+
+            } catch (
+                refundError
+            ) {
+
+                console.error(
+                    "REFUND ERROR:",
+                    refundError
+                );
+
+            }
+
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to save your order. Your wallet was not charged."
+
+            });
+
+        }
 
 
 
         // ====================================================
-        // 17. SAVE TRANSACTION
+        // 17. SAVE TRANSACTION RECORD
         // ====================================================
 
-        const transactionRef =
-            db
-                .ref("transactions")
-                .push();
+        try {
+
+            const transactionRef =
+                db
+                    .ref("transactions")
+                    .push();
 
 
-        await transactionRef.set({
+            await transactionRef.set({
 
-            uid,
+                uid,
 
-            orderId,
+                orderId,
 
-            type:
-                "order",
+                type:
+                    "order",
 
-            amount:
-                total,
+                amount:
+                    total,
 
-            status:
-                "success",
+                status:
+                    "success",
 
-            description:
-                `Order - ${selectedService.platform} ${selectedService.service}`,
+                description:
+                    `Order - ${selectedService.platform} ${selectedService.service}`,
 
-            createdAt:
-                Date.now()
+                createdAt:
+                    Date.now()
 
-        });
+            });
+
+        } catch (
+            transactionRecordError
+        ) {
+
+            console.error(
+                "TRANSACTION RECORD ERROR:",
+                transactionRecordError
+            );
+
+            /*
+                The order has already been created
+                and wallet has already been charged.
+
+                We do NOT refund here because the
+                actual order exists successfully.
+            */
+
+        }
 
 
 
@@ -619,12 +797,7 @@ export default async function handler(req, res) {
             quantity:
                 numericQuantity,
 
-            newBalance:
-                Number(
-                    transactionResult
-                        .snapshot
-                        .val()
-                )
+            newBalance
 
         });
 
