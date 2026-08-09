@@ -10,7 +10,11 @@ import {
 
 import {
     ref,
-    get
+    get,
+    set,
+    update,
+    remove,
+    push
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -36,6 +40,7 @@ const adminEmail =
 const logoutBtn =
     document.getElementById("logout");
 
+
 const totalUsers =
     document.getElementById("totalUsers");
 
@@ -49,6 +54,248 @@ const completedOrders =
     document.getElementById("completedOrders");
 
 
+const usersTableBody =
+    document.getElementById("usersTableBody");
+
+const ordersTableBody =
+    document.getElementById("ordersTableBody");
+
+const transactionsTableBody =
+    document.getElementById("transactionsTableBody");
+
+const servicesTableBody =
+    document.getElementById("servicesTableBody");
+
+
+const usersMessage =
+    document.getElementById("usersMessage");
+
+const ordersMessage =
+    document.getElementById("ordersMessage");
+
+const transactionsMessage =
+    document.getElementById("transactionsMessage");
+
+const servicesMessage =
+    document.getElementById("servicesMessage");
+
+
+const refreshUsers =
+    document.getElementById("refreshUsers");
+
+const refreshOrders =
+    document.getElementById("refreshOrders");
+
+const refreshTransactions =
+    document.getElementById("refreshTransactions");
+
+const addServiceBtn =
+    document.getElementById("addServiceBtn");
+
+
+const serviceModalElement =
+    document.getElementById("serviceModal");
+
+const serviceModal =
+    serviceModalElement
+        ? new bootstrap.Modal(serviceModalElement)
+        : null;
+
+
+const serviceForm =
+    document.getElementById("serviceForm");
+
+const serviceModalTitle =
+    document.getElementById("serviceModalTitle");
+
+const serviceId =
+    document.getElementById("serviceId");
+
+const servicePlatform =
+    document.getElementById("servicePlatform");
+
+const serviceName =
+    document.getElementById("serviceName");
+
+const servicePrice =
+    document.getElementById("servicePrice");
+
+const serviceMin =
+    document.getElementById("serviceMin");
+
+const serviceMax =
+    document.getElementById("serviceMax");
+
+const serviceStatus =
+    document.getElementById("serviceStatus");
+
+
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let currentUser = null;
+
+let usersData = {};
+
+let ordersData = {};
+
+let transactionsData = {};
+
+let servicesData = {};
+
+
+/* =========================================================
+   FORMAT NAIRA
+========================================================= */
+
+function formatNaira(amount) {
+
+    return "₦" +
+        Number(amount || 0).toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(timestamp) {
+
+    if (!timestamp) {
+
+        return "—";
+
+    }
+
+    const date =
+        new Date(
+            Number(timestamp)
+        );
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "—";
+
+    }
+
+    return date.toLocaleString(
+        "en-NG",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+function statusBadge(status) {
+
+    const safeStatus =
+        String(
+            status || "pending"
+        ).toLowerCase();
+
+
+    let badgeClass =
+        "bg-secondary";
+
+
+    if (
+        safeStatus === "pending"
+    ) {
+
+        badgeClass =
+            "bg-warning text-dark";
+
+    }
+
+
+    if (
+        safeStatus === "processing"
+    ) {
+
+        badgeClass =
+            "bg-info text-dark";
+
+    }
+
+
+    if (
+        safeStatus === "completed"
+    ) {
+
+        badgeClass =
+            "bg-success";
+
+    }
+
+
+    if (
+        safeStatus === "cancelled" ||
+        safeStatus === "failed"
+    ) {
+
+        badgeClass =
+            "bg-danger";
+
+    }
+
+
+    return `
+        <span class="badge ${badgeClass}">
+            ${escapeHtml(safeStatus)}
+        </span>
+    `;
+
+}
+
+
 /* =========================================================
    SHOW ACCESS DENIED
 ========================================================= */
@@ -56,20 +303,30 @@ const completedOrders =
 function showAccessDenied(message) {
 
     if (adminLoading) {
-        adminLoading.style.display = "none";
+
+        adminLoading.style.display =
+            "none";
+
     }
 
+
     if (adminContent) {
-        adminContent.style.display = "none";
+
+        adminContent.style.display =
+            "none";
+
     }
+
 
     if (accessDenied) {
 
         accessDenied.style.display =
             "block";
 
+
         const paragraph =
             accessDenied.querySelector("p");
+
 
         if (paragraph) {
 
@@ -84,39 +341,197 @@ function showAccessDenied(message) {
 
 
 /* =========================================================
-   SHOW ADMIN DASHBOARD
+   SHOW ADMIN CONTENT
 ========================================================= */
 
 function showAdminContent() {
 
     if (adminLoading) {
-        adminLoading.style.display = "none";
+
+        adminLoading.style.display =
+            "none";
+
     }
+
 
     if (accessDenied) {
-        accessDenied.style.display = "none";
+
+        accessDenied.style.display =
+            "none";
+
     }
 
+
     if (adminContent) {
-        adminContent.style.display = "block";
+
+        adminContent.style.display =
+            "block";
+
     }
 
 }
 
 
 /* =========================================================
-   LOAD ADMIN STATISTICS
+   MANAGEMENT NAVIGATION
 ========================================================= */
 
-async function loadAdminStatistics() {
+document
+    .querySelectorAll(
+        ".admin-nav-btn"
+    )
+    .forEach(
+        button => {
 
-    /*
-     * USERS
-     */
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const sectionId =
+                        button.dataset.section;
+
+
+                    document
+                        .querySelectorAll(
+                            ".management-section"
+                        )
+                        .forEach(
+                            section => {
+
+                                section.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                    const selectedSection =
+                        document.getElementById(
+                            sectionId
+                        );
+
+
+                    if (selectedSection) {
+
+                        selectedSection.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    document
+                        .querySelectorAll(
+                            ".admin-nav-btn"
+                        )
+                        .forEach(
+                            navButton => {
+
+                                navButton.classList.remove(
+                                    "btn-primary"
+                                );
+
+                                navButton.classList.add(
+                                    "btn-outline-secondary"
+                                );
+
+                            }
+                        );
+
+
+                    button.classList.remove(
+                        "btn-outline-secondary"
+                    );
+
+                    button.classList.add(
+                        "btn-primary"
+                    );
+
+
+                    /*
+                     * Load section data
+                     */
+
+                    if (
+                        sectionId ===
+                        "usersSection"
+                    ) {
+
+                        loadUsers();
+
+                    }
+
+
+                    if (
+                        sectionId ===
+                        "ordersSection"
+                    ) {
+
+                        loadOrders();
+
+                    }
+
+
+                    if (
+                        sectionId ===
+                        "transactionsSection"
+                    ) {
+
+                        loadTransactions();
+
+                    }
+
+
+                    if (
+                        sectionId ===
+                        "servicesSection"
+                    ) {
+
+                        loadServices();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   LOAD USERS
+========================================================= */
+
+async function loadUsers() {
+
+    if (usersMessage) {
+
+        usersMessage.textContent =
+            "Loading users...";
+
+    }
+
+
+    if (usersTableBody) {
+
+        usersTableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="text-center text-muted"
+                >
+                    Loading...
+                </td>
+            </tr>
+        `;
+
+    }
+
 
     try {
 
-        const usersSnapshot =
+        const snapshot =
             await get(
                 ref(
                     database,
@@ -125,176 +540,186 @@ async function loadAdminStatistics() {
             );
 
 
-        let usersCount = 0;
+        usersData =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
 
 
-        if (usersSnapshot.exists()) {
-
-            const users =
-                usersSnapshot.val();
-
-            usersCount =
-                Object.keys(users).length;
-
-        }
-
-
-        if (totalUsers) {
-
-            totalUsers.textContent =
-                String(usersCount);
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "USERS LOAD ERROR:",
-            error
-        );
+        const users =
+            Object.entries(
+                usersData
+            );
 
 
         if (totalUsers) {
 
             totalUsers.textContent =
-                "Unable to load";
+                users.length;
+
+        }
+
+
+        if (users.length === 0) {
+
+            if (usersTableBody) {
+
+                usersTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="text-center text-muted"
+                        >
+                            No users found.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+
+            if (usersMessage) {
+
+                usersMessage.textContent =
+                    "No users found.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (usersMessage) {
+
+            usersMessage.textContent =
+                `${users.length} user(s) found.`;
+
+        }
+
+
+        let html = "";
+
+
+        for (
+            const [uid, user]
+            of users
+        ) {
+
+            const userOrders =
+                Object.values(
+                    ordersData || {}
+                )
+                .filter(
+                    order =>
+                        order &&
+                        String(order.uid) ===
+                        String(uid)
+                )
+                .length;
+
+
+            html += `
+
+                <tr>
+
+                    <td>
+
+                        <strong>
+                            ${escapeHtml(
+                                user.fullName ||
+                                user.name ||
+                                "User"
+                            )}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                            user.email ||
+                            "—"
+                        )}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+                            ${formatNaira(
+                                user.wallet
+                            )}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        ${userOrders}
+
+                    </td>
+
+
+                    <td>
+
+                        <span
+                            class="badge bg-success"
+                        >
+                            Active
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
+
+        if (usersTableBody) {
+
+            usersTableBody.innerHTML =
+                html;
 
         }
 
     }
 
 
-
-    /*
-     * ORDERS
-     */
-
-    try {
-
-        const ordersSnapshot =
-            await get(
-                ref(
-                    database,
-                    "orders"
-                )
-            );
-
-
-        let allOrders = [];
-
-        let pending = 0;
-
-        let completed = 0;
-
-
-        if (ordersSnapshot.exists()) {
-
-            const orders =
-                ordersSnapshot.val();
-
-
-            allOrders =
-                Object.values(orders)
-                    .filter(
-                        order =>
-                            order &&
-                            typeof order ===
-                            "object"
-                    );
-
-
-            allOrders.forEach(
-                order => {
-
-                    const status =
-                        String(
-                            order.status ||
-                            "pending"
-                        ).toLowerCase();
-
-
-                    if (
-                        status === "pending"
-                    ) {
-
-                        pending++;
-
-                    }
-
-
-                    if (
-                        status === "completed"
-                    ) {
-
-                        completed++;
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        if (totalOrders) {
-
-            totalOrders.textContent =
-                String(
-                    allOrders.length
-                );
-
-        }
-
-
-        if (pendingOrders) {
-
-            pendingOrders.textContent =
-                String(
-                    pending
-                );
-
-        }
-
-
-        if (completedOrders) {
-
-            completedOrders.textContent =
-                String(
-                    completed
-                );
-
-        }
-
-
-    } catch (error) {
+    catch (error) {
 
         console.error(
-            "ORDERS LOAD ERROR:",
+            "LOAD USERS ERROR:",
             error
         );
 
 
-        if (totalOrders) {
+        if (usersMessage) {
 
-            totalOrders.textContent =
-                "Unable to load";
-
-        }
-
-
-        if (pendingOrders) {
-
-            pendingOrders.textContent =
-                "Unable to load";
+            usersMessage.textContent =
+                "Unable to load users.";
 
         }
 
 
-        if (completedOrders) {
+        if (usersTableBody) {
 
-            completedOrders.textContent =
-                "Unable to load";
+            usersTableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="text-center text-danger"
+                    >
+                        Unable to load users.
+                    </td>
+                </tr>
+            `;
 
         }
 
@@ -304,7 +729,1417 @@ async function loadAdminStatistics() {
 
 
 /* =========================================================
-   AUTHENTICATION + ADMIN CLAIM
+   LOAD ORDERS
+========================================================= */
+
+async function loadOrders() {
+
+    if (ordersMessage) {
+
+        ordersMessage.textContent =
+            "Loading orders...";
+
+    }
+
+
+    if (ordersTableBody) {
+
+        ordersTableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    class="text-center text-muted"
+                >
+                    Loading...
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "orders"
+                )
+            );
+
+
+        ordersData =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
+
+
+        const orders =
+            Object.entries(
+                ordersData
+            );
+
+
+        let pending =
+            0;
+
+        let completed =
+            0;
+
+
+        orders.forEach(
+            ([id, order]) => {
+
+                const status =
+                    String(
+                        order?.status ||
+                        "pending"
+                    ).toLowerCase();
+
+
+                if (
+                    status ===
+                    "pending"
+                ) {
+
+                    pending++;
+
+                }
+
+
+                if (
+                    status ===
+                    "completed"
+                ) {
+
+                    completed++;
+
+                }
+
+            }
+        );
+
+
+        if (totalOrders) {
+
+            totalOrders.textContent =
+                orders.length;
+
+        }
+
+
+        if (pendingOrders) {
+
+            pendingOrders.textContent =
+                pending;
+
+        }
+
+
+        if (completedOrders) {
+
+            completedOrders.textContent =
+                completed;
+
+        }
+
+
+        if (orders.length === 0) {
+
+            if (ordersTableBody) {
+
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="text-center text-muted"
+                        >
+                            No orders found.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+
+            if (ordersMessage) {
+
+                ordersMessage.textContent =
+                    "No orders found.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (ordersMessage) {
+
+            ordersMessage.textContent =
+                `${orders.length} order(s) found.`;
+
+        }
+
+
+        /*
+         * Keep newest orders first
+         */
+
+        orders.sort(
+            ([, a], [, b]) =>
+                Number(
+                    b?.createdAt || 0
+                ) -
+                Number(
+                    a?.createdAt || 0
+                )
+        );
+
+
+        let html = "";
+
+
+        orders.forEach(
+            ([id, order]) => {
+
+                const shortId =
+                    String(
+                        order?.orderId ||
+                        id
+                    ).slice(
+                        0,
+                        12
+                    );
+
+
+                html += `
+
+                    <tr>
+
+                        <td>
+
+                            <code>
+                                ${escapeHtml(
+                                    shortId
+                                )}
+                            </code>
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                order?.email ||
+                                order?.userEmail ||
+                                order?.uid ||
+                                "—"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${escapeHtml(
+                                    order?.platform ||
+                                    "—"
+                                )}
+                            </strong>
+
+                            <br>
+
+                            <small
+                                class="text-muted"
+                            >
+                                ${escapeHtml(
+                                    order?.service ||
+                                    "—"
+                                )}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            ${Number(
+                                order?.quantity ||
+                                0
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${formatNaira(
+                                    order?.amount
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                order?.status
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <small>
+                                ${formatDate(
+                                    order?.createdAt
+                                )}
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        if (ordersTableBody) {
+
+            ordersTableBody.innerHTML =
+                html;
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "LOAD ORDERS ERROR:",
+            error
+        );
+
+
+        if (ordersMessage) {
+
+            ordersMessage.textContent =
+                "Unable to load orders.";
+
+        }
+
+
+        if (ordersTableBody) {
+
+            ordersTableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="text-center text-danger"
+                    >
+                        Unable to load orders.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD TRANSACTIONS
+========================================================= */
+
+async function loadTransactions() {
+
+    if (transactionsMessage) {
+
+        transactionsMessage.textContent =
+            "Loading transactions...";
+
+    }
+
+
+    if (transactionsTableBody) {
+
+        transactionsTableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    class="text-center text-muted"
+                >
+                    Loading...
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "transactions"
+                )
+            );
+
+
+        transactionsData =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
+
+
+        const transactions =
+            Object.entries(
+                transactionsData
+            );
+
+
+        if (transactions.length === 0) {
+
+            if (transactionsTableBody) {
+
+                transactionsTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="text-center text-muted"
+                        >
+                            No transactions found.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+
+            if (transactionsMessage) {
+
+                transactionsMessage.textContent =
+                    "No transactions found.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (transactionsMessage) {
+
+            transactionsMessage.textContent =
+                `${transactions.length} transaction(s) found.`;
+
+        }
+
+
+        transactions.sort(
+            ([, a], [, b]) =>
+                Number(
+                    b?.createdAt ||
+                    b?.timestamp ||
+                    0
+                ) -
+                Number(
+                    a?.createdAt ||
+                    a?.timestamp ||
+                    0
+                )
+        );
+
+
+        let html = "";
+
+
+        transactions.forEach(
+            ([id, transaction]) => {
+
+                html += `
+
+                    <tr>
+
+                        <td>
+
+                            <code>
+                                ${escapeHtml(
+                                    String(id).slice(
+                                        0,
+                                        14
+                                    )
+                                )}
+                            </code>
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                transaction?.email ||
+                                transaction?.userEmail ||
+                                transaction?.uid ||
+                                "—"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                transaction?.type ||
+                                "Deposit"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                transaction?.description ||
+                                "—"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${formatNaira(
+                                    transaction?.amount
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                transaction?.status ||
+                                "completed"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <small>
+                                ${formatDate(
+                                    transaction?.createdAt ||
+                                    transaction?.timestamp
+                                )}
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        if (transactionsTableBody) {
+
+            transactionsTableBody.innerHTML =
+                html;
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "LOAD TRANSACTIONS ERROR:",
+            error
+        );
+
+
+        if (transactionsMessage) {
+
+            transactionsMessage.textContent =
+                "Unable to load transactions.";
+
+        }
+
+
+        if (transactionsTableBody) {
+
+            transactionsTableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="text-center text-danger"
+                    >
+                        Unable to load transactions.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD SERVICES
+========================================================= */
+
+async function loadServices() {
+
+    if (servicesMessage) {
+
+        servicesMessage.textContent =
+            "Loading services...";
+
+    }
+
+
+    if (servicesTableBody) {
+
+        servicesTableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    class="text-center text-muted"
+                >
+                    Loading...
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "services"
+                )
+            );
+
+
+        servicesData =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
+
+
+        const services =
+            Object.entries(
+                servicesData
+            );
+
+
+        if (services.length === 0) {
+
+            if (servicesMessage) {
+
+                servicesMessage.textContent =
+                    "No services have been created yet.";
+
+            }
+
+
+            if (servicesTableBody) {
+
+                servicesTableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="7"
+                            class="text-center text-muted"
+                        >
+                            No services yet.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (servicesMessage) {
+
+            servicesMessage.textContent =
+                `${services.length} service(s) found.`;
+
+        }
+
+
+        let html = "";
+
+
+        services.forEach(
+            ([id, service]) => {
+
+                const active =
+                    String(
+                        service?.status ||
+                        "active"
+                    ).toLowerCase() ===
+                    "active";
+
+
+                html += `
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                ${escapeHtml(
+                                    service?.platform ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${escapeHtml(
+                                service?.name ||
+                                service?.service ||
+                                "—"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${formatNaira(
+                                    service?.price
+                                )}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${Number(
+                                service?.min ||
+                                0
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${Number(
+                                service?.max ||
+                                0
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                active
+
+                                ?
+
+                                `
+                                    <span
+                                        class="service-status-active"
+                                    >
+                                        Active
+                                    </span>
+                                `
+
+                                :
+
+                                `
+                                    <span
+                                        class="service-status-inactive"
+                                    >
+                                        Inactive
+                                    </span>
+                                `
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            <div
+                                class="d-flex
+                                flex-wrap
+                                gap-1"
+                            >
+
+                                <button
+                                    class="btn
+                                    btn-sm
+                                    btn-outline-primary
+                                    action-btn"
+                                    data-action="edit-service"
+                                    data-id="${escapeHtml(id)}"
+                                >
+
+                                    <i
+                                        class="bi bi-pencil"
+                                    ></i>
+
+                                    Edit
+
+                                </button>
+
+
+                                <button
+                                    class="btn
+                                    btn-sm
+                                    btn-outline-danger
+                                    action-btn"
+                                    data-action="delete-service"
+                                    data-id="${escapeHtml(id)}"
+                                >
+
+                                    <i
+                                        class="bi bi-trash"
+                                    ></i>
+
+                                    Delete
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        if (servicesTableBody) {
+
+            servicesTableBody.innerHTML =
+                html;
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "LOAD SERVICES ERROR:",
+            error
+        );
+
+
+        if (servicesMessage) {
+
+            servicesMessage.textContent =
+                "Unable to load services.";
+
+        }
+
+
+        if (servicesTableBody) {
+
+            servicesTableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="text-center text-danger"
+                    >
+                        Unable to load services.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN ADD SERVICE
+========================================================= */
+
+if (addServiceBtn) {
+
+    addServiceBtn.addEventListener(
+        "click",
+        () => {
+
+            if (!serviceForm) {
+
+                return;
+
+            }
+
+
+            serviceForm.reset();
+
+
+            if (serviceId) {
+
+                serviceId.value =
+                    "";
+
+            }
+
+
+            if (serviceModalTitle) {
+
+                serviceModalTitle.textContent =
+                    "Add Service";
+
+            }
+
+
+            if (serviceStatus) {
+
+                serviceStatus.value =
+                    "active";
+
+            }
+
+
+            if (serviceModal) {
+
+                serviceModal.show();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   EDIT / DELETE SERVICE BUTTONS
+========================================================= */
+
+if (servicesTableBody) {
+
+    servicesTableBody.addEventListener(
+        "click",
+        async (event) => {
+
+            const button =
+                event.target.closest(
+                    "button[data-action]"
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            const action =
+                button.dataset.action;
+
+
+            const id =
+                button.dataset.id;
+
+
+            if (!id) {
+
+                return;
+
+            }
+
+
+            if (
+                action ===
+                "edit-service"
+            ) {
+
+                openEditService(
+                    id
+                );
+
+            }
+
+
+            if (
+                action ===
+                "delete-service"
+            ) {
+
+                await deleteService(
+                    id
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   OPEN EDIT SERVICE
+========================================================= */
+
+function openEditService(id) {
+
+    const service =
+        servicesData[id];
+
+
+    if (!service) {
+
+        alert(
+            "Service could not be found."
+        );
+
+        return;
+
+    }
+
+
+    if (serviceId) {
+
+        serviceId.value =
+            id;
+
+    }
+
+
+    if (servicePlatform) {
+
+        servicePlatform.value =
+            service.platform ||
+            "";
+
+    }
+
+
+    if (serviceName) {
+
+        serviceName.value =
+            service.name ||
+            service.service ||
+            "";
+
+    }
+
+
+    if (servicePrice) {
+
+        servicePrice.value =
+            Number(
+                service.price ||
+                0
+            );
+
+    }
+
+
+    if (serviceMin) {
+
+        serviceMin.value =
+            Number(
+                service.min ||
+                1
+            );
+
+    }
+
+
+    if (serviceMax) {
+
+        serviceMax.value =
+            Number(
+                service.max ||
+                1
+            );
+
+    }
+
+
+    if (serviceStatus) {
+
+        serviceStatus.value =
+            service.status ||
+            "active";
+
+    }
+
+
+    if (serviceModalTitle) {
+
+        serviceModalTitle.textContent =
+            "Edit Service";
+
+    }
+
+
+    if (serviceModal) {
+
+        serviceModal.show();
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE SERVICE
+========================================================= */
+
+if (serviceForm) {
+
+    serviceForm.addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+
+            try {
+
+                const id =
+                    serviceId.value.trim();
+
+
+                const platform =
+                    servicePlatform.value.trim();
+
+
+                const name =
+                    serviceName.value.trim();
+
+
+                const price =
+                    Number(
+                        servicePrice.value
+                    );
+
+
+                const min =
+                    Number(
+                        serviceMin.value
+                    );
+
+
+                const max =
+                    Number(
+                        serviceMax.value
+                    );
+
+
+                const status =
+                    serviceStatus.value;
+
+
+                if (!platform) {
+
+                    alert(
+                        "Please enter a platform."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!name) {
+
+                    alert(
+                        "Please enter a service name."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !Number.isFinite(price) ||
+                    price < 0
+                ) {
+
+                    alert(
+                        "Please enter a valid price."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !Number.isFinite(min) ||
+                    min < 1
+                ) {
+
+                    alert(
+                        "Please enter a valid minimum."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !Number.isFinite(max) ||
+                    max < min
+                ) {
+
+                    alert(
+                        "Maximum must be greater than or equal to minimum."
+                    );
+
+                    return;
+
+                }
+
+
+                const serviceData = {
+
+                    platform,
+
+                    name,
+
+                    price,
+
+                    min,
+
+                    max,
+
+                    status,
+
+                    updatedAt:
+                        Date.now()
+
+                };
+
+
+                const targetId =
+                    id ||
+                    push(
+                        ref(
+                            database,
+                            "services"
+                        )
+                    ).key;
+
+
+                await set(
+                    ref(
+                        database,
+                        "services/" +
+                        targetId
+                    ),
+                    serviceData
+                );
+
+
+                if (serviceModal) {
+
+                    serviceModal.hide();
+
+                }
+
+
+                await loadServices();
+
+
+                alert(
+                    id
+                        ? "Service updated successfully."
+                        : "Service added successfully."
+                );
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "SAVE SERVICE ERROR:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to save service. Check your Firebase rules and try again."
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DELETE SERVICE
+========================================================= */
+
+async function deleteService(id) {
+
+    const service =
+        servicesData[id];
+
+
+    if (!service) {
+
+        return;
+
+    }
+
+
+    const serviceNameValue =
+        service.name ||
+        service.service ||
+        "this service";
+
+
+    const confirmed =
+        confirm(
+            `Delete ${serviceNameValue}? This cannot be undone.`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await remove(
+            ref(
+                database,
+                "services/" +
+                id
+            )
+        );
+
+
+        await loadServices();
+
+
+        alert(
+            "Service deleted successfully."
+        );
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "DELETE SERVICE ERROR:",
+            error
+        );
+
+
+        alert(
+            "Unable to delete service. Check your Firebase rules."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   REFRESH BUTTONS
+========================================================= */
+
+if (refreshUsers) {
+
+    refreshUsers.addEventListener(
+        "click",
+        loadUsers
+    );
+
+}
+
+
+if (refreshOrders) {
+
+    refreshOrders.addEventListener(
+        "click",
+        loadOrders
+    );
+
+}
+
+
+if (refreshTransactions) {
+
+    refreshTransactions.addEventListener(
+        "click",
+        loadTransactions
+    );
+
+}
+
+
+/* =========================================================
+   AUTHENTICATION
 ========================================================= */
 
 onAuthStateChanged(
@@ -322,6 +2157,10 @@ onAuthStateChanged(
         }
 
 
+        currentUser =
+            user;
+
+
         try {
 
             if (loadingMessage) {
@@ -333,28 +2172,22 @@ onAuthStateChanged(
 
 
             /*
-             * FORCE REFRESH OF FIREBASE ID TOKEN
+             * Force Firebase to obtain
+             * the latest custom claims.
              */
+
+            await user.getIdToken(
+                true
+            );
+
 
             const tokenResult =
-                await user.getIdTokenResult(
-                    true
-                );
+                await user.getIdTokenResult();
 
-
-            /*
-             * SHOW DEBUG INFORMATION
-             */
 
             console.log(
                 "ADMIN UID:",
                 user.uid
-            );
-
-
-            console.log(
-                "ADMIN EMAIL:",
-                user.email
             );
 
 
@@ -364,36 +2197,17 @@ onAuthStateChanged(
             );
 
 
-            console.log(
-                "ADMIN CLAIM:",
-                tokenResult.claims.admin
-            );
-
-
-            /*
-             * CHECK ADMIN CLAIM
-             */
-
             if (
                 tokenResult.claims.admin !== true
             ) {
 
                 showAccessDenied(
-                    "Your Firebase admin claim is not active. Please open activate-admin.html and activate admin again."
+                    "Firebase does not currently see your account as an administrator."
                 );
 
                 return;
 
             }
-
-
-            /*
-             * ADMIN CLAIM VERIFIED
-             */
-
-            console.log(
-                "ADMIN AUTHENTICATION VERIFIED"
-            );
 
 
             if (adminEmail) {
@@ -405,30 +2219,34 @@ onAuthStateChanged(
             }
 
 
-            /*
-             * SHOW DASHBOARD FIRST
-             */
-
             showAdminContent();
 
 
             /*
-             * THEN LOAD ADMIN DATA
+             * Load the initial dashboard.
              */
 
-            await loadAdminStatistics();
+            await Promise.allSettled([
+
+                loadOrders(),
+
+                loadUsers()
+
+            ]);
+
+        }
 
 
-        } catch (error) {
+        catch (error) {
 
             console.error(
-                "ADMIN AUTHENTICATION ERROR:",
+                "ADMIN DASHBOARD ERROR:",
                 error
             );
 
 
             showAccessDenied(
-                "Admin authentication could not be verified. Check the browser console for the exact error."
+                "Unable to verify administrator access."
             );
 
         }
@@ -457,8 +2275,10 @@ if (logoutBtn) {
                 window.location.href =
                     "login.html";
 
+            }
 
-            } catch (error) {
+
+            catch (error) {
 
                 console.error(
                     "LOGOUT ERROR:",
