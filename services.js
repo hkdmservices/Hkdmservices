@@ -49,6 +49,30 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         minimumQuantity: 100
     },
 
+    {
+        id: "ig_repost",
+        platform: "Instagram",
+        service: "Repost",
+        ratePer1000: 3000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "ig_story_views_impressions",
+        platform: "Instagram",
+        service: "Story Views + Impressions",
+        ratePer1000: 2600,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "ig_channel_members",
+        platform: "Instagram",
+        service: "Channel Members",
+        ratePer1000: 5000,
+        minimumQuantity: 100
+    },
+
 
     // ========================================================
     // 2. TIKTOK SERVICES
@@ -84,6 +108,48 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Shares",
         ratePer1000: 2000,
         minimumQuantity: 100
+    },
+
+    {
+        id: "tt_saves",
+        platform: "TikTok",
+        service: "Saves",
+        ratePer1000: 1500,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tt_comments",
+        platform: "TikTok",
+        service: "Comments",
+        ratePer1000: 10000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tt_story_views",
+        platform: "TikTok",
+        service: "Story Views",
+        ratePer1000: 2000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tt_video_downloads",
+        platform: "TikTok",
+        service: "Video Downloads",
+        ratePer1000: 5000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "tt_monetization_views",
+        platform: "TikTok",
+        service: "Monetization Views | 100,000 Views |",
+        ratePer1000: null,
+        fixedPrice: 50000,
+        minimumQuantity: 1,
+        oneTimePayment: true
     },
 
     {
@@ -164,6 +230,46 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         minimumQuantity: 100
     },
 
+    {
+        id: "yt_livestream_views",
+        platform: "YouTube",
+        service: "Livestream Views | 24 Hours |",
+        ratePer1000: 100000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "yt_livestream_chat_comments",
+        platform: "YouTube",
+        service: "Livestream Chat Comments",
+        ratePer1000: 10000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "yt_short_views",
+        platform: "YouTube",
+        service: "Short Views",
+        ratePer1000: 3200,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "yt_comment_likes",
+        platform: "YouTube",
+        service: "Comment Likes",
+        ratePer1000: 5200,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "yt_social_shares",
+        platform: "YouTube",
+        service: "Social Shares",
+        ratePer1000: 4000,
+        minimumQuantity: 100
+    },
+
 
     // ========================================================
     // 4. FACEBOOK SERVICES
@@ -198,6 +304,38 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Comments",
         ratePer1000: 10000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "fb_livestream_views",
+        platform: "Facebook",
+        service: "Livestream Views | 6 Hours |",
+        ratePer1000: 100000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "fb_group_members",
+        platform: "Facebook",
+        service: "Group Members",
+        ratePer1000: 5000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "fb_post_reactions",
+        platform: "Facebook",
+        service: "Post Reactions | Random Emojis |",
+        ratePer1000: 3000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "fb_page_reviews",
+        platform: "Facebook",
+        service: "Page Reviews | Custom |",
+        ratePer1000: 156800,
         minimumQuantity: 100
     },
 
@@ -328,6 +466,14 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         minimumQuantity: 100
     },
 
+    {
+        id: "sp_saves",
+        platform: "Spotify",
+        service: "Saves",
+        ratePer1000: 3000,
+        minimumQuantity: 100
+    },
+
 
     // ========================================================
     // 8. WHATSAPP SERVICES
@@ -367,6 +513,83 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Plays",
         ratePer1000: 9000,
+        minimumQuantity: 100
+    },
+
+
+    // ========================================================
+    // 10. REDDIT SERVICES
+    // ========================================================
+
+    {
+        id: "reddit_followers",
+        platform: "Reddit",
+        service: "Followers",
+        ratePer1000: 9600,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_subscribers",
+        platform: "Reddit",
+        service: "Channel Subscribers",
+        ratePer1000: 9600,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_post_upvotes",
+        platform: "Reddit",
+        service: "Post Upvotes",
+        ratePer1000: 76000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_post_downvotes",
+        platform: "Reddit",
+        service: "Post Downvotes",
+        ratePer1000: 120000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_comment_upvotes",
+        platform: "Reddit",
+        service: "Comments Upvotes",
+        ratePer1000: 200000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_views",
+        platform: "Reddit",
+        service: "Views",
+        ratePer1000: 2500,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_shares",
+        platform: "Reddit",
+        service: "Shares",
+        ratePer1000: 2500,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_comments",
+        platform: "Reddit",
+        service: "Comments | Custom |",
+        ratePer1000: 150000,
+        minimumQuantity: 100
+    },
+
+    {
+        id: "reddit_community_members",
+        platform: "Reddit",
+        service: "Community Members",
+        ratePer1000: 300000,
         minimumQuantity: 100
     }
 
