@@ -50,7 +50,7 @@ const completedOrders =
 
 
 /* =========================================================
-   SHOW / HIDE
+   SHOW ACCESS DENIED
 ========================================================= */
 
 function showAccessDenied(message) {
@@ -65,18 +65,27 @@ function showAccessDenied(message) {
 
     if (accessDenied) {
 
-        accessDenied.style.display = "block";
+        accessDenied.style.display =
+            "block";
 
         const paragraph =
             accessDenied.querySelector("p");
 
         if (paragraph) {
-            paragraph.textContent = message;
+
+            paragraph.textContent =
+                message;
+
         }
+
     }
 
 }
 
+
+/* =========================================================
+   SHOW ADMIN DASHBOARD
+========================================================= */
 
 function showAdminContent() {
 
@@ -106,14 +115,6 @@ async function loadAdminStatistics() {
      */
 
     try {
-
-        if (loadingMessage) {
-
-            loadingMessage.textContent =
-                "Loading users...";
-
-        }
-
 
         const usersSnapshot =
             await get(
@@ -145,19 +146,24 @@ async function loadAdminStatistics() {
 
         }
 
+
     } catch (error) {
 
         console.error(
-            "ADMIN USERS ERROR:",
+            "USERS LOAD ERROR:",
             error
         );
 
+
         if (totalUsers) {
+
             totalUsers.textContent =
                 "Unable to load";
+
         }
 
     }
+
 
 
     /*
@@ -165,14 +171,6 @@ async function loadAdminStatistics() {
      */
 
     try {
-
-        if (loadingMessage) {
-
-            loadingMessage.textContent =
-                "Loading orders...";
-
-        }
-
 
         const ordersSnapshot =
             await get(
@@ -201,7 +199,8 @@ async function loadAdminStatistics() {
                     .filter(
                         order =>
                             order &&
-                            typeof order === "object"
+                            typeof order ===
+                            "object"
                     );
 
 
@@ -251,7 +250,9 @@ async function loadAdminStatistics() {
         if (pendingOrders) {
 
             pendingOrders.textContent =
-                String(pending);
+                String(
+                    pending
+                );
 
         }
 
@@ -259,14 +260,17 @@ async function loadAdminStatistics() {
         if (completedOrders) {
 
             completedOrders.textContent =
-                String(completed);
+                String(
+                    completed
+                );
 
         }
+
 
     } catch (error) {
 
         console.error(
-            "ADMIN ORDERS ERROR:",
+            "ORDERS LOAD ERROR:",
             error
         );
 
@@ -296,30 +300,16 @@ async function loadAdminStatistics() {
 
     }
 
-
-    if (loadingMessage) {
-
-        loadingMessage.textContent =
-            "Admin dashboard ready.";
-
-    }
-
 }
 
 
 /* =========================================================
-   AUTHENTICATION + ADMIN CHECK
+   AUTHENTICATION + ADMIN CLAIM
 ========================================================= */
 
 onAuthStateChanged(
     auth,
     async (user) => {
-
-        console.log(
-            "AUTH USER:",
-            user
-        );
-
 
         if (!user) {
 
@@ -337,32 +327,34 @@ onAuthStateChanged(
             if (loadingMessage) {
 
                 loadingMessage.textContent =
-                    "Checking administrator account...";
+                    "Refreshing administrator credentials...";
 
             }
 
 
             /*
-             * Force-refresh the Firebase ID token.
-             *
-             * Firebase custom claims are carried
-             * inside the ID token.
-             */
-
-            await user.getIdToken(true);
-
-
-            /*
-             * Read refreshed claims.
+             * FORCE REFRESH OF FIREBASE ID TOKEN
              */
 
             const tokenResult =
-                await user.getIdTokenResult(true);
+                await user.getIdTokenResult(
+                    true
+                );
 
+
+            /*
+             * SHOW DEBUG INFORMATION
+             */
 
             console.log(
                 "ADMIN UID:",
                 user.uid
+            );
+
+
+            console.log(
+                "ADMIN EMAIL:",
+                user.email
             );
 
 
@@ -372,24 +364,22 @@ onAuthStateChanged(
             );
 
 
-            const isAdmin =
-                tokenResult.claims.admin === true;
+            console.log(
+                "ADMIN CLAIM:",
+                tokenResult.claims.admin
+            );
 
 
             /*
-             * ADMIN CLAIM NOT FOUND
+             * CHECK ADMIN CLAIM
              */
 
-            if (!isAdmin) {
-
-                console.error(
-                    "ADMIN CLAIM MISSING:",
-                    tokenResult.claims
-                );
-
+            if (
+                tokenResult.claims.admin !== true
+            ) {
 
                 showAccessDenied(
-                    "Your account is logged in, but Firebase does not see the admin claim yet. Please sign out, sign back in, and try again."
+                    "Your Firebase admin claim is not active. Please open activate-admin.html and activate admin again."
                 );
 
                 return;
@@ -398,11 +388,11 @@ onAuthStateChanged(
 
 
             /*
-             * ADMIN VERIFIED
+             * ADMIN CLAIM VERIFIED
              */
 
             console.log(
-                "ADMIN VERIFIED"
+                "ADMIN AUTHENTICATION VERIFIED"
             );
 
 
@@ -416,17 +406,14 @@ onAuthStateChanged(
 
 
             /*
-             * SHOW DASHBOARD IMMEDIATELY
-             *
-             * Do NOT wait for database
-             * statistics before showing it.
+             * SHOW DASHBOARD FIRST
              */
 
             showAdminContent();
 
 
             /*
-             * Load statistics afterward.
+             * THEN LOAD ADMIN DATA
              */
 
             await loadAdminStatistics();
@@ -435,13 +422,13 @@ onAuthStateChanged(
         } catch (error) {
 
             console.error(
-                "ADMIN DASHBOARD ERROR:",
+                "ADMIN AUTHENTICATION ERROR:",
                 error
             );
 
 
             showAccessDenied(
-                "Unable to verify administrator access. Check the browser console for the exact error."
+                "Admin authentication could not be verified. Check the browser console for the exact error."
             );
 
         }
@@ -462,7 +449,9 @@ if (logoutBtn) {
 
             try {
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
 
 
                 window.location.href =
