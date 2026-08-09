@@ -1,78 +1,33 @@
-import { auth } from "./firebase.js";
+import {
+    auth,
+    database
+} from "./firebase.js";
+
 
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
+
 import {
-    hkdmservicesOfficialServicePriceCatalogue
-} from "./services.js";
+    ref,
+    get,
+    query,
+    orderByChild,
+    equalTo
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
-// ============================================================
-// ELEMENTS
-// ============================================================
-
-const serviceSelect =
-    document.getElementById("service");
-
-const platformTitle =
-    document.getElementById("platformTitle");
-
-const rateDisplay =
-    document.getElementById("rate");
-
-const totalDisplay =
-    document.getElementById("totalPrice");
-
-const quantityInput =
-    document.getElementById("quantity");
-
-const quantityContainer =
-    document.getElementById("quantityContainer");
-
-const quantityHelp =
-    document.getElementById("quantityHelp");
-
-const commentContainer =
-    document.getElementById("commentContainer");
-
-const commentInput =
-    document.getElementById("comment");
-
-const placeOrderButton =
-    document.getElementById("placeOrder");
-
-const message =
-    document.getElementById("message");
-
-const linkInput =
-    document.getElementById("link");
-
-
-// ============================================================
-// CURRENT USER
-// ============================================================
-
-let currentUser = null;
-
-
-// ============================================================
-// PLATFORM
-// ============================================================
-
-const urlParams =
-    new URLSearchParams(
-        window.location.search
+const ordersContainer =
+    document.getElementById(
+        "ordersContainer"
     );
 
-const platform =
-    urlParams.get("platform");
 
 
-// ============================================================
-// FORMAT NAIRA
-// ============================================================
+/* =========================================================
+   FORMAT NAIRA
+========================================================= */
 
 function formatNaira(amount) {
 
@@ -88,362 +43,482 @@ function formatNaira(amount) {
 }
 
 
-// ============================================================
-// MESSAGE
-// ============================================================
 
-function showMessage(
-    text,
-    type = "danger"
-) {
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
-    message.textContent = text;
+function formatDate(timestamp) {
 
-    message.className =
-        "alert alert-" +
-        type +
-        " mt-4";
+    if (!timestamp) {
 
-}
+        return "—";
+
+    }
 
 
-// ============================================================
-// GET SERVICE
-// ============================================================
-
-function getSelectedService() {
-
-    return hkdmservicesOfficialServicePriceCatalogue.find(
-        item =>
-            item.id === serviceSelect.value
-    );
+    return new Date(timestamp)
+        .toLocaleString(
+            "en-NG",
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
+        );
 
 }
 
 
-// ============================================================
-// COMMENT FIELD
-// ============================================================
 
-function updateCommentField() {
+/* =========================================================
+   STATUS BADGE
+========================================================= */
 
-    const selectedService =
-        getSelectedService();
+function statusBadge(status) {
+
+    const safeStatus =
+        String(
+            status || "pending"
+        ).toLowerCase();
+
+
+    let badgeClass =
+        "bg-secondary";
 
 
     if (
-        selectedService &&
-        selectedService.requiresComment
+        safeStatus === "pending"
     ) {
 
-        commentContainer.classList.remove(
-            "d-none"
-        );
-
-        commentInput.required = true;
-
-    } else {
-
-        commentContainer.classList.add(
-            "d-none"
-        );
-
-        commentInput.required = false;
-
-        commentInput.value = "";
+        badgeClass =
+            "bg-warning text-dark";
 
     }
-
-}
-
-
-// ============================================================
-// QUANTITY FIELD
-// ============================================================
-
-function updateQuantityField() {
-
-    const selectedService =
-        getSelectedService();
-
-
-    if (!selectedService) {
-
-        quantityContainer.classList.remove(
-            "d-none"
-        );
-
-        quantityInput.min = 100;
-        quantityInput.step = 100;
-        quantityInput.value = 100;
-
-        quantityHelp.textContent =
-            "Minimum quantity: 100";
-
-        return;
-
-    }
-
-
-    const minimum =
-        Number(
-            selectedService.minOrder || 100
-        );
-
-
-    const step =
-        Number(
-            selectedService.step || minimum
-        );
-
-
-    quantityInput.min =
-        minimum;
-
-
-    quantityInput.step =
-        step;
-
-
-    quantityInput.value =
-        minimum;
-
-
-    quantityContainer.classList.remove(
-        "d-none"
-    );
 
 
     if (
-        selectedService.fixedPackage
+        safeStatus === "processing"
     ) {
 
-        quantityHelp.textContent =
-            "Minimum package quantity: " +
-            minimum;
-
-    } else {
-
-        quantityHelp.textContent =
-            "Minimum quantity: " +
-            minimum;
+        badgeClass =
+            "bg-info text-dark";
 
     }
-
-}
-
-
-// ============================================================
-// CALCULATE TOTAL
-// ============================================================
-
-function calculateTotal() {
-
-    const selectedService =
-        getSelectedService();
-
-
-    if (!selectedService) {
-
-        rateDisplay.textContent =
-            "₦0.00";
-
-        totalDisplay.textContent =
-            "₦0.00";
-
-        return;
-
-    }
-
-
-    const quantity =
-        Number(
-            quantityInput.value
-        );
-
-
-    // ========================================================
-    // FIXED PRICE PACKAGE
-    // ========================================================
-
-    if (
-        selectedService.fixedPackage
-    ) {
-
-        const packagePrice =
-            Number(
-                selectedService.fixedPrice || 0
-            );
-
-
-        const total =
-            packagePrice * quantity;
-
-
-        rateDisplay.textContent =
-            formatNaira(
-                packagePrice
-            );
-
-
-        totalDisplay.textContent =
-            formatNaira(
-                total
-            );
-
-
-        return;
-
-    }
-
-
-    // ========================================================
-    // NORMAL PER 1,000 SERVICE
-    // ========================================================
-
-    const rate =
-        Number(
-            selectedService.ratePer1000 || 0
-        );
-
-
-    const total =
-        (
-            quantity / 1000
-        ) * rate;
-
-
-    rateDisplay.textContent =
-        formatNaira(rate);
-
-
-    totalDisplay.textContent =
-        formatNaira(total);
-
-}
-
-
-// ============================================================
-// LOAD SERVICES
-// ============================================================
-
-function loadServices() {
-
-    if (!platform) {
-
-        platformTitle.textContent =
-            "No platform selected.";
-
-        serviceSelect.innerHTML = `
-            <option value="">
-                No platform selected
-            </option>
-        `;
-
-        placeOrderButton.disabled = true;
-
-        return;
-
-    }
-
-
-    platformTitle.textContent =
-        platform + " Services";
-
-
-    const platformServices =
-        hkdmservicesOfficialServicePriceCatalogue.filter(
-            item =>
-                item.platform === platform
-        );
 
 
     if (
-        platformServices.length === 0
+        safeStatus === "completed"
     ) {
 
-        serviceSelect.innerHTML = `
-            <option value="">
-                No services available
-            </option>
-        `;
-
-        placeOrderButton.disabled = true;
-
-        return;
+        badgeClass =
+            "bg-success";
 
     }
 
 
-    serviceSelect.innerHTML = `
-        <option value="">
-            Select a service
-        </option>
+    if (
+        safeStatus === "cancelled" ||
+        safeStatus === "failed"
+    ) {
+
+        badgeClass =
+            "bg-danger";
+
+    }
+
+
+    return `
+        <span class="badge ${badgeClass}">
+            ${safeStatus}
+        </span>
     `;
 
+}
 
-    platformServices.forEach(
-        service => {
 
-            const option =
-                document.createElement(
-                    "option"
+
+/* =========================================================
+   LOAD USER ORDERS
+========================================================= */
+
+async function loadOrders(uid) {
+
+    try {
+
+        /*
+            IMPORTANT:
+
+            Only request orders belonging
+            to the currently logged-in user.
+
+            Firebase rules will require
+            this exact query.
+        */
+
+        const ordersQuery =
+            query(
+                ref(
+                    database,
+                    "orders"
+                ),
+
+                orderByChild(
+                    "uid"
+                ),
+
+                equalTo(
+                    uid
+                )
+            );
+
+
+        const snapshot =
+            await get(
+                ordersQuery
+            );
+
+
+
+        /* =================================================
+           NO ORDERS
+        ================================================= */
+
+        if (
+            !snapshot.exists()
+        ) {
+
+            ordersContainer.innerHTML = `
+
+                <div
+                    class="text-center text-muted py-5"
+                >
+
+                    <i
+                        class="bi bi-cart-x fs-1"
+                    ></i>
+
+
+                    <p class="mt-3">
+
+                        You have not placed
+                        any orders yet.
+
+                    </p>
+
+
+                    <a
+                        href="order.html"
+                        class="btn btn-success"
+                    >
+
+                        <i
+                            class="bi bi-cart-plus"
+                        ></i>
+
+                        Place Your First Order
+
+                    </a>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           CONVERT DATA
+        ================================================= */
+
+        const orders =
+            snapshot.val();
+
+
+        const userOrders =
+            Object.values(
+                orders
+            )
+
+                .filter(
+                    order =>
+                        order &&
+                        order.uid === uid
+                )
+
+                .sort(
+                    (a, b) =>
+                        Number(
+                            b.createdAt || 0
+                        ) -
+                        Number(
+                            a.createdAt || 0
+                        )
                 );
 
 
-            option.value =
-                service.id;
+
+        /* =================================================
+           NO USER ORDERS
+        ================================================= */
+
+        if (
+            userOrders.length === 0
+        ) {
+
+            ordersContainer.innerHTML = `
+
+                <div
+                    class="text-center text-muted py-5"
+                >
+
+                    <i
+                        class="bi bi-cart-x fs-1"
+                    ></i>
 
 
-            option.textContent =
-                service.service;
+                    <p class="mt-3">
+
+                        You have not placed
+                        any orders yet.
+
+                    </p>
 
 
-            serviceSelect.appendChild(
-                option
-            );
+                    <a
+                        href="order.html"
+                        class="btn btn-success"
+                    >
+
+                        <i
+                            class="bi bi-cart-plus"
+                        ></i>
+
+                        Place Order
+
+                    </a>
+
+                </div>
+
+            `;
+
+            return;
 
         }
-    );
+
+
+
+        /* =================================================
+           TABLE
+        ================================================= */
+
+        let html = `
+
+            <div class="table-responsive">
+
+                <table
+                    class="table table-hover align-middle"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Order ID
+                            </th>
+
+                            <th>
+                                Service
+                            </th>
+
+                            <th>
+                                Quantity
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+        `;
+
+
+
+        /* =================================================
+           ORDERS
+        ================================================= */
+
+        userOrders.forEach(
+            order => {
+
+                const orderId =
+                    order.orderId ||
+                    "—";
+
+
+                html += `
+
+                    <tr>
+
+                        <td>
+
+                            <code>
+
+                                ${String(
+                                    orderId
+                                ).slice(
+                                    0,
+                                    12
+                                )}
+
+                            </code>
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                ${order.platform ||
+                                "—"}
+
+                            </strong>
+
+
+                            <br>
+
+
+                            <small
+                                class="text-muted"
+                            >
+
+                                ${order.service ||
+                                "—"}
+
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            ${Number(
+                                order.quantity ||
+                                0
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatNaira(
+                                order.amount
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                order.status
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <small>
+
+                                ${formatDate(
+                                    order.createdAt
+                                )}
+
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+
+        html += `
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        `;
+
+
+        ordersContainer.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        console.error(
+            "RECENT ORDERS ERROR:",
+            error
+        );
+
+
+        ordersContainer.innerHTML = `
+
+            <div
+                class="alert alert-danger"
+            >
+
+                Unable to load your orders.
+
+                Please try again.
+
+            </div>
+
+        `;
+
+    }
 
 }
 
 
-// ============================================================
-// SERVICE CHANGE
-// ============================================================
 
-serviceSelect.addEventListener(
-    "change",
-    () => {
-
-        updateQuantityField();
-
-        updateCommentField();
-
-        calculateTotal();
-
-    }
-);
-
-
-// ============================================================
-// QUANTITY CHANGE
-// ============================================================
-
-quantityInput.addEventListener(
-    "input",
-    calculateTotal
-);
-
-
-// ============================================================
-// AUTHENTICATION
-// ============================================================
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
 
 onAuthStateChanged(
     auth,
-    user => {
+    async (user) => {
 
         if (!user) {
 
@@ -455,337 +530,9 @@ onAuthStateChanged(
         }
 
 
-        currentUser = user;
+        await loadOrders(
+            user.uid
+        );
 
     }
 );
-
-
-// ============================================================
-// PLACE ORDER
-// ============================================================
-
-placeOrderButton.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            // ------------------------------------------------
-            // LOGIN CHECK
-            // ------------------------------------------------
-
-            if (!currentUser) {
-
-                showMessage(
-                    "Please log in before placing an order."
-                );
-
-                return;
-
-            }
-
-
-            // ------------------------------------------------
-            // SERVICE
-            // ------------------------------------------------
-
-            const selectedService =
-                getSelectedService();
-
-
-            if (!selectedService) {
-
-                showMessage(
-                    "Please select a service."
-                );
-
-                return;
-
-            }
-
-
-            // ------------------------------------------------
-            // LINK
-            // ------------------------------------------------
-
-            const link =
-                linkInput.value.trim();
-
-
-            if (!link) {
-
-                showMessage(
-                    "Please enter your target link."
-                );
-
-                linkInput.focus();
-
-                return;
-
-            }
-
-
-            // ------------------------------------------------
-            // QUANTITY
-            // ------------------------------------------------
-
-            const quantity =
-                Number(
-                    quantityInput.value
-                );
-
-
-            const minimum =
-                Number(
-                    selectedService.minOrder || 100
-                );
-
-
-            if (
-                !Number.isFinite(quantity) ||
-                quantity < minimum
-            ) {
-
-                showMessage(
-                    "Minimum quantity is " +
-                    minimum +
-                    "."
-                );
-
-                quantityInput.focus();
-
-                return;
-
-            }
-
-
-            // ------------------------------------------------
-            // COMMENT
-            // ------------------------------------------------
-
-            let comment = "";
-
-
-            if (
-                selectedService.requiresComment
-            ) {
-
-                comment =
-                    commentInput.value.trim();
-
-
-                if (!comment) {
-
-                    showMessage(
-                        "Please enter the comment you want delivered."
-                    );
-
-                    commentInput.focus();
-
-                    return;
-
-                }
-
-            }
-
-
-            // ------------------------------------------------
-            // DISABLE BUTTON
-            // ------------------------------------------------
-
-            placeOrderButton.disabled =
-                true;
-
-
-            placeOrderButton.innerHTML = `
-                <span
-                    class="spinner-border
-                    spinner-border-sm
-                    me-2"
-                ></span>
-
-                Processing Order...
-            `;
-
-
-            // ------------------------------------------------
-            // FIREBASE TOKEN
-            // ------------------------------------------------
-
-            const idToken =
-                await currentUser.getIdToken(
-                    true
-                );
-
-
-            // ------------------------------------------------
-            // ORDER DATA
-            // ------------------------------------------------
-
-            const orderData = {
-
-                serviceId:
-                    selectedService.id,
-
-                link:
-                    link,
-
-                quantity:
-                    quantity,
-
-                comment:
-                    comment
-
-            };
-
-
-            // ------------------------------------------------
-            // SEND TO BACKEND
-            // ------------------------------------------------
-
-            const response =
-                await fetch(
-                    "/api/create-order",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                "Bearer " +
-                                idToken
-
-                        },
-
-                        body:
-                            JSON.stringify(
-                                orderData
-                            )
-
-                    }
-                );
-
-
-            // ------------------------------------------------
-            // RESPONSE
-            // ------------------------------------------------
-
-            let result;
-
-
-            try {
-
-                result =
-                    await response.json();
-
-            } catch {
-
-                result = {};
-
-            }
-
-
-            if (!response.ok) {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-                return;
-
-            }
-
-
-            // ------------------------------------------------
-            // SUCCESS
-            // ------------------------------------------------
-
-            if (
-                result.success
-            ) {
-
-                showMessage(
-
-                    "Order placed successfully! " +
-                    (
-                        result.orderId
-                            ? "Order ID: " +
-                              result.orderId
-                            : ""
-                    ),
-
-                    "success"
-
-                );
-
-
-                linkInput.value = "";
-
-
-                commentInput.value = "";
-
-
-                updateQuantityField();
-
-
-                calculateTotal();
-
-
-            } else {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "ORDER ERROR:",
-                error
-            );
-
-
-            showMessage(
-                "Unable to connect to the order system. Please try again."
-            );
-
-
-        } finally {
-
-            placeOrderButton.disabled =
-                false;
-
-
-            placeOrderButton.innerHTML = `
-                <i class="bi bi-cart-check"></i>
-
-                Place Order
-            `;
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// INITIALIZE
-// ============================================================
-
-loadServices();
-
-updateQuantityField();
-
-updateCommentField();
-
-calculateTotal();
