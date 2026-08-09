@@ -12,6 +12,7 @@ import {
     ref,
     get,
     set,
+    update,
     remove,
     push
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
@@ -96,8 +97,7 @@ const serviceModalElement =
     document.getElementById("serviceModal");
 
 const serviceModal =
-    serviceModalElement &&
-    typeof bootstrap !== "undefined"
+    serviceModalElement
         ? new bootstrap.Modal(serviceModalElement)
         : null;
 
@@ -198,6 +198,40 @@ function formatDate(timestamp) {
 
 
 /* =========================================================
+   SHORT DATE
+========================================================= */
+
+function formatShortDate(timestamp) {
+
+    if (!timestamp) {
+
+        return "—";
+
+    }
+
+    const date =
+        new Date(
+            Number(timestamp)
+        );
+
+    if (Number.isNaN(date.getTime())) {
+
+        return "—";
+
+    }
+
+    return date.toLocaleDateString(
+        "en-NG",
+        {
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+/* =========================================================
    ESCAPE HTML
 ========================================================= */
 
@@ -206,11 +240,26 @@ function escapeHtml(value) {
     return String(
         value ?? ""
     )
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
@@ -276,6 +325,65 @@ function statusBadge(status) {
         <span class="badge ${badgeClass}">
             ${escapeHtml(safeStatus)}
         </span>
+    `;
+
+}
+
+
+/* =========================================================
+   ORDER STATUS OPTIONS
+========================================================= */
+
+function orderStatusSelect(
+    orderId,
+    currentStatus
+) {
+
+    const status =
+        String(
+            currentStatus || "pending"
+        ).toLowerCase();
+
+
+    const options = [
+        "pending",
+        "processing",
+        "completed",
+        "cancelled",
+        "failed"
+    ];
+
+
+    return `
+        <select
+            class="form-select form-select-sm order-status-select"
+            data-order-id="${escapeHtml(orderId)}"
+            style="min-width: 125px;"
+        >
+
+            ${
+                options.map(
+                    option => `
+                        <option
+                            value="${option}"
+                            ${
+                                status === option
+                                    ? "selected"
+                                    : ""
+                            }
+                        >
+                            ${
+                                option
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                option.slice(1)
+                            }
+                        </option>
+                    `
+                ).join("")
+            }
+
+        </select>
     `;
 
 }
@@ -362,7 +470,9 @@ function showAdminContent() {
 ========================================================= */
 
 document
-    .querySelectorAll(".admin-nav-btn")
+    .querySelectorAll(
+        ".admin-nav-btn"
+    )
     .forEach(
         button => {
 
@@ -476,8 +586,6 @@ document
 
         }
     );
-
-
 /* =========================================================
    LOAD USERS
 ========================================================= */
@@ -705,6 +813,8 @@ async function loadUsers() {
     }
 
 }
+
+
 /* =========================================================
    LOAD ORDERS
 ========================================================= */
@@ -758,9 +868,11 @@ async function loadOrders() {
             );
 
 
-        let pending = 0;
+        let pending =
+            0;
 
-        let completed = 0;
+        let completed =
+            0;
 
 
         orders.forEach(
@@ -859,13 +971,21 @@ async function loadOrders() {
         }
 
 
+        /*
+         * Newest orders first
+         */
+
         orders.sort(
             ([, a], [, b]) =>
                 Number(
-                    b?.createdAt || 0
+                    b?.createdAt ||
+                    b?.timestamp ||
+                    0
                 ) -
                 Number(
-                    a?.createdAt || 0
+                    a?.createdAt ||
+                    a?.timestamp ||
+                    0
                 )
         );
 
@@ -876,49 +996,96 @@ async function loadOrders() {
         orders.forEach(
             ([id, order]) => {
 
-                const shortId =
-                    String(
-                        order?.orderId ||
-                        id
-                    ).slice(
-                        0,
-                        12
+                const orderId =
+                    order?.orderId ||
+                    id;
+
+
+                const userEmail =
+                    order?.email ||
+                    order?.userEmail ||
+                    "—";
+
+
+                const platform =
+                    order?.platform ||
+                    "—";
+
+
+                const service =
+                    order?.service ||
+                    order?.serviceName ||
+                    order?.name ||
+                    "—";
+
+
+                const quantity =
+                    Number(
+                        order?.quantity ||
+                        0
                     );
+
+
+                const amount =
+                    Number(
+                        order?.amount ||
+                        0
+                    );
+
+
+                const status =
+                    String(
+                        order?.status ||
+                        "pending"
+                    ).toLowerCase();
+
+
+                const createdAt =
+                    order?.createdAt ||
+                    order?.timestamp ||
+                    0;
 
 
                 html += `
 
                     <tr>
 
+                        <!-- ORDER ID -->
+
                         <td>
 
                             <code>
                                 ${escapeHtml(
-                                    shortId
+                                    String(
+                                        orderId
+                                    ).slice(
+                                        0,
+                                        14
+                                    )
                                 )}
                             </code>
 
                         </td>
 
 
+                        <!-- USER -->
+
                         <td>
 
                             ${escapeHtml(
-                                order?.email ||
-                                order?.userEmail ||
-                                order?.uid ||
-                                "—"
+                                userEmail
                             )}
 
                         </td>
 
 
+                        <!-- SERVICE -->
+
                         <td>
 
                             <strong>
                                 ${escapeHtml(
-                                    order?.platform ||
-                                    "—"
+                                    platform
                                 )}
                             </strong>
 
@@ -928,51 +1095,56 @@ async function loadOrders() {
                                 class="text-muted"
                             >
                                 ${escapeHtml(
-                                    order?.service ||
-                                    "—"
+                                    service
                                 )}
                             </small>
 
                         </td>
 
 
+                        <!-- QUANTITY -->
+
                         <td>
 
-                            ${Number(
-                                order?.quantity ||
-                                0
-                            ).toLocaleString(
+                            ${quantity.toLocaleString(
                                 "en-NG"
                             )}
 
                         </td>
 
 
+                        <!-- AMOUNT -->
+
                         <td>
 
                             <strong>
                                 ${formatNaira(
-                                    order?.amount
+                                    amount
                                 )}
                             </strong>
 
                         </td>
 
 
+                        <!-- STATUS -->
+
                         <td>
 
-                            ${statusBadge(
-                                order?.status
+                            ${orderStatusSelect(
+                                id,
+                                status
                             )}
 
                         </td>
 
 
+                        <!-- DATE -->
+
                         <td>
 
                             <small>
-                                ${formatDate(
-                                    order?.createdAt
+                                ${formatShortDate(
+                                    createdAt
                                 )}
                             </small>
 
@@ -1033,6 +1205,199 @@ async function loadOrders() {
 
 
 /* =========================================================
+   UPDATE ORDER STATUS
+========================================================= */
+
+async function updateOrderStatus(
+    orderId,
+    newStatus,
+    selectElement
+) {
+
+    if (!orderId) {
+
+        return;
+
+    }
+
+
+    const allowedStatuses = [
+        "pending",
+        "processing",
+        "completed",
+        "cancelled",
+        "failed"
+    ];
+
+
+    const status =
+        String(
+            newStatus || ""
+        ).toLowerCase();
+
+
+    if (
+        !allowedStatuses.includes(
+            status
+        )
+    ) {
+
+        alert(
+            "Invalid order status."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        if (selectElement) {
+
+            selectElement.disabled =
+                true;
+
+        }
+
+
+        await update(
+            ref(
+                database,
+                "orders/" +
+                orderId
+            ),
+            {
+
+                status,
+
+                updatedAt:
+                    Date.now()
+
+            }
+        );
+
+
+        /*
+         * Update local copy immediately.
+         */
+
+        if (
+            ordersData &&
+            ordersData[orderId]
+        ) {
+
+            ordersData[
+                orderId
+            ].status =
+                status;
+
+
+            ordersData[
+                orderId
+            ].updatedAt =
+                Date.now();
+
+        }
+
+
+        /*
+         * Refresh dashboard
+         * statistics.
+         */
+
+        await loadOrders();
+
+
+        if (ordersMessage) {
+
+            ordersMessage.textContent =
+                "Order status updated successfully.";
+
+        }
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "UPDATE ORDER STATUS ERROR:",
+            error
+        );
+
+
+        alert(
+            "Unable to update order status. Please check your Firebase rules."
+        );
+
+
+        /*
+         * Reload the original
+         * value if the update failed.
+         */
+
+        await loadOrders();
+
+    }
+
+
+    finally {
+
+        if (selectElement) {
+
+            selectElement.disabled =
+                false;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   ORDER STATUS DROPDOWN EVENT
+========================================================= */
+
+if (ordersTableBody) {
+
+    ordersTableBody.addEventListener(
+        "change",
+        async (event) => {
+
+            const select =
+                event.target.closest(
+                    ".order-status-select"
+                );
+
+
+            if (!select) {
+
+                return;
+
+            }
+
+
+            const orderId =
+                select.dataset.orderId;
+
+
+            const newStatus =
+                select.value;
+
+
+            await updateOrderStatus(
+                orderId,
+                newStatus,
+                select
+            );
+
+        }
+    );
+
+}
+/* =========================================================
    LOAD TRANSACTIONS
 ========================================================= */
 
@@ -1085,7 +1450,10 @@ async function loadTransactions() {
             );
 
 
-        if (transactions.length === 0) {
+        if (
+            transactions.length ===
+            0
+        ) {
 
             if (transactionsTableBody) {
 
@@ -1124,18 +1492,32 @@ async function loadTransactions() {
         }
 
 
+        /*
+         * Newest transactions first
+         */
+
         transactions.sort(
-            ([, a], [, b]) =>
-                Number(
-                    b?.createdAt ||
-                    b?.timestamp ||
-                    0
-                ) -
-                Number(
-                    a?.createdAt ||
-                    a?.timestamp ||
-                    0
-                )
+            ([, a], [, b]) => {
+
+                const dateA =
+                    Number(
+                        a?.createdAt ||
+                        a?.timestamp ||
+                        0
+                    );
+
+
+                const dateB =
+                    Number(
+                        b?.createdAt ||
+                        b?.timestamp ||
+                        0
+                    );
+
+
+                return dateB - dateA;
+
+            }
         );
 
 
@@ -1145,17 +1527,64 @@ async function loadTransactions() {
         transactions.forEach(
             ([id, transaction]) => {
 
+                const transactionId =
+                    transaction?.transactionId ||
+                    transaction?.reference ||
+                    id;
+
+
+                const user =
+                    transaction?.email ||
+                    transaction?.userEmail ||
+                    transaction?.uid ||
+                    "—";
+
+
+                const type =
+                    transaction?.type ||
+                    "Deposit";
+
+
+                const description =
+                    transaction?.description ||
+                    "—";
+
+
+                const amount =
+                    Number(
+                        transaction?.amount ||
+                        0
+                    );
+
+
+                const status =
+                    String(
+                        transaction?.status ||
+                        "completed"
+                    ).toLowerCase();
+
+
+                const date =
+                    transaction?.createdAt ||
+                    transaction?.timestamp ||
+                    0;
+
+
                 html += `
 
                     <tr>
+
+                        <!-- TRANSACTION ID -->
 
                         <td>
 
                             <code>
                                 ${escapeHtml(
-                                    String(id).slice(
+                                    String(
+                                        transactionId
+                                    ).slice(
                                         0,
-                                        14
+                                        16
                                     )
                                 )}
                             </code>
@@ -1163,65 +1592,70 @@ async function loadTransactions() {
                         </td>
 
 
+                        <!-- USER -->
+
                         <td>
 
                             ${escapeHtml(
-                                transaction?.email ||
-                                transaction?.userEmail ||
-                                transaction?.uid ||
-                                "—"
+                                user
                             )}
 
                         </td>
 
 
+                        <!-- TYPE -->
+
                         <td>
 
                             ${escapeHtml(
-                                transaction?.type ||
-                                "Deposit"
+                                type
                             )}
 
                         </td>
 
 
+                        <!-- DESCRIPTION -->
+
                         <td>
 
                             ${escapeHtml(
-                                transaction?.description ||
-                                "—"
+                                description
                             )}
 
                         </td>
 
+
+                        <!-- AMOUNT -->
 
                         <td>
 
                             <strong>
                                 ${formatNaira(
-                                    transaction?.amount
+                                    amount
                                 )}
                             </strong>
 
                         </td>
 
 
+                        <!-- STATUS -->
+
                         <td>
 
                             ${statusBadge(
-                                transaction?.status ||
-                                "completed"
+                                status
                             )}
 
                         </td>
 
 
+                        <!-- DATE -->
+
                         <td>
 
                             <small>
                                 ${formatDate(
-                                    transaction?.createdAt ||
-                                    transaction?.timestamp
+                                    date
                                 )}
                             </small>
 
@@ -1334,7 +1768,10 @@ async function loadServices() {
             );
 
 
-        if (services.length === 0) {
+        if (
+            services.length ===
+            0
+        ) {
 
             if (servicesMessage) {
 
@@ -1379,11 +1816,47 @@ async function loadServices() {
         services.forEach(
             ([id, service]) => {
 
-                const active =
+                const platform =
+                    service?.platform ||
+                    "—";
+
+
+                const name =
+                    service?.name ||
+                    service?.service ||
+                    "—";
+
+
+                const price =
+                    Number(
+                        service?.price ||
+                        0
+                    );
+
+
+                const min =
+                    Number(
+                        service?.min ||
+                        0
+                    );
+
+
+                const max =
+                    Number(
+                        service?.max ||
+                        0
+                    );
+
+
+                const status =
                     String(
                         service?.status ||
                         "active"
-                    ).toLowerCase() ===
+                    ).toLowerCase();
+
+
+                const active =
+                    status ===
                     "active";
 
 
@@ -1391,69 +1864,74 @@ async function loadServices() {
 
                     <tr>
 
+                        <!-- PLATFORM -->
+
                         <td>
 
                             <strong>
                                 ${escapeHtml(
-                                    service?.platform ||
-                                    "—"
+                                    platform
                                 )}
                             </strong>
 
                         </td>
 
 
+                        <!-- SERVICE -->
+
                         <td>
 
                             ${escapeHtml(
-                                service?.name ||
-                                service?.service ||
-                                "—"
+                                name
                             )}
 
                         </td>
 
+
+                        <!-- PRICE -->
 
                         <td>
 
                             <strong>
                                 ${formatNaira(
-                                    service?.price
+                                    price
                                 )}
                             </strong>
 
                         </td>
 
 
+                        <!-- MINIMUM -->
+
                         <td>
 
-                            ${Number(
-                                service?.min ||
-                                0
-                            ).toLocaleString(
+                            ${min.toLocaleString(
                                 "en-NG"
                             )}
 
                         </td>
 
 
+                        <!-- MAXIMUM -->
+
                         <td>
 
-                            ${Number(
-                                service?.max ||
-                                0
-                            ).toLocaleString(
+                            ${max.toLocaleString(
                                 "en-NG"
                             )}
 
                         </td>
 
+
+                        <!-- STATUS -->
 
                         <td>
 
                             ${
                                 active
+
                                 ?
+
                                 `
                                     <span
                                         class="service-status-active"
@@ -1461,7 +1939,9 @@ async function loadServices() {
                                         Active
                                     </span>
                                 `
+
                                 :
+
                                 `
                                     <span
                                         class="service-status-inactive"
@@ -1474,6 +1954,8 @@ async function loadServices() {
                         </td>
 
 
+                        <!-- ACTIONS -->
+
                         <td>
 
                             <div
@@ -1483,12 +1965,15 @@ async function loadServices() {
                             >
 
                                 <button
+                                    type="button"
                                     class="btn
                                     btn-sm
                                     btn-outline-primary
                                     action-btn"
                                     data-action="edit-service"
-                                    data-id="${escapeHtml(id)}"
+                                    data-id="${escapeHtml(
+                                        id
+                                    )}"
                                 >
 
                                     <i
@@ -1501,12 +1986,15 @@ async function loadServices() {
 
 
                                 <button
+                                    type="button"
                                     class="btn
                                     btn-sm
                                     btn-outline-danger
                                     action-btn"
                                     data-action="delete-service"
-                                    data-id="${escapeHtml(id)}"
+                                    data-id="${escapeHtml(
+                                        id
+                                    )}"
                                 >
 
                                     <i
@@ -1573,6 +2061,8 @@ async function loadServices() {
     }
 
 }
+
+
 /* =========================================================
    OPEN ADD SERVICE
 ========================================================= */
@@ -1630,14 +2120,14 @@ if (addServiceBtn) {
 
 
 /* =========================================================
-   EDIT / DELETE SERVICE BUTTONS
+   SERVICE TABLE ACTIONS
 ========================================================= */
 
 if (servicesTableBody) {
 
     servicesTableBody.addEventListener(
         "click",
-        async event => {
+        async (event) => {
 
             const button =
                 event.target.closest(
@@ -1675,6 +2165,8 @@ if (servicesTableBody) {
                 openEditService(
                     id
                 );
+
+                return;
 
             }
 
@@ -1811,7 +2303,7 @@ if (serviceForm) {
 
     serviceForm.addEventListener(
         "submit",
-        async event => {
+        async (event) => {
 
             event.preventDefault();
 
@@ -1819,41 +2311,37 @@ if (serviceForm) {
             try {
 
                 const id =
-                    serviceId?.value.trim() ||
-                    "";
+                    serviceId.value.trim();
 
 
                 const platform =
-                    servicePlatform?.value.trim() ||
-                    "";
+                    servicePlatform.value.trim();
 
 
                 const name =
-                    serviceName?.value.trim() ||
-                    "";
+                    serviceName.value.trim();
 
 
                 const price =
                     Number(
-                        servicePrice?.value
+                        servicePrice.value
                     );
 
 
                 const min =
                     Number(
-                        serviceMin?.value
+                        serviceMin.value
                     );
 
 
                 const max =
                     Number(
-                        serviceMax?.value
+                        serviceMax.value
                     );
 
 
                 const status =
-                    serviceStatus?.value ||
-                    "active";
+                    serviceStatus.value;
 
 
                 if (!platform) {
@@ -1940,21 +2428,19 @@ if (serviceForm) {
                 };
 
 
-                const targetId =
-                    id ||
-                    push(
-                        ref(
-                            database,
-                            "services"
-                        )
-                    ).key;
+                let targetId =
+                    id;
 
 
                 if (!targetId) {
 
-                    throw new Error(
-                        "Unable to generate service ID."
-                    );
+                    targetId =
+                        push(
+                            ref(
+                                database,
+                                "services"
+                            )
+                        ).key;
 
                 }
 
@@ -1997,7 +2483,7 @@ if (serviceForm) {
 
 
                 alert(
-                    "Unable to save service. Check your Firebase rules and try again."
+                    "Unable to save service. Check your Firebase rules."
                 );
 
             }
@@ -2114,15 +2600,17 @@ if (refreshTransactions) {
     );
 
 }
-
-
 /* =========================================================
    AUTHENTICATION
 ========================================================= */
 
 onAuthStateChanged(
     auth,
-    async user => {
+    async (user) => {
+
+        /*
+         * No logged-in user
+         */
 
         if (!user) {
 
@@ -2150,14 +2638,20 @@ onAuthStateChanged(
 
 
             /*
-             * Force Firebase to obtain
-             * the latest custom claims.
+             * Force Firebase to refresh
+             * the ID token so the latest
+             * admin custom claim is available.
              */
 
             await user.getIdToken(
                 true
             );
 
+
+            /*
+             * Get the refreshed token
+             * and its custom claims.
+             */
 
             const tokenResult =
                 await user.getIdTokenResult();
@@ -2170,10 +2664,20 @@ onAuthStateChanged(
 
 
             console.log(
+                "ADMIN EMAIL:",
+                user.email
+            );
+
+
+            console.log(
                 "ADMIN CLAIMS:",
                 tokenResult.claims
             );
 
+
+            /*
+             * Check admin claim.
+             */
 
             if (
                 tokenResult.claims.admin !== true
@@ -2188,6 +2692,10 @@ onAuthStateChanged(
             }
 
 
+            /*
+             * Display administrator email.
+             */
+
             if (adminEmail) {
 
                 adminEmail.textContent =
@@ -2197,22 +2705,27 @@ onAuthStateChanged(
             }
 
 
+            /*
+             * Show dashboard.
+             */
+
             showAdminContent();
 
 
             /*
-             * IMPORTANT:
+             * Load dashboard data.
              *
-             * Orders must load FIRST.
-             *
-             * loadUsers() uses ordersData
-             * to calculate each user's
-             * order count.
+             * Orders are loaded first because
+             * the Users section calculates
+             * each user's order count from
+             * ordersData.
              */
 
             await loadOrders();
 
+
             await loadUsers();
+
 
         }
 
@@ -2233,6 +2746,8 @@ onAuthStateChanged(
 
     }
 );
+
+
 /* =========================================================
    LOGOUT
 ========================================================= */
@@ -2244,6 +2759,14 @@ if (logoutBtn) {
         async () => {
 
             try {
+
+                logoutBtn.disabled =
+                    true;
+
+
+                logoutBtn.textContent =
+                    "Logging out...";
+
 
                 await signOut(
                     auth
@@ -2263,9 +2786,173 @@ if (logoutBtn) {
                     error
                 );
 
+
+                logoutBtn.disabled =
+                    false;
+
+
+                logoutBtn.textContent =
+                    "Logout";
+
+
+                alert(
+                    "Unable to log out. Please try again."
+                );
+
             }
 
         }
     );
+
+}
+
+
+/* =========================================================
+   INITIAL UI STATE
+========================================================= */
+
+if (adminContent) {
+
+    adminContent.style.display =
+        "none";
+
+}
+
+
+if (accessDenied) {
+
+    accessDenied.style.display =
+        "none";
+
+}
+
+
+if (adminLoading) {
+
+    adminLoading.style.display =
+        "block";
+
+}
+
+
+/* =========================================================
+   HELPER: SHORT DATE
+========================================================= */
+
+function formatShortDate(timestamp) {
+
+    if (!timestamp) {
+
+        return "—";
+
+    }
+
+
+    const date =
+        new Date(
+            Number(timestamp)
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "—";
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-NG",
+        {
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+/* =========================================================
+   HELPER: ORDER STATUS DROPDOWN
+========================================================= */
+
+function orderStatusSelect(
+    orderId,
+    currentStatus
+) {
+
+    const safeStatus =
+        String(
+            currentStatus ||
+            "pending"
+        ).toLowerCase();
+
+
+    const statuses = [
+        "pending",
+        "processing",
+        "completed",
+        "cancelled",
+        "failed"
+    ];
+
+
+    let options = "";
+
+
+    statuses.forEach(
+        status => {
+
+            const selected =
+                status ===
+                safeStatus
+                    ? "selected"
+                    : "";
+
+
+            options += `
+
+                <option
+                    value="${status}"
+                    ${selected}
+                >
+                    ${status
+                        .charAt(0)
+                        .toUpperCase() +
+                    status.slice(1)}
+                </option>
+
+            `;
+
+        }
+    );
+
+
+    return `
+
+        <select
+            class="
+                form-select
+                form-select-sm
+                order-status-select
+            "
+            data-order-id="${escapeHtml(
+                orderId
+            )}"
+            style="
+                min-width: 125px;
+                font-weight: 600;
+            "
+        >
+
+            ${options}
+
+        </select>
+
+    `;
 
 }
