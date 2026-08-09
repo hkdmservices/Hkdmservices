@@ -12,7 +12,6 @@ import {
     ref,
     get,
     set,
-    update,
     remove,
     push
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
@@ -97,7 +96,8 @@ const serviceModalElement =
     document.getElementById("serviceModal");
 
 const serviceModal =
-    serviceModalElement
+    serviceModalElement &&
+    typeof bootstrap !== "undefined"
         ? new bootstrap.Modal(serviceModalElement)
         : null;
 
@@ -206,26 +206,11 @@ function escapeHtml(value) {
     return String(
         value ?? ""
     )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 }
 
@@ -377,9 +362,7 @@ function showAdminContent() {
 ========================================================= */
 
 document
-    .querySelectorAll(
-        ".admin-nav-btn"
-    )
+    .querySelectorAll(".admin-nav-btn")
     .forEach(
         button => {
 
@@ -448,10 +431,6 @@ document
                         "btn-primary"
                     );
 
-
-                    /*
-                     * Load section data
-                     */
 
                     if (
                         sectionId ===
@@ -628,8 +607,8 @@ async function loadUsers() {
 
                         <strong>
                             ${escapeHtml(
-                                user.fullName ||
-                                user.name ||
+                                user?.fullName ||
+                                user?.name ||
                                 "User"
                             )}
                         </strong>
@@ -640,7 +619,7 @@ async function loadUsers() {
                     <td>
 
                         ${escapeHtml(
-                            user.email ||
+                            user?.email ||
                             "—"
                         )}
 
@@ -651,7 +630,7 @@ async function loadUsers() {
 
                         <strong>
                             ${formatNaira(
-                                user.wallet
+                                user?.wallet
                             )}
                         </strong>
 
@@ -726,8 +705,6 @@ async function loadUsers() {
     }
 
 }
-
-
 /* =========================================================
    LOAD ORDERS
 ========================================================= */
@@ -781,11 +758,9 @@ async function loadOrders() {
             );
 
 
-        let pending =
-            0;
+        let pending = 0;
 
-        let completed =
-            0;
+        let completed = 0;
 
 
         orders.forEach(
@@ -883,10 +858,6 @@ async function loadOrders() {
 
         }
 
-
-        /*
-         * Keep newest orders first
-         */
 
         orders.sort(
             ([, a], [, b]) =>
@@ -1482,9 +1453,7 @@ async function loadServices() {
 
                             ${
                                 active
-
                                 ?
-
                                 `
                                     <span
                                         class="service-status-active"
@@ -1492,9 +1461,7 @@ async function loadServices() {
                                         Active
                                     </span>
                                 `
-
                                 :
-
                                 `
                                     <span
                                         class="service-status-inactive"
@@ -1606,8 +1573,6 @@ async function loadServices() {
     }
 
 }
-
-
 /* =========================================================
    OPEN ADD SERVICE
 ========================================================= */
@@ -1672,7 +1637,7 @@ if (servicesTableBody) {
 
     servicesTableBody.addEventListener(
         "click",
-        async (event) => {
+        async event => {
 
             const button =
                 event.target.closest(
@@ -1846,7 +1811,7 @@ if (serviceForm) {
 
     serviceForm.addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
@@ -1854,37 +1819,41 @@ if (serviceForm) {
             try {
 
                 const id =
-                    serviceId.value.trim();
+                    serviceId?.value.trim() ||
+                    "";
 
 
                 const platform =
-                    servicePlatform.value.trim();
+                    servicePlatform?.value.trim() ||
+                    "";
 
 
                 const name =
-                    serviceName.value.trim();
+                    serviceName?.value.trim() ||
+                    "";
 
 
                 const price =
                     Number(
-                        servicePrice.value
+                        servicePrice?.value
                     );
 
 
                 const min =
                     Number(
-                        serviceMin.value
+                        serviceMin?.value
                     );
 
 
                 const max =
                     Number(
-                        serviceMax.value
+                        serviceMax?.value
                     );
 
 
                 const status =
-                    serviceStatus.value;
+                    serviceStatus?.value ||
+                    "active";
 
 
                 if (!platform) {
@@ -1979,6 +1948,15 @@ if (serviceForm) {
                             "services"
                         )
                     ).key;
+
+
+                if (!targetId) {
+
+                    throw new Error(
+                        "Unable to generate service ID."
+                    );
+
+                }
 
 
                 await set(
@@ -2144,7 +2122,7 @@ if (refreshTransactions) {
 
 onAuthStateChanged(
     auth,
-    async (user) => {
+    async user => {
 
         if (!user) {
 
@@ -2223,16 +2201,18 @@ onAuthStateChanged(
 
 
             /*
-             * Load the initial dashboard.
+             * IMPORTANT:
+             *
+             * Orders must load FIRST.
+             *
+             * loadUsers() uses ordersData
+             * to calculate each user's
+             * order count.
              */
 
-            await Promise.allSettled([
+            await loadOrders();
 
-                loadOrders(),
-
-                loadUsers()
-
-            ]);
+            await loadUsers();
 
         }
 
@@ -2253,8 +2233,6 @@ onAuthStateChanged(
 
     }
 );
-
-
 /* =========================================================
    LOGOUT
 ========================================================= */
