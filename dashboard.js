@@ -92,8 +92,8 @@ function statusBadge(status) {
         ).toLowerCase()
          .trim();
 
-    let badgeClass = "bg-secondary";
-    let displayText = "Pending";
+    let badgeClass = "bg-warning text-dark";
+    let displayText = "Refunded";
 
     if (safeStatus === "refund" || safeStatus === "refunded") {
         badgeClass = "bg-warning text-dark";
@@ -111,6 +111,7 @@ function statusBadge(status) {
         badgeClass = "bg-danger";
         displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     } else {
+        badgeClass = "bg-warning text-dark";
         displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
 
