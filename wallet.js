@@ -8,6 +8,10 @@ import {
 let currentUser = null;
 
 
+/* ================================
+   AUTH CHECK
+================================ */
+
 onAuthStateChanged(
     auth,
     (user) => {
@@ -27,40 +31,67 @@ onAuthStateChanged(
 );
 
 
+
+/* ================================
+   ELEMENTS
+================================ */
+
 const payButton =
-    document.getElementById(
-        "payButton"
-    );
+    document.getElementById("payButton");
+
 
 const amountInput =
-    document.getElementById(
-        "amount"
-    );
+    document.getElementById("amount");
+
 
 const message =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
 
+
+
+const redeemButton =
+    document.getElementById("redeemVoucherBtn");
+
+
+const voucherInput =
+    document.getElementById("voucherCodeInput");
+
+
+
+/* ================================
+   MESSAGE DISPLAY
+================================ */
 
 function showMessage(
     text,
     type = "danger"
 ) {
 
+    if (!message) return;
+
+
     message.textContent =
         text;
 
+
     message.className =
-        "alert alert-" +
-        type;
+        "alert alert-" + type;
 
 }
+
+
+
+/* ================================
+   KORAPAY WALLET FUNDING
+================================ */
+
+if (payButton) {
 
 
 payButton.addEventListener(
     "click",
     async () => {
+
 
         if (!currentUser) {
 
@@ -73,10 +104,12 @@ payButton.addEventListener(
         }
 
 
+
         const amount =
             Number(
                 amountInput.value
             );
+
 
 
         if (
@@ -93,11 +126,13 @@ payButton.addEventListener(
         }
 
 
-        payButton.disabled =
-            true;
+
+        payButton.disabled = true;
+
 
         payButton.textContent =
             "Connecting to Korapay...";
+
 
 
         showMessage(
@@ -106,49 +141,56 @@ payButton.addEventListener(
         );
 
 
+
         try {
+
 
             const response =
                 await fetch(
                     "/api/create-payment",
                     {
 
-                        method: "POST",
+                        method:"POST",
 
-                        headers: {
+                        headers:{
                             "Content-Type":
-                                "application/json"
+                            "application/json"
                         },
 
+
                         body:
-                            JSON.stringify({
+                        JSON.stringify({
 
-                                amount,
+                            amount,
 
-                                uid:
-                                    currentUser.uid,
+                            uid:
+                            currentUser.uid,
 
-                                name:
-                                    currentUser.displayName ||
-                                    "HKDM Customer",
 
-                                email:
-                                    currentUser.email
+                            name:
+                            currentUser.displayName ||
+                            "HKDM Customer",
 
-                            })
+
+                            email:
+                            currentUser.email
+
+                        })
 
                     }
                 );
+
 
 
             const result =
                 await response.json();
 
 
-            if (
+
+            if(
                 !response.ok ||
                 !result.success
-            ) {
+            ){
 
                 throw new Error(
                     result.message ||
@@ -158,27 +200,26 @@ payButton.addEventListener(
             }
 
 
-            if (
-                !result.checkout_url
-            ) {
+
+            if(!result.checkout_url){
 
                 throw new Error(
-                    "Korapay checkout URL was not returned."
+                    "Korapay checkout URL missing."
                 );
 
             }
 
 
-            /*
-                Send customer to the
-                official Korapay checkout.
-            */
 
             window.location.href =
                 result.checkout_url;
 
 
-        } catch (error) {
+
+        }
+
+        catch(error){
+
 
             console.error(
                 "PAYMENT ERROR:",
@@ -188,79 +229,204 @@ payButton.addEventListener(
 
             showMessage(
                 error.message ||
-                "Unable to connect to the payment system."
+                "Payment failed."
             );
 
 
             payButton.disabled =
                 false;
 
-            payButton.innerHTML =
-                '<i class="bi bi-credit-card"></i> Fund Wallet';
+
+            payButton.textContent =
+                "Fund Wallet";
+
 
         }
+
 
     }
 );
 
 
-/* =========================================
-   VOUCHER REDEMPTION INTEGRATION
-   ========================================= */
+}
 
-const redeemButton = document.getElementById("redeemVoucherBtn");
-const voucherInput = document.getElementById("voucherCodeInput");
 
-if (redeemButton) {
-    redeemButton.addEventListener("click", async () => {
-        if (!currentUser) {
-            showMessage("Please wait for your account to load.");
+
+
+/* ================================
+   VOUCHER REDEMPTION
+================================ */
+
+
+if(redeemButton){
+
+
+redeemButton.addEventListener(
+    "click",
+    async()=>{
+
+
+        if(!currentUser){
+
+            showMessage(
+                "Please wait for your account to load."
+            );
+
             return;
+
         }
 
-        const voucherCode = voucherInput ? voucherInput.value.trim() : "";
-        
-        if (!voucherCode) {
-            showMessage("Please enter a valid voucher code.", "danger");
+
+
+        const voucherCode =
+            voucherInput.value
+            .trim();
+
+
+
+        if(!voucherCode){
+
+
+            showMessage(
+                "Please enter voucher code."
+            );
+
             return;
+
         }
 
-        redeemButton.disabled = true;
-        redeemButton.textContent = "Redeeming...";
 
-        try {
-            const idToken = await currentUser.getIdToken(true);
 
-            const response = await fetch('/api/redeem-voucher', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${idToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ voucherCode })
-            });
+        redeemButton.disabled =
+            true;
 
-            const result = await response.json();
 
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Failed to redeem voucher.");
+
+        redeemButton.textContent =
+            "Redeeming...";
+
+
+
+        try{
+
+
+            const idToken =
+                await currentUser.getIdToken();
+
+
+
+            const response =
+                await fetch(
+                    "/api/redeem-voucher",
+                    {
+
+                        method:"POST",
+
+
+                        headers:{
+
+                            "Authorization":
+                            `Bearer ${idToken}`,
+
+
+                            "Content-Type":
+                            "application/json"
+
+                        },
+
+
+                        body:
+                        JSON.stringify({
+
+                            voucherCode
+
+                        })
+
+                    }
+                );
+
+
+
+            const result =
+                await response.json();
+
+
+
+            if(
+                !response.ok ||
+                !result.success
+            ){
+
+                throw new Error(
+                    result.message ||
+                    "Voucher redemption failed."
+                );
+
             }
 
-            showMessage(result.message, "success");
-            
-            if (voucherInput) voucherInput.value = ""; // Clear input on success
-            
-            // Reload page after a brief moment to show updated wallet balance
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
 
-        } catch (error) {
-            console.error("VOUCHER ERROR:", error);
-            showMessage(error.message || "Unable to redeem voucher.", "danger");
-        } finally {
-            redeemButton.disabled = false;
-            redeemButton.innerHTML = '<i class="bi bi-ticket-perforated"></i> Redeem Voucher';
+
+            showMessage(
+                result.message,
+                "success"
+            );
+
+
+
+            voucherInput.value = "";
+
+
+
+            setTimeout(
+                ()=>{
+
+                    window.location.reload();
+
+                },
+                1500
+            );
+
+
+
         }
-    });
+
+
+        catch(error){
+
+
+            console.error(
+                "VOUCHER ERROR:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to redeem voucher."
+            );
+
+
+        }
+
+
+
+        finally{
+
+
+            redeemButton.disabled =
+                false;
+
+
+
+            redeemButton.textContent =
+                "Redeem Voucher";
+
+
+        }
+
+
+    }
+);
+
+
 }
