@@ -202,3 +202,65 @@ payButton.addEventListener(
 
     }
 );
+
+
+/* =========================================
+   VOUCHER REDEMPTION INTEGRATION
+   ========================================= */
+
+const redeemButton = document.getElementById("redeemVoucherBtn");
+const voucherInput = document.getElementById("voucherCodeInput");
+
+if (redeemButton) {
+    redeemButton.addEventListener("click", async () => {
+        if (!currentUser) {
+            showMessage("Please wait for your account to load.");
+            return;
+        }
+
+        const voucherCode = voucherInput ? voucherInput.value.trim() : "";
+        
+        if (!voucherCode) {
+            showMessage("Please enter a valid voucher code.", "danger");
+            return;
+        }
+
+        redeemButton.disabled = true;
+        redeemButton.textContent = "Redeeming...";
+
+        try {
+            const idToken = await currentUser.getIdToken(true);
+
+            const response = await fetch('/api/redeem-voucher', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ voucherCode })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Failed to redeem voucher.");
+            }
+
+            showMessage(result.message, "success");
+            
+            if (voucherInput) voucherInput.value = ""; // Clear input on success
+            
+            // Optional: Reload page after a brief moment to show updated wallet balance
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+
+        } catch (error) {
+            console.error("VOUCHER ERROR:", error);
+            showMessage(error.message || "Unable to redeem voucher.", "danger");
+        } finally {
+            redeemButton.disabled = false;
+            redeemButton.innerHTML = '<i class="bi bi-ticket-perforated"></i> Redeem Voucher';
+        }
+    });
+}
