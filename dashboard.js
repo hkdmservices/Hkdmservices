@@ -89,7 +89,8 @@ function statusBadge(status) {
     const safeStatus =
         String(
             status || "pending"
-        ).toLowerCase();
+        ).toLowerCase()
+         .trim();
 
     let badgeClass = "bg-secondary";
     let displayText = "Pending";
@@ -668,7 +669,7 @@ async function loadRecentOrders(uid) {
                                         class="text-muted"
                                     >
 
-                                    Order ID
+                                        Order ID
 
                                     </small>
 
