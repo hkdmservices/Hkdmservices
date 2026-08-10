@@ -94,6 +94,9 @@ function statusBadge(status) {
 
     let badgeClass =
         "bg-secondary";
+        
+    let displayText =
+        safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
 
 
     if (
@@ -137,9 +140,23 @@ function statusBadge(status) {
     }
 
 
+    if (
+        safeStatus === "refund" ||
+        safeStatus === "refunded"
+    ) {
+
+        badgeClass =
+            "bg-warning text-dark";
+            
+        displayText =
+            "Refunded";
+
+    }
+
+
     return `
         <span class="badge ${badgeClass}">
-            ${safeStatus}
+            ${displayText}
         </span>
     `;
 
