@@ -105,42 +105,34 @@ function statusBadge(status) {
 
         badgeClass =
             "bg-warning text-dark";
+        displayText = "Pending";
 
-    }
-
-
-    if (
+    } else if (
         safeStatus === "processing"
     ) {
 
         badgeClass =
             "bg-info text-dark";
+        displayText = "Processing";
 
-    }
-
-
-    if (
+    } else if (
         safeStatus === "completed"
     ) {
 
         badgeClass =
             "bg-success";
+        displayText = "Completed";
 
-    }
-
-
-    if (
+    } else if (
         safeStatus === "cancelled" ||
         safeStatus === "failed"
     ) {
 
         badgeClass =
             "bg-danger";
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
 
-    }
-
-
-    if (
+    } else if (
         safeStatus === "refund" ||
         safeStatus === "refunded"
     ) {
@@ -151,6 +143,8 @@ function statusBadge(status) {
         displayText =
             "Refunded";
 
+    } else {
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
 
 
