@@ -4,328 +4,149 @@ import "./firebase-admin.js";
 
 export default async function handler(req, res) {
 
-    if (req.method !== "POST") {
-        return res.status(405).json({
-            success: false,
-            message: "Method not allowed."
-        });
-    }
+if (req.method !== "POST") {
+return res.status(405).json({
+message:"Method not allowed"
+});
+}
 
-    try {
+try {
 
-        /* =====================================================
-           1. VERIFY USER
-        ===================================================== */
+const authHeader = req.headers.authorization;
 
-        const authHeader =
-            req.headers.authorization;
+if(!authHeader || !authHeader.startsWith("Bearer ")){
+return res.status(401).json({
+message:"Unauthorized"
+});
+}
 
-        if (
-            !authHeader ||
-            !authHeader.startsWith("Bearer ")
-        ) {
 
-            return res.status(401).json({
-                success: false,
-                message: "Unauthorized: No token provided."
-            });
+const token = authHeader.split("Bearer ")[1];
 
-        }
+const decodedToken =
+await getAuth().verifyIdToken(token);
 
-        const token =
-            authHeader.substring(7);
 
-        const decodedToken =
-            await getAuth().verifyIdToken(token);
+const userId = decodedToken.uid;
 
-        const userId =
-            decodedToken.uid;
 
+const { voucherCode } = req.body;
 
-        /* =====================================================
-           2. GET VOUCHER CODE
-        ===================================================== */
 
-        const { voucherCode } =
-            req.body || {};
+if(!voucherCode){
+return res.status(400).json({
+message:"Voucher code required"
+});
+}
 
-        if (
-            typeof voucherCode !== "string" ||
-            !voucherCode.trim()
-        ) {
 
-            return res.status(400).json({
-                success: false,
-                message: "Voucher code is required."
-            });
+const cleanCode =
+voucherCode.trim().toUpperCase();
 
-        }
 
+const db = getDatabase();
 
-        const cleanCode =
-            voucherCode
-                .trim()
-                .toUpperCase();
 
+const voucherRef =
+db.ref(`vouchers/${cleanCode}`);
 
-        /* =====================================================
-           3. DATABASE REFERENCES
-        ===================================================== */
 
-        const db =
-            getDatabase();
+const snapshot =
+await voucherRef.once("value");
 
-        const voucherRef =
-            db.ref(
-                `vouchers/${cleanCode}`
-            );
 
+if(!snapshot.exists()){
 
-        /* =====================================================
-           4. ATOMICALLY RESERVE VOUCHER
-           
-           This prevents two requests from redeeming
-           the same voucher at the same time.
-        ===================================================== */
+return res.status(404).json({
+message:"Invalid voucher"
+});
 
-        const voucherTransaction =
-            await voucherRef.transaction(
-                (currentVoucher) => {
+}
 
-                    if (!currentVoucher) {
 
-                        return;
+const voucher =
+snapshot.val();
 
-                    }
 
-                    if (
-                        currentVoucher.isUsed === true
-                    ) {
 
-                        return;
+if(voucher.isUsed){
 
-                    }
+return res.status(400).json({
+message:"Voucher already used"
+});
 
-                    return {
-                        ...currentVoucher,
+}
 
-                        isUsed: true,
 
-                        usedBy: userId,
 
-                        usedAt: Date.now()
-                    };
+const amount =
+Number(voucher.amount);
 
-                }
-            );
 
 
-        /* =====================================================
-           5. CHECK WHETHER VOUCHER WAS ACTUALLY RESERVED
-        ===================================================== */
+await db.ref(`users/${userId}/wallet`)
+.transaction(wallet=>{
 
-        if (
-            !voucherTransaction.committed
-        ) {
+return (Number(wallet)||0)+amount;
 
-            const currentVoucher =
-                voucherTransaction.snapshot.exists()
-                    ? voucherTransaction.snapshot.val()
-                    : null;
+});
 
 
-            if (!currentVoucher) {
 
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "Invalid or non-existent voucher code."
-                });
+await voucherRef.update({
 
-            }
+isUsed:true,
+usedBy:userId,
+usedAt:Date.now()
 
+});
 
-            if (
-                currentVoucher.isUsed === true
-            ) {
 
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This voucher has already been used."
-                });
 
-            }
+const tx =
+db.ref("transactions").push();
 
 
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Unable to redeem this voucher. Please try again."
-            });
+await tx.set({
 
-        }
+transactionId:
+"VCR-"+Date.now(),
 
+uid:userId,
 
-        /* =====================================================
-           6. GET VOUCHER AMOUNT
-        ===================================================== */
+type:"Voucher Redeem",
 
-        const voucherData =
-            voucherTransaction.snapshot.val();
+amount,
 
+status:"completed",
 
-        const voucherAmount =
-            Number(
-                voucherData.amount
-            );
+createdAt:Date.now()
 
+});
 
-        if (
-            !Number.isFinite(voucherAmount) ||
-            voucherAmount <= 0
-        ) {
 
-            /*
-              Roll the voucher back because the voucher
-              itself is invalid.
-            */
 
-            await voucherRef.update({
-                isUsed: false,
-                usedBy: null,
-                usedAt: null
-            });
+return res.status(200).json({
 
+success:true,
 
-            return res.status(400).json({
-                success: false,
-                message:
-                    "This voucher has an invalid amount."
-            });
+message:
+`₦${amount.toLocaleString()} added to wallet`
 
-        }
+});
 
 
-        /* =====================================================
-           7. CREDIT USER WALLET
-        ===================================================== */
+}
+catch(error){
 
-        const userWalletRef =
-            db.ref(
-                `users/${userId}/wallet`
-            );
+console.error(error);
 
+return res.status(500).json({
 
-        const walletTransaction =
-            await userWalletRef.transaction(
-                (currentWallet) => {
+message:error.message
 
-                    return (
-                        Number(currentWallet) || 0
-                    ) + voucherAmount;
+});
 
-                }
-            );
-
-
-        if (
-            !walletTransaction.committed
-        ) {
-
-            /*
-              Wallet could not be updated.
-              Release the voucher so it can be
-              redeemed again.
-            */
-
-            await voucherRef.update({
-                isUsed: false,
-                usedBy: null,
-                usedAt: null
-            });
-
-
-            return res.status(500).json({
-                success: false,
-                message:
-                    "Unable to credit your wallet. Please try again."
-            });
-
-        }
-
-
-        /* =====================================================
-           8. CREATE TRANSACTION RECORD
-        ===================================================== */
-
-        const transactionRef =
-            db.ref("transactions").push();
-
-
-        const transactionId =
-            "VCR-" +
-            Math.floor(
-                100000 +
-                Math.random() * 900000
-            );
-
-
-        await transactionRef.set({
-
-            transactionId,
-
-            uid: userId,
-
-            type: "Voucher Redeem",
-
-            description:
-                `Redeemed voucher code: ${cleanCode}`,
-
-            amount:
-                voucherAmount,
-
-            status:
-                "completed",
-
-            createdAt:
-                Date.now()
-
-        });
-
-
-        /* =====================================================
-           9. SUCCESS
-        ===================================================== */
-
-        return res.status(200).json({
-
-            success: true,
-
-            message:
-                `Successfully redeemed ₦${voucherAmount.toLocaleString("en-NG")} to your wallet!`
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "VOUCHER REDEMPTION ERROR:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                error.message ||
-                "Internal server error during voucher redemption."
-
-        });
-
-    }
+}
 
 }
