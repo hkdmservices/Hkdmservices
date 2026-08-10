@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>HKDMservices - Activate Admin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f7fb;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            max-width: 460px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow:
+                0 10px 35px
+                rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        h1 {
+            margin: 0 0 10px;
+            font-size: 26px;
+            color: #111827;
+        }
+        .description {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .email {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #374151;
+            word-break: break-word;
+        }
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 18px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+            line-height: 1.5;
+        }
+        .success {
+            display: block !important;
+            background: #dcfce7;
+            color: #166534;
+        }
+        .error {
+            display: block !important;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .info {
+            display: block !important;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>
+            Activate Administrator
+        </h1>
+        <p class="description">
+            This page will activate administrator
+            privileges for the currently signed-in
+            administrator account.
+        </p>
+        <div
+            id="email"
+            class="email"
+        >
+            Checking account...
+        </div>
+        <button
+            id="activateAdmin"
+            disabled
+        >
+            Activate Admin
+        </button>
+        <div
+            id="message"
+        ></div>
+    </div>
+    <script
+        type="module"
+        src="./set-admin.js"
+    ></script>
+</body>
+</html>
