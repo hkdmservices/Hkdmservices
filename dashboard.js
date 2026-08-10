@@ -10,10 +10,7 @@ import {
 
 import {
     ref,
-    get,
-    update,
-    push,
-    set
+    get
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -430,11 +427,6 @@ async function loadRecentOrders(uid) {
             =================================================
             IF RECENT ORDERS ELEMENT DOES NOT EXIST,
             STOP HERE.
-            
-            This is exactly what happens on the
-            main dashboard.
-            
-            The order count has already been updated.
             =================================================
         */
 
@@ -861,13 +853,6 @@ async function loadRecentOrders(uid) {
         );
 
 
-        /*
-            IMPORTANT:
-            DO NOT CHANGE ordersCount TO 0
-            IF FIREBASE TEMPORARILY FAILS.
-        */
-
-
         if (recentOrders) {
 
             recentOrders.innerHTML = `
@@ -900,64 +885,17 @@ async function loadRecentOrders(uid) {
 
 
 /* =========================================================
-   REDEEM VOUCHER FUNCTIONALITY
+   REDEEM VOUCHER FUNCTIONALITY (SECURE API)
 ========================================================= */
-
-async function redeemVoucherCode(userUid, code) {
-    const cleanCode = code.trim().toUpperCase();
-    const voucherRef = ref(database, "vouchers/" + cleanCode);
-    const userRef = ref(database, "users/" + userUid);
-
-    // 1. Fetch voucher
-    const voucherSnap = await get(voucherRef);
-    if (!voucherSnap.exists()) {
-        throw new Error("Invalid voucher code.");
-    }
-
-    const voucherData = voucherSnap.val();
-    if (voucherData.isUsed) {
-        throw new Error("This voucher has already been used.");
-    }
-
-    // 2. Fetch user current wallet
-    const userSnap = await get(userRef);
-    if (!userSnap.exists()) {
-        throw new Error("User data not found.");
-    }
-
-    const userData = userSnap.val();
-    const currentWallet = Number(userData.wallet || 0);
-    const voucherAmount = Number(voucherData.amount || 0);
-
-    // 3. Perform atomic updates (Mark voucher used, update wallet, log transaction)
-    const timestamp = Date.now();
-    const updates = {};
-    updates[`vouchers/${cleanCode}/isUsed`] = true;
-    updates[`vouchers/${cleanCode}/usedBy`] = userUid;
-    updates[`vouchers/${cleanCode}/usedAt`] = timestamp;
-    updates[`users/${userUid}/wallet`] = currentWallet + voucherAmount;
-    
-    updates[`transactions/${timestamp}`] = {
-        transactionId: "VCR-" + Math.floor(100000 + Math.random() * 900000),
-        uid: userUid,
-        email: userData.email || auth.currentUser.email || "—",
-        type: "Voucher Redeem",
-        description: `Redeemed voucher code: ${cleanCode}`,
-        amount: voucherAmount,
-        status: "completed",
-        createdAt: timestamp
-    };
-
-    await update(ref(database), updates);
-    return voucherAmount;
-}
 
 if (redeemVoucherForm) {
     redeemVoucherForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!redeemCodeInput) return;
         
-        const code = redeemCodeInput.value;
+        const voucherCode = redeemCodeInput.value.trim();
+        if (!voucherCode) return;
+
         if (redeemMsg) {
             redeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
         }
@@ -967,10 +905,25 @@ if (redeemVoucherForm) {
                 throw new Error("You must be logged in to redeem a voucher.");
             }
 
-            const amountRedeemed = await redeemVoucherCode(auth.currentUser.uid, code);
-            
+            const idToken = await auth.currentUser.getIdToken(true);
+
+            const response = await fetch('/api/redeem-voucher', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ voucherCode })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Failed to redeem voucher.");
+            }
+
             if (redeemMsg) {
-                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">Successfully redeemed ₦${amountRedeemed.toLocaleString("en-NG")} to your wallet!</div>`;
+                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
             }
             redeemVoucherForm.reset();
             
@@ -995,12 +948,6 @@ onAuthStateChanged(
     auth,
     async (user) => {
 
-        /*
-            ==============================================
-            USER NOT LOGGED IN
-            ==============================================
-        */
-
         if (!user) {
 
             window.location.href =
@@ -1009,14 +956,6 @@ onAuthStateChanged(
             return;
 
         }
-
-
-
-        /*
-            ==============================================
-            LOAD USER + ORDERS INDEPENDENTLY
-            ==============================================
-        */
 
         await Promise.allSettled([
 
