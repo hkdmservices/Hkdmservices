@@ -66,6 +66,9 @@ const transactionsTableBody =
 const servicesTableBody =
     document.getElementById("servicesTableBody");
 
+const vouchersTableBody =
+    document.getElementById("vouchersTableBody");
+
 
 const usersMessage =
     document.getElementById("usersMessage");
@@ -79,6 +82,9 @@ const transactionsMessage =
 const servicesMessage =
     document.getElementById("servicesMessage");
 
+const vouchersMessage =
+    document.getElementById("vouchersMessage");
+
 
 const refreshUsers =
     document.getElementById("refreshUsers");
@@ -89,14 +95,28 @@ const refreshOrders =
 const refreshTransactions =
     document.getElementById("refreshTransactions");
 
+const refreshVouchers =
+    document.getElementById("refreshVouchers");
+
 const addServiceBtn =
     document.getElementById("addServiceBtn");
+
+const createVoucherForm =
+    document.getElementById("createVoucherForm");
+
+const voucherCodeInput =
+    document.getElementById("voucherCodeInput");
+
+const voucherAmountInput =
+    document.getElementById("voucherAmountInput");
+
+const createVoucherMsg =
+    document.getElementById("createVoucherMsg");
 
 
 const serviceModalElement =
     document.getElementById("serviceModal");
 
-// FIXED: Using window.bootstrap to prevent mobile scope errors
 const serviceModal =
     serviceModalElement
         ? new window.bootstrap.Modal(serviceModalElement)
@@ -140,6 +160,7 @@ let usersData = {};
 let ordersData = {};
 let transactionsData = {};
 let servicesData = {};
+let vouchersData = {};
 
 
 /* =========================================================
@@ -223,7 +244,7 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   STATUS BADGE (ADMIN DISPLAY: "Refund")
+   STATUS BADGE (ADMIN DISPLAY)
 ========================================================= */
 
 function statusBadge(status) {
@@ -241,7 +262,7 @@ function statusBadge(status) {
         badgeClass = "bg-danger";
     } else if (safeStatus === "refund") {
         badgeClass = "bg-warning text-dark";
-        displayText = "Refund"; // Formatted specifically for Admin
+        displayText = "Refund";
     }
 
     return `
@@ -332,6 +353,7 @@ document.querySelectorAll(".admin-nav-btn").forEach(button => {
         if (sectionId === "ordersSection") loadOrders();
         if (sectionId === "transactionsSection") loadTransactions();
         if (sectionId === "servicesSection") loadServices();
+        if (sectionId === "vouchersSection") loadVouchers();
     });
 });
 
@@ -478,7 +500,6 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
         const order = ordersData[orderId] || {};
         const oldStatus = String(order.status || "pending").toLowerCase();
 
-        // Automatic refund handling if switching to refund for the first time
         if (status === "refund" && oldStatus !== "refund") {
             const uid = order?.uid;
             const amount = Number(order?.amount || 0);
@@ -490,13 +511,11 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
                 const currentWallet = Number(userData.wallet || 0);
                 const newWalletBalance = currentWallet + amount;
 
-                // 1. Credit user's wallet balance
                 await update(userRef, {
                     wallet: newWalletBalance,
                     updatedAt: Date.now()
                 });
 
-                // 2. Log transaction record for the refund
                 const newTxRef = push(ref(database, "transactions"));
                 await set(newTxRef, {
                     transactionId: "REF-" + Math.floor(100000 + Math.random() * 900000),
@@ -529,7 +548,7 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
         }
     } catch (error) {
         console.error("UPDATE ORDER STATUS ERROR:", error);
-        alert("Unable to update order status. Please check your Firebase rules.");
+        alert("Unable to update order status.");
         await loadOrders();
     } finally {
         if (selectElement) selectElement.disabled = false;
@@ -642,7 +661,7 @@ async function loadServices() {
                     <td><strong>${formatNaira(price)}</strong></td>
                     <td>${min.toLocaleString("en-NG")}</td>
                     <td>${max.toLocaleString("en-NG")}</td>
-                    <td>${active ? '<span class="service-status-active">Active</span>' : '<span class="service-status-inactive">Inactive</span>'}</td>
+                    <td>${active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}</td>
                     <td>
                         <div class="d-flex flex-wrap gap-1">
                             <button type="button" class="btn btn-sm btn-outline-primary action-btn" data-action="edit-service" data-id="${escapeHtml(id)}"><i class="bi bi-pencil"></i> Edit</button>
@@ -659,6 +678,137 @@ async function loadServices() {
         if (servicesMessage) servicesMessage.textContent = "Unable to load services.";
         if (servicesTableBody) servicesTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Unable to load services.</td></tr>`;
     }
+}
+
+
+/* =========================================================
+   LOAD VOUCHERS (ADMIN)
+========================================================= */
+
+async function loadVouchers() {
+    if (vouchersMessage) vouchersMessage.textContent = "Loading vouchers...";
+    if (vouchersTableBody) {
+        vouchersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>`;
+    }
+
+    try {
+        const snapshot = await get(ref(database, "vouchers"));
+        vouchersData = snapshot.exists() ? snapshot.val() : {};
+        const vouchers = Object.entries(vouchersData);
+
+        if (vouchers.length === 0) {
+            if (vouchersTableBody) vouchersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No vouchers created yet.</td></tr>`;
+            if (vouchersMessage) vouchersMessage.textContent = "No vouchers found.";
+            return;
+        }
+
+        if (vouchersMessage) vouchersMessage.textContent = `${vouchers.length} voucher(s) found.`;
+        let html = "";
+
+        vouchers.sort(([, a], [, b]) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+
+        vouchers.forEach(([code, voucher]) => {
+            const amount = Number(voucher?.amount || 0);
+            const isUsed = Boolean(voucher?.isUsed);
+            const createdAt = voucher?.createdAt || 0;
+
+            html += `
+                <tr>
+                    <td><code>${escapeHtml(code)}</code></td>
+                    <td><strong>${formatNaira(amount)}</strong></td>
+                    <td>${isUsed ? '<span class="badge bg-secondary">Used</span>' : '<span class="badge bg-success">Available</span>'}</td>
+                    <td>${escapeHtml(voucher?.usedBy || "—")}</td>
+                    <td><small>${formatDate(createdAt)}</small></td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger action-btn" data-action="delete-voucher" data-code="${escapeHtml(code)}">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        if (vouchersTableBody) vouchersTableBody.innerHTML = html;
+    } catch (error) {
+        console.error("LOAD VOUCHERS ERROR:", error);
+        if (vouchersMessage) vouchersMessage.textContent = "Unable to load vouchers.";
+        if (vouchersTableBody) vouchersTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Unable to load vouchers.</td></tr>`;
+    }
+}
+
+if (vouchersTableBody) {
+    vouchersTableBody.addEventListener("click", async (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+        const code = button.dataset.code;
+
+        if (action === "delete-voucher" && code) {
+            if (confirm(`Are you sure you want to delete voucher "${code}"?`)) {
+                try {
+                    await remove(ref(database, "vouchers/" + code));
+                    await loadVouchers();
+                } catch (error) {
+                    console.error("DELETE VOUCHER ERROR:", error);
+                    alert("Unable to delete voucher.");
+                }
+            }
+        }
+    });
+}
+
+if (createVoucherForm) {
+    createVoucherForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!voucherCodeInput || !voucherAmountInput) return;
+
+        const code = voucherCodeInput.value.trim().toUpperCase();
+        const amount = Number(voucherAmountInput.value);
+
+        if (!code) {
+            alert("Please enter a voucher code.");
+            return;
+        }
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            alert("Please enter a valid voucher amount.");
+            return;
+        }
+
+        try {
+            if (createVoucherMsg) {
+                createVoucherMsg.innerHTML = `<div class="alert alert-info mb-0">Creating voucher...</div>`;
+            }
+
+            const voucherRef = ref(database, "vouchers/" + code);
+            const snapshot = await get(voucherRef);
+
+            if (snapshot.exists()) {
+                throw new Error("This voucher code already exists!");
+            }
+
+            await set(voucherRef, {
+                code: code,
+                amount: amount,
+                isUsed: false,
+                createdBy: currentUser ? currentUser.uid : "admin",
+                createdAt: Date.now(),
+                usedBy: null
+            });
+
+            if (createVoucherMsg) {
+                createVoucherMsg.innerHTML = `<div class="alert alert-success mb-0">Voucher <strong>${code}</strong> (₦${amount.toLocaleString()}) created successfully!</div>`;
+            }
+
+            createVoucherForm.reset();
+            await loadVouchers();
+        } catch (error) {
+            console.error("CREATE VOUCHER ERROR:", error);
+            if (createVoucherMsg) {
+                createVoucherMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            }
+        }
+    });
 }
 
 
@@ -739,7 +889,7 @@ if (serviceForm) {
             alert(id ? "Service updated successfully." : "Service added successfully.");
         } catch (error) {
             console.error("SAVE SERVICE ERROR:", error);
-            alert("Unable to save service. Check your Firebase rules.");
+            alert("Unable to save service.");
         }
     });
 }
@@ -757,7 +907,7 @@ async function deleteService(id) {
         alert("Service deleted successfully.");
     } catch (error) {
         console.error("DELETE SERVICE ERROR:", error);
-        alert("Unable to delete service. Check your Firebase rules.");
+        alert("Unable to delete service.");
     }
 }
 
@@ -769,6 +919,7 @@ async function deleteService(id) {
 if (refreshUsers) refreshUsers.addEventListener("click", loadUsers);
 if (refreshOrders) refreshOrders.addEventListener("click", loadOrders);
 if (refreshTransactions) refreshTransactions.addEventListener("click", loadTransactions);
+if (refreshVouchers) refreshVouchers.addEventListener("click", loadVouchers);
 
 
 /* =========================================================
