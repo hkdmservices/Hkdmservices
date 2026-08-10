@@ -223,32 +223,30 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   STATUS BADGE
+   STATUS BADGE (ADMIN DISPLAY: "Refund")
 ========================================================= */
 
 function statusBadge(status) {
     const safeStatus = String(status || "pending").toLowerCase();
     let badgeClass = "bg-secondary";
+    let displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
 
     if (safeStatus === "pending") {
         badgeClass = "bg-warning text-dark";
-    }
-    if (safeStatus === "processing") {
+    } else if (safeStatus === "processing") {
         badgeClass = "bg-info text-dark";
-    }
-    if (safeStatus === "completed") {
+    } else if (safeStatus === "completed") {
         badgeClass = "bg-success";
-    }
-    if (safeStatus === "cancelled" || safeStatus === "failed") {
+    } else if (safeStatus === "cancelled" || safeStatus === "failed") {
         badgeClass = "bg-danger";
-    }
-    if (safeStatus === "refund") {
+    } else if (safeStatus === "refund") {
         badgeClass = "bg-warning text-dark";
+        displayText = "Refund"; // Formatted specifically for Admin
     }
 
     return `
         <span class="badge ${badgeClass}">
-            ${escapeHtml(safeStatus)}
+            ${escapeHtml(displayText)}
         </span>
     `;
 }
@@ -492,7 +490,7 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
                 const currentWallet = Number(userData.wallet || 0);
                 const newWalletBalance = currentWallet + amount;
 
-                // 1. Credit user's wallet
+                // 1. Credit user's wallet balance
                 await update(userRef, {
                     wallet: newWalletBalance,
                     updatedAt: Date.now()
