@@ -461,7 +461,7 @@ async function loadOrders() {
 
 
 /* =========================================================
-   UPDATE ORDER STATUS
+   UPDATE ORDER STATUS (WITH AUTO-REFUND LOGIC)
 ========================================================= */
 
 async function updateOrderStatus(orderId, newStatus, selectElement) {
@@ -477,6 +477,42 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
     try {
         if (selectElement) selectElement.disabled = true;
 
+        const order = ordersData[orderId] || {};
+        const oldStatus = String(order.status || "pending").toLowerCase();
+
+        // Automatic refund handling if switching to refund for the first time
+        if (status === "refund" && oldStatus !== "refund") {
+            const uid = order?.uid;
+            const amount = Number(order?.amount || 0);
+
+            if (uid && amount > 0) {
+                const userRef = ref(database, "users/" + uid);
+                const userSnap = await get(userRef);
+                const userData = userSnap.exists() ? userSnap.val() : {};
+                const currentWallet = Number(userData.wallet || 0);
+                const newWalletBalance = currentWallet + amount;
+
+                // 1. Credit user's wallet
+                await update(userRef, {
+                    wallet: newWalletBalance,
+                    updatedAt: Date.now()
+                });
+
+                // 2. Log transaction record for the refund
+                const newTxRef = push(ref(database, "transactions"));
+                await set(newTxRef, {
+                    transactionId: "REF-" + Math.floor(100000 + Math.random() * 900000),
+                    uid: uid,
+                    email: order?.email || order?.userEmail || userData.email || "—",
+                    type: "Refund",
+                    description: `Refund for order ${order?.orderId || orderId}`,
+                    amount: amount,
+                    status: "completed",
+                    createdAt: Date.now()
+                });
+            }
+        }
+
         await update(ref(database, "orders/" + orderId), {
             status,
             updatedAt: Date.now()
@@ -488,7 +524,11 @@ async function updateOrderStatus(orderId, newStatus, selectElement) {
         }
 
         await loadOrders();
-        if (ordersMessage) ordersMessage.textContent = "Order status updated successfully.";
+        if (ordersMessage) {
+            ordersMessage.textContent = status === "refund" 
+                ? "Order refunded, user wallet updated, and transaction logged." 
+                : "Order status updated successfully.";
+        }
     } catch (error) {
         console.error("UPDATE ORDER STATUS ERROR:", error);
         alert("Unable to update order status. Please check your Firebase rules.");
