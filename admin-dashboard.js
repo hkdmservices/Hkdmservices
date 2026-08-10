@@ -242,6 +242,9 @@ function statusBadge(status) {
     if (safeStatus === "cancelled" || safeStatus === "failed") {
         badgeClass = "bg-danger";
     }
+    if (safeStatus === "refund") {
+        badgeClass = "bg-warning text-dark";
+    }
 
     return `
         <span class="badge ${badgeClass}">
@@ -257,7 +260,7 @@ function statusBadge(status) {
 
 function orderStatusSelect(orderId, currentStatus) {
     const safeStatus = String(currentStatus || "pending").toLowerCase();
-    const statuses = ["pending", "processing", "completed", "cancelled", "failed"];
+    const statuses = ["pending", "processing", "completed", "cancelled", "failed", "refund"];
     let options = "";
 
     statuses.forEach(status => {
@@ -463,7 +466,7 @@ async function loadOrders() {
 
 async function updateOrderStatus(orderId, newStatus, selectElement) {
     if (!orderId) return;
-    const allowedStatuses = ["pending", "processing", "completed", "cancelled", "failed"];
+    const allowedStatuses = ["pending", "processing", "completed", "cancelled", "failed", "refund"];
     const status = String(newStatus || "").toLowerCase();
 
     if (!allowedStatuses.includes(status)) {
