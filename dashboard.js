@@ -91,62 +91,27 @@ function statusBadge(status) {
             status || "pending"
         ).toLowerCase();
 
+    let badgeClass = "bg-secondary";
+    let displayText = "Pending";
 
-    let badgeClass =
-        "bg-secondary";
-        
-    let displayText =
-        safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
-
-
-    if (
-        safeStatus === "pending"
-    ) {
-
-        badgeClass =
-            "bg-warning text-dark";
+    if (safeStatus === "refund" || safeStatus === "refunded") {
+        badgeClass = "bg-warning text-dark";
+        displayText = "Refunded";
+    } else if (safeStatus === "pending") {
+        badgeClass = "bg-warning text-dark";
         displayText = "Pending";
-
-    } else if (
-        safeStatus === "processing"
-    ) {
-
-        badgeClass =
-            "bg-info text-dark";
+    } else if (safeStatus === "processing") {
+        badgeClass = "bg-info text-dark";
         displayText = "Processing";
-
-    } else if (
-        safeStatus === "completed"
-    ) {
-
-        badgeClass =
-            "bg-success";
+    } else if (safeStatus === "completed") {
+        badgeClass = "bg-success";
         displayText = "Completed";
-
-    } else if (
-        safeStatus === "cancelled" ||
-        safeStatus === "failed"
-    ) {
-
-        badgeClass =
-            "bg-danger";
+    } else if (safeStatus === "cancelled" || safeStatus === "failed") {
+        badgeClass = "bg-danger";
         displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
-
-    } else if (
-        safeStatus === "refund" ||
-        safeStatus === "refunded"
-    ) {
-
-        badgeClass =
-            "bg-warning text-dark";
-            
-        displayText =
-            "Refunded";
-
     } else {
         displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
-
 
     return `
         <span class="badge ${badgeClass}">
@@ -703,7 +668,7 @@ async function loadRecentOrders(uid) {
                                         class="text-muted"
                                     >
 
-                                        Order ID
+                                    Order ID
 
                                     </small>
 
