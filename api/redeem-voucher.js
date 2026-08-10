@@ -4,149 +4,211 @@ import "./firebase-admin.js";
 
 export default async function handler(req, res) {
 
-if (req.method !== "POST") {
-return res.status(405).json({
-message:"Method not allowed"
-});
-}
+    if (req.method !== "POST") {
 
-try {
+        return res.status(405).json({
+            message: "Method not allowed"
+        });
 
-const authHeader = req.headers.authorization;
+    }
 
-if(!authHeader || !authHeader.startsWith("Bearer ")){
-return res.status(401).json({
-message:"Unauthorized"
-});
-}
 
+    try {
 
-const token = authHeader.split("Bearer ")[1];
+        // Verify user token
+        const authHeader = req.headers.authorization;
 
-const decodedToken =
-await getAuth().verifyIdToken(token);
 
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
 
-const userId = decodedToken.uid;
+            return res.status(401).json({
+                message: "Unauthorized"
+            });
 
+        }
 
-const { voucherCode } = req.body;
 
+        const token =
+            authHeader.split("Bearer ")[1];
 
-if(!voucherCode){
-return res.status(400).json({
-message:"Voucher code required"
-});
-}
 
+        const decodedToken =
+            await getAuth().verifyIdToken(token);
 
-const cleanCode =
-voucherCode.trim().toUpperCase();
 
+        const userId =
+            decodedToken.uid;
 
-const db = getDatabase();
 
 
-const voucherRef =
-db.ref(`vouchers/${cleanCode}`);
+        // Get voucher code
+        const { voucherCode } =
+            req.body;
 
 
-const snapshot =
-await voucherRef.once("value");
+        if (!voucherCode) {
 
+            return res.status(400).json({
+                message: "Voucher code required"
+            });
 
-if(!snapshot.exists()){
+        }
 
-return res.status(404).json({
-message:"Invalid voucher"
-});
 
-}
 
+        const cleanCode =
+            voucherCode.trim().toUpperCase();
 
-const voucher =
-snapshot.val();
 
 
+        const db =
+            getDatabase();
 
-if(voucher.isUsed){
 
-return res.status(400).json({
-message:"Voucher already used"
-});
 
-}
+        const voucherRef =
+            db.ref(`vouchers/${cleanCode}`);
 
 
 
-const amount =
-Number(voucher.amount);
+        const snapshot =
+            await voucherRef.once("value");
 
 
 
-await db.ref(`users/${userId}/wallet`)
-.transaction(wallet=>{
+        // Voucher does not exist
+        if (!snapshot.exists()) {
 
-return (Number(wallet)||0)+amount;
+            return res.status(404).json({
+                message: "Invalid voucher"
+            });
 
-});
+        }
 
 
 
-await voucherRef.update({
+        const voucher =
+            snapshot.val();
 
-isUsed:true,
-usedBy:userId,
-usedAt:Date.now()
 
-});
 
+        // Prevent reuse
+        if (voucher.isUsed === true) {
 
+            return res.status(400).json({
+                message: "Voucher already used"
+            });
 
-const tx =
-db.ref("transactions").push();
+        }
 
 
-await tx.set({
 
-transactionId:
-"VCR-"+Date.now(),
+        const amount =
+            Number(voucher.amount);
 
-uid:userId,
 
-type:"Voucher Redeem",
 
-amount,
+        if (!Number.isFinite(amount) || amount <= 0) {
 
-status:"completed",
+            return res.status(400).json({
+                message: "Invalid voucher amount"
+            });
 
-createdAt:Date.now()
+        }
 
-});
 
 
+        // Add wallet balance safely
+        const walletRef =
+            db.ref(`users/${userId}/wallet`);
 
-return res.status(200).json({
 
-success:true,
 
-message:
-`₦${amount.toLocaleString()} added to wallet`
+        await walletRef.transaction(
+            currentWallet => {
 
-});
+                return (Number(currentWallet) || 0) + amount;
 
+            }
+        );
 
-}
-catch(error){
 
-console.error(error);
 
-return res.status(500).json({
+        // Mark voucher used
+        await voucherRef.update({
 
-message:error.message
+            isUsed: true,
 
-});
+            usedBy: userId,
 
-}
+            usedAt: Date.now()
+
+        });
+
+
+
+        // Create transaction record
+        const transactionRef =
+            db.ref("transactions").push();
+
+
+
+        await transactionRef.set({
+
+            transactionId:
+                "VCR-" + Date.now(),
+
+            uid:
+                userId,
+
+            type:
+                "Voucher Redeem",
+
+            description:
+                `Redeemed voucher ${cleanCode}`,
+
+            amount:
+                amount,
+
+            status:
+                "completed",
+
+            createdAt:
+                Date.now()
+
+        });
+
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                `₦${amount.toLocaleString()} added to wallet`
+
+        });
+
+
+
+    } catch(error) {
+
+
+        console.error(
+            "VOUCHER REDEEM ERROR:",
+            error
+        );
+
+
+        return res.status(500).json({
+
+            message:
+                error.message ||
+                "Server error"
+
+        });
+
+
+    }
 
 }
