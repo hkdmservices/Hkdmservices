@@ -250,7 +250,7 @@ if (redeemButton) {
             
             if (voucherInput) voucherInput.value = ""; // Clear input on success
             
-            // Optional: Reload page after a brief moment to show updated wallet balance
+            // Reload page after a brief moment to show updated wallet balance
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
