@@ -1,15 +1,6 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getDatabase } from 'firebase-admin/database';
-
-// Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
-  initializeApp({
-    // If you use a service account file, add credential: cert(...) here,
-    // otherwise it will pick up default environment credentials if hosted on Vercel/Firebase.
-    databaseURL: "YOUR_FIREBASE_DATABASE_URL" 
-  });
-}
+import './firebase-admin.js'; // Uses your project's existing shared admin initialization
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -33,8 +24,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Voucher code is required.' });
     }
 
+    const cleanCode = voucherCode.trim().toUpperCase();
     const db = getDatabase();
-    const voucherRef = db.ref(`vouchers/${voucherCode}`);
+    const voucherRef = db.ref(`vouchers/${cleanCode}`);
     
     // 3. Check voucher validity
     const snapshot = await voucherRef.once('value');
@@ -49,33 +41,37 @@ export default async function handler(req, res) {
 
     const voucherAmount = Number(voucherData.amount);
 
-    // 4. Update User's Balance & Mark Voucher as Used atomically using a transaction
-    const userRef = db.ref(`users/${userId}`);
-    
-    // Update user balance safely
-    await db.ref(`users/${userId}/balance`).transaction((currentBalance) => {
-      return (currentBalance || 0) + voucherAmount;
+    // 4. Update User's Wallet Balance atomically
+    await db.ref(`users/${userId}/wallet`).transaction((currentWallet) => {
+      return (Number(currentWallet) || 0) + voucherAmount;
     });
 
-    // Mark voucher as used (or delete it)
-    await voucherRef.update({ isUsed: true, usedBy: userId, usedAt: Date.now() });
+    // 5. Mark voucher as used
+    await voucherRef.update({ 
+      isUsed: true, 
+      usedBy: userId, 
+      usedAt: Date.now() 
+    });
 
-    // Optional: Log transaction
-    const transactionRef = db.ref(`transactions/${userId}`).push();
+    // 6. Log transaction
+    const transactionRef = db.ref(`transactions`).push();
     await transactionRef.set({
-      type: 'voucher_redeem',
+      transactionId: "VCR-" + Math.floor(100000 + Math.random() * 900000),
+      uid: userId,
+      type: 'Voucher Redeem',
+      description: `Redeemed voucher code: ${cleanCode}`,
       amount: voucherAmount,
-      code: voucherCode,
-      timestamp: Date.now()
+      status: 'completed',
+      createdAt: Date.now()
     });
 
     return res.status(200).json({ 
       success: true, 
-      message: `Successfully redeemed ₦${voucherAmount.toLocaleString()}!` 
+      message: `Successfully redeemed ₦${voucherAmount.toLocaleString()} to your wallet!` 
     });
 
   } catch (error) {
     console.error('VOUCHER REDEMPTION ERROR:', error);
-    return res.status(500).json({ message: 'Internal server error during redemption.' });
+    return res.status(500).json({ message: error.message || 'Internal server error during redemption.' });
   }
 }
