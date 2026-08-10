@@ -20,7 +20,8 @@
 
 <h2 class="mb-4">Fund Wallet</h2>
 
-<div class="card p-4 shadow">
+<!-- Fund Wallet Card -->
+<div class="card p-4 shadow mb-4">
 
 <div class="mb-3">
 
@@ -52,9 +53,41 @@ class="mt-3 text-danger">
 
 </div>
 
+
+<!-- Voucher Redemption Card -->
+<div class="card p-4 shadow">
+
+<h5 class="mb-3">
+<i class="bi bi-ticket-perforated"></i> Redeem Voucher
+</h5>
+
+<div class="mb-3">
+
+<label for="voucherCodeInput" class="form-label">
+Voucher Code
+</label>
+
+<input
+type="text"
+id="voucherCodeInput"
+class="form-control"
+placeholder="Enter voucher code (e.g. SKLVL22)">
+
 </div>
 
-  <script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js"></script>
+<button
+id="redeemVoucherBtn"
+class="btn btn-primary w-100">
+
+Redeem Voucher
+
+</button>
+
+</div>
+
+</div>
+
+<script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js"></script>
 <script type="module" src="wallet.js"></script>
 
 </body>
