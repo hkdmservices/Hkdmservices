@@ -145,16 +145,6 @@ async function loadOrders(uid) {
 
     try {
 
-        /*
-            IMPORTANT:
-
-            Only request orders belonging
-            to the currently logged-in user.
-
-            Firebase rules will require
-            this exact query.
-        */
-
         const ordersQuery =
             query(
                 ref(
@@ -335,6 +325,10 @@ async function loadOrders(uid) {
                             </th>
 
                             <th>
+                                Link
+                            </th>
+
+                            <th>
                                 Quantity
                             </th>
 
@@ -414,6 +408,17 @@ async function loadOrders(uid) {
                                 "—"}
 
                             </small>
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                order.link
+                                    ? `<a href="${order.link}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 140px;" title="${order.link}">${order.link}</a>`
+                                    : "—"
+                            }
 
                         </td>
 
