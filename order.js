@@ -277,7 +277,7 @@ async function loadOrders(uid) {
 
 
         /* =================================================
-           TABLE
+           TABLE (EXPLICITLY INCLUDES LINK HEADER)
         ================================================= */
 
         let html = `
@@ -342,7 +342,6 @@ async function loadOrders(uid) {
                     order.orderId ||
                     "—";
 
-                // Check multiple possible key names to ensure the link displays safely
                 const targetLink =
                     order.link ||
                     order.targetLink ||
