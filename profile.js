@@ -5,7 +5,8 @@ import {
 
 import {
     onAuthStateChanged,
-    signOut
+    signOut,
+    sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -29,6 +30,9 @@ const profileEmail =
 
 const emailVerification =
     document.getElementById("emailVerification");
+
+const verifyEmailBtn =
+    document.getElementById("verifyEmailBtn");
 
 const profileWallet =
     document.getElementById("profileWallet");
@@ -102,7 +106,7 @@ async function loadUserData(user) {
 
 
     /*
-        EMAIL VERIFICATION
+        EMAIL VERIFICATION & BUTTON CONTROLS
     */
 
     if (emailVerification) {
@@ -121,6 +125,10 @@ async function loadUserData(user) {
 
             `;
 
+            if (verifyEmailBtn) {
+                verifyEmailBtn.classList.add("d-none");
+            }
+
         } else {
 
             emailVerification.innerHTML = `
@@ -134,6 +142,10 @@ async function loadUserData(user) {
                 </span>
 
             `;
+
+            if (verifyEmailBtn) {
+                verifyEmailBtn.classList.remove("d-none");
+            }
 
         }
 
@@ -427,6 +439,47 @@ onAuthStateChanged(
 
     }
 );
+
+
+/* =========================================================
+   SEND EMAIL VERIFICATION LINK HANDLER
+========================================================= */
+
+if (verifyEmailBtn) {
+
+    verifyEmailBtn.addEventListener(
+        "click",
+        async () => {
+
+            const user = auth.currentUser;
+
+            if (!user) return;
+
+            try {
+
+                verifyEmailBtn.disabled = true;
+                verifyEmailBtn.textContent = "Sending...";
+
+                await sendEmailVerification(user);
+
+                alert("Verification link sent successfully! Please check your inbox and spam folders.");
+
+            } catch (error) {
+
+                console.error("VERIFICATION EMAIL ERROR:", error);
+                alert("Failed to send verification email: " + error.message);
+
+            } finally {
+
+                verifyEmailBtn.disabled = false;
+                verifyEmailBtn.innerHTML = '<i class="bi bi-envelope-check"></i> Send Verification Link';
+
+            }
+
+        }
+    );
+
+}
 
 
 /* =========================================================
