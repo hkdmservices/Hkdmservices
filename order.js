@@ -30,6 +30,7 @@ const ordersContainer =
 ========================================================= */
 
 function formatNaira(amount) {
+
     return "₦" +
         Number(amount || 0).toLocaleString(
             "en-NG",
@@ -38,6 +39,7 @@ function formatNaira(amount) {
                 maximumFractionDigits: 2
             }
         );
+
 }
 
 
@@ -47,9 +49,13 @@ function formatNaira(amount) {
 ========================================================= */
 
 function formatDate(timestamp) {
+
     if (!timestamp) {
+
         return "—";
+
     }
+
 
     return new Date(timestamp)
         .toLocaleString(
@@ -59,6 +65,7 @@ function formatDate(timestamp) {
                 timeStyle: "short"
             }
         );
+
 }
 
 
@@ -68,42 +75,64 @@ function formatDate(timestamp) {
 ========================================================= */
 
 function statusBadge(status) {
+
     const safeStatus =
         String(
             status || "pending"
         ).toLowerCase();
 
+
     let badgeClass =
         "bg-secondary";
 
-    if (safeStatus === "pending") {
+
+    if (
+        safeStatus === "pending"
+    ) {
+
         badgeClass =
             "bg-warning text-dark";
+
     }
 
-    if (safeStatus === "processing") {
+
+    if (
+        safeStatus === "processing"
+    ) {
+
         badgeClass =
             "bg-info text-dark";
+
     }
 
-    if (safeStatus === "completed") {
+
+    if (
+        safeStatus === "completed"
+    ) {
+
         badgeClass =
             "bg-success";
+
     }
+
 
     if (
         safeStatus === "cancelled" ||
         safeStatus === "failed"
     ) {
+
         badgeClass =
             "bg-danger";
+
     }
+
 
     return `
         <span class="badge ${badgeClass}">
             ${safeStatus}
         </span>
     `;
+
 }
 
 
@@ -113,61 +142,92 @@ function statusBadge(status) {
 ========================================================= */
 
 async function loadOrders(uid) {
+
     if (!ordersContainer) {
         return;
     }
 
     try {
+
         const ordersQuery =
             query(
                 ref(
                     database,
                     "orders"
                 ),
+
                 orderByChild(
                     "uid"
                 ),
+
                 equalTo(
                     uid
                 )
             );
+
 
         const snapshot =
             await get(
                 ordersQuery
             );
 
+
+
+        /* =================================================
+           NO ORDERS
+        ================================================= */
+
         if (
             !snapshot.exists()
         ) {
+
             ordersContainer.innerHTML = `
+
                 <div
                     class="text-center text-muted py-5"
                 >
+
                     <i
                         class="bi bi-cart-x fs-1"
                     ></i>
+
+
                     <p class="mt-3">
+
                         You have not placed
                         any orders yet.
+
                     </p>
+
                 </div>
+
             `;
+
             return;
+
         }
+
+
+
+        /* =================================================
+           CONVERT DATA
+        ================================================= */
 
         const orders =
             snapshot.val();
+
 
         const userOrders =
             Object.values(
                 orders
             )
+
                 .filter(
                     order =>
                         order &&
                         order.uid === uid
                 )
+
                 .sort(
                     (a, b) =>
                         Number(
@@ -178,60 +238,106 @@ async function loadOrders(uid) {
                         )
                 );
 
+
+
+        /* =================================================
+           NO USER ORDERS
+        ================================================= */
+
         if (
             userOrders.length === 0
         ) {
+
             ordersContainer.innerHTML = `
+
                 <div
                     class="text-center text-muted py-5"
                 >
+
                     <i
                         class="bi bi-cart-x fs-1"
                     ></i>
+
+
                     <p class="mt-3">
+
                         You have not placed
                         any orders yet.
+
                     </p>
+
                 </div>
+
             `;
+
             return;
+
         }
 
+
+
+        /* =================================================
+           TABLE (EXPLICITLY INCLUDES LINK HEADER)
+        ================================================= */
+
         let html = `
+
             <div class="table-responsive">
+
                 <table
                     class="table table-hover align-middle"
                 >
+
                     <thead>
+
                         <tr>
+
                             <th>
                                 Order ID
                             </th>
+
                             <th>
                                 Service
                             </th>
+
                             <th>
                                 Link
                             </th>
+
                             <th>
                                 Quantity
                             </th>
+
                             <th>
                                 Amount
                             </th>
+
                             <th>
                                 Status
                             </th>
+
                             <th>
                                 Date
                             </th>
+
                         </tr>
+
                     </thead>
+
+
                     <tbody>
+
         `;
+
+
+
+        /* =================================================
+           ORDERS
+        ================================================= */
 
         userOrders.forEach(
             order => {
+
                 const orderId =
                     order.orderId ||
                     "—";
@@ -242,115 +348,178 @@ async function loadOrders(uid) {
                     order.url ||
                     "";
 
+
                 html += `
+
                     <tr>
+
                         <td>
+
                             <code>
+
                                 ${String(
                                     orderId
                                 ).slice(
                                     0,
                                     12
                                 )}
+
                             </code>
+
                         </td>
+
+
                         <td>
+
                             <strong>
+
                                 ${order.platform ||
                                 "—"}
+
                             </strong>
+
+
                             <br>
+
+
                             <small
                                 class="text-muted"
                             >
+
                                 ${order.service ||
                                 "—"}
+
                             </small>
+
                         </td>
+
+
                         <td>
+
                             ${
                                 targetLink
                                     ? `<a href="${targetLink}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 150px;" title="${targetLink}">${targetLink}</a>`
                                     : "—"
                             }
+
                         </td>
+
+
                         <td>
+
                             ${Number(
                                 order.quantity ||
                                 0
                             ).toLocaleString(
                                 "en-NG"
                             )}
+
                         </td>
+
+
                         <td>
+
                             ${formatNaira(
                                 order.amount
                             )}
+
                         </td>
+
+
                         <td>
+
                             ${statusBadge(
                                 order.status
                             )}
+
                         </td>
+
+
                         <td>
+
                             <small>
+
                                 ${formatDate(
                                     order.createdAt
                                 )}
+
                             </small>
+
                         </td>
+
                     </tr>
+
                 `;
+
             }
         );
 
+
+
         html += `
+
                     </tbody>
+
                 </table>
+
             </div>
+
         `;
+
 
         ordersContainer.innerHTML =
             html;
 
+
     } catch (error) {
+
         console.error(
             "RECENT ORDERS ERROR:",
             error
         );
+
+
         ordersContainer.innerHTML = `
+
             <div
                 class="alert alert-danger"
             >
+
                 Unable to load your orders.
+
                 Please try again.
+
             </div>
+
         `;
+
     }
+
 }
 
 
 
 /* =========================================================
-   AUTHENTICATION & EVENT LISTENERS
+   AUTHENTICATION
 ========================================================= */
 
 onAuthStateChanged(
     auth,
     async (user) => {
+
         if (!user) {
+
             window.location.href =
                 "login.html";
+
             return;
+
         }
+
 
         await loadOrders(
             user.uid
         );
 
-        // Listen for new order submissions to refresh table instantly
-        window.addEventListener('orderPlaced', async () => {
-            await loadOrders(user.uid);
-        });
     }
 );
