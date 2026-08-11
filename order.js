@@ -143,6 +143,10 @@ function statusBadge(status) {
 
 async function loadOrders(uid) {
 
+    if (!ordersContainer) {
+        return;
+    }
+
     try {
 
         const ordersQuery =
@@ -194,20 +198,6 @@ async function loadOrders(uid) {
                         any orders yet.
 
                     </p>
-
-
-                    <a
-                        href="order.html"
-                        class="btn btn-success"
-                    >
-
-                        <i
-                            class="bi bi-cart-plus"
-                        ></i>
-
-                        Place Your First Order
-
-                    </a>
 
                 </div>
 
@@ -275,20 +265,6 @@ async function loadOrders(uid) {
                         any orders yet.
 
                     </p>
-
-
-                    <a
-                        href="order.html"
-                        class="btn btn-success"
-                    >
-
-                        <i
-                            class="bi bi-cart-plus"
-                        ></i>
-
-                        Place Order
-
-                    </a>
 
                 </div>
 
