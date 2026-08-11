@@ -4,40 +4,77 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>
-HKDMServices | Your Trusted Digital Growth Partner
-</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-
-<!-- Google Fonts -->
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Place Order | HKDMservices</title>
 
 
-<!-- Bootstrap -->
-
-<link 
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-rel="stylesheet">
-
-
-<!-- Bootstrap Icons -->
-
-<link 
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-rel="stylesheet">
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
 
 
-<!-- HKDM Style -->
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+    rel="stylesheet"
+>
 
-<link rel="stylesheet" href="style.css">
 
+<link
+    href="style.css"
+    rel="stylesheet"
+>
+
+
+<style>
+
+.comments-box {
+
+    min-height: 260px;
+
+    resize: vertical;
+
+    font-size: 15px;
+
+    line-height: 1.6;
+
+}
+
+
+.comment-counter {
+
+    font-weight: 600;
+
+}
+
+
+.comment-counter.valid {
+
+    color: #198754;
+
+}
+
+
+.comment-counter.invalid {
+
+    color: #dc3545;
+
+}
+
+
+.quantity-note {
+
+    font-size: 0.875rem;
+
+}
+
+
+</style>
 
 </head>
 
@@ -45,1533 +82,1006 @@ rel="stylesheet">
 <body>
 
 
-<!-- Announcement -->
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
-<div class="announcement-bar text-center">
-
-🚀 Create your free account today. Login required to view pricing and place orders.
-
-</div>
-
-
-
-<!-- Navigation -->
-
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-
+<nav class="navbar navbar-dark bg-dark">
 
 <div class="container">
 
 
-<a class="navbar-brand fw-bold" href="index.html">
+<a
+    class="navbar-brand fw-bold"
+    href="dashboard.html"
+>
 
-<span class="brand-icon">
-⬢
-</span>
+    <span class="brand-icon">⬢</span>
 
-HKDMServices
-
-</a>
-
-
-
-<button 
-class="navbar-toggler"
-type="button"
-data-bs-toggle="collapse"
-data-bs-target="#mainNav">
-
-<span class="navbar-toggler-icon"></span>
-
-</button>
-
-
-
-<div class="collapse navbar-collapse" id="mainNav">
-
-
-<ul class="navbar-nav ms-auto align-items-lg-center">
-
-
-<li class="nav-item">
-
-<a class="nav-link active" href="index.html">
-
-Home
+    HKDMservices
 
 </a>
 
-</li>
 
+<a
+    href="services.html"
+    class="btn btn-outline-light"
+>
 
+    <i class="bi bi-arrow-left"></i>
 
-<li class="nav-item">
-
-<a class="nav-link" href="#services">
-
-Services
-
-</a>
-
-</li>
-
-
-
-<li class="nav-item">
-
-<a class="nav-link" href="#about">
-
-About
+    Services
 
 </a>
-
-</li>
-
-
-
-<li class="nav-item">
-
-<a class="nav-link" href="#contact">
-
-Contact
-
-</a>
-
-</li>
-
-
-
-<li class="nav-item">
-
-<a class="nav-link" href="login.html">
-
-Login
-
-</a>
-
-</li>
-
-<li class="nav-item ms-lg-3">
-
-<a class="btn btn-success" href="register.html">
-
-Register
-
-</a>
-
-</li>
-
-
-</ul>
 
 
 </div>
-
-
-</div>
-
 
 </nav>
 
 
 
-<!-- Hero Section -->
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
 
-
-<section class="hero-section">
-
+<section class="py-5">
 
 <div class="container">
 
 
-<div class="row align-items-center">
+<div class="text-center mb-5">
 
+<h1 class="fw-bold">
 
-<div class="col-lg-6">
-
-
-<span class="hero-badge">
-
-Trusted Digital Marketing Platform
-
-</span>
-
-
-
-<h1 class="hero-title">
-
-Your Trusted Digital
-
-<span>
-
-Growth Partner
-
-</span>
+    Place an Order
 
 </h1>
 
 
+<p
+    class="text-muted"
+    id="platformTitle"
+>
 
-<p class="hero-description">
-
-Grow your online presence with premium social media marketing services.
-Manage your campaigns, track orders, and grow your brand with a secure
-digital marketing platform.
+    Loading platform...
 
 </p>
 
+</div>
 
 
-<div class="hero-buttons">
+
+<div class="row justify-content-center">
+
+<div class="col-12 col-lg-7">
 
 
-<a href="register.html"
-class="btn btn-success btn-lg me-3">
+<div class="card shadow border-0">
 
-Get Started
+<div class="card-body p-4">
 
-</a>
 
-<a href="login.html"
-class="btn btn-outline-light btn-lg">
+<!-- =================================================
+     SERVICE
+================================================= -->
 
-Login
+<div class="mb-4">
 
-</a>
+<label
+    for="service"
+    class="form-label fw-bold"
+>
+
+    Select Service
+
+</label>
+
+
+<select
+    id="service"
+    class="form-select"
+>
+
+<option value="">
+
+    Loading services...
+
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- =================================================
+     PRICE
+================================================= -->
+
+<div
+    class="alert alert-success"
+    id="priceBox"
+>
+
+<div class="d-flex justify-content-between">
+
+<span>
+
+    Rate
+
+</span>
+
+
+<strong id="rate">
+
+    ₦0.00
+
+</strong>
+
+</div>
+
+
+<div class="d-flex justify-content-between mt-2">
+
+<span>
+
+    Total
+
+</span>
+
+
+<strong id="totalPrice">
+
+    ₦0.00
+
+</strong>
+
+</div>
+
+</div>
+
+
+
+<!-- =================================================
+     TARGET LINK
+================================================= -->
+
+<div class="mb-4">
+
+<label
+    for="link"
+    class="form-label fw-bold"
+>
+
+    Target Link
+
+</label>
+
+
+<input
+    type="url"
+    id="link"
+    class="form-control"
+    placeholder="https://..."
+    required
+>
+
+
+<div class="form-text">
+
+    Enter the link to your profile, post, video,
+    channel, livestream or content.
+
+</div>
+
+</div>
+
+
+
+<!-- =================================================
+     NORMAL QUANTITY
+================================================= -->
+
+<div
+    class="mb-4"
+    id="quantityContainer"
+>
+
+<label
+    for="quantity"
+    class="form-label fw-bold"
+>
+
+    Quantity
+
+</label>
+
+
+<input
+    type="number"
+    id="quantity"
+    class="form-control"
+    min="100"
+    step="1"
+    value="100"
+>
+
+
+<div
+    class="form-text quantity-note"
+    id="quantityHelp"
+>
+
+    Minimum quantity: 100
+
+</div>
+
+</div>
+
+
+
+<!-- =================================================
+     FIXED PACKAGE INFORMATION
+================================================= -->
+
+<div
+    class="alert alert-info d-none"
+    id="fixedPackageInfo"
+>
+
+    <i class="bi bi-box-seam me-1"></i>
+
+    <strong>Fixed-price package:</strong>
+
+    Quantity represents the number of packages.
+
+</div>
+
+
+
+<!-- =================================================
+     CUSTOM COMMENTS
+================================================= -->
+
+<div
+    class="mb-4 d-none"
+    id="commentsContainer"
+>
+
+<label
+    for="comments"
+    class="form-label fw-bold"
+>
+
+    Custom Comments
+
+</label>
+
+
+<textarea
+    id="comments"
+    class="form-control comments-box"
+    rows="10"
+    placeholder="Enter one comment per line..."
+></textarea>
+
+
+<div class="form-text mt-2">
+
+    Enter one comment per line.
+
+    <br>
+
+    Each non-empty line counts as one comment.
+
+</div>
+
+
+<div
+    class="d-flex justify-content-between mt-2"
+>
+
+<span
+    id="commentCounter"
+    class="comment-counter invalid"
+>
+
+    Comments: 0 / 100
+
+</span>
+
+
+<span
+    id="commentStatus"
+    class="text-muted"
+>
+
+    Minimum 100 comments
+
+</span>
+
+</div>
+
+</div>
+
+
+
+<!-- =================================================
+     ORDER BUTTON
+================================================= -->
+
+<div class="d-grid">
+
+<button
+    type="button"
+    id="placeOrder"
+    class="btn btn-success btn-lg"
+>
+
+    <i class="bi bi-cart-check"></i>
+
+    Place Order
+
+</button>
+
+</div>
+
+
+
+<!-- =================================================
+     MESSAGE
+================================================= -->
+
+<div
+    id="message"
+    class="alert mt-4 d-none"
+>
+
+</div>
 
 
 </div>
-        <div class="hero-trust mt-4">
 
-            <i class="bi bi-shield-check"></i>
+</div>
 
-            Secure Platform
+</div>
 
-            &nbsp;&nbsp;
-
-            <i class="bi bi-lightning-charge"></i>
-
-            Fast Delivery
-
-        </div>
-
-
-    </div>
+</div>
 
 
 
-    <div class="col-lg-6 mt-5 mt-lg-0">
+<!-- =====================================================
+     USER ORDERS & LINKS HISTORY TABLE
+===================================================== -->
 
+<div class="row justify-content-center mt-5">
 
-        <div class="dashboard-preview">
+<div class="col-12 col-lg-10">
 
+<div class="card shadow-sm border-0">
 
-            <div class="preview-header">
+<div class="card-body p-4">
 
-                HKDMServices Dashboard
+<h4 class="fw-bold mb-3">Your Recent Orders & Links</h4>
 
-            </div>
+<div id="ordersContainer">
 
+    <p class="text-muted">Loading your order history...</p>
 
+</div>
 
-            <div class="preview-card">
+</div>
 
+</div>
 
-                <h5>
+</div>
 
-                    Wallet Balance
-
-                </h5>
-
-
-                <h2>
-
-                    ₦•••••
-
-                </h2>
-
-
-                <p>
-
-                    Login to view your account
-
-                </p>
-
-
-            </div>
+</div>
 
 
 
+<!-- =================================================
+     INFORMATION
+================================================= -->
 
-            <div class="row">
+<div class="row justify-content-center mt-4">
 
-
-                <div class="col-6">
-
-
-                    <div class="mini-card">
-
-                        Orders
-
-                        <br>
-
-                        <b>
-
-                            0
-
-                        </b>
+<div class="col-12 col-lg-7">
 
 
-                    </div>
+<div class="card border-0 shadow-sm">
+
+<div class="card-body">
 
 
+<h5 class="fw-bold">
+
+<i class="bi bi-info-circle text-success"></i>
+
+Order Information
+
+</h5>
+
+
+<ul class="mb-0 text-muted">
+
+<li>
+
+Standard services require the minimum quantity
+shown for the selected service.
+
+</li>
+
+
+<li>
+
+Comment services require at least 100
+non-empty comments.
+
+</li>
+
+
+<li>
+
+For comment services, one non-empty line
+equals one comment.
+
+</li>
+
+
+<li>
+
+Prices are calculated automatically from
+the official catalogue.
+
+</li>
+
+
+<li>
+
+Per-1,000 services are calculated according
+to the quantity entered.
+
+</li>
+
+
+<li>
+
+Fixed-price packages use their listed
+package price.
+
+</li>
+
+
+<li>
+
+Your wallet is charged only after the order
+passes the server-side validation.
+
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT LOGIC
+===================================================== -->
+
+<script type="module">
+
+import { auth, database } from "./firebase.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    ref,
+    get,
+    query,
+    orderByChild,
+    equalTo
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+import {
+    hkdmservicesOfficialServicePriceCatalogue
+} from "./services.js";
+
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== --> */
+
+const serviceSelect = document.getElementById("service");
+const platformTitle = document.getElementById("platformTitle");
+const rateDisplay = document.getElementById("rate");
+const totalDisplay = document.getElementById("totalPrice");
+const quantityInput = document.getElementById("quantity");
+const quantityContainer = document.getElementById("quantityContainer");
+const quantityHelp = document.getElementById("quantityHelp");
+const fixedPackageInfo = document.getElementById("fixedPackageInfo");
+const commentsContainer = document.getElementById("commentsContainer");
+const commentsInput = document.getElementById("comments");
+const commentCounter = document.getElementById("commentCounter");
+const commentStatus = document.getElementById("commentStatus");
+const placeOrderButton = document.getElementById("placeOrder");
+const message = document.getElementById("message");
+const ordersContainer = document.getElementById("ordersContainer");
+
+let currentUser = null;
+
+
+
+/* =====================================================
+   FORMATTERS & BADGES
+===================================================== */
+
+function formatNaira(amount) {
+    return "₦" + Number(amount || 0).toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+function formatDate(timestamp) {
+    if (!timestamp) return "—";
+    return new Date(timestamp).toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+function statusBadge(status) {
+    const safeStatus = String(status || "pending").toLowerCase();
+    let badgeClass = "bg-secondary";
+
+    if (safeStatus === "pending") badgeClass = "bg-warning text-dark";
+    if (safeStatus === "processing") badgeClass = "bg-info text-dark";
+    if (safeStatus === "completed") badgeClass = "bg-success";
+    if (safeStatus === "cancelled" || safeStatus === "failed") badgeClass = "bg-danger";
+
+    return `<span class="badge ${badgeClass}">${safeStatus}</span>`;
+}
+
+
+
+/* =====================================================
+   LOAD USER ORDERS (INCLUDING LINK COLUMN)
+===================================================== */
+
+async function loadOrders(uid) {
+    if (!ordersContainer) return;
+
+    try {
+        const ordersQuery = query(
+            ref(database, "orders"),
+            orderByChild("uid"),
+            equalTo(uid)
+        );
+
+        const snapshot = await get(ordersQuery);
+
+        if (!snapshot.exists()) {
+            ordersContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-cart-x fs-1"></i>
+                    <p class="mt-3">You have not placed any orders yet.</p>
                 </div>
+            `;
+            return;
+        }
 
+        const orders = snapshot.val();
+        const userOrders = Object.values(orders)
+            .filter(order => order && order.uid === uid)
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
-
-
-                <div class="col-6">
-
-
-                    <div class="mini-card">
-
-
-                        Services
-
-                        <br>
-
-                        <b>
-
-                            100+
-
-                        </b>
-
-
-                    </div>
-
-
+        if (userOrders.length === 0) {
+            ordersContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-cart-x fs-1"></i>
+                    <p class="mt-3">You have not placed any orders yet.</p>
                 </div>
+            `;
+            return;
+        }
 
+        let html = `
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Service</th>
+                            <th>Link</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
 
+        userOrders.forEach(order => {
+            const orderId = order.orderId || "—";
+            const targetLink = order.link || order.targetLink || order.url || "";
+
+            html += `
+                <tr>
+                    <td><code>${String(orderId).slice(0, 12)}</code></td>
+                    <td>
+                        <strong>${order.platform || "—"}</strong><br>
+                        <small class="text-muted">${order.service || "—"}</small>
+                    </td>
+                    <td>
+                        ${
+                            targetLink
+                                ? `<a href="${targetLink}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 150px;" title="${targetLink}">${targetLink}</a>`
+                                : "—"
+                        }
+                    </td>
+                    <td>${Number(order.quantity || 0).toLocaleString("en-NG")}</td>
+                    <td>${formatNaira(order.amount)}</td>
+                    <td>${statusBadge(order.status)}</td>
+                    <td><small>${formatDate(order.createdAt)}</small></td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
             </div>
+        `;
+
+        ordersContainer.innerHTML = html;
+
+    } catch (error) {
+        console.error("RECENT ORDERS ERROR:", error);
+        ordersContainer.innerHTML = `
+            <div class="alert alert-danger">
+                Unable to load your orders. Please try again.
+            </div>
+        `;
+    }
+}
+
+
+
+/* =====================================================
+   AUTHENTICATION STATE
+===================================================== */
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    currentUser = user;
+    await loadOrders(user.uid);
+});
+
+
+
+/* =====================================================
+   PLATFORM & SERVICE MANAGEMENT
+===================================================== */
+
+const urlParams = new URLSearchParams(window.location.search);
+const platform = urlParams.get("platform");
+
+function getSelectedService() {
+    return hkdmservicesOfficialServicePriceCatalogue.find(
+        item => item.id === serviceSelect.value
+    );
+}
+
+function isCommentService(service) {
+    if (!service) return false;
+    return String(service.service || "").toLowerCase().includes("comment");
+}
+
+function getMinimumQuantity(service) {
+    if (!service) return 100;
+    if (service.minimumQuantity !== undefined) {
+        return Number(service.minimumQuantity);
+    }
+    return 100;
+}
+
+function getComments() {
+    return commentsInput.value
+        .split(/\r?\n/)
+        .map(comment => comment.trim())
+        .filter(comment => comment.length > 0);
+}
+
+function updateCommentCounter() {
+    const comments = getComments();
+    const count = comments.length;
+    const minimum = 100;
+
+    commentCounter.textContent = `Comments: ${count} / ${minimum}`;
+
+    if (count >= minimum) {
+        commentCounter.classList.remove("invalid");
+        commentCounter.classList.add("valid");
+        commentStatus.textContent = "Minimum reached";
+        commentStatus.className = "text-success";
+    } else {
+        commentCounter.classList.remove("valid");
+        commentCounter.classList.add("invalid");
+        commentStatus.textContent = `Need ${minimum - count} more comment${minimum - count === 1 ? "" : "s"}`;
+        commentStatus.className = "text-danger";
+    }
+
+    return count;
+}
+
+function updateServiceFields() {
+    const selectedService = getSelectedService();
+
+    if (!selectedService) {
+        quantityContainer.style.display = "block";
+        fixedPackageInfo.classList.add("d-none");
+        commentsContainer.classList.add("d-none");
+        quantityInput.min = "100";
+        quantityInput.value = "100";
+        quantityHelp.textContent = "Minimum quantity: 100";
+        return;
+    }
+
+    if (isCommentService(selectedService)) {
+        quantityContainer.style.display = "none";
+        fixedPackageInfo.classList.add("d-none");
+        commentsContainer.classList.remove("d-none");
+        updateCommentCounter();
+        return;
+    }
+
+    if (selectedService.ratePer1000 === null) {
+        quantityContainer.style.display = "block";
+        commentsContainer.classList.add("d-none");
+        fixedPackageInfo.classList.remove("d-none");
+        const minimum = getMinimumQuantity(selectedService);
+        quantityInput.min = String(minimum);
+        quantityInput.step = "1";
+        quantityInput.value = String(Math.max(minimum, 1));
+        quantityHelp.textContent = `Minimum package quantity: ${minimum}`;
+        return;
+    }
+
+    quantityContainer.style.display = "block";
+    fixedPackageInfo.classList.add("d-none");
+    commentsContainer.classList.add("d-none");
+    const minimum = getMinimumQuantity(selectedService);
+    quantityInput.min = String(minimum);
+    quantityInput.step = "1";
+
+    if (Number(quantityInput.value) < minimum) {
+        quantityInput.value = String(minimum);
+    }
+    quantityHelp.textContent = `Minimum quantity: ${minimum}`;
+}
+
+function showMessage(text, type = "danger") {
+    message.textContent = text;
+    message.className = "alert alert-" + type + " mt-4";
+}
+
+function calculateTotal() {
+    const selectedService = getSelectedService();
+
+    if (!selectedService) {
+        rateDisplay.textContent = "₦0.00";
+        totalDisplay.textContent = "₦0.00";
+        return;
+    }
+
+    if (isCommentService(selectedService)) {
+        const commentCount = getComments().length;
+        const rate = Number(selectedService.ratePer1000);
+        const total = (commentCount / 1000) * rate;
+
+        rateDisplay.textContent = formatNaira(rate);
+        totalDisplay.textContent = formatNaira(total);
+        return;
+    }
+
+    if (selectedService.ratePer1000 === null) {
+        const packageQuantity = Number(quantityInput.value) || 0;
+        const packagePrice = Number(selectedService.fixedPrice);
+        const total = packageQuantity * packagePrice;
+
+        rateDisplay.textContent = formatNaira(packagePrice);
+        totalDisplay.textContent = formatNaira(total);
+        return;
+    }
+
+    const quantity = Number(quantityInput.value) || 0;
+    const rate = Number(selectedService.ratePer1000);
+    const total = (quantity / 1000) * rate;
+
+    rateDisplay.textContent = formatNaira(rate);
+    totalDisplay.textContent = formatNaira(total);
+}
+
+serviceSelect.addEventListener("change", () => {
+    updateServiceFields();
+    calculateTotal();
+});
+
+quantityInput.addEventListener("input", () => {
+    calculateTotal();
+});
+
+commentsInput.addEventListener("input", () => {
+    updateCommentCounter();
+    calculateTotal();
+});
+
+
+
+/* =====================================================
+   PLACE ORDER SUBMISSION
+===================================================== */
+
+placeOrderButton.addEventListener("click", async () => {
+    try {
+        if (!currentUser) {
+            showMessage("Please log in before placing an order.");
+            return;
+        }
+
+        const selectedService = getSelectedService();
+        if (!selectedService) {
+            showMessage("Please select a service.");
+            return;
+        }
+
+        const link = document.getElementById("link").value.trim();
+        if (!link) {
+            showMessage("Please enter your target link.");
+            return;
+        }
+
+        let comments = [];
+        let quantity;
+
+        if (isCommentService(selectedService)) {
+            comments = getComments();
+            quantity = comments.length;
+            if (quantity < 100) {
+                showMessage(`You must provide at least 100 comments. You currently have ${quantity}.`, "warning");
+                return;
+            }
+        } else if (selectedService.ratePer1000 === null) {
+            quantity = Number(quantityInput.value);
+            const minimum = getMinimumQuantity(selectedService);
+            if (!Number.isFinite(quantity) || quantity < minimum) {
+                showMessage(`Minimum package quantity is ${minimum}.`);
+                return;
+            }
+        } else {
+            quantity = Number(quantityInput.value);
+            const minimum = getMinimumQuantity(selectedService);
+            if (!Number.isFinite(quantity) || quantity < minimum) {
+                showMessage(`Minimum quantity is ${minimum}.`);
+                return;
+            }
+        }
+
+        placeOrderButton.disabled = true;
+        placeOrderButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing Order...`;
+
+        const idToken = await currentUser.getIdToken(true);
+
+        const response = await fetch("/api/create-order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + idToken
+            },
+            body: JSON.stringify({
+                serviceId: selectedService.id,
+                link: link,
+                quantity: quantity,
+                comments: comments
+            })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            showMessage(result.message || "Unable to place order.");
+            return;
+        }
+
+        if (result.success) {
+            showMessage("Order placed successfully! Order ID: " + result.orderId, "success");
+
+            document.getElementById("link").value = "";
+            commentsInput.value = "";
+            quantityInput.value = "100";
+
+            updateServiceFields();
+            calculateTotal();
+
+            // Refresh orders table immediately after successful order
+            await loadOrders(currentUser.uid);
+
+        } else {
+            showMessage(result.message || "Unable to place order.");
+        }
+
+    } catch (error) {
+        console.error("ORDER ERROR:", error);
+        showMessage("Unable to connect to the order system. Please try again.");
+    } finally {
+        placeOrderButton.disabled = false;
+        placeOrderButton.innerHTML = `<i class="bi bi-cart-check"></i> Place Order`;
+    }
+});
+
+
+
+/* =====================================================
+   INITIALIZATION & PLATFORM SETUP
+===================================================== */
+
+if (!platform) {
+    platformTitle.textContent = "No platform selected.";
+    serviceSelect.innerHTML = `<option value="">No platform selected</option>`;
+    placeOrderButton.disabled = true;
+} else {
+    platformTitle.textContent = platform + " Services";
+    const platformServices = hkdmservicesOfficialServicePriceCatalogue.filter(
+        item => item.platform === platform
+    );
+
+    if (platformServices.length === 0) {
+        serviceSelect.innerHTML = `<option value="">No services available</option>`;
+        placeOrderButton.disabled = true;
+    } else {
+        serviceSelect.innerHTML = `<option value="">Select a service</option>`;
+        platformServices.forEach(service => {
+            const option = document.createElement("option");
+            option.value = service.id;
+            option.textContent = service.service;
+            serviceSelect.appendChild(option);
+        });
+    }
+}
+
+updateServiceFields();
+calculateTotal();
 
-
-
-        </div>
-
-
-    </div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-<!-- Supported Platforms -->
-
-
-<section class="platform-section">
-
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-
-Supported Platforms
-
-</h2>
-
-
-<p>
-
-Premium digital growth solutions across leading platforms.
-
-</p>
-
-
-</div>
-<div class="row g-4 mt-4">
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-instagram"></i>
-
-<h5>
-Instagram
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-tiktok"></i>
-
-<h5>
-TikTok
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-facebook"></i>
-
-<h5>
-Facebook
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-youtube"></i>
-
-<h5>
-YouTube
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-telegram"></i>
-
-<h5>
-Telegram
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-whatsapp"></i>
-
-<h5>
-WhatsApp
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-music-note-beamed"></i>
-
-<h5>
-Apple Music
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-6 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-spotify"></i>
-
-<h5>
-Spotify
-</h5>
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-12 col-md-4 col-lg-3">
-
-
-<div class="platform-card">
-
-<i class="bi bi-twitter-x"></i>
-
-<h5>
-X / Twitter
-</h5>
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-<!-- Why Choose HKDMServices -->
-
-
-<section class="features-section" id="about">
-
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-
-Why Choose HKDMServices?
-
-</h2>
-
-
-<p>
-
-Everything you need for reliable digital growth.
-
-</p>
-
-
-</div>
-
-
-
-<div class="row g-4 mt-4">
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="feature-card">
-
-
-<i class="bi bi-shield-lock"></i>
-
-
-<h4>
-
-Secure Platform
-
-</h4>
-
-
-<p>
-
-Protected accounts, secure payments, and reliable technology.
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="feature-card">
-
-
-<i class="bi bi-lightning-charge"></i>
-
-
-<h4>
-
-Fast Delivery
-
-</h4>
-
-
-<p>
-
-Efficient order processing designed for speed and reliability.
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="feature-card">
-
-
-<i class="bi bi-star"></i>
-
-
-<h4>
-
-Premium Quality
-
-</h4>
-
-
-<p>
-
-Carefully selected services to support your growth goals.
-
-</p>
-
-
-</div>
-
-
-</div>
-<!-- HOW IT WORKS -->
-
-<section class="how-section">
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-How It Works
-</h2>
-
-
-<p>
-Getting started with HKDMServices is simple.
-</p>
-
-
-</div>
-
-
-
-<div class="row g-4 mt-4">
-
-
-
-<div class="col-md-3">
-
-<div class="step-card">
-
-
-<div class="step-number">
-
-1
-
-</div>
-
-
-<h4>
-Create Account
-</h4>
-
-
-<p>
-Register and access your personal dashboard.
-</p>
-
-
-</div>
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-<div class="step-card">
-
-
-<div class="step-number">
-
-2
-
-</div>
-
-
-<h4>
-Fund Wallet
-</h4>
-
-
-<p>
-Add funds securely using available payment methods.
-</p>
-
-
-</div>
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-<div class="step-card">
-
-
-<div class="step-number">
-
-3
-
-</div>
-
-
-<h4>
-Choose Service
-</h4>
-
-
-<p>
-Select your preferred service after login.
-</p>
-
-
-</div>
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-<div class="step-card">
-
-
-<div class="step-number">
-
-4
-
-</div>
-
-
-<h4>
-Track Growth
-</h4>
-
-
-<p>
-Monitor your orders and progress easily.
-</p>
-
-
-</div>
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- SERVICES -->
-
-
-<section class="services-section" id="services">
-
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-Our Services
-</h2>
-
-
-<p>
-Professional digital growth solutions for individuals and businesses.
-</p>
-
-
-</div>
-
-
-
-
-<div class="row g-4 mt-4">
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-instagram"></i>
-
-
-<h4>
-Instagram Growth
-</h4>
-
-
-<p>
-Followers, likes, views, comments and engagement solutions.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-tiktok"></i>
-
-
-<h4>
-TikTok Growth
-</h4>
-
-
-<p>
-Boost visibility and engagement on TikTok.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-youtube"></i>
-
-
-<h4>
-YouTube Growth
-</h4>
-
-
-<p>
-Support for channels, videos and audience growth.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-facebook"></i>
-
-
-<h4>
-Facebook Growth
-</h4>
-
-
-<p>
-Grow pages and improve social presence.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-spotify"></i>
-
-
-<h4>
-Music Promotion
-</h4>
-
-
-<p>
-Promotion solutions for music platforms.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-6 col-lg-4">
-
-
-<div class="service-card">
-
-
-<i class="bi bi-globe"></i>
-
-
-<h4>
-More Platforms
-</h4>
-
-
-<p>
-Additional digital marketing services available.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-<div class="text-center mt-5">
-
-
-<div class="login-notice">
-
-
-<i class="bi bi-lock-fill"></i>
-
-
-Login to your account to view pricing and place orders.
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-</section>
-<!-- STATISTICS -->
-
-<section class="stats-section">
-
-
-<div class="container">
-
-
-<div class="row text-center g-4">
-
-
-<div class="col-md-3">
-
-
-<h2>
-10K+
-</h2>
-
-
-<p>
-Orders Completed
-</p>
-
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-
-<h2>
-500+
-</h2>
-
-
-<p>
-Happy Clients
-</p>
-
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-
-<h2>
-100+
-</h2>
-
-
-<p>
-Services Available
-</p>
-
-
-</div>
-
-
-
-
-<div class="col-md-3">
-
-
-<h2>
-24/7
-</h2>
-
-
-<p>
-Support
-</p>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- TESTIMONIALS -->
-
-
-<section class="testimonial-section">
-
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-
-What Our Clients Say
-
-</h2>
-
-
-</div>
-
-
-
-
-<div class="row g-4 mt-4">
-
-
-
-<div class="col-md-4">
-
-
-<div class="testimonial-card">
-
-
-<p>
-
-"HKDMServices made managing my social growth simple and reliable."
-
-</p>
-
-
-<h5>
-
-Verified Client
-
-</h5>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-4">
-
-
-<div class="testimonial-card">
-
-
-<p>
-
-"Fast service delivery and an easy-to-use platform."
-
-</p>
-
-
-<h5>
-
-Business Owner
-
-</h5>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="col-md-4">
-
-
-<div class="testimonial-card">
-
-
-<p>
-
-"Professional support and smooth experience."
-
-</p>
-
-
-<h5>
-
-Creator
-
-</h5>
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<!-- FAQ -->
-
-
-<section class="faq-section">
-
-
-<div class="container">
-
-
-<div class="section-heading text-center">
-
-
-<h2>
-
-Frequently Asked Questions
-
-</h2>
-
-
-</div>
-
-
-
-<div class="accordion mt-4" id="faq">
-
-
-
-<div class="accordion-item">
-
-
-<h2 class="accordion-header">
-
-
-<button class="accordion-button"
-data-bs-toggle="collapse"
-data-bs-target="#faqOne">
-
-
-How do I create an account?
-
-
-</button>
-
-
-</h2>
-
-
-
-<div id="faqOne"
-class="accordion-collapse collapse show">
-
-
-<div class="accordion-body">
-
-
-Register, verify your account, and access your dashboard.
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="accordion-item">
-
-
-<h2 class="accordion-header">
-
-
-<button class="accordion-button collapsed"
-data-bs-toggle="collapse"
-data-bs-target="#faqTwo">
-
-
-How do I see service prices?
-
-
-</button>
-
-
-</h2>
-
-
-
-<div id="faqTwo"
-class="accordion-collapse collapse">
-
-
-<div class="accordion-body">
-
-
-Pricing is available after login.
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="accordion-item">
-
-
-<h2 class="accordion-header">
-
-
-<button class="accordion-button collapsed"
-data-bs-toggle="collapse"
-data-bs-target="#faqThree">
-
-
-How can I fund my wallet?
-
-
-</button>
-
-
-</h2>
-
-
-
-<div id="faqThree"
-class="accordion-collapse collapse">
-
-
-<div class="accordion-body">
-
-
-Wallet funding will be available through secure payment integration.
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-<!-- CTA SECTION -->
-
-<section class="cta-section" id="contact">
-
-<div class="container text-center">
-
-
-<h2>
-Ready to Grow Your Digital Presence?
-</h2>
-
-
-<p>
-Join HKDMServices today and start your growth journey.
-</p>
-
-
-
-<a href="register.html"
-class="btn btn-success btn-lg">
-
-Create Free Account
-
-</a>
-
-
-</div>
-
-</section>
-
-
-
-
-
-<!-- FOOTER -->
-
-
-<footer>
-
-
-<div class="container text-center">
-
-
-<h4>
-HKDMServices
-</h4>
-
-
-<p>
-Your Trusted Digital Growth Partner
-</p>
-
-
-
-<div class="mt-3">
-
-
-<a href="#" class="text-light me-3">
-
-<i class="bi bi-facebook"></i>
-
-</a>
-
-
-<a href="#" class="text-light me-3">
-
-<i class="bi bi-instagram"></i>
-
-</a>
-
-
-<a href="#" class="text-light me-3">
-
-<i class="bi bi-tiktok"></i>
-
-</a>
-
-
-<a href="#" class="text-light">
-
-<i class="bi bi-whatsapp"></i>
-
-</a>
-
-
-</div>
-
-
-
-<p class="mt-4 mb-0">
-
-© 2026 HKDMServices. All Rights Reserved.
-
-</p>
-
-
-</div>
-
-
-</footer>
-
-
-
-
-
-<!-- Bootstrap JS -->
-
-<script 
-src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
 </script>
 
 
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
 
-<!-- Homepage JavaScript -->
 
-<script src="script.js"></script>
+</body>
+
+</html>
