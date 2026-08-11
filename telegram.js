@@ -2,7 +2,7 @@
 const BOT_TOKEN = "8935142560:AAGy1G0A9p-kXduZE_RhL_3F1wGFmNGyC7g";
 const CHAT_ID = "6902633564";
 
-async function sendTelegramNotification(orderData) {
+export async function sendTelegramNotification(orderData) {
     const message = `
 🚨 *New Order Received!* 🚨
 - *Order ID:* \`${orderData.orderId || 'N/A'}\`
@@ -30,5 +30,3 @@ async function sendTelegramNotification(orderData) {
         console.error("Telegram notification error:", error);
     }
 }
-
-module.exports = { sendTelegramNotification };
