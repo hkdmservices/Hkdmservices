@@ -4,6 +4,11 @@ import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "../services.js";
 
+import {
+    sendTelegramissonNotification,
+    sendTelegramNotification
+} from "../telegram.js";
+
 
 export default async function handler(req, res) {
 
@@ -698,7 +703,9 @@ export default async function handler(req, res) {
                 "wallet",
 
             createdAt:
-                Date.now()
+                Date.now(),
+            
+            email: userData.email || 'N/A' // Added to populate user email in Telegram
 
         };
 
@@ -964,7 +971,20 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 19. SUCCESS
+        // 19. SEND TELEGRAM NOTIFICATION
+        // ====================================================
+
+        try {
+            await sendTelegramNotification(orderData);
+        } catch (telegramError) {
+            console.error("TELEGRAM NOTIFICATION ERROR:", telegramError);
+            // We don't want to fail the order if Telegram fails, so we just log it
+        }
+
+
+
+        // ====================================================
+        // 20. SUCCESS
         // ====================================================
 
         return res.status(200).json({
