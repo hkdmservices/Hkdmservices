@@ -342,6 +342,13 @@ async function loadOrders(uid) {
                     order.orderId ||
                     "—";
 
+                // Check multiple possible key names to ensure the link displays safely
+                const targetLink =
+                    order.link ||
+                    order.targetLink ||
+                    order.url ||
+                    "";
+
 
                 html += `
 
@@ -391,8 +398,8 @@ async function loadOrders(uid) {
                         <td>
 
                             ${
-                                order.link
-                                    ? `<a href="${order.link}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 140px;" title="${order.link}">${order.link}</a>`
+                                targetLink
+                                    ? `<a href="${targetLink}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 150px;" title="${targetLink}">${targetLink}</a>`
                                     : "—"
                             }
 
