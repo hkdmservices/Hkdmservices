@@ -416,7 +416,7 @@ async function loadUsers() {
 async function loadOrders() {
     if (ordersMessage) ordersMessage.textContent = "Loading orders...";
     if (ordersTableBody) {
-        ordersTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>`;
+        ordersTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>`;
     }
 
     try {
@@ -438,7 +438,7 @@ async function loadOrders() {
         if (completedOrders) completedOrders.textContent = completed;
 
         if (orders.length === 0) {
-            if (ordersTableBody) ordersTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No orders found.</td></tr>`;
+            if (ordersTableBody) ordersTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No orders found.</td></tr>`;
             if (ordersMessage) ordersMessage.textContent = "No orders found.";
             return;
         }
@@ -453,6 +453,7 @@ async function loadOrders() {
             const userEmail = order?.email || order?.userEmail || "—";
             const platform = order?.platform || "—";
             const service = order?.service || order?.serviceName || order?.name || "—";
+            const link = order?.link || "";
             const quantity = Number(order?.quantity || 0);
             const amount = Number(order?.amount || 0);
             const status = String(order?.status || "pending").toLowerCase();
@@ -463,6 +464,13 @@ async function loadOrders() {
                     <td><code>${escapeHtml(String(orderId).slice(0, 14))}</code></td>
                     <td>${escapeHtml(userEmail)}</td>
                     <td><strong>${escapeHtml(platform)}</strong><br><small class="text-muted">${escapeHtml(service)}</small></td>
+                    <td>
+                        ${
+                            link
+                                ? `<a href="${escapeHtml(link)}" target="_blank" class="text-decoration-underline text-truncate d-inline-block" style="max-width: 140px;" title="${escapeHtml(link)}">${escapeHtml(link)}</a>`
+                                : "—"
+                        }
+                    </td>
                     <td>${quantity.toLocaleString("en-NG")}</td>
                     <td><strong>${formatNaira(amount)}</strong></td>
                     <td>${orderStatusSelect(id, status)}</td>
@@ -475,7 +483,7 @@ async function loadOrders() {
     } catch (error) {
         console.error("LOAD ORDERS ERROR:", error);
         if (ordersMessage) ordersMessage.textContent = "Unable to load orders.";
-        if (ordersTableBody) ordersTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Unable to load orders.</td></tr>`;
+        if (ordersTableBody) ordersTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Unable to load orders.</td></tr>`;
     }
 }
 
