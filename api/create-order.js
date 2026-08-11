@@ -5,9 +5,9 @@ import {
 } from "../services.js";
 
 import {
-    sendTelegramissonNotification,
     sendTelegramNotification
 } from "../telegram.js";
+
 
 
 export default async function handler(req, res) {
