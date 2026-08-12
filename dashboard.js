@@ -1,336 +1,1037 @@
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-};
+import {
+    auth,
+    database
+} from "./firebase.js";
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    ref,
+    get
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const userName =
+    document.getElementById("userName");
+
+const walletBalance =
+    document.getElementById("walletBalance");
+
+const ordersCount =
+    document.getElementById("ordersCount");
+
+const recentOrders =
+    document.getElementById("recentOrders");
+
+const logoutBtn =
+    document.getElementById("logout");
+
+const redeemVoucherForm =
+    document.getElementById("redeemVoucherForm");
+
+const redeemCodeInput =
+    document.getElementById("redeemCodeInput");
+
+const redeemMsg =
+    document.getElementById("redeemMsg");
+
+const referralLinkInput =
+    document.getElementById("referralLinkInput");
+
+const copyRefBtn =
+    document.getElementById("copyRefBtn");
+
+const totalReferralsEl =
+    document.getElementById("totalReferrals");
+
+const totalEarningsEl =
+    document.getElementById("totalEarnings");
+
+
+
+/* =========================================================
+   FORMAT NAIRA
+========================================================= */
+
+function formatNaira(amount) {
+
+    return "₦" +
+        Number(amount || 0).toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
 }
 
-const auth = firebase.auth();
-const db = firebase.database();
 
-function showNotification(message, type = 'success') {
-    const container = document.getElementById('notification-container');
-    if (!container) return;
 
-    const notif = document.createElement('div');
-    notif.className = `notification ${type}`;
-    notif.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
-    
-    container.appendChild(notif);
-    setTimeout(() => {
-        notif.style.opacity = '0';
-        setTimeout(() => notif.remove(), 300);
-    }, 4000);
-}
+/* =========================================================
+   FORMAT DATE
+========================================================= */
 
-function switchTab(tabName) {
-    document.querySelectorAll('.dashboard-section').forEach(el => el.classList.remove('active-section'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+function formatDate(timestamp) {
 
-    const target = document.getElementById(`section-${tabName}`);
-    if (target) target.classList.add('active-section');
+    if (!timestamp) {
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        if (btn.getAttribute('onclick')?.includes(`'${tabName}'`)) {
-            btn.classList.add('active');
+        return "—";
+
+    }
+
+
+    return new Date(timestamp).toLocaleString(
+        "en-NG",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
         }
-    });
+    );
+
 }
 
-// Authentication & Core Data Sync Loader
-auth.onAuthStateChanged(user => {
-    if (user) {
-        loadUserData(user.uid);
-        loadUserOrders(user.uid);
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+function statusBadge(status) {
+
+    const safeStatus =
+        String(
+            status || "pending"
+        ).toLowerCase()
+         .trim();
+
+    let badgeClass = "bg-warning text-dark";
+    let displayText = "Refunded";
+
+    if (safeStatus === "refund" || safeStatus === "refunded") {
+        badgeClass = "bg-warning text-dark";
+        displayText = "Refunded";
+    } else if (safeStatus === "pending") {
+        badgeClass = "bg-warning text-dark";
+        displayText = "Pending";
+    } else if (safeStatus === "processing") {
+        badgeClass = "bg-info text-dark";
+        displayText = "Processing";
+    } else if (safeStatus === "completed") {
+        badgeClass = "bg-success";
+        displayText = "Completed";
+    } else if (safeStatus === "cancelled" || safeStatus === "failed") {
+        badgeClass = "bg-danger";
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     } else {
-        window.location.href = "login.html";
+        badgeClass = "bg-warning text-dark";
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
-});
 
-async function loadUserData(userId) {
-    try {
-        const userSnap = await db.ref(`users/${userId}`).once('value');
-        const data = userSnap.val() || {};
+    return `
+        <span class="badge ${badgeClass}">
+            ${displayText}
+        </span>
+    `;
 
-        const wallet = Number(data.wallet || 0);
-        const spent = Number(data.totalSpent || 0);
-        const funded = Number(data.totalFunded || 0);
-
-        document.getElementById('metric-wallet').innerText = `₦${wallet.toLocaleString()}`;
-        document.getElementById('metric-spent').innerText = `₦${spent.toLocaleString()}`;
-        document.getElementById('metric-funded').innerText = `₦${funded.toLocaleString()}`;
-
-        // Set referral link
-        const refInput = document.getElementById('referral-link-input');
-        if (refInput) refInput.value = `https://hkdmservices.xyz/register?ref=${userId}`;
-
-        // Check and render User Tiers & Upgrade buttons
-        checkUserTierAndStatus(userId, spent, funded);
-
-    } catch (err) {
-        console.error("Error loading user profile data:", err);
-    }
 }
 
-// Check and Render Tier Status & Dynamic Upgrade Buttons
-async function checkUserTierAndStatus(userId, userTotalSpent, userTotalFunded) {
+
+
+/* =========================================================
+   LOAD USER INFORMATION
+========================================================= */
+
+async function loadUserInformation(user) {
+
     try {
-        const userSnap = await db.ref(`users/${userId}`).once('value');
-        const userData = userSnap.val() || {};
-        const currentTier = userData.tier || 'regular';
 
-        const badgeEl = document.getElementById('user-current-tier-badge');
-        if (badgeEl) {
-            badgeEl.className = `badge badge-${currentTier}`;
-            badgeEl.innerText = currentTier.toUpperCase();
-        }
+        const userRef =
+            ref(
+                database,
+                "users/" + user.uid
+            );
 
-        const actionContainer = document.getElementById('tier-action-container');
-        if (!actionContainer) return;
 
-        if (currentTier === 'reseller') {
-            actionContainer.innerHTML = `<p style="font-size: 0.75rem; color: #818cf8; margin-top: 5px;"><i class="fas fa-crown"></i> Max Tier Unlocked</p>`;
+        const snapshot =
+            await get(userRef);
+
+
+        if (!snapshot.exists()) {
+
+            console.warn(
+                "USER DATA NOT FOUND"
+            );
+
+
+            if (userName) {
+
+                userName.textContent =
+                    user.displayName ||
+                    "User";
+
+            }
+
+
             return;
+
         }
 
-        // Check if there is already a pending request
-        const reqSnap = await db.ref('tierRequests').orderByChild('userId').equalTo(userId).once('value');
-        let hasPending = false;
-        if (reqSnap.exists()) {
-            reqSnap.forEach(child => {
-                if (child.val().status === 'pending') hasPending = true;
-            });
+
+        const data =
+            snapshot.val();
+
+
+        if (userName) {
+
+            userName.textContent =
+                data.fullName ||
+                user.displayName ||
+                "User";
+
         }
 
-        if (hasPending) {
-            actionContainer.innerHTML = `<span style="font-size: 0.75rem; color: var(--warning); display:block; margin-top:5px;"><i class="fas fa-clock"></i> Upgrade Pending Review</span>`;
-            return;
+
+        /*
+            UPDATE WALLET ONLY WHEN
+            REAL USER DATA EXISTS
+        */
+
+        if (walletBalance) {
+
+            walletBalance.textContent =
+                formatNaira(
+                    data.wallet
+                );
+
         }
 
-        let html = '';
-        if (currentTier === 'regular') {
-            if (userTotalFunded >= 100000) {
-                html += `<button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single funding of ₦100k+ met')">Request Reseller</button>`;
-            }
-            if (userTotalSpent >= 60000) {
-                html += `<button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
-            }
-            if (html === '') {
-                html = `<p style="font-size: 0.7rem; color: var(--text-muted); margin-top:5px;">Spend ₦60k (VIP) or fund ₦100k (Reseller) to unlock.</p>`;
-            }
-        } else if (currentTier === 'vip') {
-            if (userTotalFunded >= 100000) {
-                html += `<button class="btn btn-primary btn-sm" style="margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single funding of ₦100k+ met')">Upgrade to Reseller</button>`;
-            } else {
-                html = `<p style="font-size: 0.7rem; color: var(--text-muted); margin-top:5px;">Fund ₦100k+ for Reseller status.</p>`;
-            }
+
+    } catch (error) {
+
+        console.error(
+            "USER DATA ERROR:",
+            error
+        );
+
+
+        if (userName) {
+
+            userName.textContent =
+                user.displayName ||
+                "User";
+
         }
 
-        actionContainer.innerHTML = html;
-
-    } catch (err) {
-        console.error("Error evaluating user tier:", err);
     }
+
 }
 
-async function requestTierUpgrade(userId, requestedTier, details) {
-    if (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) return;
+
+
+/* =========================================================
+   LOAD REFERRAL INFORMATION (CUSTOM XYZ DOMAIN)
+========================================================= */
+
+async function loadReferralInformation(uid) {
 
     try {
-        const userAuth = auth.currentUser;
-        const newReqRef = db.ref('tierRequests').push();
-        
-        await newReqRef.set({
-            userId: userId,
-            userEmail: userAuth ? userAuth.email : 'Unknown',
-            currentTier: document.getElementById('user-current-tier-badge')?.innerText.toLowerCase() || 'regular',
-            requestedTier: requestedTier,
-            details: details,
-            status: 'pending',
-            timestamp: Date.now()
+
+        const userRef =
+            ref(
+                database,
+                "users/" + uid
+            );
+
+        const snapshot =
+            await get(userRef);
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+            const refCode =
+                data.referralCode || uid;
+
+            if (referralLinkInput) {
+                referralLinkInput.value =
+                    `https://hkdmservices.xyz/register.html?ref=${refCode}`;
+            }
+
+            if (totalReferralsEl) {
+                totalReferralsEl.textContent =
+                    data.totalReferrals || 0;
+            }
+
+            if (totalEarningsEl) {
+                totalEarningsEl.textContent =
+                    formatNaira(data.totalReferralEarnings || 0);
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "REFERRAL DATA ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   COPY REFERRAL LINK
+========================================================= */
+
+if (copyRefBtn && referralLinkInput) {
+
+    copyRefBtn.addEventListener("click", () => {
+
+        if (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
+
+        navigator.clipboard.writeText(referralLinkInput.value).then(() => {
+            copyRefBtn.textContent = "Copied!";
+            copyRefBtn.classList.remove("btn-success");
+            copyRefBtn.classList.add("btn-dark");
+
+            setTimeout(() => {
+                copyRefBtn.textContent = "Copy Link";
+                copyRefBtn.classList.remove("btn-dark");
+                copyRefBtn.classList.add("btn-success");
+            }, 2000);
         });
 
-        showNotification("Tier upgrade request submitted successfully!", "success");
-        setTimeout(() => location.reload(), 1500);
-    } catch (err) {
-        console.error("Error submitting upgrade request:", err);
-        showNotification("Failed to submit request.", "error");
-    }
+    });
+
 }
 
-async function loadUserOrders(userId) {
-    const tbody = document.getElementById('user-orders-table-body');
-    if (!tbody) return;
+
+
+/* =========================================================
+   LOAD ORDERS
+========================================================= */
+
+async function loadRecentOrders(uid) {
 
     try {
-        const snapshot = await db.ref('orders').orderByChild('userId').equalTo(userId).once('value');
-        const orders = snapshot.val();
-        tbody.innerHTML = '';
 
-        if (!orders) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center">No orders found.</td></tr>`;
+        const ordersRef =
+            ref(
+                database,
+                "orders"
+            );
+
+
+        const snapshot =
+            await get(
+                ordersRef
+            );
+
+
+        if (!snapshot.exists()) {
+
+            if (ordersCount) {
+
+                ordersCount.textContent =
+                    "0";
+
+            }
+
+
+            if (recentOrders) {
+
+                recentOrders.innerHTML = `
+
+                    <div
+                        class="text-center
+                        text-muted
+                        py-4"
+                    >
+
+                        <i
+                            class="bi bi-cart-x fs-2"
+                        ></i>
+
+                        <p class="mt-2 mb-0">
+
+                            You have not placed
+                            any orders yet.
+
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
             return;
+
         }
 
-        Object.keys(orders).forEach(orderId => {
-            const order = orders[orderId];
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${orderId.substring(0, 8)}...</td>
-                <td>${order.serviceName || 'Custom Service'}</td>
-                <td>${order.quantity || 1}</td>
-                <td>₦${Number(order.charge || 0).toLocaleString()}</td>
-                <td><span class="badge badge-${order.status === 'completed' ? 'success' : 'regular'}">${order.status || 'pending'}</span></td>
-                <td>${new Date(order.date || Date.now()).toLocaleDateString()}</td>
+
+        const orders =
+            snapshot.val();
+
+
+        const userOrders =
+            Object.values(
+                orders
+            )
+
+            .filter(
+                order =>
+                    order &&
+                    String(order.uid) ===
+                    String(uid)
+            )
+
+            .sort(
+                (a, b) =>
+                    Number(
+                        b.createdAt || 0
+                    ) -
+                    Number(
+                        a.createdAt || 0
+                    )
+            );
+
+
+        if (ordersCount) {
+
+            ordersCount.textContent =
+                String(
+                    userOrders.length
+                );
+
+        }
+
+
+        if (
+            userOrders.length === 0
+        ) {
+
+            if (recentOrders) {
+
+                recentOrders.innerHTML = `
+
+                    <div
+                        class="text-center
+                        text-muted
+                        py-4"
+                    >
+
+                        <i
+                            class="bi bi-cart-x fs-2"
+                        ></i>
+
+                        <p class="mt-2 mb-0">
+
+                            You have not placed
+                            any orders yet.
+
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (!recentOrders) {
+
+            return;
+
+        }
+
+
+        const latestOrders =
+            userOrders.slice(
+                0,
+                5
+            );
+
+
+        let desktopHtml = `
+
+            <div class="d-none d-md-block">
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table table-hover
+                        align-middle mb-0"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Order ID
+                                </th>
+
+                                <th>
+                                    Service
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+        `;
+
+
+        latestOrders.forEach(
+            order => {
+
+                const shortOrderId =
+                    String(
+                        order.orderId || ""
+                    ).slice(
+                        0,
+                        10
+                    );
+
+
+                desktopHtml += `
+
+                    <tr>
+
+                        <td>
+
+                            <code>
+                                ${shortOrderId}
+                            </code>
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                ${order.platform || "—"}
+
+                            </strong>
+
+                            <br>
+
+                            <small
+                                class="text-muted"
+                            >
+
+                                ${order.service || "—"}
+
+                            </small>
+
+                        </td>
+
+
+                        <td>
+
+                            ${Number(
+                                order.quantity || 0
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+
+                                ${formatNaira(
+                                    order.amount
+                                )}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge(
+                                order.status
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <small>
+
+                                ${formatDate(
+                                    order.createdAt
+                                )}
+
+                            </small>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        desktopHtml += `
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        let mobileHtml = `
+
+            <div class="d-md-none">
+
+        `;
+
+
+        latestOrders.forEach(
+            order => {
+
+                const shortOrderId =
+                    String(
+                        order.orderId || ""
+                    ).slice(
+                        0,
+                        12
+                    );
+
+
+                mobileHtml += `
+
+                    <div
+                        class="card border
+                        shadow-sm mb-3"
+                    >
+
+                        <div
+                            class="card-body"
+                        >
+
+
+                            <div
+                                class="d-flex
+                                justify-content-between
+                                align-items-start
+                                mb-3"
+                            >
+
+                                <div>
+
+                                    <small
+                                        class="text-muted"
+                                    >
+
+                                        Order ID
+
+                                    </small>
+
+                                    <div>
+
+                                        <code>
+
+                                            ${shortOrderId}
+
+                                        </code>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div>
+
+                                    ${statusBadge(
+                                        order.status
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Service
+
+                                </small>
+
+                                <div
+                                    class="fw-bold"
+                                >
+
+                                    ${order.platform || "—"}
+
+                                </div>
+
+                                <div
+                                    class="text-muted"
+                                >
+
+                                    ${order.service || "—"}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Quantity
+
+                                </small>
+
+                                <div
+                                    class="fw-bold"
+                                >
+
+                                    ${Number(
+                                        order.quantity || 0
+                                    ).toLocaleString(
+                                        "en-NG"
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="mb-3">
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Amount
+
+                                </small>
+
+                                <div
+                                    class="fw-bold
+                                    text-success"
+                                >
+
+                                    ${formatNaira(
+                                        order.amount
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div>
+
+                                <small
+                                    class="text-muted"
+                                >
+
+                                    Date
+
+                                </small>
+
+                                <div>
+
+                                    ${formatDate(
+                                        order.createdAt
+                                    )}
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        mobileHtml += `
+
+            </div>
+
+        `;
+
+
+        recentOrders.innerHTML =
+            desktopHtml +
+            mobileHtml;
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "ORDERS ERROR:",
+            error
+        );
+
+
+        if (recentOrders) {
+
+            recentOrders.innerHTML = `
+
+                <div
+                    class="alert
+                    alert-warning
+                    mb-0"
+                >
+
+                    <i
+                        class="bi bi-wifi-off"
+                    ></i>
+
+                    Recent orders could not
+                    be loaded right now.
+
+                    Please refresh the page.
+
+                </div>
+
             `;
-            tbody.appendChild(row);
-        });
-    } catch (err) {
-        console.error("Error loading orders:", err);
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Failed to load orders.</td></tr>`;
-    }
-}
 
-function updateServicesDropdown() {
-    const category = document.getElementById('order-category').value;
-    const serviceSelect = document.getElementById('order-service');
-    serviceSelect.innerHTML = '<option value="">Loading services...</option>';
-
-    db.ref('services').orderByChild('platform').equalTo(category).once('value').then(snapshot => {
-        const services = snapshot.val();
-        serviceSelect.innerHTML = '';
-
-        if (!services) {
-            serviceSelect.innerHTML = '<option value="">No services available for this category</option>';
-            return;
         }
 
-        Object.keys(services).forEach(sId => {
-            const s = services[sId];
-            const opt = document.createElement('option');
-            opt.value = sId;
-            opt.innerText = `${s.name} — ₦${Number(s.rate || 0).toLocaleString()} per 1k`;
-            serviceSelect.appendChild(opt);
-        });
-    }).catch(err => {
-        console.error("Error fetching services:", err);
-        serviceSelect.innerHTML = '<option value="">Error loading services</option>';
+    }
+
+}
+
+
+
+/* =========================================================
+   REDEEM VOUCHER FUNCTIONALITY (SECURE API)
+========================================================= */
+
+if (redeemVoucherForm) {
+    redeemVoucherForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!redeemCodeInput) return;
+        
+        const voucherCode = redeemCodeInput.value.trim();
+        if (!voucherCode) return;
+
+        if (redeemMsg) {
+            redeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
+        }
+
+        try {
+            if (!auth.currentUser) {
+                throw new Error("You must be logged in to redeem a voucher.");
+            }
+
+            const idToken = await auth.currentUser.getIdToken(true);
+
+            const response = await fetch('/api/redeem-voucher', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ voucherCode })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Failed to redeem voucher.");
+            }
+
+            if (redeemMsg) {
+                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            }
+            redeemVoucherForm.reset();
+            
+            await loadUserInformation(auth.currentUser);
+        } catch (error) {
+            console.error("REDEEM VOUCHER ERROR:", error);
+            if (redeemMsg) {
+                redeemMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            }
+        }
     });
 }
 
-async function submitOrder(e) {
-    e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) return;
 
-    const serviceId = document.getElementById('order-service').value;
-    const link = document.getElementById('order-link').value;
-    const quantity = parseInt(document.getElementById('order-quantity').value);
 
-    if (!serviceId || !link || isNaN(quantity)) {
-        showNotification("Please fill in all order fields correctly.", "error");
-        return;
-    }
+/* =========================================================
+   WHATSAPP SUPPORT FORM FUNCTIONALITY
+========================================================= */
 
-    try {
-        const serviceSnap = await db.ref(`services/${serviceId}`).once('value');
-        const service = serviceSnap.val();
-        if (!service) {
-            showNotification("Selected service not found.", "error");
-            return;
-        }
+const whatsappSupportForm = document.getElementById("whatsappSupportForm");
 
-        const totalCharge = (service.rate / 1000) * quantity;
-        const userRef = db.ref(`users/${user.uid}`);
-        const userSnap = await userRef.once('value');
-        const userData = userSnap.val() || {};
-        const currentWallet = Number(userData.wallet || 0);
+if (whatsappSupportForm) {
+    whatsappSupportForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-        if (currentWallet < totalCharge) {
-            showNotification("Insufficient wallet balance. Please fund your account.", "error");
-            return;
-        }
+        const subjectInput = document.getElementById("waSubject");
+        const messageInput = document.getElementById("waMessage");
 
-        const updates = {};
-        updates[`users/${user.uid}/wallet`] = currentWallet - totalCharge;
-        updates[`users/${user.uid}/totalSpent`] = Number(userData.totalSpent || 0) + totalCharge;
+        if (!subjectInput || !messageInput) return;
 
-        const newOrderRef = db.ref('orders').push();
-        updates[`orders/${newOrderRef.key}`] = {
-            userId: user.uid,
-            userEmail: user.email,
-            serviceName: service.name,
-            link: link,
-            quantity: quantity,
-            charge: totalCharge,
-            status: 'pending',
-            date: Date.now()
-        };
+        const subject = subjectInput.value.trim();
+        const message = messageInput.value.trim();
 
-        await db.ref().update(updates);
-        showNotification("Order placed successfully!", "success");
-        document.getElementById('order-form').reset();
-        loadUserData(user.uid);
-        loadUserOrders(user.uid);
-    } catch (err) {
-        console.error("Order submission error:", err);
-        showNotification("Failed to place order.", "error");
-    }
+        if (!subject || !message) return;
+
+        const currentUser = auth.currentUser;
+        const userEmail = currentUser ? currentUser.email : "Guest User";
+        const phoneNumber = "18253635037";
+
+        const text = `*New Support Message*%0A` +
+                     `*From:* ${userEmail}%0A` +
+                     `*Subject:* ${subject}%0A` +
+                     `*Message:* ${message}`;
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
+        window.open(whatsappUrl, '_blank');
+
+        whatsappSupportForm.reset();
+    });
 }
 
-async function redeemVoucher(e) {
-    e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) return;
 
-    const code = document.getElementById('voucher-code-input').value.trim();
-    if (!code) return;
 
-    try {
-        const vRef = db.ref(`vouchers/${code}`);
-        const snap = await vRef.once('value');
-        const voucher = snap.val();
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
 
-        if (!voucher || voucher.status === 'used') {
-            showNotification("Invalid or already used voucher code.", "error");
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
             return;
+
         }
 
-        const amount = Number(voucher.amount || 0);
-        const userRef = db.ref(`users/${user.uid}`);
-        const userSnap = await userRef.once('value');
-        const userData = userSnap.val() || {};
+        await Promise.allSettled([
 
-        const updates = {};
-        updates[`vouchers/${code}/status`] = 'used';
-        updates[`users/${user.uid}/wallet`] = Number(userData.wallet || 0) + amount;
-        updates[`users/${user.uid}/totalFunded`] = Number(userData.totalFunded || 0) + amount;
+            loadUserInformation(
+                user
+            ),
 
-        const txRef = db.ref('transactions').push();
-        updates[`transactions/${txRef.key}`] = {
-            userId: user.uid,
-            amount: amount,
-            type: 'voucher_redemption',
-            date: Date.now()
-        };
+            loadRecentOrders(
+                user.uid
+            ),
 
-        await db.ref().update(updates);
-        showNotification(`Voucher redeemed successfully! ₦${amount.toLocaleString()} added.`, "success");
-        document.getElementById('voucher-code-input').value = '';
-        loadUserData(user.uid);
-    } catch (err) {
-        console.error("Voucher redemption error:", err);
-        showNotification("Failed to redeem voucher.", "error");
+            loadReferralInformation(
+                user.uid
+            )
+
+        ]);
+
     }
-}
+);
 
-function copyReferralLink() {
-    const input = document.getElementById('referral-link-input');
-    input.select();
-    navigator.clipboard.writeText(input.value);
-    showNotification("Referral link copied to clipboard!", "success");
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await signOut(
+                    auth
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "LOGOUT ERROR:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
 }
