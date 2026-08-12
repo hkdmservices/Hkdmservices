@@ -446,12 +446,14 @@ rel="stylesheet">
 
 
     <!-- =================================================
-         REDEEM VOUCHER SECTION (VISIBLE ON MAIN DASHBOARD)
+         REDEEM VOUCHER & CONTACT US SECTIONS
     ================================================= -->
 
-    <div class="row mt-4">
+    <div class="row mt-4 g-4">
+        
+        <!-- Redeem Voucher Column -->
         <div class="col-12 col-md-6">
-            <div class="card p-4 shadow">
+            <div class="card p-4 shadow h-100">
                 <h4 class="mb-3">
                     <i class="bi bi-ticket-perforated text-success"></i> Redeem Voucher
                 </h4>
@@ -473,6 +475,41 @@ rel="stylesheet">
                 <div id="redeemMsg" class="mt-3"></div>
             </div>
         </div>
+
+        <!-- Contact Us via WhatsApp Column -->
+        <div class="col-12 col-md-6">
+            <div class="card p-4 shadow h-100">
+                <h4 class="mb-3">
+                    <i class="bi bi-whatsapp text-success"></i> Contact Us via WhatsApp
+                </h4>
+                <form id="whatsappSupportForm">
+                    <div class="mb-3">
+                        <label for="waSubject" class="form-label">Subject</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="waSubject" 
+                            placeholder="e.g., Issue with order" 
+                            required
+                        >
+                    </div>
+                    <div class="mb-3">
+                        <label for="waMessage" class="form-label">Message</label>
+                        <textarea 
+                            class="form-control" 
+                            id="waMessage" 
+                            rows="3" 
+                            placeholder="Describe your issue..." 
+                            required
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-chat-dots"></i> Chat on WhatsApp
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
 
@@ -648,7 +685,7 @@ document.addEventListener(
                     );
 
 
-                    dashboardPanel.setAttribute(
+                    toggleButton.setAttribute(
                         "aria-hidden",
                         "true"
                     );
