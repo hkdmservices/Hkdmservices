@@ -974,20 +974,27 @@ async function evaluateAndRenderUserTier(userId) {
         const userRef = ref(database, `users/${userId}`);
         const userSnap = await get(userRef);
         const userData = userSnap.val() || {};
-        const currentTier = userData.tier || 'regular';
+        const currentTier = (userData.tier || 'regular').toLowerCase();
         const totalSpent = Number(userData.totalSpent || 0);
 
         const badgeEl = document.getElementById('user-current-tier-badge');
         if (badgeEl) {
-            badgeEl.className = `badge badge-${currentTier}`;
             badgeEl.innerText = currentTier.toUpperCase();
+            badgeEl.className = "badge ";
+            if (currentTier === 'reseller') {
+                badgeEl.classList.add('bg-danger');
+            } else if (currentTier === 'vip') {
+                badgeEl.classList.add('bg-success');
+            } else {
+                badgeEl.classList.add('bg-secondary');
+            }
         }
 
         const actionContainer = document.getElementById('tier-action-container');
         if (!actionContainer) return;
 
         if (currentTier === 'reseller') {
-            actionContainer.innerHTML = `<span style="font-size: 0.7rem; color: #818cf8; display:block; margin-top:6px;"><i class="fas fa-crown"></i> Max Tier Unlocked</span>`;
+            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #198754; display:block;"><i class="bi bi-patch-check-fill"></i> Max Tier Unlocked</span>`;
             return;
         }
 
@@ -1006,7 +1013,7 @@ async function evaluateAndRenderUserTier(userId) {
         }
 
         if (hasPending) {
-            actionContainer.innerHTML = `<span style="font-size: 0.7rem; color: var(--warning); display:block; margin-top:6px;"><i class="fas fa-clock"></i> Upgrade Request Pending</span>`;
+            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> Upgrade Request Pending</span>`;
             return;
         }
 
@@ -1027,19 +1034,19 @@ async function evaluateAndRenderUserTier(userId) {
         let html = '';
         if (currentTier === 'regular') {
             if (hasQualifyingDeposit) {
-                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Request Reseller</button>`;
+                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Request Reseller</button>`;
             }
             if (totalSpent >= 60000) {
-                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
+                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
             }
             if (!hasQualifyingDeposit && totalSpent < 60000) {
-                html = `<p style="font-size: 0.65rem; color: var(--text-muted); margin-top:6px;">Spend ₦60k (VIP) or make a single ₦100k deposit (Reseller) to unlock.</p>`;
+                html = `<p class="text-muted small mb-0 mt-2">Spend ₦60k (VIP) or make a single ₦100k deposit (Reseller) to unlock.</p>`;
             }
         } else if (currentTier === 'vip') {
             if (hasQualifyingDeposit) {
-                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Upgrade to Reseller</button>`;
+                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Upgrade to Reseller</button>`;
             } else {
-                html = `<p style="font-size: 0.65rem; color: var(--text-muted); margin-top:6px;">Make a single deposit of ₦100k+ for Reseller status.</p>`;
+                html = `<p class="text-muted small mb-0 mt-2">Make a single deposit of ₦100k+ for Reseller status.</p>`;
             }
         }
 
