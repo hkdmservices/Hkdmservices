@@ -904,7 +904,14 @@ if (redeemVoucherForm) {
                 body: JSON.stringify({ voucherCode })
             });
 
-            const result = await response.json();
+            const textResponse = await response.text();
+            let result;
+            try {
+                result = JSON.parse(textResponse);
+            } catch (e) {
+                console.error("Non-JSON response received:", textResponse);
+                throw new Error("Server returned an invalid response format.");
+            }
 
             if (!response.ok || !result.success) {
                 throw new Error(result.message || "Failed to redeem voucher.");
@@ -1137,7 +1144,14 @@ if (confirmResellerPaymentBtn) {
                 body: JSON.stringify({ amount: 100000 })
             });
 
-            const result = await response.json();
+            const textResponse = await response.text();
+            let result;
+            try {
+                result = JSON.parse(textResponse);
+            } catch (e) {
+                console.error("Non-JSON response received:", textResponse);
+                throw new Error("Server returned an invalid response format.");
+            }
 
             if (!response.ok || !result.success) {
                 throw new Error(result.message || "Failed to process reseller upgrade.");
