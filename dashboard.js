@@ -1,18 +1,18 @@
-import {
-    auth,
-    database
+Import {
+    Auth,
+    Database
 } from "./firebase.js";
 
-import {
-    onAuthStateChanged,
-    signOut
+Import {
+    OnAuthStateChanged,
+    SignOut
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-import {
-    ref,
-    get,
-    push,
-    set
+Import {
+    Ref,
+    Get,
+    Push,
+    Set
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -21,41 +21,41 @@ import {
    ELEMENTS
 ========================================================= */
 
-const userName =
-    document.getElementById("userName");
+Const userName =
+    Document.getElementById("userName");
 
-const walletBalance =
-    document.getElementById("walletBalance");
+Const walletBalance =
+    Document.getElementById("walletBalance");
 
-const ordersCount =
-    document.getElementById("ordersCount");
+Const ordersCount =
+    Document.getElementById("ordersCount");
 
-const recentOrders =
-    document.getElementById("recentOrders");
+Const recentOrders =
+    Document.getElementById("recentOrders");
 
-const logoutBtn =
-    document.getElementById("logout");
+Const logoutBtn =
+    Document.getElementById("logout");
 
-const redeemVoucherForm =
-    document.getElementById("redeemVoucherForm");
+Const redeemVoucherForm =
+    Document.getElementById("redeemVoucherForm");
 
-const redeemCodeInput =
-    document.getElementById("redeemCodeInput");
+Const redeemCodeInput =
+    Document.getElementById("redeemCodeInput");
 
-const redeemMsg =
-    document.getElementById("redeemMsg");
+Const redeemMsg =
+    Document.getElementById("redeemMsg");
 
-const referralLinkInput =
-    document.getElementById("referralLinkInput");
+Const referralLinkInput =
+    Document.getElementById("referralLinkInput");
 
-const copyRefBtn =
-    document.getElementById("copyRefBtn");
+Const copyRefBtn =
+    Document.getElementById("copyRefBtn");
 
-const totalReferralsEl =
-    document.getElementById("totalReferrals");
+Const totalReferralsEl =
+    Document.getElementById("totalReferrals");
 
-const totalEarningsEl =
-    document.getElementById("totalEarnings");
+Const totalEarningsEl =
+    Document.getElementById("totalEarnings");
 
 
 
@@ -63,14 +63,14 @@ const totalEarningsEl =
    FORMAT NAIRA
 ========================================================= */
 
-function formatNaira(amount) {
+Function formatNaira(amount) {
 
-    return "₦" +
+    Return "₦" +
         Number(amount || 0).toLocaleString(
             "en-NG",
             {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                MinimumFractionDigits: 2,
+                MaximumFractionDigits: 2
             }
         );
 
@@ -82,20 +82,20 @@ function formatNaira(amount) {
    FORMAT DATE
 ========================================================= */
 
-function formatDate(timestamp) {
+Function formatDate(timestamp) {
 
-    if (!timestamp) {
+    If (!timestamp) {
 
-        return "—";
+        Return "—";
 
     }
 
 
-    return new Date(timestamp).toLocaleString(
+    Return new Date(timestamp).toLocaleString(
         "en-NG",
         {
-            dateStyle: "medium",
-            timeStyle: "short"
+            DateStyle: "medium",
+            TimeStyle: "short"
         }
     );
 
@@ -107,38 +107,38 @@ function formatDate(timestamp) {
    STATUS BADGE
 ========================================================= */
 
-function statusBadge(status) {
+Function statusBadge(status) {
 
-    const safeStatus =
+    Const safeStatus =
         String(
-            status || "pending"
+            Status || "pending"
         ).toLowerCase()
          .trim();
 
-    let badgeClass = "bg-warning text-dark";
-    let displayText = "Refunded";
+    Let badgeClass = "bg-warning text-dark";
+    Let displayText = "Refunded";
 
-    if (safeStatus === "refund" || safeStatus === "refunded") {
-        badgeClass = "bg-warning text-dark";
-        displayText = "Refunded";
+    If (safeStatus === "refund" || safeStatus === "refunded") {
+        BadgeClass = "bg-warning text-dark";
+        DisplayText = "Refunded";
     } else if (safeStatus === "pending") {
-        badgeClass = "bg-warning text-dark";
-        displayText = "Pending";
+        BadgeClass = "bg-warning text-dark";
+        DisplayText = "Pending";
     } else if (safeStatus === "processing") {
-        badgeClass = "bg-info text-dark";
-        displayText = "Processing";
+        BadgeClass = "bg-info text-dark";
+        DisplayText = "Processing";
     } else if (safeStatus === "completed") {
-        badgeClass = "bg-success";
-        displayText = "Completed";
+        BadgeClass = "bg-success";
+        DisplayText = "Completed";
     } else if (safeStatus === "cancelled" || safeStatus === "failed") {
-        badgeClass = "bg-danger";
-        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
+        BadgeClass = "bg-danger";
+        DisplayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     } else {
-        badgeClass = "bg-warning text-dark";
-        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
+        BadgeClass = "bg-warning text-dark";
+        DisplayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
 
-    return `
+    Return `
         <span class="badge ${badgeClass}">
             ${displayText}
         </span>
@@ -152,51 +152,51 @@ function statusBadge(status) {
    LOAD USER INFORMATION
 ========================================================= */
 
-async function loadUserInformation(user) {
+Async function loadUserInformation(user) {
 
-    try {
+    Try {
 
-        const userRef =
-            ref(
-                database,
+        Const userRef =
+            Ref(
+                Database,
                 "users/" + user.uid
             );
 
 
-        const snapshot =
-            await get(userRef);
+        Const snapshot =
+            Await get(userRef);
 
 
-        if (!snapshot.exists()) {
+        If (!snapshot.exists()) {
 
-            console.warn(
+            Console.warn(
                 "USER DATA NOT FOUND"
             );
 
 
-            if (userName) {
+            If (userName) {
 
-                userName.textContent =
-                    user.displayName ||
+                UserName.textContent =
+                    User.displayName ||
                     "User";
 
             }
 
 
-            return;
+            Return;
 
         }
 
 
-        const data =
-            snapshot.val();
+        Const data =
+            Snapshot.val();
 
 
-        if (userName) {
+        If (userName) {
 
-            userName.textContent =
-                data.fullName ||
-                user.displayName ||
+            UserName.textContent =
+                Data.fullName ||
+                User.displayName ||
                 "User";
 
         }
@@ -207,11 +207,11 @@ async function loadUserInformation(user) {
             REAL USER DATA EXISTS
         */
 
-        if (walletBalance) {
+        If (walletBalance) {
 
-            walletBalance.textContent =
-                formatNaira(
-                    data.wallet
+            WalletBalance.textContent =
+                FormatNaira(
+                    Data.wallet
                 );
 
         }
@@ -219,16 +219,16 @@ async function loadUserInformation(user) {
 
     } catch (error) {
 
-        console.error(
+        Console.error(
             "USER DATA ERROR:",
-            error
+            Error
         );
 
 
-        if (userName) {
+        If (userName) {
 
-            userName.textContent =
-                user.displayName ||
+            UserName.textContent =
+                User.displayName ||
                 "User";
 
         }
@@ -243,49 +243,49 @@ async function loadUserInformation(user) {
    LOAD REFERRAL INFORMATION (CUSTOM XYZ DOMAIN)
 ========================================================= */
 
-async function loadReferralInformation(uid) {
+Async function loadReferralInformation(uid) {
 
-    try {
+    Try {
 
-        const userRef =
-            ref(
-                database,
+        Const userRef =
+            Ref(
+                Database,
                 "users/" + uid
             );
 
-        const snapshot =
-            await get(userRef);
+        Const snapshot =
+            Await get(userRef);
 
-        if (snapshot.exists()) {
+        If (snapshot.exists()) {
 
-            const data =
-                snapshot.val();
+            Const data =
+                Snapshot.val();
 
-            const refCode =
-                data.referralCode || uid;
+            Const refCode =
+                Data.referralCode || uid;
 
-            if (referralLinkInput) {
-                referralLinkInput.value =
+            If (referralLinkInput) {
+                ReferralLinkInput.value =
                     `https://hkdmservices.xyz/register.html?ref=${refCode}`;
             }
 
-            if (totalReferralsEl) {
-                totalReferralsEl.textContent =
-                    data.totalReferrals || 0;
+            If (totalReferralsEl) {
+                TotalReferralsEl.textContent =
+                    Data.totalReferrals || 0;
             }
 
-            if (totalEarningsEl) {
-                totalEarningsEl.textContent =
-                    formatNaira(data.totalReferralEarnings || 0);
+            If (totalEarningsEl) {
+                TotalEarningsEl.textContent =
+                    FormatNaira(data.totalReferralEarnings || 0);
             }
 
         }
 
     } catch (error) {
 
-        console.error(
+        Console.error(
             "REFERRAL DATA ERROR:",
-            error
+            Error
         );
 
     }
@@ -298,21 +298,21 @@ async function loadReferralInformation(uid) {
    COPY REFERRAL LINK
 ========================================================= */
 
-if (copyRefBtn && referralLinkInput) {
+If (copyRefBtn && referralLinkInput) {
 
-    copyRefBtn.addEventListener("click", () => {
+    CopyRefBtn.addEventListener("click", () => {
 
-        if (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
+        If (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
 
-        navigator.clipboard.writeText(referralLinkInput.value).then(() => {
-            copyRefBtn.textContent = "Copied!";
-            copyRefBtn.classList.remove("btn-success");
-            copyRefBtn.classList.add("btn-dark");
+        Navigator.clipboard.writeText(referralLinkInput.value).then(() => {
+            CopyRefBtn.textContent = "Copied!";
+            CopyRefBtn.classList.remove("btn-success");
+            CopyRefBtn.classList.add("btn-dark");
 
-            setTimeout(() => {
-                copyRefBtn.textContent = "Copy Link";
-                copyRefBtn.classList.remove("btn-dark");
-                copyRefBtn.classList.add("btn-success");
+            SetTimeout(() => {
+                CopyRefBtn.textContent = "Copy Link";
+                CopyRefBtn.classList.remove("btn-dark");
+                CopyRefBtn.classList.add("btn-success");
             }, 2000);
         });
 
@@ -326,51 +326,51 @@ if (copyRefBtn && referralLinkInput) {
    LOAD ORDERS
 ========================================================= */
 
-async function loadRecentOrders(uid) {
+Async function loadRecentOrders(uid) {
 
-    try {
+    Try {
 
-        const ordersRef =
-            ref(
-                database,
+        Const ordersRef =
+            Ref(
+                Database,
                 "orders"
             );
 
 
-        const snapshot =
-            await get(
-                ordersRef
+        Const snapshot =
+            Await get(
+                OrdersRef
             );
 
 
-        if (!snapshot.exists()) {
+        If (!snapshot.exists()) {
 
-            if (ordersCount) {
+            If (ordersCount) {
 
-                ordersCount.textContent =
+                OrdersCount.textContent =
                     "0";
 
             }
 
 
-            if (recentOrders) {
+            If (recentOrders) {
 
-                recentOrders.innerHTML = `
+                RecentOrders.innerHTML = `
 
                     <div
-                        class="text-center
-                        text-muted
-                        py-4"
+                        Class="text-center
+                        Text-muted
+                        Py-4"
                     >
 
                         <i
-                            class="bi bi-cart-x fs-2"
+                            Class="bi bi-cart-x fs-2"
                         ></i>
 
                         <p class="mt-2 mb-0">
 
                             You have not placed
-                            any orders yet.
+                            Any orders yet.
 
                         </p>
 
@@ -381,23 +381,23 @@ async function loadRecentOrders(uid) {
             }
 
 
-            return;
+            Return;
 
         }
 
 
-        const orders =
-            snapshot.val();
+        Const orders =
+            Snapshot.val();
 
 
-        const userOrders =
+        Const userOrders =
             Object.values(
-                orders
+                Orders
             )
 
             .filter(
-                order =>
-                    order &&
+                Order =>
+                    Order &&
                     String(order.uid) ===
                     String(uid)
             )
@@ -405,46 +405,46 @@ async function loadRecentOrders(uid) {
             .sort(
                 (a, b) =>
                     Number(
-                        b.createdAt || 0
+                        B.createdAt || 0
                     ) -
                     Number(
-                        a.createdAt || 0
+                        A.createdAt || 0
                     )
             );
 
 
-        if (ordersCount) {
+        If (ordersCount) {
 
-            ordersCount.textContent =
+            OrdersCount.textContent =
                 String(
-                    userOrders.length
+                    UserOrders.length
                 );
 
         }
 
 
-        if (
-            userOrders.length === 0
+        If (
+            UserOrders.length === 0
         ) {
 
-            if (recentOrders) {
+            If (recentOrders) {
 
-                recentOrders.innerHTML = `
+                RecentOrders.innerHTML = `
 
                     <div
-                        class="text-center
-                        text-muted
-                        py-4"
+                        Class="text-center
+                        Text-muted
+                        Py-4"
                     >
 
                         <i
-                            class="bi bi-cart-x fs-2"
+                            Class="bi bi-cart-x fs-2"
                         ></i>
 
                         <p class="mt-2 mb-0">
 
                             You have not placed
-                            any orders yet.
+                            Any orders yet.
 
                         </p>
 
@@ -455,34 +455,34 @@ async function loadRecentOrders(uid) {
             }
 
 
-            return;
+            Return;
 
         }
 
 
-        if (!recentOrders) {
+        If (!recentOrders) {
 
-            return;
+            Return;
 
         }
 
 
-        const latestOrders =
-            userOrders.slice(
+        Const latestOrders =
+            UserOrders.slice(
                 0,
                 5
             );
 
 
-        let desktopHtml = `
+        Let desktopHtml = `
 
             <div class="d-none d-md-block">
 
                 <div class="table-responsive">
 
                     <table
-                        class="table table-hover
-                        align-middle mb-0"
+                        Class="table table-hover
+                        Align-middle mb-0"
                     >
 
                         <thead>
@@ -522,19 +522,19 @@ async function loadRecentOrders(uid) {
         `;
 
 
-        latestOrders.forEach(
-            order => {
+        LatestOrders.forEach(
+            Order => {
 
-                const shortOrderId =
+                Const shortOrderId =
                     String(
-                        order.orderId || ""
+                        Order.orderId || ""
                     ).slice(
                         0,
                         10
                     );
 
 
-                desktopHtml += `
+                DesktopHtml += `
 
                     <tr>
 
@@ -558,7 +558,7 @@ async function loadRecentOrders(uid) {
                             <br>
 
                             <small
-                                class="text-muted"
+                                Class="text-muted"
                             >
 
                                 ${order.service || "—"}
@@ -571,7 +571,7 @@ async function loadRecentOrders(uid) {
                         <td>
 
                             ${Number(
-                                order.quantity || 0
+                                Order.quantity || 0
                             ).toLocaleString(
                                 "en-NG"
                             )}
@@ -584,7 +584,7 @@ async function loadRecentOrders(uid) {
                             <strong>
 
                                 ${formatNaira(
-                                    order.amount
+                                    Order.amount
                                 )}
 
                             </strong>
@@ -595,7 +595,7 @@ async function loadRecentOrders(uid) {
                         <td>
 
                             ${statusBadge(
-                                order.status
+                                Order.status
                             )}
 
                         </td>
@@ -606,7 +606,7 @@ async function loadRecentOrders(uid) {
                             <small>
 
                                 ${formatDate(
-                                    order.createdAt
+                                    Order.createdAt
                                 )}
 
                             </small>
@@ -621,7 +621,7 @@ async function loadRecentOrders(uid) {
         );
 
 
-        desktopHtml += `
+        DesktopHtml += `
 
                         </tbody>
 
@@ -634,48 +634,48 @@ async function loadRecentOrders(uid) {
         `;
 
 
-        let mobileHtml = `
+        Let mobileHtml = `
 
             <div class="d-md-none">
 
         `;
 
 
-        latestOrders.forEach(
-            order => {
+        LatestOrders.forEach(
+            Order => {
 
-                const shortOrderId =
+                Const shortOrderId =
                     String(
-                        order.orderId || ""
+                        Order.orderId || ""
                     ).slice(
                         0,
                         12
                     );
 
 
-                mobileHtml += `
+                MobileHtml += `
 
                     <div
-                        class="card border
-                        shadow-sm mb-3"
+                        Class="card border
+                        Shadow-sm mb-3"
                     >
 
                         <div
-                            class="card-body"
+                            Class="card-body"
                         >
 
 
                             <div
-                                class="d-flex
-                                justify-content-between
-                                align-items-start
-                                mb-3"
+                                Class="d-flex
+                                Justify-content-between
+                                Align-items-start
+                                Mb-3"
                             >
 
                                 <div>
 
                                     <small
-                                        class="text-muted"
+                                        Class="text-muted"
                                     >
 
                                         Order ID
@@ -698,7 +698,7 @@ async function loadRecentOrders(uid) {
                                 <div>
 
                                     ${statusBadge(
-                                        order.status
+                                        Order.status
                                     )}
 
                                 </div>
@@ -710,7 +710,7 @@ async function loadRecentOrders(uid) {
                             <div class="mb-3">
 
                                 <small
-                                    class="text-muted"
+                                    Class="text-muted"
                                 >
 
                                     Service
@@ -718,7 +718,7 @@ async function loadRecentOrders(uid) {
                                 </small>
 
                                 <div
-                                    class="fw-bold"
+                                    Class="fw-bold"
                                 >
 
                                     ${order.platform || "—"}
@@ -726,7 +726,7 @@ async function loadRecentOrders(uid) {
                                 </div>
 
                                 <div
-                                    class="text-muted"
+                                    Class="text-muted"
                                 >
 
                                     ${order.service || "—"}
@@ -740,7 +740,7 @@ async function loadRecentOrders(uid) {
                             <div class="mb-3">
 
                                 <small
-                                    class="text-muted"
+                                    Class="text-muted"
                                 >
 
                                     Quantity
@@ -748,11 +748,11 @@ async function loadRecentOrders(uid) {
                                 </small>
 
                                 <div
-                                    class="fw-bold"
+                                    Class="fw-bold"
                                 >
 
                                     ${Number(
-                                        order.quantity || 0
+                                        Order.quantity || 0
                                     ).toLocaleString(
                                         "en-NG"
                                     )}
@@ -766,7 +766,7 @@ async function loadRecentOrders(uid) {
                             <div class="mb-3">
 
                                 <small
-                                    class="text-muted"
+                                    Class="text-muted"
                                 >
 
                                     Amount
@@ -774,12 +774,12 @@ async function loadRecentOrders(uid) {
                                 </small>
 
                                 <div
-                                    class="fw-bold
-                                    text-success"
+                                    Class="fw-bold
+                                    Text-success"
                                 >
 
                                     ${formatNaira(
-                                        order.amount
+                                        Order.amount
                                     )}
 
                                 </div>
@@ -791,7 +791,7 @@ async function loadRecentOrders(uid) {
                             <div>
 
                                 <small
-                                    class="text-muted"
+                                    Class="text-muted"
                                 >
 
                                     Date
@@ -801,7 +801,7 @@ async function loadRecentOrders(uid) {
                                 <div>
 
                                     ${formatDate(
-                                        order.createdAt
+                                        Order.createdAt
                                     )}
 
                                 </div>
@@ -819,15 +819,15 @@ async function loadRecentOrders(uid) {
         );
 
 
-        mobileHtml += `
+        MobileHtml += `
 
             </div>
 
         `;
 
 
-        recentOrders.innerHTML =
-            desktopHtml +
+        RecentOrders.innerHTML =
+            DesktopHtml +
             mobileHtml;
 
     }
@@ -835,28 +835,28 @@ async function loadRecentOrders(uid) {
 
     catch (error) {
 
-        console.error(
+        Console.error(
             "ORDERS ERROR:",
-            error
+            Error
         );
 
 
-        if (recentOrders) {
+        If (recentOrders) {
 
-            recentOrders.innerHTML = `
+            RecentOrders.innerHTML = `
 
                 <div
-                    class="alert
-                    alert-warning
-                    mb-0"
+                    Class="alert
+                    Alert-warning
+                    Mb-0"
                 >
 
                     <i
-                        class="bi bi-wifi-off"
+                        Class="bi bi-wifi-off"
                     ></i>
 
                     Recent orders could not
-                    be loaded right now.
+                    Be loaded right now.
 
                     Please refresh the page.
 
@@ -876,57 +876,57 @@ async function loadRecentOrders(uid) {
    REDEEM VOUCHER FUNCTIONALITY (SECURE API)
 ========================================================= */
 
-if (redeemVoucherForm) {
-    redeemVoucherForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!redeemCodeInput) return;
+If (redeemVoucherForm) {
+    RedeemVoucherForm.addEventListener("submit", async (e) => {
+        E.preventDefault();
+        If (!redeemCodeInput) return;
         
-        const voucherCode = redeemCodeInput.value.trim();
-        if (!voucherCode) return;
+        Const voucherCode = redeemCodeInput.value.trim();
+        If (!voucherCode) return;
 
-        if (redeemMsg) {
-            redeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
+        If (redeemMsg) {
+            RedeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
         }
 
-        try {
-            if (!auth.currentUser) {
-                throw new Error("You must be logged in to redeem a voucher.");
+        Try {
+            If (!auth.currentUser) {
+                Throw new Error("You must be logged in to redeem a voucher.");
             }
 
-            const idToken = await auth.currentUser.getIdToken(true);
+            Const idToken = await auth.currentUser.getIdToken(true);
 
-            const response = await fetch('/api/redeem-voucher', {
-                method: 'POST',
-                headers: {
+            Const response = await fetch('/api/redeem-voucher', {
+                Method: 'POST',
+                Headers: {
                     'Authorization': `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ voucherCode })
+                Body: JSON.stringify({ voucherCode })
             });
 
-            const textResponse = await response.text();
-            let result;
-            try {
-                result = JSON.parse(textResponse);
+            Const textResponse = await response.text();
+            Let result;
+            Try {
+                Result = JSON.parse(textResponse);
             } catch (e) {
-                console.error("Non-JSON response received:", textResponse);
-                throw new Error("Server returned an invalid response format.");
+                Console.error("Non-JSON response received:", textResponse);
+                Throw new Error("Server returned an invalid response format.");
             }
 
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Failed to redeem voucher.");
+            If (!response.ok || !result.success) {
+                Throw new Error(result.message || "Failed to redeem voucher.");
             }
 
-            if (redeemMsg) {
-                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            If (redeemMsg) {
+                RedeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
             }
-            redeemVoucherForm.reset();
+            RedeemVoucherForm.reset();
             
-            await loadUserInformation(auth.currentUser);
+            Await loadUserInformation(auth.currentUser);
         } catch (error) {
-            console.error("REDEEM VOUCHER ERROR:", error);
-            if (redeemMsg) {
-                redeemMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            Console.error("REDEEM VOUCHER ERROR:", error);
+            If (redeemMsg) {
+                RedeemMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
             }
         }
     });
@@ -938,35 +938,35 @@ if (redeemVoucherForm) {
    WHATSAPP SUPPORT FORM FUNCTIONALITY
 ========================================================= */
 
-const whatsappSupportForm = document.getElementById("whatsappSupportForm");
+Const whatsappSupportForm = document.getElementById("whatsappSupportForm");
 
-if (whatsappSupportForm) {
-    whatsappSupportForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+If (whatsappSupportForm) {
+    WhatsappSupportForm.addEventListener("submit", (e) => {
+        E.preventDefault();
 
-        const subjectInput = document.getElementById("waSubject");
-        const messageInput = document.getElementById("waMessage");
+        Const subjectInput = document.getElementById("waSubject");
+        Const messageInput = document.getElementById("waMessage");
 
-        if (!subjectInput || !messageInput) return;
+        If (!subjectInput || !messageInput) return;
 
-        const subject = subjectInput.value.trim();
-        const message = messageInput.value.trim();
+        Const subject = subjectInput.value.trim();
+        Const message = messageInput.value.trim();
 
-        if (!subject || !message) return;
+        If (!subject || !message) return;
 
-        const currentUser = auth.currentUser;
-        const userEmail = currentUser ? currentUser.email : "Guest User";
-        const phoneNumber = "18253635037";
+        Const currentUser = auth.currentUser;
+        Const userEmail = currentUser ? currentUser.email : "Guest User";
+        Const phoneNumber = "18253635037";
 
-        const text = `*New Support Message*%0A` +
+        Const text = `*New Support Message*%0A` +
                      `*From:* ${userEmail}%0A` +
                      `*Subject:* ${subject}%0A` +
                      `*Message:* ${message}`;
 
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
-        window.open(whatsappUrl, '_blank');
+        Const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
+        Window.open(whatsappUrl, '_blank');
 
-        whatsappSupportForm.reset();
+        WhatsappSupportForm.reset();
     });
 }
 
@@ -976,33 +976,33 @@ if (whatsappSupportForm) {
    USER TIERS & UPGRADE SYSTEM (RESELLER SEPARATED)
 ========================================================= */
 
-async function evaluateAndRenderUserTier(userId) {
-    try {
-        const userRef = ref(database, `users/${userId}`);
-        const userSnap = await get(userRef);
-        const userData = userSnap.val() || {};
-        const currentTier = (userData.tier || 'regular').toLowerCase();
-        const totalSpent = Number(userData.totalSpent || 0);
+Async function evaluateAndRenderUserTier(userId) {
+    Try {
+        Const userRef = ref(database, `users/${userId}`);
+        Const userSnap = await get(userRef);
+        Const userData = userSnap.val() || {};
+        Const currentTier = (userData.tier || 'regular').toLowerCase();
+        Const totalSpent = Number(userData.totalSpent || 0);
 
-        const badgeEl = document.getElementById('user-current-tier-badge');
-        const resellerPromoSection = document.getElementById('resellerPromoSection');
+        Const badgeEl = document.getElementById('user-current-tier-badge');
+        Const resellerPromoSection = document.getElementById('resellerPromoSection');
 
-        if (badgeEl) {
-            badgeEl.innerText = currentTier.toUpperCase();
-            badgeEl.className = "badge ";
-            if (currentTier === 'reseller') {
-                badgeEl.classList.add('bg-danger');
+        If (badgeEl) {
+            BadgeEl.innerText = currentTier.toUpperCase();
+            BadgeEl.className = "badge ";
+            If (currentTier === 'reseller') {
+                BadgeEl.classList.add('bg-danger');
             } else if (currentTier === 'vip') {
-                badgeEl.classList.add('bg-success');
+                BadgeEl.classList.add('bg-success');
             } else {
-                badgeEl.classList.add('bg-secondary');
+                BadgeEl.classList.add('bg-secondary');
             }
         }
 
         // If user is already a reseller, update the promo box
-        if (currentTier === 'reseller') {
-            if (resellerPromoSection) {
-                resellerPromoSection.innerHTML = `
+        If (currentTier === 'reseller') {
+            If (resellerPromoSection) {
+                ResellerPromoSection.innerHTML = `
                     <div class="col-12">
                         <div class="card p-3 shadow border-danger bg-light text-center">
                             <h5 class="text-danger mb-0"><i class="bi bi-patch-check-fill"></i> You are an Official Reseller! Enjoy your exclusive rates.</h5>
@@ -1012,78 +1012,78 @@ async function evaluateAndRenderUserTier(userId) {
             }
         }
 
-        const actionContainer = document.getElementById('tier-action-container');
-        if (!actionContainer) return;
+        Const actionContainer = document.getElementById('tier-action-container');
+        If (!actionContainer) return;
 
-        if (currentTier === 'reseller') {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #dc3545; display:block;"><i class="bi bi-patch-check-fill"></i> Reseller Status Active</span>`;
-            return;
+        If (currentTier === 'reseller') {
+            ActionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #dc3545; display:block;"><i class="bi bi-patch-check-fill"></i> Reseller Status Active</span>`;
+            Return;
         }
 
         // Check if there is already a pending request for VIP
-        const reqRef = ref(database, 'tierRequests');
-        const reqSnap = await get(reqRef);
-        let hasPending = false;
+        Const reqRef = ref(database, 'tierRequests');
+        Const reqSnap = await get(reqRef);
+        Let hasPending = false;
         
-        if (reqSnap.exists()) {
-            const requests = reqSnap.val();
+        If (reqSnap.exists()) {
+            Const requests = reqSnap.val();
             Object.values(requests).forEach(req => {
-                if (req && req.userId === userId && req.status === 'pending' && req.requestedTier === 'vip') {
-                    hasPending = true;
+                If (req && req.userId === userId && req.status === 'pending' && req.requestedTier === 'vip') {
+                    HasPending = true;
                 }
             });
         }
 
-        if (hasPending) {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> VIP Upgrade Request Pending</span>`;
-            return;
+        If (hasPending) {
+            ActionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> VIP Upgrade Request Pending</span>`;
+            Return;
         }
 
-        let html = '';
-        if (currentTier === 'regular') {
-            if (totalSpent >= 60000) {
-                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
+        Let html = '';
+        If (currentTier === 'regular') {
+            If (totalSpent >= 60000) {
+                Html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
             } else {
-                html = `<p class="text-muted small mb-0 mt-2">Spend ₦60,000 total across orders to unlock VIP tier automatically.</p>`;
+                Html = `<p class="text-muted small mb-0 mt-2">Spend ₦60,000 total across orders to unlock VIP tier automatically.</p>`;
             }
         } else if (currentTier === 'vip') {
-            html = `<p class="text-muted small mb-0 mt-2">You are currently on VIP. Use the Reseller box above to unlock Reseller status anytime.</p>`;
+            Html = `<p class="text-muted small mb-0 mt-2">You are currently on VIP. Use the Reseller box above to unlock Reseller status anytime.</p>`;
         }
 
-        actionContainer.innerHTML = html;
+        ActionContainer.innerHTML = html;
 
     } catch (err) {
-        console.error("Error evaluating user tier:", err);
+        Console.error("Error evaluating user tier:", err);
     }
 }
 
-async function requestTierUpgrade(userId, requestedTier, details) {
-    if (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) return;
+Async function requestTierUpgrade(userId, requestedTier, details) {
+    If (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) return;
 
-    try {
-        const userAuth = auth.currentUser;
-        const requestsRef = ref(database, 'tierRequests');
-        const newReqRef = push(requestsRef);
+    Try {
+        Const userAuth = auth.currentUser;
+        Const requestsRef = ref(database, 'tierRequests');
+        Const newReqRef = push(requestsRef);
         
-        await set(newReqRef, {
-            userId: userId,
-            userEmail: userAuth ? userAuth.email : 'Unknown',
-            currentTier: document.getElementById('user-current-tier-badge')?.innerText.toLowerCase() || 'regular',
-            requestedTier: requestedTier,
-            details: details,
-            status: 'pending',
-            timestamp: Date.now()
+        Await set(newReqRef, {
+            UserId: userId,
+            UserEmail: userAuth ? userAuth.email : 'Unknown',
+            CurrentTier: document.getElementById('user-current-tier-badge')?.innerText.toLowerCase() || 'regular',
+            RequestedTier: requestedTier,
+            Details: details,
+            Status: 'pending',
+            Timestamp: Date.now()
         });
 
-        alert("Tier upgrade request submitted successfully!");
-        location.reload();
+        Alert("Tier upgrade request submitted successfully!");
+        Location.reload();
     } catch (err) {
-        console.error("Error submitting upgrade request:", err);
-        alert("Failed to submit request.");
+        Console.error("Error submitting upgrade request:", err);
+        Alert("Failed to submit request.");
     }
 }
 
-window.requestTierUpgrade = requestTierUpgrade;
+Window.requestTierUpgrade = requestTierUpgrade;
 
 
 
@@ -1091,84 +1091,85 @@ window.requestTierUpgrade = requestTierUpgrade;
    RESELLER MODAL & PAYMENT HANDLERS
 ========================================================= */
 
-const openResellerModalBtn = document.getElementById("openResellerModalBtn");
-const confirmResellerPaymentBtn = document.getElementById("confirmResellerPaymentBtn");
-const modalWalletBalance = document.getElementById("modalWalletBalance");
-const resellerModalMsg = document.getElementById("resellerModalMsg");
+Const openResellerModalBtn = document.getElementById("openResellerModalBtn");
+Const confirmResellerPaymentBtn = document.getElementById("confirmResellerPaymentBtn");
+Const modalWalletBalance = document.getElementById("modalWalletBalance");
+Const resellerModalMsg = document.getElementById("resellerModalMsg");
 
-if (openResellerModalBtn) {
-    openResellerModalBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) return;
+If (openResellerModalBtn) {
+    OpenResellerModalBtn.addEventListener("click", async () => {
+        Const user = auth.currentUser;
+        If (!user) return;
 
-        try {
-            const userRef = ref(database, `users/${user.uid}`);
-            const snap = await get(userRef);
-            const data = snap.val() || {};
-            const currentWallet = Number(data.wallet || 0);
+        Try {
+            Const userRef = ref(database, `users/${user.uid}`);
+            Const snap = await get(userRef);
+            Const data = snap.val() || {};
+            Const currentWallet = Number(data.wallet || 0);
 
-            if (modalWalletBalance) {
-                modalWalletBalance.textContent = formatNaira(currentWallet);
+            If (modalWalletBalance) {
+                ModalWalletBalance.textContent = formatNaira(currentWallet);
             }
 
-            if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = "";
+            If (resellerModalMsg) {
+                ResellerModalMsg.innerHTML = "";
             }
 
-            const myModal = new bootstrap.Modal(document.getElementById('resellerModal'));
-            myModal.show();
+            Const myModal = new bootstrap.Modal(document.getElementById('resellerModal'));
+            MyModal.show();
         } catch (err) {
-            console.error("Error opening reseller modal:", err);
+            Console.error("Error opening reseller modal:", err);
         }
     });
 }
 
-if (confirmResellerPaymentBtn) {
-    confirmResellerPaymentBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) return;
+If (confirmResellerPaymentBtn) {
+    ConfirmResellerPaymentBtn.addEventListener("click", async () => {
+        Const user = auth.currentUser;
+        If (!user) return;
 
-        if (resellerModalMsg) {
-            resellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
+        If (resellerModalMsg) {
+            ResellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
         }
 
-        try {
-            const idToken = await user.getIdToken(true);
+        Try {
+            Const idToken = await user.getIdToken(true);
 
-            const response = await fetch('/api/unlock-reseller', {
-                method: 'POST',
-                headers: {
+            // UPDATED TO MATCH YOUR reseller.js FILE ENDPOINT
+            Const response = await fetch('/api/reseller', {
+                Method: 'POST',
+                Headers: {
                     'Authorization': `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ amount: 100000 })
+                Body: JSON.stringify({ amount: 100000 })
             });
 
-            const textResponse = await response.text();
-            let result;
-            try {
-                result = JSON.parse(textResponse);
+            Const textResponse = await response.text();
+            Let result;
+            Try {
+                Result = JSON.parse(textResponse);
             } catch (e) {
-                console.error("Non-JSON response received:", textResponse);
-                throw new Error("Server returned an invalid response format.");
+                Console.error("Non-JSON response received:", textResponse);
+                Throw new Error("Server returned an invalid response format.");
             }
 
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Failed to process reseller upgrade.");
+            If (!response.ok || !result.success) {
+                Throw new Error(result.message || "Failed to process reseller upgrade.");
             }
 
-            if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            If (resellerModalMsg) {
+                ResellerModalMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
             }
 
-            setTimeout(() => {
-                location.reload();
+            SetTimeout(() => {
+                Location.reload();
             }, 2000);
 
         } catch (error) {
-            console.error("RESELLER UPGRADE ERROR:", error);
-            if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            Console.error("RESELLER UPGRADE ERROR:", error);
+            If (resellerModalMsg) {
+                ResellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
             }
         }
     });
@@ -1180,35 +1181,35 @@ if (confirmResellerPaymentBtn) {
    AUTHENTICATION
 ========================================================= */
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
+OnAuthStateChanged(
+    Auth,
+    Async (user) => {
 
-        if (!user) {
+        If (!user) {
 
-            window.location.href =
+            Window.location.href =
                 "login.html";
 
-            return;
+            Return;
 
         }
 
-        await Promise.allSettled([
+        Await Promise.allSettled([
 
-            loadUserInformation(
-                user
+            LoadUserInformation(
+                User
             ),
 
-            loadRecentOrders(
-                user.uid
+            LoadRecentOrders(
+                User.uid
             ),
 
-            loadReferralInformation(
-                user.uid
+            LoadReferralInformation(
+                User.uid
             ),
 
-            evaluateAndRenderUserTier(
-                user.uid
+            EvaluateAndRenderUserTier(
+                User.uid
             )
 
         ]);
@@ -1222,28 +1223,28 @@ onAuthStateChanged(
    LOGOUT
 ========================================================= */
 
-if (logoutBtn) {
+If (logoutBtn) {
 
-    logoutBtn.addEventListener(
+    LogoutBtn.addEventListener(
         "click",
-        async () => {
+        Async () => {
 
-            try {
+            Try {
 
-                await signOut(
-                    auth
+                Await signOut(
+                    Auth
                 );
 
 
-                window.location.href =
+                Window.location.href =
                     "login.html";
 
 
             } catch (error) {
 
-                console.error(
+                Console.error(
                     "LOGOUT ERROR:",
-                    error
+                    Error
                 );
 
             }
