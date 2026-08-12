@@ -10,7 +10,9 @@ import {
 
 import {
     ref,
-    get
+    get,
+    push,
+    set
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -964,6 +966,121 @@ if (whatsappSupportForm) {
 
 
 /* =========================================================
+   USER TIERS & UPGRADE SYSTEM
+========================================================= */
+
+async function evaluateAndRenderUserTier(userId) {
+    try {
+        const userRef = ref(database, `users/${userId}`);
+        const userSnap = await get(userRef);
+        const userData = userSnap.val() || {};
+        const currentTier = userData.tier || 'regular';
+        const totalSpent = Number(userData.totalSpent || 0);
+
+        const badgeEl = document.getElementById('user-current-tier-badge');
+        if (badgeEl) {
+            badgeEl.className = `badge badge-${currentTier}`;
+            badgeEl.innerText = currentTier.toUpperCase();
+        }
+
+        const actionContainer = document.getElementById('tier-action-container');
+        if (!actionContainer) return;
+
+        if (currentTier === 'reseller') {
+            actionContainer.innerHTML = `<span style="font-size: 0.7rem; color: #818cf8; display:block; margin-top:6px;"><i class="fas fa-crown"></i> Max Tier Unlocked</span>`;
+            return;
+        }
+
+        // Check if there is already a pending request
+        const reqRef = ref(database, 'tierRequests');
+        const reqSnap = await get(reqRef);
+        let hasPending = false;
+        
+        if (reqSnap.exists()) {
+            const requests = reqSnap.val();
+            Object.values(requests).forEach(req => {
+                if (req && req.userId === userId && req.status === 'pending') {
+                    hasPending = true;
+                }
+            });
+        }
+
+        if (hasPending) {
+            actionContainer.innerHTML = `<span style="font-size: 0.7rem; color: var(--warning); display:block; margin-top:6px;"><i class="fas fa-clock"></i> Upgrade Request Pending</span>`;
+            return;
+        }
+
+        // Check for a single qualifying deposit >= ₦100,000 for Reseller eligibility
+        const txRef = ref(database, 'transactions');
+        const txSnap = await get(txRef);
+        let hasQualifyingDeposit = false;
+
+        if (txSnap.exists()) {
+            const transactions = txSnap.val();
+            Object.values(transactions).forEach(tx => {
+                if (tx && String(tx.uid) === String(userId) && Number(tx.amount || 0) >= 100000) {
+                    hasQualifyingDeposit = true;
+                }
+            });
+        }
+
+        let html = '';
+        if (currentTier === 'regular') {
+            if (hasQualifyingDeposit) {
+                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Request Reseller</button>`;
+            }
+            if (totalSpent >= 60000) {
+                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
+            }
+            if (!hasQualifyingDeposit && totalSpent < 60000) {
+                html = `<p style="font-size: 0.65rem; color: var(--text-muted); margin-top:6px;">Spend ₦60k (VIP) or make a single ₦100k deposit (Reseller) to unlock.</p>`;
+            }
+        } else if (currentTier === 'vip') {
+            if (hasQualifyingDeposit) {
+                html += `<button class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 6px 10px; width:100%; margin-top:6px;" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Upgrade to Reseller</button>`;
+            } else {
+                html = `<p style="font-size: 0.65rem; color: var(--text-muted); margin-top:6px;">Make a single deposit of ₦100k+ for Reseller status.</p>`;
+            }
+        }
+
+        actionContainer.innerHTML = html;
+
+    } catch (err) {
+        console.error("Error evaluating user tier and deposits:", err);
+    }
+}
+
+async function requestTierUpgrade(userId, requestedTier, details) {
+    if (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) return;
+
+    try {
+        const userAuth = auth.currentUser;
+        const requestsRef = ref(database, 'tierRequests');
+        const newReqRef = push(requestsRef);
+        
+        await set(newReqRef, {
+            userId: userId,
+            userEmail: userAuth ? userAuth.email : 'Unknown',
+            currentTier: document.getElementById('user-current-tier-badge')?.innerText.toLowerCase() || 'regular',
+            requestedTier: requestedTier,
+            details: details,
+            status: 'pending',
+            timestamp: Date.now()
+        });
+
+        alert("Tier upgrade request submitted successfully!");
+        location.reload();
+    } catch (err) {
+        console.error("Error submitting upgrade request:", err);
+        alert("Failed to submit request.");
+    }
+}
+
+window.requestTierUpgrade = requestTierUpgrade;
+
+
+
+/* =========================================================
    AUTHENTICATION
 ========================================================= */
 
@@ -991,6 +1108,10 @@ onAuthStateChanged(
             ),
 
             loadReferralInformation(
+                user.uid
+            ),
+
+            evaluateAndRenderUserTier(
                 user.uid
             )
 
