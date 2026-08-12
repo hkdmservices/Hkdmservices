@@ -941,6 +941,44 @@ if (redeemVoucherForm) {
 
 
 /* =========================================================
+   WHATSAPP SUPPORT FORM FUNCTIONALITY
+========================================================= */
+
+const whatsappSupportForm = document.getElementById("whatsappSupportForm");
+
+if (whatsappSupportForm) {
+    whatsappSupportForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const subjectInput = document.getElementById("waSubject");
+        const messageInput = document.getElementById("waMessage");
+
+        if (!subjectInput || !messageInput) return;
+
+        const subject = subjectInput.value.trim();
+        const message = messageInput.value.trim();
+
+        if (!subject || !message) return;
+
+        const currentUser = auth.currentUser;
+        const userEmail = currentUser ? currentUser.email : "Guest User";
+        const phoneNumber = "18253635037";
+
+        const text = `*New Support Message*%0A` +
+                     `*From:* ${userEmail}%0A` +
+                     `*Subject:* ${subject}%0A` +
+                     `*Message:* ${message}`;
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
+        window.open(whatsappUrl, '_blank');
+
+        whatsappSupportForm.reset();
+    });
+}
+
+
+
+/* =========================================================
    AUTHENTICATION
 ========================================================= */
 
