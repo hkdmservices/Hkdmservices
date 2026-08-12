@@ -238,7 +238,7 @@ async function loadUserInformation(user) {
 
 
 /* =========================================================
-   LOAD REFERRAL INFORMATION (DYNAMIC DOMAIN FIX)
+   LOAD REFERRAL INFORMATION (CUSTOM XYZ DOMAIN)
 ========================================================= */
 
 async function loadReferralInformation(uid) {
@@ -263,9 +263,8 @@ async function loadReferralInformation(uid) {
                 data.referralCode || uid;
 
             if (referralLinkInput) {
-                const currentDomain = window.location.origin;
                 referralLinkInput.value =
-                    `${currentDomain}/register.html?ref=${refCode}`;
+                    `https://hkdmservices.xyz/register.html?ref=${refCode}`;
             }
 
             if (totalReferralsEl) {
