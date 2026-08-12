@@ -32,13 +32,16 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Generate short-lived access token for secure REST requests
+        // Generate short-lived access token with explicit Firebase database scopes
         const cert = admin.credential.cert({
             projectId: process.env.FIREBASE_PROJECT_ID,
             clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
             privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
         });
-        const appToken = await cert.getAccessToken();
+        const appToken = await cert.getAccessToken([
+            'https://www.googleapis.com/auth/firebase.database',
+            'https://www.googleapis.com/auth/userinfo.email'
+        ]);
 
         const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json`;
         
