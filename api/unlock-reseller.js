@@ -15,8 +15,6 @@ if (!admin.apps.length) {
     }
 }
 
-const db = admin.database();
-
 export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
 
@@ -34,19 +32,33 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        const userRef = db.ref(`users/${uid}`);
-        
-        // Wrap database fetch with a safety timeout so it never hangs indefinitely
-        const snapshot = await Promise.race([
-            userRef.get(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Database request timed out")), 8000))
-        ]);
+        // Generate short-lived access token for secure REST requests
+        const cert = admin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+        });
+        const appToken = await cert.getAccessToken();
 
-        if (!snapshot.exists()) {
+        const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json`;
+        
+        // Fetch user profile via instant REST API
+        const getRes = await fetch(dbUrl, {
+            headers: {
+                'Authorization': `Bearer ${appToken.access_token}`
+            }
+        });
+
+        if (!getRes.ok) {
+            throw new Error("Failed to fetch user data from database.");
+        }
+
+        const userData = await getRes.json();
+
+        if (!userData) {
             return res.status(404).json({ success: false, message: "User profile not found." });
         }
 
-        const userData = snapshot.val();
         const currentWallet = Number(userData.wallet || 0);
         const currentTier = (userData.tier || 'regular').toLowerCase();
 
@@ -61,11 +73,23 @@ export default async function handler(req, res) {
 
         const newWalletBalance = currentWallet - cost;
         
-        await userRef.update({
-            wallet: newWalletBalance,
-            tier: 'reseller',
-            resellerUnlockedAt: Date.now()
+        // Update user profile via instant REST PATCH
+        const patchRes = await fetch(dbUrl, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${appToken.access_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                wallet: newWalletBalance,
+                tier: 'reseller',
+                resellerUnlockedAt: Date.now()
+            })
         });
+
+        if (!patchRes.ok) {
+            throw new Error("Failed to update user profile in database.");
+        }
 
         return res.status(200).json({
             success: true,
