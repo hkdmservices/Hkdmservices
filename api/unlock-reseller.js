@@ -32,20 +32,16 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Use the user's verified ID token directly for instant REST authentication
-        const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json?auth=${idToken}`;
+        // Use Admin SDK database reference (bypasses security rules completely)
+        const db = admin.database();
+        const userRef = db.ref(`users/${uid}`);
         
-        const getRes = await fetch(dbUrl);
-        if (!getRes.ok) {
-            throw new Error("Failed to fetch user data from database.");
-        }
-
-        const userData = await getRes.json();
-
-        if (!userData) {
+        const snapshot = await userRef.once('value');
+        if (!snapshot.exists()) {
             return res.status(404).json({ success: false, message: "User profile not found." });
         }
 
+        const userData = snapshot.val();
         const currentWallet = Number(userData.wallet || 0);
         const currentTier = (userData.tier || 'regular').toLowerCase();
 
@@ -60,22 +56,11 @@ export default async function handler(req, res) {
 
         const newWalletBalance = currentWallet - cost;
         
-        // Update user profile via REST PATCH using the user's ID token
-        const patchRes = await fetch(dbUrl, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                wallet: newWalletBalance,
-                tier: 'reseller',
-                resellerUnlockedAt: Date.now()
-            })
+        await userRef.update({
+            wallet: newWalletBalance,
+            tier: 'reseller',
+            resellerUnlockedAt: Date.now()
         });
-
-        if (!patchRes.ok) {
-            throw new Error("Failed to update user profile in database.");
-        }
 
         return res.status(200).json({
             success: true,
