@@ -32,26 +32,10 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Generate short-lived access token with explicit Firebase database scopes
-        const cert = admin.credential.cert({
-            projectId: process.env.FIREBASE_PROJECT_ID,
-            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
-        });
-        const appToken = await cert.getAccessToken([
-            'https://www.googleapis.com/auth/firebase.database',
-            'https://www.googleapis.com/auth/userinfo.email'
-        ]);
-
-        const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json`;
+        // Use the user's verified ID token directly for instant REST authentication
+        const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json?auth=${idToken}`;
         
-        // Fetch user profile via instant REST API
-        const getRes = await fetch(dbUrl, {
-            headers: {
-                'Authorization': `Bearer ${appToken.access_token}`
-            }
-        });
-
+        const getRes = await fetch(dbUrl);
         if (!getRes.ok) {
             throw new Error("Failed to fetch user data from database.");
         }
@@ -76,11 +60,10 @@ export default async function handler(req, res) {
 
         const newWalletBalance = currentWallet - cost;
         
-        // Update user profile via instant REST PATCH
+        // Update user profile via REST PATCH using the user's ID token
         const patchRes = await fetch(dbUrl, {
             method: 'PATCH',
             headers: {
-                'Authorization': `Bearer ${appToken.access_token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
