@@ -43,6 +43,18 @@ const redeemCodeInput =
 const redeemMsg =
     document.getElementById("redeemMsg");
 
+const referralLinkInput =
+    document.getElementById("referralLinkInput");
+
+const copyRefBtn =
+    document.getElementById("copyRefBtn");
+
+const totalReferralsEl =
+    document.getElementById("totalReferrals");
+
+const totalEarningsEl =
+    document.getElementById("totalEarnings");
+
 
 
 /* =========================================================
@@ -211,10 +223,6 @@ async function loadUserInformation(user) {
         );
 
 
-        /*
-            DO NOT RESET WALLET
-        */
-
         if (userName) {
 
             userName.textContent =
@@ -230,16 +238,95 @@ async function loadUserInformation(user) {
 
 
 /* =========================================================
+   LOAD REFERRAL INFORMATION
+========================================================= */
+
+async function loadReferralInformation(uid) {
+
+    try {
+
+        const userRef =
+            ref(
+                database,
+                "users/" + uid
+            );
+
+        const snapshot =
+            await get(userRef);
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+            const refCode =
+                data.referralCode || uid;
+
+            if (referralLinkInput) {
+                referralLinkInput.value =
+                    `https://hkdmservices.xyz/register.html?ref=${refCode}`;
+            }
+
+            if (totalReferralsEl) {
+                totalReferralsEl.textContent =
+                    data.totalReferrals || 0;
+            }
+
+            if (totalEarningsEl) {
+                totalEarningsEl.textContent =
+                    formatNaira(data.totalReferralEarnings || 0);
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "REFERRAL DATA ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   COPY REFERRAL LINK
+========================================================= */
+
+if (copyRefBtn && referralLinkInput) {
+
+    copyRefBtn.addEventListener("click", () => {
+
+        if (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
+
+        navigator.clipboard.writeText(referralLinkInput.value).then(() => {
+            copyRefBtn.textContent = "Copied!";
+            copyRefBtn.classList.remove("btn-success");
+            copyRefBtn.classList.add("btn-dark");
+
+            setTimeout(() => {
+                copyRefBtn.textContent = "Copy Link";
+                copyRefBtn.classList.remove("btn-dark");
+                copyRefBtn.classList.add("btn-success");
+            }, 2000);
+        });
+
+    });
+
+}
+
+
+
+/* =========================================================
    LOAD ORDERS
 ========================================================= */
 
 async function loadRecentOrders(uid) {
 
     try {
-
-        /*
-            GET ORDERS
-        */
 
         const ordersRef =
             ref(
@@ -254,19 +341,7 @@ async function loadRecentOrders(uid) {
             );
 
 
-        /*
-            ==============================================
-            NO ORDERS IN DATABASE
-            ==============================================
-        */
-
         if (!snapshot.exists()) {
-
-            /*
-                IMPORTANT:
-                Update dashboard count even if
-                Recent Orders element doesn't exist.
-            */
 
             if (ordersCount) {
 
@@ -275,11 +350,6 @@ async function loadRecentOrders(uid) {
 
             }
 
-
-            /*
-                Only update Recent Orders
-                if that element exists.
-            */
 
             if (recentOrders) {
 
@@ -314,23 +384,9 @@ async function loadRecentOrders(uid) {
         }
 
 
-
-        /*
-            ==============================================
-            GET ALL ORDERS
-            ==============================================
-        */
-
         const orders =
             snapshot.val();
 
-
-
-        /*
-            ==============================================
-            FILTER CURRENT USER'S ORDERS
-            ==============================================
-        */
 
         const userOrders =
             Object.values(
@@ -355,13 +411,6 @@ async function loadRecentOrders(uid) {
             );
 
 
-
-        /*
-            ==============================================
-            UPDATE TOTAL ORDERS
-            ==============================================
-        */
-
         if (ordersCount) {
 
             ordersCount.textContent =
@@ -372,22 +421,9 @@ async function loadRecentOrders(uid) {
         }
 
 
-
-        /*
-            ==============================================
-            NO ORDERS FOR THIS USER
-            ==============================================
-        */
-
         if (
             userOrders.length === 0
         ) {
-
-            /*
-                Dashboard count is already
-                set to 0 above.
-            */
-
 
             if (recentOrders) {
 
@@ -422,14 +458,6 @@ async function loadRecentOrders(uid) {
         }
 
 
-
-        /*
-            =================================================
-            IF RECENT ORDERS ELEMENT DOES NOT EXIST,
-            STOP HERE.
-            =================================================
-        */
-
         if (!recentOrders) {
 
             return;
@@ -437,26 +465,12 @@ async function loadRecentOrders(uid) {
         }
 
 
-
-        /*
-            ==============================================
-            SHOW FIVE NEWEST ORDERS
-            ==============================================
-        */
-
         const latestOrders =
             userOrders.slice(
                 0,
                 5
             );
 
-
-
-        /*
-            ==============================================
-            DESKTOP TABLE
-            ==============================================
-        */
 
         let desktopHtml = `
 
@@ -504,7 +518,6 @@ async function loadRecentOrders(uid) {
                         <tbody>
 
         `;
-
 
 
         latestOrders.forEach(
@@ -606,7 +619,6 @@ async function loadRecentOrders(uid) {
         );
 
 
-
         desktopHtml += `
 
                         </tbody>
@@ -620,19 +632,11 @@ async function loadRecentOrders(uid) {
         `;
 
 
-
-        /*
-            ==============================================
-            MOBILE CARDS
-            ==============================================
-        */
-
         let mobileHtml = `
 
             <div class="d-md-none">
 
         `;
-
 
 
         latestOrders.forEach(
@@ -658,8 +662,6 @@ async function loadRecentOrders(uid) {
                             class="card-body"
                         >
 
-
-                            <!-- ORDER ID -->
 
                             <div
                                 class="d-flex
@@ -703,8 +705,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- SERVICE -->
-
                             <div class="mb-3">
 
                                 <small
@@ -735,8 +735,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- QUANTITY -->
-
                             <div class="mb-3">
 
                                 <small
@@ -763,8 +761,6 @@ async function loadRecentOrders(uid) {
 
 
 
-                            <!-- AMOUNT -->
-
                             <div class="mb-3">
 
                                 <small
@@ -789,8 +785,6 @@ async function loadRecentOrders(uid) {
                             </div>
 
 
-
-                            <!-- DATE -->
 
                             <div>
 
@@ -823,20 +817,12 @@ async function loadRecentOrders(uid) {
         );
 
 
-
         mobileHtml += `
 
             </div>
 
         `;
 
-
-
-        /*
-            ==============================================
-            DISPLAY RECENT ORDERS
-            ==============================================
-        */
 
         recentOrders.innerHTML =
             desktopHtml +
@@ -927,7 +913,6 @@ if (redeemVoucherForm) {
             }
             redeemVoucherForm.reset();
             
-            // Refresh user information/wallet balance display
             await loadUserInformation(auth.currentUser);
         } catch (error) {
             console.error("REDEEM VOUCHER ERROR:", error);
@@ -1002,6 +987,10 @@ onAuthStateChanged(
             ),
 
             loadRecentOrders(
+                user.uid
+            ),
+
+            loadReferralInformation(
                 user.uid
             )
 
