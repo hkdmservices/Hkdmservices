@@ -208,6 +208,20 @@ rel="stylesheet">
 
 
             <!-- =================================================
+                 WHATSAPP SUPPORT (QUICK ACTION)
+            ================================================= -->
+
+            <button
+                type="button"
+                id="whatsappQuickBtn"
+                class="btn btn-outline-success mt-3 text-start w-100"
+            >
+                <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+            </button>
+
+
+
+            <!-- =================================================
                  ABOUT US
             ================================================= -->
 
@@ -446,14 +460,13 @@ rel="stylesheet">
 
 
     <!-- =================================================
-         REDEEM VOUCHER & CONTACT US SECTIONS
+         REDEEM VOUCHER SECTION (SOLITARY ON MAIN DASHBOARD)
     ================================================= -->
 
-    <div class="row mt-4 g-4">
+    <div class="row mt-4">
         
-        <!-- Redeem Voucher Column -->
         <div class="col-12 col-md-6">
-            <div class="card p-4 shadow h-100">
+            <div class="card p-4 shadow">
                 <h4 class="mb-3">
                     <i class="bi bi-ticket-perforated text-success"></i> Redeem Voucher
                 </h4>
@@ -473,40 +486,6 @@ rel="stylesheet">
                     </button>
                 </form>
                 <div id="redeemMsg" class="mt-3"></div>
-            </div>
-        </div>
-
-        <!-- Contact Us via WhatsApp Column -->
-        <div class="col-12 col-md-6">
-            <div class="card p-4 shadow h-100">
-                <h4 class="mb-3">
-                    <i class="bi bi-whatsapp text-success"></i> Contact Us via WhatsApp
-                </h4>
-                <form id="whatsappSupportForm">
-                    <div class="mb-3">
-                        <label for="waSubject" class="form-label">Subject</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="waSubject" 
-                            placeholder="e.g., Issue with order" 
-                            required
-                        >
-                    </div>
-                    <div class="mb-3">
-                        <label for="waMessage" class="form-label">Message</label>
-                        <textarea 
-                            class="form-control" 
-                            id="waMessage" 
-                            rows="3" 
-                            placeholder="Describe your issue..." 
-                            required
-                        ></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-chat-dots"></i> Chat on WhatsApp
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -531,7 +510,7 @@ rel="stylesheet">
 
 
 <!-- =====================================================
-     TOGGLE JAVASCRIPT
+     TOGGLE & WHATSAPP JAVASCRIPT
 ===================================================== -->
 
 <script>
@@ -685,7 +664,7 @@ document.addEventListener(
                     );
 
 
-                    toggleButton.setAttribute(
+                    dashboardPanel.setAttribute(
                         "aria-hidden",
                         "true"
                     );
@@ -694,6 +673,34 @@ document.addEventListener(
 
             }
         );
+
+
+        /* ================================================
+           WHATSAPP QUICK ACTION HANDLER
+        ================================================ */
+
+        const whatsappQuickBtn = document.getElementById("whatsappQuickBtn");
+        if (whatsappQuickBtn) {
+            whatsappQuickBtn.addEventListener("click", () => {
+                let userEmail = "Guest User";
+                try {
+                    if (typeof auth !== 'undefined' && auth.currentUser) {
+                        userEmail = auth.currentUser.email || "User";
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+
+                const phoneNumber = "18253635037";
+                const text = `*New Support Message*%0A` +
+                             `*From:* ${userEmail}%0A` +
+                             `*Subject:* Dashboard Inquiry%0A` +
+                             `*Message:* Hello support, I need assistance with my account.`;
+
+                const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
+                window.open(whatsappUrl, '_blank');
+            });
+        }
 
 
     }
