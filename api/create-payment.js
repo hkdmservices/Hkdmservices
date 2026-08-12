@@ -58,6 +58,9 @@ export default async function handler(req, res) {
                 notification_url:
                     "https://hkdmservices.vercel.app/api/korapay-webhook",
 
+                // Enabled multiple payment channels here:
+                channels: ["card", "bank_transfer", "ussd"],
+
                 customer: {
                     name: name || "HKDM Customer",
                     email: email
