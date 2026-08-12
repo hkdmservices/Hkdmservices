@@ -1,7 +1,23 @@
-const { admin, database } = require('./firebase-admin');
+const admin = require('firebase-admin');
+
+if (!admin.apps.length) {
+    try {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+            }),
+            databaseURL: process.env.FIREBASE_DATABASE_URL
+        });
+    } catch (err) {
+        console.error('Firebase initialization error:', err);
+    }
+}
+
+const database = admin.database();
 
 module.exports = async function handler(req, res) {
-    // Force JSON header so the server never returns HTML error pages
     res.setHeader('Content-Type', 'application/json');
 
     if (req.method !== 'POST') {
