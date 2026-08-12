@@ -1,273 +1,783 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - HKDMservices</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { width: 260px; background-color: var(--bg-card); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .sidebar-brand { padding: 20px; font-size: 1.25rem; font-weight: bold; color: var(--primary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-        .sidebar-menu { padding: 20px 10px; display: flex; flex-direction: column; gap: 5px; flex-grow: 1; }
-        .admin-tab-btn { background: transparent; border: none; color: var(--text-muted); padding: 12px 15px; text-align: left; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500; transition: all 0.2s; }
-        .admin-tab-btn:hover, .admin-tab-btn.active { background-color: var(--primary); color: #fff; }
-
-        /* Main Content */
-        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
-        .admin-section { display: none; }
-        .admin-section.active-section { display: block; }
-        .section-header { margin-bottom: 25px; }
-        .section-header h2 { font-size: 1.75rem; margin-bottom: 5px; }
-        .section-header p { color: var(--text-muted); font-size: 0.95rem; }
-
-        /* Tables & Cards */
-        .table-responsive { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .admin-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
-        .admin-table th, .admin-table td { padding: 15px; border-bottom: 1px solid var(--border); }
-        .admin-table th { background-color: rgba(255,255,255,0.02); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
-        .admin-table tr:hover { background-color: rgba(255,255,255,0.01); }
-
-        /* Badges */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; display: inline-block; }
-        .badge-regular { background-color: #334155; color: #cbd5e1; }
-        .badge-vip { background-color: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-reseller { background-color: rgba(79, 70, 229, 0.15); color: #818cf8; border: 1px solid rgba(79, 70, 229, 0.3); }
-
-        /* Buttons & Actions */
-        .btn { padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        .btn-success { background-color: var(--success); color: #fff; }
-        .btn-danger { background-color: var(--danger); color: #fff; }
-        .btn-primary { background-color: var(--primary); color: #fff; }
-        .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
-        
-        .text-center { text-align: center; }
-        .text-danger { color: var(--danger); }
-        
-        /* Notifications */
-        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .notification { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); animation: slideIn 0.3s ease forwards; }
-        .notification.success { background-color: var(--success); }
-        .notification.error { background-color: var(--danger); }
-        .notification.info { background-color: var(--primary); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+<title>HKDMservices Admin Dashboard</title>
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+rel="stylesheet">
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+rel="stylesheet">
+<link
+href="style.css"
+rel="stylesheet">
+<style>
+body {
+    background: #f5f7fa;
+}
+.admin-navbar {
+    background: #111827;
+}
+.admin-brand {
+    font-weight: 700;
+}
+.admin-card {
+    border: 0;
+    border-radius: 14px;
+}
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.admin-loading {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#adminContent {
+    display: none;
+}
+.admin-nav-btn {
+    min-width: 150px;
+}
+.management-section {
+    display: none;
+}
+.management-section.active {
+    display: block;
+}
+.table-responsive {
+    border-radius: 10px;
+}
+.action-btn {
+    min-width: 80px;
+}
+.service-status-active {
+    color: #198754;
+    font-weight: 600;
+}
+.service-status-inactive {
+    color: #dc3545;
+    font-weight: 600;
+}
+</style>
 </head>
 <body>
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+<nav class="navbar navbar-dark admin-navbar">
+<div class="container">
+<a
+href="admin-dashboard.html"
+class="navbar-brand admin-brand">
+<span class="me-2">⬢</span>
+HKDMservices Admin
+</a>
+<div class="d-flex align-items-center gap-2">
+<span
+id="adminEmail"
+class="text-white-50 small d-none d-md-inline">
+Checking...
+</span>
+<button
+id="logout"
+type="button"
+class="btn btn-danger btn-sm">
+<i class="bi bi-box-arrow-right"></i>
+Logout
+</button>
+</div>
+</div>
+</nav>
+<!-- =====================================================
+     LOADING
+===================================================== -->
+<div
+id="adminLoading"
+class="container py-5">
+<div class="card shadow-sm admin-card">
+<div class="card-body admin-loading">
+<div class="text-center">
+<div
+class="spinner-border text-success mb-3"
+role="status">
+</div>
+<h5>
+Verifying admin access...
+</h5>
+<p
+id="loadingMessage"
+class="text-muted mb-0">
+Please wait.
+</p>
+</div>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     ACCESS DENIED
+===================================================== -->
+<div
+id="accessDenied"
+class="container py-5"
+style="display:none;">
+<div class="card shadow-sm admin-card">
+<div class="card-body text-center py-5">
+<i
+class="bi bi-shield-x text-danger"
+style="font-size:60px;">
+</i>
+<h2 class="mt-3">
+Access Denied
+</h2>
+<p class="text-muted">
+You do not have administrator privileges
+for this area.
+</p>
+<a
+href="dashboard.html"
+class="btn btn-success">
+<i class="bi bi-speedometer2"></i>
+Return to Dashboard
+</a>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     ADMIN CONTENT
+===================================================== -->
+<main
+id="adminContent"
+class="container py-5">
+<!-- =====================================================
+     HEADER
+===================================================== -->
+<div
+class="d-flex
+flex-column
+flex-md-row
+justify-content-between
+align-items-md-center
+gap-3
+mb-4">
+<div>
+<h1 class="mb-1">
+Admin Dashboard
+</h1>
+<p class="text-muted mb-0">
+Manage HKDMservices from one place.
+</p>
+</div>
+<span
+class="badge bg-success fs-6 px-3 py-2">
+<i class="bi bi-shield-check"></i>
+Administrator
+</span>
+</div>
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+<div class="row g-4 mb-4">
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Total Users
+</p>
+<h2
+id="totalUsers"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-primary-subtle
+text-primary">
+<i class="bi bi-people"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Total Orders
+</p>
+<h2
+id="totalOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-success-subtle
+text-success">
+<i class="bi bi-cart-check"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Pending Orders
+</p>
+<h2
+id="pendingOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-warning-subtle
+text-warning">
+<i class="bi bi-hourglass-split"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-12 col-md-6 col-xl-3">
+<div class="card shadow-sm admin-card h-100">
+<div class="card-body">
+<div class="d-flex
+justify-content-between">
+<div>
+<p class="text-muted mb-1">
+Completed Orders
+</p>
+<h2
+id="completedOrders"
+class="mb-0">
+—
+</h2>
+</div>
+<div
+class="stat-icon
+bg-success-subtle
+text-success">
+<i class="bi bi-check-circle"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     MANAGEMENT NAVIGATION
+===================================================== -->
+<div class="card shadow-sm admin-card mb-4">
+<div class="card-body">
+<div
+class="d-flex
+flex-wrap
+gap-2">
+<button
+class="btn btn-primary admin-nav-btn"
+data-section="usersSection">
+<i class="bi bi-people"></i>
+Users
+</button>
+<button
+class="btn btn-outline-success admin-nav-btn"
+data-section="ordersSection">
+<i class="bi bi-cart-check"></i>
+Orders
+</button>
+<button
+class="btn btn-outline-dark admin-nav-btn"
+data-section="transactionsSection">
+<i class="bi bi-receipt"></i>
+Transactions
+</button>
+<button
+class="btn btn-outline-warning admin-nav-btn"
+data-section="servicesSection">
+<i class="bi bi-grid-3x3-gap"></i>
+Services
+</button>
+<button
+class="btn btn-outline-primary admin-nav-btn"
+data-section="vouchersSection">
+<i class="bi bi-ticket-perforated"></i>
+Vouchers
+</button>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     USERS
+===================================================== -->
+<section
+id="usersSection"
+class="management-section active">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-people"></i>
+Users
+</h4>
+<button
+id="refreshUsers"
+class="btn btn-outline-primary btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="usersMessage"
+class="text-muted mb-3">
+Loading users...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Wallet</th>
+<th>Orders</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody
+id="usersTableBody">
+<tr>
+<td
+colspan="5"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     ORDERS
+===================================================== -->
+<section
+id="ordersSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-cart-check"></i>
+Orders
+</h4>
+<button
+id="refreshOrders"
+class="btn btn-outline-success btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="ordersMessage"
+class="text-muted mb-3">
+Loading orders...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Order ID</th>
+<th>User</th>
+<th>Service</th>
+<th>Link</th>
+<th>Quantity</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody
+id="ordersTableBody">
+<tr>
+<td
+colspan="8"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     TRANSACTIONS
+===================================================== -->
+<section
+id="transactionsSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+justify-content-between
+align-items-center
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-receipt"></i>
+Transactions
+</h4>
+<button
+id="refreshTransactions"
+class="btn btn-outline-dark btn-sm">
+<i class="bi bi-arrow-clockwise"></i>
+Refresh
+</button>
+</div>
+<div
+id="transactionsMessage"
+class="text-muted mb-3">
+Loading transactions...
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Transaction</th>
+<th>User</th>
+<th>Type</th>
+<th>Description</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody
+id="transactionsTableBody">
+<tr>
+<td
+colspan="7"
+class="text-center text-muted">
+Loading...
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     SERVICES
+===================================================== -->
+<section
+id="servicesSection"
+class="management-section">
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div
+class="d-flex
+flex-column
+flex-md-row
+justify-content-between
+gap-3
+mb-3">
+<h4 class="mb-0">
+<i class="bi bi-grid-3x3-gap"></i>
+Services
+</h4>
+<button
+id="addServiceBtn"
+class="btn btn-warning">
+<i class="bi bi-plus-circle"></i>
+Add Service
+</button>
+</div>
+<div
+id="servicesMessage"
+class="text-muted mb-3">
+No services have been created yet.
+</div>
+<div class="table-responsive">
+<table
+class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Platform</th>
+<th>Service</th>
+<th>Price / 1,000</th>
+<th>Min</th>
+<th>Max</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody
+id="servicesTableBody">
+<tr>
+<td
+colspan="7"
+class="text-center text-muted">
+No services yet.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     VOUCHERS SECTION
+===================================================== -->
+<section
+id="vouchersSection"
+class="management-section">
+<div class="card shadow-sm admin-card mb-4">
+<div class="card-body">
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4 class="mb-0">
+<i class="bi bi-ticket-perforated"></i> Create New Voucher
+</h4>
+</div>
+<form id="createVoucherForm">
+<div class="row g-3">
+<div class="col-md-5">
+<label for="voucherCodeInput" class="form-label">Voucher Code</label>
+<input type="text" class="form-control" id="voucherCodeInput" placeholder="e.g. PROMO500" required>
+</div>
+<div class="col-md-5">
+<label for="voucherAmountInput" class="form-label">Amount (₦)</label>
+<input type="number" class="form-control" id="voucherAmountInput" placeholder="e.g. 1000" min="1" required>
+</div>
+<div class="col-md-2 d-flex align-items-end">
+<button type="submit" class="btn btn-success w-100">Create</button>
+</div>
+</div>
+</form>
+<div id="createVoucherMsg" class="mt-3"></div>
+</div>
+</div>
 
-    <div id="notification-container"></div>
-
-    <!-- Sidebar Navigation -->
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fas fa-shield-alt"></i> HKDM Admin
-        </div>
-        <div class="sidebar-menu">
-            <button class="admin-tab-btn active" onclick="switchAdminTab('users')">
-                <i class="fas fa-users"></i> Users
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('orders')">
-                <i class="fas fa-shopping-cart"></i> Orders
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('transactions')">
-                <i class="fas fa-exchange-alt"></i> Transactions
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('services')">
-                <i class="fas fa-concierge-bell"></i> Services
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('vouchers')">
-                <i class="fas fa-ticket-alt"></i> Vouchers
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('tiers')">
-                <i class="fas fa-crown"></i> Tier Requests
-            </button>
-            <button class="admin-tab-btn" onclick="switchAdminTab('api')">
-                <i class="fas fa-plug"></i> API Settings
-            </button>
-        </div>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="main-content">
-        
-        <!-- Users Section -->
-        <div id="admin-section-users" class="admin-section active-section">
-            <div class="section-header">
-                <h2>Users Management</h2>
-                <p>Manage user profiles, wallets, and account statuses.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Email / ID</th>
-                            <th>Tier</th>
-                            <th>Wallet Balance</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                        <tr><td colspan="4" class="text-center">Loading users...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Orders Section -->
-        <div id="admin-section-orders" class="admin-section">
-            <div class="section-header">
-                <h2>Orders Management</h2>
-                <p>Track client fulfillment metrics and manage order states.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>User</th>
-                            <th>Service</th>
-                            <th>Link / Qty</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body">
-                        <tr><td colspan="6" class="text-center">Loading orders...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Transactions Section -->
-        <div id="admin-section-transactions" class="admin-section">
-            <div class="section-header">
-                <h2>Transactions History</h2>
-                <p>Audit financial ledger and wallet funding logs.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Tx ID</th>
-                            <th>User</th>
-                            <th>Amount</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactions-table-body">
-                        <tr><td colspan="5" class="text-center">Loading transactions...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Services Section -->
-        <div id="admin-section-services" class="admin-section">
-            <div class="section-header">
-                <h2>Services Catalog</h2>
-                <p>Configure platform rate sheets per 1,000 units.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Service ID</th>
-                            <th>Name</th>
-                            <th>Platform</th>
-                            <th>Rate (₦/1k)</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="services-table-body">
-                        <tr><td colspan="5" class="text-center">Loading services...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Vouchers Section -->
-        <div id="admin-section-vouchers" class="admin-section">
-            <div class="section-header">
-                <h2>Vouchers & Funding Codes</h2>
-                <p>Generate promotional funding PINs.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Voucher Code</th>
-                            <th>Amount (₦)</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vouchers-table-body">
-                        <tr><td colspan="4" class="text-center">Loading vouchers...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Tier Requests Section -->
-        <div id="admin-section-tiers" class="admin-section">
-            <div class="section-header">
-                <h2><i class="fas fa-crown"></i> User Tier Upgrade Requests</h2>
-                <p>Review and approve or reject user upgrade requests for VIP and Reseller tiers.</p>
-            </div>
-            <div class="table-responsive">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>User Email / ID</th>
-                            <th>Current Tier</th>
-                            <th>Requested Tier</th>
-                            <th>Details</th>
-                            <th>Date Requested</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tier-requests-table-body">
-                        <tr><td colspan="6" class="text-center">Loading tier requests...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- API Settings Section -->
-        <div id="admin-section-api" class="admin-section">
-            <div class="section-header">
-                <h2>External API Integrations</h2>
-                <p>Configure automated master SMM provider endpoint configuration.</p>
-            </div>
-            <div style="background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); max-width: 600px;">
-                <p style="color: var(--text-muted); margin-bottom: 15px;">Master provider synchronization inputs active.</p>
-                <button class="btn btn-primary" onclick="showNotification('API settings modules active.', 'info')"><i class="fas fa-save"></i> Save Configurations</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Firebase SDK Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="admin-dashboard.js"></script>
+<div class="card shadow-sm admin-card">
+<div class="card-body">
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4 class="mb-0">
+<i class="bi bi-list-ul"></i> Existing Vouchers
+</h4>
+<button id="refreshVouchers" class="btn btn-outline-primary btn-sm">
+<i class="bi bi-arrow-clockwise"></i> Refresh
+</button>
+</div>
+<div id="vouchersMessage" class="text-muted mb-3">Loading vouchers...</div>
+<div class="table-responsive">
+<table class="table table-hover align-middle">
+<thead>
+<tr>
+<th>Code</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Used By</th>
+<th>Created Date</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="vouchersTableBody">
+<tr>
+<td colspan="6" class="text-center text-muted">Loading...</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<!-- =====================================================
+     ADMIN STATUS
+===================================================== -->
+<div class="card shadow-sm admin-card mt-4">
+<div class="card-body">
+<h4>
+<i class="bi bi-shield-check"></i>
+Admin Status
+</h4>
+<div
+id="adminStatus"
+class="alert alert-success mb-0">
+<i class="bi bi-check-circle"></i>
+Admin authentication verified.
+</div>
+</div>
+</div>
+</main>
+<!-- =====================================================
+     ADD / EDIT SERVICE MODAL
+===================================================== -->
+<div
+class="modal fade"
+id="serviceModal"
+tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5
+id="serviceModalTitle"
+class="modal-title">
+Add Service
+</h5>
+<button
+type="button"
+class="btn-close"
+data-bs-dismiss="modal">
+</button>
+</div>
+<div class="modal-body">
+<form id="serviceForm">
+<input
+type="hidden"
+id="serviceId">
+<div class="mb-3">
+<label
+class="form-label">
+Platform
+</label>
+<input
+type="text"
+id="servicePlatform"
+class="form-control"
+placeholder="Instagram"
+required>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Service Name
+</label>
+<input
+type="text"
+id="serviceName"
+class="form-control"
+placeholder="Instagram Followers"
+required>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Price per 1,000
+</label>
+<input
+type="number"
+id="servicePrice"
+class="form-control"
+min="0"
+step="0.01"
+required>
+</div>
+<div class="row">
+<div class="col-6">
+<div class="mb-3">
+<label
+class="form-label">
+Minimum
+</label>
+<input
+type="number"
+id="serviceMin"
+class="form-control"
+min="1"
+required>
+</div>
+</div>
+<div class="col-6">
+<div class="mb-3">
+<label
+class="form-label">
+Maximum
+</label>
+<input
+type="number"
+id="serviceMax"
+class="form-control"
+min="1"
+required>
+</div>
+</div>
+</div>
+<div class="mb-3">
+<label
+class="form-label">
+Status
+</label>
+<select
+id="serviceStatus"
+class="form-select">
+<option value="active">
+Active
+</option>
+<option value="inactive">
+Inactive
+</option>
+</select>
+</div>
+<button
+type="submit"
+class="btn btn-warning w-100">
+Save Service
+</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- =====================================================
+     BOOTSTRAP JS
+===================================================== -->
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+<!-- =====================================================
+     ADMIN JAVASCRIPT
+===================================================== -->
+<script
+type="module"
+src="admin-dashboard.js">
+</script>
 </body>
 </html>
