@@ -1,6 +1,25 @@
-const { admin, database } = require('./firebase-admin');
+import admin from 'firebase-admin';
 
-module.exports = async function handler(req, res) {
+if (!admin.apps.length) {
+    try {
+        admin.initializeApp({
+            credential: admin.credential.cert({
+                projectId: process.env.FIREBASE_PROJECT_ID,
+                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+                privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+            }),
+            databaseURL: process.env.FIREBASE_DATABASE_URL
+        });
+    } catch (err) {
+        console.error('Firebase initialization error:', err);
+    }
+}
+
+const database = admin.database();
+
+export default async function handler(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: "Method not allowed" });
     }
@@ -43,7 +62,7 @@ module.exports = async function handler(req, res) {
             resellerUnlockedAt: Date.now()
         });
 
-        return res.json({
+        return res.status(200).json({
             success: true,
             message: "Reseller tier unlocked successfully! Reloading..."
         });
@@ -52,4 +71,4 @@ module.exports = async function handler(req, res) {
         console.error("Reseller Upgrade Error:", error);
         return res.status(500).json({ success: false, message: error.message || "Internal server error." });
     }
-};
+}
