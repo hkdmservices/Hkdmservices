@@ -6,10 +6,6 @@ import { db } from "./firebase-admin.js";
 
 export default async function handler(req, res) {
 
-    // ====================================================
-    // 1. ONLY ACCEPT POST
-    // ====================================================
-
     if (req.method !== "POST") {
 
         return res.status(405).json({
@@ -26,20 +22,12 @@ export default async function handler(req, res) {
 
     try {
 
-        // ====================================================
-        // 2. GET WEBHOOK BODY
-        // ====================================================
-
         const body =
             req.body || {};
 
         const data =
             body.data || {};
 
-
-        // ====================================================
-        // 3. VERIFY KORAPAY SIGNATURE
-        // ====================================================
 
         const receivedSignature =
             req.headers["x-korapay-signature"];
@@ -50,11 +38,6 @@ export default async function handler(req, res) {
             console.error(
                 "KORAPAY WEBHOOK: Missing signature"
             );
-
-            /*
-                Return 200 so invalid requests are
-                not repeatedly retried.
-            */
 
             return res.status(200).json({
 
@@ -90,10 +73,6 @@ export default async function handler(req, res) {
         }
 
 
-        /*
-            Korapay signs ONLY the data object.
-        */
-
         const generatedSignature =
             crypto
                 .createHmac(
@@ -105,11 +84,6 @@ export default async function handler(req, res) {
                 )
                 .digest("hex");
 
-
-        /*
-            Use timingSafeEqual to prevent
-            timing attacks.
-        */
 
         let signatureIsValid = false;
 
@@ -178,11 +152,6 @@ export default async function handler(req, res) {
         }
 
 
-
-        // ====================================================
-        // 4. CHECK EVENT
-        // ====================================================
-
         const event =
             body.event;
 
@@ -190,11 +159,6 @@ export default async function handler(req, res) {
         if (
             event !== "charge.success"
         ) {
-
-            /*
-                We only fund wallets when
-                Korapay confirms charge.success.
-            */
 
             return res.status(200).json({
 
@@ -210,11 +174,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 5. GET PAYMENT REFERENCE
-        // ====================================================
 
         const reference =
             data.reference ||
@@ -238,11 +197,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 6. DUPLICATE CHECK
-        // ====================================================
 
         const transactionRef =
             db.ref(
@@ -273,11 +227,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 7. VERIFY PAYMENT DIRECTLY WITH KORAPAY
-        // ====================================================
 
         const verificationResponse =
             await axios.get(
@@ -323,11 +272,6 @@ export default async function handler(req, res) {
         }
 
 
-
-        // ====================================================
-        // 8. VERIFY PAYMENT STATUS
-        // ====================================================
-
         if (
             payment.status !== "success"
         ) {
@@ -349,11 +293,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 9. GET UID FROM VERIFIED PAYMENT
-        // ====================================================
 
         const uid =
             payment.metadata?.uid ||
@@ -386,11 +325,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 10. VERIFY AMOUNT
-        // ====================================================
 
         const amount =
             Number(
@@ -431,11 +365,6 @@ export default async function handler(req, res) {
         }
 
 
-
-        // ====================================================
-        // 11. VERIFY CURRENCY
-        // ====================================================
-
         const currency =
             String(
 
@@ -472,11 +401,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 12. CHECK FIREBASE USER
-        // ====================================================
 
         const userRef =
             db.ref(
@@ -516,22 +440,15 @@ export default async function handler(req, res) {
 
         }
 
+        const userData =
+            userSnapshot.val() || {};
 
-
-        // ====================================================
-        // 13. WALLET REFERENCE
-        // ====================================================
 
         const walletRef =
             db.ref(
                 `users/${uid}/wallet`
             );
 
-
-
-        // ====================================================
-        // 14. CREDIT WALLET
-        // ====================================================
 
         const walletTransaction =
             await walletRef.transaction(
@@ -570,11 +487,6 @@ export default async function handler(req, res) {
             );
 
 
-
-        // ====================================================
-        // 15. CONFIRM WALLET CREDIT
-        // ====================================================
-
         if (
             !walletTransaction.committed
         ) {
@@ -591,11 +503,6 @@ export default async function handler(req, res) {
 
             );
 
-            /*
-                Return non-200 so Korapay can retry
-                the webhook.
-            */
-
             return res.status(500).json({
 
                 success: false,
@@ -608,11 +515,6 @@ export default async function handler(req, res) {
         }
 
 
-
-        // ====================================================
-        // 16. GET NEW BALANCE
-        // ====================================================
-
         const newBalance =
             Number(
                 walletTransaction
@@ -621,10 +523,66 @@ export default async function handler(req, res) {
             );
 
 
+        // ====================================================
+        // ONE-TIME REFERRAL BONUS LOGIC
+        // ====================================================
 
-        // ====================================================
-        // 17. SAVE FUNDING TRANSACTION
-        // ====================================================
+        try {
+
+            if (
+                userData.referredBy &&
+                amount >= 1000 &&
+                !userData.referralBonusPaid
+            ) {
+
+                const referrerUid =
+                    userData.referredBy;
+
+                const referrerWalletRef =
+                    db.ref(`users/${referrerUid}/wallet`);
+
+                const referrerProfileRef =
+                    db.ref(`users/${referrerUid}`);
+
+
+                // Credit referrer wallet ₦200
+                await referrerWalletRef.transaction(currentVal => {
+                    const bal = Number(currentVal ?? 0);
+                    return Number((bal + 200).toFixed(2));
+                });
+
+
+                // Increment referrer statistics
+                await referrerProfileRef.transaction(profile => {
+                    const current = profile || {};
+                    return {
+                        ...current,
+                        totalReferrals: (current.totalReferrals || 0) + 1,
+                        totalReferralEarnings: Number(((current.totalReferralEarnings || 0) + 200).toFixed(2))
+                    };
+                });
+
+
+                // Mark user so bonus can never be credited again
+                await userRef.update({
+                    referralBonusPaid: true
+                });
+
+                console.log(
+                    `REFERRAL BONUS: Referrer ${referrerUid} credited ₦200 for user ${uid}`
+                );
+
+            }
+
+        } catch (refError) {
+
+            console.error(
+                "REFERRAL BONUS ERROR:",
+                refError
+            );
+
+        }
+
 
         try {
 
@@ -659,17 +617,6 @@ export default async function handler(req, res) {
             transactionSaveError
         ) {
 
-            /*
-                IMPORTANT:
-                The wallet has already been credited.
-
-                Do NOT credit it again if saving the
-                transaction record fails.
-
-                Log the error so it can be repaired
-                manually.
-            */
-
             console.error(
 
                 "KORAPAY TRANSACTION RECORD ERROR:",
@@ -686,11 +633,6 @@ export default async function handler(req, res) {
 
         }
 
-
-
-        // ====================================================
-        // 18. SUCCESS
-        // ====================================================
 
         console.log(
 
@@ -733,12 +675,6 @@ export default async function handler(req, res) {
             error
 
         );
-
-
-        /*
-            Return 500 for genuine processing errors.
-            Korapay can retry the webhook.
-        */
 
         return res.status(500).json({
 
