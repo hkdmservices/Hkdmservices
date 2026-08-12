@@ -1128,11 +1128,20 @@ if (confirmResellerPaymentBtn) {
         const user = auth.currentUser;
         if (!user) return;
 
+        // Disable button to prevent double-clicks and freezing loops
+        confirmResellerPaymentBtn.disabled = true;
+        const originalBtnText = confirmResellerPaymentBtn.innerHTML;
+        confirmResellerPaymentBtn.innerHTML = "Processing...";
+
         if (resellerModalMsg) {
             resellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
         }
 
         try {
+            // Add a 15-second timeout controller so it never hangs forever
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
             const idToken = await user.getIdToken(true);
 
             const response = await fetch('/api/unlock-reseller', {
@@ -1141,8 +1150,11 @@ if (confirmResellerPaymentBtn) {
                     'Authorization': `Bearer ${idToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ amount: 100000 })
+                body: JSON.stringify({ amount: 100000 }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const textResponse = await response.text();
             let result;
@@ -1168,8 +1180,14 @@ if (confirmResellerPaymentBtn) {
         } catch (error) {
             console.error("RESELLER UPGRADE ERROR:", error);
             if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+                const errorMessage = error.name === 'AbortError' 
+                    ? "Request timed out. Please check your connection." 
+                    : (error.message || "Load failed. Please try again.");
+                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${errorMessage}</div>`;
             }
+            // Re-enable button on error so the user can try again
+            confirmResellerPaymentBtn.disabled = false;
+            confirmResellerPaymentBtn.innerHTML = originalBtnText;
         }
     });
 }
