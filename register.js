@@ -8,6 +8,7 @@ import {
     ref,
     set
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
 const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
 
@@ -29,6 +30,9 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
+        // Extract the referral parameter from the current URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const referredBy = urlParams.get("ref") || null;
 
         const userCredential = await createUserWithEmailAndPassword(
             auth,
@@ -37,24 +41,26 @@ form.addEventListener("submit", async (e) => {
         );
 
         await updateProfile(userCredential.user, {
-    displayName: fullName
-});
+            displayName: fullName
+        });
 
-await set(
-    ref(database, "users/" + userCredential.user.uid),
-    {
-        fullName: fullName,
-        email: email,
-        wallet: 0,
-        role: "customer",
-        status: "active",
-        createdAt: Date.now()
-    }
-);
+        // Save the user record including the 'referredBy' field
+        await set(
+            ref(database, "users/" + userCredential.user.uid),
+            {
+                fullName: fullName,
+                email: email,
+                wallet: 0,
+                role: "customer",
+                status: "active",
+                referredBy: referredBy,
+                createdAt: Date.now()
+            }
+        );
 
-alert("Account created successfully!");
+        alert("Account created successfully!");
 
-window.location.href = "dashboard.html";
+        window.location.href = "dashboard.html";
 
     } catch (error) {
 
