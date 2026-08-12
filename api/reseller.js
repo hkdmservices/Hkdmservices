@@ -1,8 +1,14 @@
-const { admin, database } = require('./firebase-admin'); // Adjust based on how you import admin/database in other files
+const { admin, database } = require('./firebase-admin');
 
-async function unlockResellerHandler(req, res) {
+module.exports = async function handler(req, res) {
+    // Force JSON header so the server never returns HTML error pages
+    res.setHeader('Content-Type', 'application/json');
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ success: false, message: "Method not allowed" });
+    }
+
     try {
-        // 1. Verify Firebase ID Token from Authorization header
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ success: false, message: "Unauthorized: No token provided." });
@@ -12,7 +18,6 @@ async function unlockResellerHandler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // 2. Fetch user data from Firebase Realtime Database
         const userRef = database.ref(`users/${uid}`);
         const snapshot = await userRef.get();
 
@@ -33,7 +38,6 @@ async function unlockResellerHandler(req, res) {
             return res.status(400).json({ success: false, message: "Insufficient wallet balance to unlock Reseller tier." });
         }
 
-        // 3. Deduct wallet balance and update tier to reseller
         const newWalletBalance = currentWallet - cost;
         
         await userRef.update({
@@ -42,15 +46,13 @@ async function unlockResellerHandler(req, res) {
             resellerUnlockedAt: Date.now()
         });
 
-        return res.json({
+        return res.status(200).json({
             success: true,
             message: "Reseller tier unlocked successfully! Reloading..."
         });
 
     } catch (error) {
-        console.error("Unlock Reseller Error:", error);
+        console.error("Reseller Upgrade Error:", error);
         return res.status(500).json({ success: false, message: error.message || "Internal server error." });
     }
-}
-
-module.exports = unlockResellerHandler;
+};
