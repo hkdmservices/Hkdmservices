@@ -7,8 +7,7 @@ if (!admin.apps.length) {
                 projectId: process.env.FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
                 privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
-            }),
-            databaseURL: "https://hkdm-services-default-rtdb.firebaseio.com"
+            })
         });
     } catch (err) {
         console.error('Firebase initialization error:', err);
@@ -32,16 +31,34 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Use Admin SDK database reference (bypasses security rules completely)
-        const db = admin.database();
-        const userRef = db.ref(`users/${uid}`);
+        // Generate a Google OAuth token using Admin SDK credential for secure database REST access
+        const credential = admin.credential.cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+        });
         
-        const snapshot = await userRef.once('value');
-        if (!snapshot.exists()) {
+        const tokenData = await credential.getAccessToken();
+        const accessToken = tokenData.access_token;
+
+        const dbUrl = `https://hkdm-services-default-rtdb.firebaseio.com/users/${uid}.json`;
+
+        // 1. Fetch user data via direct HTTPS REST GET
+        const getRes = await fetch(dbUrl, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if (!getRes.ok) {
+            throw new Error(`Failed to fetch user data: ${getRes.statusText}`);
+        }
+
+        const userData = await getRes.json();
+        if (!userData) {
             return res.status(404).json({ success: false, message: "User profile not found." });
         }
 
-        const userData = snapshot.val();
         const currentWallet = Number(userData.wallet || 0);
         const currentTier = (userData.tier || 'regular').toLowerCase();
 
@@ -55,12 +72,24 @@ export default async function handler(req, res) {
         }
 
         const newWalletBalance = currentWallet - cost;
-        
-        await userRef.update({
-            wallet: newWalletBalance,
-            tier: 'reseller',
-            resellerUnlockedAt: Date.now()
+
+        // 2. Update user data via direct HTTPS REST PATCH
+        const patchRes = await fetch(dbUrl, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                wallet: newWalletBalance,
+                tier: 'reseller',
+                resellerUnlockedAt: Date.now()
+            })
         });
+
+        if (!patchRes.ok) {
+            throw new Error(`Failed to update user profile: ${patchRes.statusText}`);
+        }
 
         return res.status(200).json({
             success: true,
