@@ -15,7 +15,7 @@ if (!admin.apps.length) {
     }
 }
 
-const database = admin.database();
+const db = admin.database();
 
 export default async function handler(req, res) {
     res.setHeader('Content-Type', 'application/json');
@@ -34,8 +34,13 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        const userRef = database.ref(`users/${uid}`);
-        const snapshot = await userRef.get();
+        const userRef = db.ref(`users/${uid}`);
+        
+        // Wrap database fetch with a safety timeout so it never hangs indefinitely
+        const snapshot = await Promise.race([
+            userRef.get(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Database request timed out")), 8000))
+        ]);
 
         if (!snapshot.exists()) {
             return res.status(404).json({ success: false, message: "User profile not found." });
