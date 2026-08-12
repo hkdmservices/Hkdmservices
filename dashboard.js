@@ -966,7 +966,7 @@ if (whatsappSupportForm) {
 
 
 /* =========================================================
-   USER TIERS & UPGRADE SYSTEM
+   USER TIERS & UPGRADE SYSTEM (RESELLER SEPARATED)
 ========================================================= */
 
 async function evaluateAndRenderUserTier(userId) {
@@ -978,6 +978,8 @@ async function evaluateAndRenderUserTier(userId) {
         const totalSpent = Number(userData.totalSpent || 0);
 
         const badgeEl = document.getElementById('user-current-tier-badge');
+        const resellerPromoSection = document.getElementById('resellerPromoSection');
+
         if (badgeEl) {
             badgeEl.innerText = currentTier.toUpperCase();
             badgeEl.className = "badge ";
@@ -990,15 +992,28 @@ async function evaluateAndRenderUserTier(userId) {
             }
         }
 
+        // If user is already a reseller, update the promo box
+        if (currentTier === 'reseller') {
+            if (resellerPromoSection) {
+                resellerPromoSection.innerHTML = `
+                    <div class="col-12">
+                        <div class="card p-3 shadow border-danger bg-light text-center">
+                            <h5 class="text-danger mb-0"><i class="bi bi-patch-check-fill"></i> You are an Official Reseller! Enjoy your exclusive rates.</h5>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         const actionContainer = document.getElementById('tier-action-container');
         if (!actionContainer) return;
 
         if (currentTier === 'reseller') {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #198754; display:block;"><i class="bi bi-patch-check-fill"></i> Max Tier Unlocked</span>`;
+            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #dc3545; display:block;"><i class="bi bi-patch-check-fill"></i> Reseller Status Active</span>`;
             return;
         }
 
-        // Check if there is already a pending request
+        // Check if there is already a pending request for VIP
         const reqRef = ref(database, 'tierRequests');
         const reqSnap = await get(reqRef);
         let hasPending = false;
@@ -1006,54 +1021,32 @@ async function evaluateAndRenderUserTier(userId) {
         if (reqSnap.exists()) {
             const requests = reqSnap.val();
             Object.values(requests).forEach(req => {
-                if (req && req.userId === userId && req.status === 'pending') {
+                if (req && req.userId === userId && req.status === 'pending' && req.requestedTier === 'vip') {
                     hasPending = true;
                 }
             });
         }
 
         if (hasPending) {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> Upgrade Request Pending</span>`;
+            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> VIP Upgrade Request Pending</span>`;
             return;
-        }
-
-        // Check for a single qualifying deposit >= ₦100,000 for Reseller eligibility
-        const txRef = ref(database, 'transactions');
-        const txSnap = await get(txRef);
-        let hasQualifyingDeposit = false;
-
-        if (txSnap.exists()) {
-            const transactions = txSnap.val();
-            Object.values(transactions).forEach(tx => {
-                if (tx && String(tx.uid) === String(userId) && Number(tx.amount || 0) >= 100000) {
-                    hasQualifyingDeposit = true;
-                }
-            });
         }
 
         let html = '';
         if (currentTier === 'regular') {
-            if (hasQualifyingDeposit) {
-                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Request Reseller</button>`;
-            }
             if (totalSpent >= 60000) {
                 html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
-            }
-            if (!hasQualifyingDeposit && totalSpent < 60000) {
-                html = `<p class="text-muted small mb-0 mt-2">Spend ₦60k (VIP) or make a single ₦100k deposit (Reseller) to unlock.</p>`;
+            } else {
+                html = `<p class="text-muted small mb-0 mt-2">Spend ₦60,000 total across orders to unlock VIP tier automatically.</p>`;
             }
         } else if (currentTier === 'vip') {
-            if (hasQualifyingDeposit) {
-                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'reseller', 'Single deposit of ₦100k+ met')">Upgrade to Reseller</button>`;
-            } else {
-                html = `<p class="text-muted small mb-0 mt-2">Make a single deposit of ₦100k+ for Reseller status.</p>`;
-            }
+            html = `<p class="text-muted small mb-0 mt-2">You are currently on VIP. Use the Reseller box above to unlock Reseller status anytime.</p>`;
         }
 
         actionContainer.innerHTML = html;
 
     } catch (err) {
-        console.error("Error evaluating user tier and deposits:", err);
+        console.error("Error evaluating user tier:", err);
     }
 }
 
@@ -1084,6 +1077,88 @@ async function requestTierUpgrade(userId, requestedTier, details) {
 }
 
 window.requestTierUpgrade = requestTierUpgrade;
+
+
+
+/* =========================================================
+   RESELLER MODAL & PAYMENT HANDLERS
+========================================================= */
+
+const openResellerModalBtn = document.getElementById("openResellerModalBtn");
+const confirmResellerPaymentBtn = document.getElementById("confirmResellerPaymentBtn");
+const modalWalletBalance = document.getElementById("modalWalletBalance");
+const resellerModalMsg = document.getElementById("resellerModalMsg");
+
+if (openResellerModalBtn) {
+    openResellerModalBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userRef = ref(database, `users/${user.uid}`);
+            const snap = await get(userRef);
+            const data = snap.val() || {};
+            const currentWallet = Number(data.wallet || 0);
+
+            if (modalWalletBalance) {
+                modalWalletBalance.textContent = formatNaira(currentWallet);
+            }
+
+            if (resellerModalMsg) {
+                resellerModalMsg.innerHTML = "";
+            }
+
+            const myModal = new bootstrap.Modal(document.getElementById('resellerModal'));
+            myModal.show();
+        } catch (err) {
+            console.error("Error opening reseller modal:", err);
+        }
+    });
+}
+
+if (confirmResellerPaymentBtn) {
+    confirmResellerPaymentBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        if (resellerModalMsg) {
+            resellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
+        }
+
+        try {
+            const idToken = await user.getIdToken(true);
+
+            const response = await fetch('/api/unlock-reseller', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: 100000 })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Failed to process reseller upgrade.");
+            }
+
+            if (resellerModalMsg) {
+                resellerModalMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            }
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+
+        } catch (error) {
+            console.error("RESELLER UPGRADE ERROR:", error);
+            if (resellerModalMsg) {
+                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            }
+        }
+    });
+}
 
 
 
