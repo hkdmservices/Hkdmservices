@@ -464,7 +464,37 @@ rel="stylesheet">
 
 
     <!-- =================================================
-         ACCOUNT TIER HUB CARD (STABLE CONTAINER)
+         BECOME A RESELLER BOX
+    ================================================= -->
+
+    <div class="row mb-4" id="resellerPromoSection">
+        <div class="col-12">
+            <div class="card p-4 shadow border-success bg-light">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-8 mb-3 mb-md-0">
+                        <span class="badge bg-danger mb-2">EXCLUSIVE PROGRAM</span>
+                        <h3 class="fw-bold text-success mb-2">Become a Reseller</h3>
+                        <p class="text-muted mb-0">
+                            Unlock maximum discounts, custom API access, and preferential rates on all social media marketing services. Get started with a one-time setup fee of <strong>₦100,000</strong>.
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-4 text-md-end">
+                        <button 
+                            type="button" 
+                            id="openResellerModalBtn" 
+                            class="btn btn-success btn-lg w-100"
+                        >
+                            <i class="bi bi-star-fill"></i> Become a Reseller
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =================================================
+         ACCOUNT TIER HUB CARD (VIP & REGULAR ONLY)
     ================================================= -->
 
     <div class="row mb-4">
@@ -609,6 +639,40 @@ rel="stylesheet">
 </div>
 
 </section>
+
+
+<!-- =====================================================
+     RESELLER UPGRADE MODAL
+===================================================== -->
+
+<div class="modal fade" id="resellerModal" tabindex="-1" aria-labelledby="resellerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="resellerModalLabel">
+                    <i class="bi bi-star-fill"></i> Upgrade to Reseller Tier
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to unlock the exclusive <strong>Reseller Tier</strong> for a one-time setup fee of <strong>₦100,000</strong>.</p>
+                <p class="text-muted small">The fee will be deducted directly from your available wallet balance. Ensure you have at least ₦100,000 in your wallet before proceeding.</p>
+                
+                <div class="alert alert-warning small mb-3">
+                    <i class="bi bi-info-circle-fill"></i> Current Wallet Balance: <strong id="modalWalletBalance">₦0.00</strong>
+                </div>
+
+                <div id="resellerModalMsg"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmResellerPaymentBtn" class="btn btn-success">
+                    Pay ₦100,000 &amp; Unlock Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
