@@ -14,6 +14,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Followers",
         ratePer1000: 6000,
+        resellerRatePer1000: 4500,
+        vipRatePer1000: 5400,
         minimumQuantity: 100
     },
 
@@ -22,6 +24,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Likes",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -30,6 +34,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Views",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -38,6 +44,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Comments",
         ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -46,6 +54,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Live Stream",
         ratePer1000: 100000,
+        resellerRatePer1000: 75000,
+        vipRatePer1000: 90000,
         minimumQuantity: 100
     },
 
@@ -54,6 +64,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Repost",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -62,6 +74,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Story Views + Impressions",
         ratePer1000: 2600,
+        resellerRatePer1000: 1950,
+        vipRatePer1000: 2340,
         minimumQuantity: 100
     },
 
@@ -70,6 +84,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Instagram",
         service: "Channel Members",
         ratePer1000: 5000,
+        resellerRatePer1000: 3750,
+        vipRatePer1000: 4500,
         minimumQuantity: 100
     },
 
@@ -83,6 +99,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Followers",
         ratePer1000: 6500,
+        resellerRatePer1000: 4875,
+        vipRatePer1000: 5850,
         minimumQuantity: 100
     },
 
@@ -91,6 +109,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Likes",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -99,6 +119,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Views",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -107,6 +129,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Shares",
         ratePer1000: 2000,
+        resellerRatePer1000: 1500,
+        vipRatePer1000: 1800,
         minimumQuantity: 100
     },
 
@@ -115,6 +139,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Saves",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -123,6 +149,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Comments",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -131,6 +159,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Story Views",
         ratePer1000: 2000,
+        resellerRatePer1000: 1500,
+        vipRatePer1000: 1800,
         minimumQuantity: 100
     },
 
@@ -139,6 +169,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Video Downloads",
         ratePer1000: 5000,
+        resellerRatePer1000: 3750,
+        vipRatePer1000: 4500,
         minimumQuantity: 100
     },
 
@@ -148,6 +180,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Monetization Views | 100,000 Views |",
         ratePer1000: null,
         fixedPrice: 50000,
+        resellerFixedPrice: 37500,
+        vipFixedPrice: 45000,
         minimumQuantity: 1,
         oneTimePayment: true
     },
@@ -157,6 +191,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Viewers",
         ratePer1000: 100000,
+        resellerRatePer1000: 75000,
+        vipRatePer1000: 90000,
         minimumQuantity: 100
     },
 
@@ -165,6 +201,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Likes",
         ratePer1000: 2000,
+        resellerRatePer1000: 1500,
+        vipRatePer1000: 1800,
         minimumQuantity: 100
     },
 
@@ -173,6 +211,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Comments",
         ratePer1000: 5000,
+        resellerRatePer1000: 3750,
+        vipRatePer1000: 4500,
         minimumQuantity: 100
     },
 
@@ -181,6 +221,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "TikTok",
         service: "Livestream Engagement - Shares",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -194,6 +236,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Subscribers",
         ratePer1000: 30000,
+        resellerRatePer1000: 22500,
+        vipRatePer1000: 27000,
         minimumQuantity: 100
     },
 
@@ -202,6 +246,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Likes",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -210,6 +256,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Views",
         ratePer1000: 2500,
+        resellerRatePer1000: 1875,
+        vipRatePer1000: 2250,
         minimumQuantity: 100
     },
 
@@ -219,6 +267,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         service: "Watch Time (4000hr Package)",
         ratePer1000: null,
         fixedPrice: 100000,
+        resellerFixedPrice: 75000,
+        vipFixedPrice: 90000,
         minimumQuantity: 1
     },
 
@@ -227,6 +277,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Comments",
         ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -235,6 +287,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Livestream Views | 24 Hours |",
         ratePer1000: 100000,
+        resellerRatePer1000: 75000,
+        vipRatePer1000: 90000,
         minimumQuantity: 100
     },
 
@@ -243,6 +297,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Livestream Chat Comments",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -251,6 +307,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Short Views",
         ratePer1000: 3200,
+        resellerRatePer1000: 2400,
+        vipRatePer1000: 2880,
         minimumQuantity: 100
     },
 
@@ -259,6 +317,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Comment Likes",
         ratePer1000: 5200,
+        resellerRatePer1000: 3900,
+        vipRatePer1000: 4680,
         minimumQuantity: 100
     },
 
@@ -267,6 +327,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "YouTube",
         service: "Social Shares",
         ratePer1000: 4000,
+        resellerRatePer1000: 3000,
+        vipRatePer1000: 3600,
         minimumQuantity: 100
     },
 
@@ -280,6 +342,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Followers",
         ratePer1000: 6050,
+        resellerRatePer1000: 4538,
+        vipRatePer1000: 5445,
         minimumQuantity: 100
     },
 
@@ -288,6 +352,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Post Likes",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -296,6 +362,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Video Views",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -304,6 +372,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Comments",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -312,6 +382,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Livestream Views | 6 Hours |",
         ratePer1000: 100000,
+        resellerRatePer1000: 75000,
+        vipRatePer1000: 90000,
         minimumQuantity: 100
     },
 
@@ -320,6 +392,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Group Members",
         ratePer1000: 5000,
+        resellerRatePer1000: 3750,
+        vipRatePer1000: 4500,
         minimumQuantity: 100
     },
 
@@ -328,6 +402,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Post Reactions | Random Emojis |",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -336,6 +412,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Facebook",
         service: "Page Reviews | Custom |",
         ratePer1000: 156800,
+        resellerRatePer1000: 117600,
+        vipRatePer1000: 141120,
         minimumQuantity: 100
     },
 
@@ -349,6 +427,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Followers",
         ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -357,6 +437,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Likes",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -365,6 +447,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Retweets",
         ratePer1000: 2500,
+        resellerRatePer1000: 1875,
+        vipRatePer1000: 2250,
         minimumQuantity: 100
     },
 
@@ -373,6 +457,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Views",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -381,6 +467,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Poll Votes",
         ratePer1000: 3050,
+        resellerRatePer1000: 2288,
+        vipRatePer1000: 2745,
         minimumQuantity: 100
     },
 
@@ -389,6 +477,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Live Listeners",
         ratePer1000: 50000,
+        resellerRatePer1000: 37500,
+        vipRatePer1000: 45000,
         minimumQuantity: 100
     },
 
@@ -397,6 +487,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Comments",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -410,6 +502,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Channel / Group Members",
         ratePer1000: 5000,
+        resellerRatePer1000: 3750,
+        vipRatePer1000: 4500,
         minimumQuantity: 100
     },
 
@@ -418,6 +512,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Post Views",
         ratePer1000: 1500,
+        resellerRatePer1000: 1125,
+        vipRatePer1000: 1350,
         minimumQuantity: 100
     },
 
@@ -426,6 +522,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Reactions",
         ratePer1000: 3500,
+        resellerRatePer1000: 2625,
+        vipRatePer1000: 3150,
         minimumQuantity: 100
     },
 
@@ -434,6 +532,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Telegram",
         service: "Comments",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -447,6 +547,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Followers",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -455,6 +557,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Monthly Listeners",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -463,6 +567,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Plays",
         ratePer1000: 8000,
+        resellerRatePer1000: 6000,
+        vipRatePer1000: 7200,
         minimumQuantity: 100
     },
 
@@ -471,6 +577,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Spotify",
         service: "Saves",
         ratePer1000: 3000,
+        resellerRatePer1000: 2250,
+        vipRatePer1000: 2700,
         minimumQuantity: 100
     },
 
@@ -484,6 +592,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Followers",
         ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -492,6 +602,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "WhatsApp",
         service: "Channel Post Reactions",
         ratePer1000: 3500,
+        resellerRatePer1000: 2625,
+        vipRatePer1000: 3150,
         minimumQuantity: 100
     },
 
@@ -505,6 +617,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Followers",
         ratePer1000: 10000,
+        resellerRatePer1000: 7500,
+        vipRatePer1000: 9000,
         minimumQuantity: 100
     },
 
@@ -513,6 +627,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Apple Music",
         service: "Plays",
         ratePer1000: 9000,
+        resellerRatePer1000: 6750,
+        vipRatePer1000: 8100,
         minimumQuantity: 100
     },
 
@@ -526,6 +642,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Followers",
         ratePer1000: 9600,
+        resellerRatePer1000: 7200,
+        vipRatePer1000: 8640,
         minimumQuantity: 100
     },
 
@@ -534,6 +652,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Channel Subscribers",
         ratePer1000: 9600,
+        resellerRatePer1000: 7200,
+        vipRatePer1000: 8640,
         minimumQuantity: 100
     },
 
@@ -542,6 +662,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Post Upvotes",
         ratePer1000: 76000,
+        resellerRatePer1000: 57000,
+        vipRatePer1000: 68400,
         minimumQuantity: 100
     },
 
@@ -550,6 +672,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Post Downvotes",
         ratePer1000: 120000,
+        resellerRatePer1000: 90000,
+        vipRatePer1000: 108000,
         minimumQuantity: 100
     },
 
@@ -558,6 +682,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Comments Upvotes",
         ratePer1000: 200000,
+        resellerRatePer1000: 150000,
+        vipRatePer1000: 180000,
         minimumQuantity: 100
     },
 
@@ -566,6 +692,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Views",
         ratePer1000: 2500,
+        resellerRatePer1000: 1875,
+        vipRatePer1000: 2250,
         minimumQuantity: 100
     },
 
@@ -574,6 +702,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Shares",
         ratePer1000: 2500,
+        resellerRatePer1000: 1875,
+        vipRatePer1000: 2250,
         minimumQuantity: 100
     },
 
@@ -582,6 +712,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Comments | Custom |",
         ratePer1000: 150000,
+        resellerRatePer1000: 112500,
+        vipRatePer1000: 135000,
         minimumQuantity: 100
     },
 
@@ -590,6 +722,8 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         platform: "Reddit",
         service: "Community Members",
         ratePer1000: 300000,
+        resellerRatePer1000: 225000,
+        vipRatePer1000: 270000,
         minimumQuantity: 100
     }
 
