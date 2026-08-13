@@ -17,15 +17,15 @@ import {
 
 
 const transactionsBody =
-    document.getElementById(
-        "transactionsBody"
-    );
+    document.getElementById("transactionsBody");
 
 const message =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
 
+
+/* =========================================================
+   FORMAT NAIRA
+========================================================= */
 
 function formatNaira(amount) {
 
@@ -41,17 +41,23 @@ function formatNaira(amount) {
 }
 
 
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
 function formatDate(timestamp) {
 
     if (!timestamp) {
-
         return "—";
-
     }
 
-    return new Date(
-        timestamp
-    ).toLocaleString(
+    const date = new Date(Number(timestamp));
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
+    }
+
+    return date.toLocaleString(
         "en-NG",
         {
             dateStyle: "medium",
@@ -62,19 +68,103 @@ function formatDate(timestamp) {
 }
 
 
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   TRANSACTION STATUS
+========================================================= */
+
+function getStatusClass(status) {
+
+    const safeStatus =
+        String(status || "pending").toLowerCase();
+
+    if (
+        safeStatus === "success" ||
+        safeStatus === "completed"
+    ) {
+        return "bg-success";
+    }
+
+    if (
+        safeStatus === "failed" ||
+        safeStatus === "cancelled"
+    ) {
+        return "bg-danger";
+    }
+
+    return "bg-warning text-dark";
+
+}
+
+
+/* =========================================================
+   TRANSACTION TYPE DISPLAY
+========================================================= */
+
+function getTransactionType(transaction) {
+
+    const type =
+        String(
+            transaction?.type ||
+            "Transaction"
+        );
+
+    return type;
+
+}
+
+
+/* =========================================================
+   TRANSACTION DESCRIPTION
+========================================================= */
+
+function getTransactionDescription(transaction) {
+
+    if (transaction?.description) {
+        return transaction.description;
+    }
+
+    if (
+        String(transaction?.type || "").toLowerCase()
+        === "reseller upgrade"
+    ) {
+        return "Official Reseller account upgrade";
+    }
+
+    return "—";
+
+}
+
+
+/* =========================================================
+   SHOW MESSAGE
+========================================================= */
+
 function showMessage(
     text,
     type = "danger"
 ) {
 
     if (!message) {
-
         return;
-
     }
 
-    message.textContent =
-        text;
+    message.textContent = text;
 
     message.className =
         "alert alert-" +
@@ -83,6 +173,10 @@ function showMessage(
 
 }
 
+
+/* =========================================================
+   LOAD USER TRANSACTIONS
+========================================================= */
 
 onAuthStateChanged(
     auth,
@@ -101,7 +195,6 @@ onAuthStateChanged(
         try {
 
             /*
-                SECURITY:
                 Only request transactions
                 belonging to the logged-in user.
             */
@@ -167,10 +260,14 @@ onAuthStateChanged(
                     .sort(
                         (a, b) =>
                             Number(
-                                b.createdAt || 0
+                                b.createdAt ||
+                                b.timestamp ||
+                                0
                             ) -
                             Number(
-                                a.createdAt || 0
+                                a.createdAt ||
+                                a.timestamp ||
+                                0
                             )
                     );
 
@@ -201,8 +298,7 @@ onAuthStateChanged(
             }
 
 
-            transactionsBody.innerHTML =
-                "";
+            transactionsBody.innerHTML = "";
 
 
             userTransactions.forEach(
@@ -215,8 +311,15 @@ onAuthStateChanged(
 
 
                     const type =
-                        transaction.type ||
-                        "transaction";
+                        getTransactionType(
+                            transaction
+                        );
+
+
+                    const description =
+                        getTransactionDescription(
+                            transaction
+                        );
 
 
                     const amount =
@@ -227,16 +330,32 @@ onAuthStateChanged(
 
 
                     const status =
-                        transaction.status ||
-                        "pending";
+                        String(
+                            transaction.status ||
+                            "pending"
+                        ).toLowerCase();
 
 
                     const statusClass =
-                        status === "success"
-                            ? "bg-success"
-                            : status === "failed"
-                                ? "bg-danger"
-                                : "bg-warning text-dark";
+                        getStatusClass(
+                            status
+                        );
+
+
+                    /*
+                        Make reseller upgrades
+                        visually recognizable.
+                    */
+
+                    const isResellerUpgrade =
+                        type.toLowerCase()
+                            === "reseller upgrade";
+
+
+                    const typeBadgeClass =
+                        isResellerUpgrade
+                            ? "bg-primary"
+                            : "bg-secondary";
 
 
                     row.innerHTML = `
@@ -244,29 +363,34 @@ onAuthStateChanged(
                         <td>
 
                             ${formatDate(
-                                transaction.createdAt
+                                transaction.createdAt ||
+                                transaction.timestamp
                             )}
 
                         </td>
 
+
                         <td>
 
                             <span
-                                class="badge bg-secondary"
+                                class="badge ${typeBadgeClass}"
                             >
 
-                                ${type}
+                                ${escapeHtml(type)}
 
                             </span>
 
                         </td>
 
+
                         <td>
 
-                            ${transaction.description ||
-                            "—"}
+                            ${escapeHtml(
+                                description
+                            )}
 
                         </td>
+
 
                         <td
                             class="fw-bold"
@@ -278,13 +402,16 @@ onAuthStateChanged(
 
                         </td>
 
+
                         <td>
 
                             <span
                                 class="badge ${statusClass}"
                             >
 
-                                ${status}
+                                ${escapeHtml(
+                                    status
+                                )}
 
                             </span>
 
