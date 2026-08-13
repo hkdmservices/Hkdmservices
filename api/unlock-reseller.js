@@ -30,7 +30,10 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Check Firebase authentication token
+        // =====================================================
+        // VERIFY USER
+        // =====================================================
+
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -45,11 +48,14 @@ export default async function handler(req, res) {
         const decodedToken = await admin.auth().verifyIdToken(idToken);
         const uid = decodedToken.uid;
 
-        // Get Realtime Database
+        // =====================================================
+        // FIREBASE DATABASE
+        // =====================================================
+
         const db = admin.database();
 
-        // Get user's Firebase profile
         const userRef = db.ref(`users/${uid}`);
+
         const snapshot = await userRef.once('value');
 
         if (!snapshot.exists()) {
@@ -61,12 +67,20 @@ export default async function handler(req, res) {
 
         const userData = snapshot.val();
 
+        // =====================================================
+        // CURRENT ACCOUNT INFORMATION
+        // =====================================================
+
         const currentWallet = Number(userData.wallet || 0);
+
         const currentTier = String(
             userData.tier || 'regular'
         ).toLowerCase();
 
-        // Already reseller
+        // =====================================================
+        // CHECK IF ALREADY RESELLER
+        // =====================================================
+
         if (currentTier === 'reseller') {
             return res.status(400).json({
                 success: false,
@@ -74,10 +88,16 @@ export default async function handler(req, res) {
             });
         }
 
-        // Reseller upgrade cost
+        // =====================================================
+        // RESELLER UPGRADE COST
+        // =====================================================
+
         const cost = 100000;
 
-        // Check wallet
+        // =====================================================
+        // CHECK WALLET BALANCE
+        // =====================================================
+
         if (currentWallet < cost) {
             return res.status(400).json({
                 success: false,
@@ -85,29 +105,103 @@ export default async function handler(req, res) {
             });
         }
 
+        // =====================================================
+        // CALCULATE NEW BALANCE
+        // =====================================================
+
         const newWalletBalance = currentWallet - cost;
 
-        // Update user
-        await userRef.update({
-            wallet: newWalletBalance,
-            tier: 'reseller',
-            resellerUnlockedAt: Date.now()
-        });
+        const now = Date.now();
 
-        console.log(`Reseller upgrade successful for UID: ${uid}`);
+        // =====================================================
+        // CREATE TRANSACTION FIRST
+        // =====================================================
+
+        const transactionRef = db.ref('transactions').push();
+
+        const transactionId =
+            `RES-${now}-${uid.substring(0, 6).toUpperCase()}`;
+
+        const transactionData = {
+            transactionId: transactionId,
+            uid: uid,
+            email: userData.email || decodedToken.email || '—',
+
+            type: 'Reseller Upgrade',
+
+            description:
+                'Official Reseller account upgrade',
+
+            amount: cost,
+
+            status: 'completed',
+
+            createdAt: now,
+
+            tier: 'reseller',
+
+            previousTier: currentTier,
+
+            newTier: 'reseller'
+        };
+
+        // =====================================================
+        // UPDATE USER + TRANSACTION TOGETHER
+        // =====================================================
+
+        const updates = {};
+
+        updates[`users/${uid}/wallet`] = newWalletBalance;
+        updates[`users/${uid}/tier`] = 'reseller';
+        updates[`users/${uid}/resellerUnlockedAt`] = now;
+        updates[`users/${uid}/updatedAt`] = now;
+
+        updates[`transactions/${transactionRef.key}`] =
+            transactionData;
+
+        await db.ref().update(updates);
+
+        console.log(
+            `Reseller upgrade successful for UID: ${uid}`
+        );
+
+        console.log(
+            `Transaction created: ${transactionId}`
+        );
+
+        // =====================================================
+        // SUCCESS RESPONSE
+        // =====================================================
 
         return res.status(200).json({
             success: true,
-            message: 'Reseller tier unlocked successfully!',
-            newWalletBalance
+
+            message:
+                'Reseller tier unlocked successfully!',
+
+            transactionId: transactionId,
+
+            amount: cost,
+
+            previousTier: currentTier,
+
+            newTier: 'reseller',
+
+            newWalletBalance: newWalletBalance
         });
 
     } catch (error) {
-        console.error('Reseller Upgrade Error:', error);
+
+        console.error(
+            'Reseller Upgrade Error:',
+            error
+        );
 
         return res.status(500).json({
             success: false,
-            message: error.message || 'Internal server error.'
+            message:
+                error.message ||
+                'Internal server error.'
         });
     }
 }
