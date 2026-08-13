@@ -1,9 +1,7 @@
 import { admin, db } from "../firebase-admin.js";
-
 import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "../services.js";
-
 import {
     sendTelegramNotification
 } from "../telegram.js";
@@ -12,12 +10,10 @@ import {
 export default async function handler(req, res) {
 
     if (req.method !== "POST") {
-
         return res.status(405).json({
             success: false,
             message: "Method not allowed"
         });
-
     }
 
 
@@ -31,24 +27,19 @@ export default async function handler(req, res) {
             req.headers.authorization || "";
 
         if (!authorization.startsWith("Bearer ")) {
-
             return res.status(401).json({
                 success: false,
                 message: "Please log in again."
             });
-
         }
-
 
         const idToken =
             authorization.substring(7);
-
 
         const decodedToken =
             await admin
                 .auth()
                 .verifyIdToken(idToken);
-
 
         const uid =
             decodedToken.uid;
@@ -71,13 +62,11 @@ export default async function handler(req, res) {
             !link ||
             quantity === undefined
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
                     "Please provide the service, link and quantity."
             });
-
         }
 
 
@@ -93,86 +82,85 @@ export default async function handler(req, res) {
 
 
         if (!selectedService) {
-
             return res.status(400).json({
                 success: false,
                 message:
                     "Selected service was not found."
             });
-
         }
 
 
         // ====================================================
-        // 4. DETECT COMMENT SERVICE
+        // 4. DETECT CUSTOM COMMENT SERVICE
+        //
+        // Only services where the customer must actually
+        // submit individual comments should use the comments
+        // array.
         // ====================================================
+
+        const customCommentServiceIds = new Set([
+            "ig_comments",
+            "tt_comments",
+            "yt_comments",
+            "yt_livestream_chat_comments",
+            "fb_comments",
+            "tw_comments",
+            "tg_comments",
+            "reddit_comments"
+        ]);
+
 
         const isCommentService =
-            String(
-                selectedService.service || ""
-            )
-                .toLowerCase()
-                .includes("comment");
+            customCommentServiceIds.has(
+                selectedService.id
+            );
 
 
         // ====================================================
-        // 5. VALIDATE LINK
-        // ====================================================
-
-        const cleanedLink =
-            String(link).trim();
-
-
-        if (!cleanedLink) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Please provide a valid link."
-            });
-
-        }
-
-
-        // ====================================================
-        // 6. VALIDATE QUANTITY / COMMENTS
+        // 5. VALIDATE QUANTITY
         // ====================================================
 
         let cleanedComments = [];
-
         let numericQuantity;
 
+
+        // ====================================================
+        // CUSTOM COMMENT SERVICE
+        // ====================================================
 
         if (isCommentService) {
 
             if (!Array.isArray(comments)) {
-
                 return res.status(400).json({
                     success: false,
                     message:
                         "Please provide your comments, one per line."
                 });
-
             }
 
 
             cleanedComments =
                 comments
-                    .map(comment =>
-                        String(comment ?? "").trim()
+                    .map(
+                        comment =>
+                            String(
+                                comment ?? ""
+                            ).trim()
                     )
-                    .filter(comment =>
-                        comment.length > 0
+                    .filter(
+                        comment =>
+                            comment.length > 0
                     );
 
 
-            if (cleanedComments.length < 100) {
-
+            if (
+                cleanedComments.length < 100
+            ) {
                 return res.status(400).json({
                     success: false,
                     message:
                         `Minimum order is 100 comments. You provided ${cleanedComments.length}.`
                 });
-
             }
 
 
@@ -184,20 +172,18 @@ export default async function handler(req, res) {
                 Number(quantity) !==
                 numericQuantity
             ) {
-
                 return res.status(400).json({
                     success: false,
                     message:
                         "Comment quantity does not match the number of comments provided."
                 });
-
             }
 
         }
 
 
         // ====================================================
-        // 7. FIXED PACKAGE SERVICE
+        // 6. FIXED PACKAGE
         // ====================================================
 
         else if (
@@ -215,24 +201,23 @@ export default async function handler(req, res) {
 
 
             if (
-                !Number.isFinite(numericQuantity) ||
-                numericQuantity !== 1 ||
+                !Number.isFinite(
+                    numericQuantity
+                ) ||
                 numericQuantity < minimum
             ) {
-
                 return res.status(400).json({
                     success: false,
                     message:
-                        `This is a fixed-price package. Quantity must be ${minimum}.`
+                        `Minimum package quantity is ${minimum}.`
                 });
-
             }
 
         }
 
 
         // ====================================================
-        // 8. NORMAL SERVICE
+        // 7. NORMAL SERVICE
         // ====================================================
 
         else {
@@ -248,42 +233,45 @@ export default async function handler(req, res) {
 
 
             if (
-                !Number.isFinite(numericQuantity) ||
-                !Number.isInteger(numericQuantity) ||
+                !Number.isFinite(
+                    numericQuantity
+                ) ||
                 numericQuantity < minimum
             ) {
-
                 return res.status(400).json({
                     success: false,
                     message:
                         `Minimum quantity is ${minimum}.`
                 });
-
             }
 
         }
 
 
         // ====================================================
-        // 9. GET USER
+        // 8. GET USER
         // ====================================================
 
         const userRef =
-            db.ref(`users/${uid}`);
+            db.ref(
+                `users/${uid}`
+            );
 
 
         const userSnapshot =
-            await userRef.once("value");
+            await userRef.once(
+                "value"
+            );
 
 
-        if (!userSnapshot.exists()) {
-
+        if (
+            !userSnapshot.exists()
+        ) {
             return res.status(404).json({
                 success: false,
                 message:
                     "User account could not be found."
             });
-
         }
 
 
@@ -298,27 +286,26 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 10. SELECT CUSTOMER RATE
+        // 9. CALCULATE ACTIVE PRICE
         // ====================================================
 
         let activeRate =
             selectedService.ratePer1000;
 
-
         let activeFixedPrice =
             selectedService.fixedPrice;
 
 
-        if (userTier === "reseller") {
+        if (
+            userTier === "reseller"
+        ) {
 
             if (
                 selectedService.resellerRatePer1000 !==
                 undefined
             ) {
-
                 activeRate =
                     selectedService.resellerRatePer1000;
-
             }
 
 
@@ -326,25 +313,23 @@ export default async function handler(req, res) {
                 selectedService.resellerFixedPrice !==
                 undefined
             ) {
-
                 activeFixedPrice =
                     selectedService.resellerFixedPrice;
-
             }
 
         }
 
 
-        else if (userTier === "vip") {
+        else if (
+            userTier === "vip"
+        ) {
 
             if (
                 selectedService.vipRatePer1000 !==
                 undefined
             ) {
-
                 activeRate =
                     selectedService.vipRatePer1000;
-
             }
 
 
@@ -352,17 +337,15 @@ export default async function handler(req, res) {
                 selectedService.vipFixedPrice !==
                 undefined
             ) {
-
                 activeFixedPrice =
                     selectedService.vipFixedPrice;
-
             }
 
         }
 
 
         // ====================================================
-        // 11. CALCULATE TOTAL
+        // 10. CALCULATE TOTAL
         // ====================================================
 
         let total;
@@ -372,20 +355,27 @@ export default async function handler(req, res) {
             selectedService.ratePer1000 === null
         ) {
 
-            // Fixed package = one fixed charge.
+            // FIXED PACKAGE:
+            // Charge the package price ONCE.
             total =
-                Number(activeFixedPrice);
+                Number(
+                    activeFixedPrice
+                );
 
         }
 
-
         else {
 
+            // NORMAL SERVICE:
+            // Price is calculated per 1,000 units.
             total =
                 (
-                    numericQuantity / 1000
+                    numericQuantity /
+                    1000
                 ) *
-                Number(activeRate);
+                Number(
+                    activeRate
+                );
 
         }
 
@@ -400,18 +390,16 @@ export default async function handler(req, res) {
             !Number.isFinite(total) ||
             total <= 0
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
                     "Invalid order amount."
             });
-
         }
 
 
         // ====================================================
-        // 12. CHECK WALLET
+        // 11. CHECK CURRENT WALLET
         // ====================================================
 
         const currentBalance =
@@ -421,22 +409,25 @@ export default async function handler(req, res) {
 
 
         if (
-            !Number.isFinite(currentBalance)
+            !Number.isFinite(
+                currentBalance
+            )
         ) {
-
             return res.status(500).json({
                 success: false,
                 message:
                     "Your wallet balance is invalid."
             });
-
         }
 
+
+        // ====================================================
+        // 12. CHECK BALANCE
+        // ====================================================
 
         if (
             currentBalance < total
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -454,12 +445,11 @@ export default async function handler(req, res) {
                         }
                     )}.`
             });
-
         }
 
 
         // ====================================================
-        // 13. ATOMIC WALLET DEDUCTION
+        // 13. DEDUCT WALLET
         // ====================================================
 
         let walletTransaction;
@@ -474,9 +464,7 @@ export default async function handler(req, res) {
                         if (
                             currentUserData === null
                         ) {
-
                             return null;
-
                         }
 
 
@@ -493,24 +481,22 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
-
                             throw new Error(
-                                "INVALID_WALLET"
+                                "Invalid wallet balance inside transaction."
                             );
-
                         }
 
 
                         if (
                             balance < total
                         ) {
-
                             throw new Error(
                                 "INSUFFICIENT_BALANCE"
                             );
-
                         }
 
 
@@ -524,12 +510,10 @@ export default async function handler(req, res) {
 
 
                         return updatedUser;
-
                     }
                 );
 
         }
-
 
         catch (walletError) {
 
@@ -543,13 +527,11 @@ export default async function handler(req, res) {
                 walletError.message ===
                 "INSUFFICIENT_BALANCE"
             ) {
-
                 return res.status(400).json({
                     success: false,
                     message:
                         "Insufficient wallet balance."
                 });
-
             }
 
 
@@ -563,22 +545,24 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 14. CONFIRM DEDUCTION
+        // 14. CONFIRM WALLET TRANSACTION
         // ====================================================
 
         if (
             !walletTransaction ||
             !walletTransaction.committed
         ) {
-
             return res.status(409).json({
                 success: false,
                 message:
                     "Wallet transaction was not committed. Your balance was not charged. Please try again."
             });
-
         }
 
+
+        // ====================================================
+        // 15. GET NEW BALANCE
+        // ====================================================
 
         const committedUser =
             walletTransaction
@@ -593,20 +577,20 @@ export default async function handler(req, res) {
 
 
         if (
-            !Number.isFinite(newBalance)
+            !Number.isFinite(
+                newBalance
+            )
         ) {
-
             return res.status(500).json({
                 success: false,
                 message:
                     "Unable to confirm new wallet balance."
             });
-
         }
 
 
         // ====================================================
-        // 15. CREATE ORDER
+        // 16. CREATE ORDER
         // ====================================================
 
         const orderRef =
@@ -620,7 +604,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 16. ORDER DATA
+        // 17. ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -638,8 +622,7 @@ export default async function handler(req, res) {
             service:
                 selectedService.service,
 
-            link:
-                cleanedLink,
+            link,
 
             quantity:
                 numericQuantity,
@@ -662,16 +645,16 @@ export default async function handler(req, res) {
         };
 
 
-        if (isCommentService) {
-
+        if (
+            isCommentService
+        ) {
             orderData.comments =
                 cleanedComments;
-
         }
 
 
         // ====================================================
-        // 17. SAVE ORDER
+        // 18. SAVE ORDER
         // ====================================================
 
         try {
@@ -682,7 +665,6 @@ export default async function handler(req, res) {
 
         }
 
-
         catch (orderError) {
 
             console.error(
@@ -691,8 +673,7 @@ export default async function handler(req, res) {
             );
 
 
-            // REFUND WALLET
-
+            // Refund wallet
             try {
 
                 await userRef.transaction(
@@ -716,11 +697,11 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
-
                             return null;
-
                         }
 
 
@@ -739,7 +720,6 @@ export default async function handler(req, res) {
                 );
 
             }
-
 
             catch (refundError) {
 
@@ -761,7 +741,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 18. SAVE TRANSACTION
+        // 19. SAVE ORDER TRANSACTION
         // ====================================================
 
         try {
@@ -797,7 +777,6 @@ export default async function handler(req, res) {
 
         }
 
-
         catch (transactionError) {
 
             console.error(
@@ -806,6 +785,7 @@ export default async function handler(req, res) {
             );
 
 
+            // Remove order
             try {
 
                 await orderRef.remove();
@@ -822,8 +802,7 @@ export default async function handler(req, res) {
             }
 
 
-            // REFUND WALLET
-
+            // Refund wallet
             try {
 
                 await userRef.transaction(
@@ -847,11 +826,11 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
-
                             return null;
-
                         }
 
 
@@ -870,7 +849,6 @@ export default async function handler(req, res) {
                 );
 
             }
-
 
             catch (refundError) {
 
@@ -892,7 +870,12 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 19. UPDATE TOTAL SPEND
+        // 20. UPDATE CUMULATIVE QUALIFYING SPEND
+        //
+        // Wallet funding does NOT count.
+        // Successful website orders count.
+        // VIP threshold = ₦60,000.
+        // Reseller remains separate.
         // ====================================================
 
         let updatedTotalSpent =
@@ -902,11 +885,11 @@ export default async function handler(req, res) {
 
 
         if (
-            !Number.isFinite(updatedTotalSpent)
+            !Number.isFinite(
+                updatedTotalSpent
+            )
         ) {
-
             updatedTotalSpent = 0;
-
         }
 
 
@@ -931,7 +914,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 20. AUTOMATIC VIP
+        // 21. AUTOMATIC VIP UPGRADE
         // ====================================================
 
         let finalTier =
@@ -957,14 +940,14 @@ export default async function handler(req, res) {
 
 
             console.log(
-                `VIP UPGRADE: User ${uid} reached ₦${updatedTotalSpent} cumulative spend.`
+                `VIP UPGRADE: User ${uid} automatically reached ₦${updatedTotalSpent} cumulative spend.`
             );
 
         }
 
 
         // ====================================================
-        // 21. SAVE SPEND / TIER
+        // 22. SAVE TOTAL SPEND + TIER
         // ====================================================
 
         try {
@@ -975,7 +958,6 @@ export default async function handler(req, res) {
 
         }
 
-
         catch (tierUpdateError) {
 
             console.error(
@@ -983,11 +965,16 @@ export default async function handler(req, res) {
                 tierUpdateError
             );
 
+            /*
+             * Order already succeeded.
+             * Do not refund the customer here.
+             */
+
         }
 
 
         // ====================================================
-        // 22. TELEGRAM NOTIFICATION
+        // 23. SEND TELEGRAM NOTIFICATION
         // ====================================================
 
         try {
@@ -997,7 +984,6 @@ export default async function handler(req, res) {
             );
 
         }
-
 
         catch (telegramError) {
 
@@ -1010,7 +996,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 23. SUCCESS
+        // 24. SUCCESS RESPONSE
         // ====================================================
 
         return res.status(200).json({
