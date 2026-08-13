@@ -329,17 +329,29 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 9. CALCULATE TOTAL (WITH RESELLER RATE SUPPORT)
+        // 9. CALCULATE TOTAL (WITH VIP & RESELLER RATE SUPPORT)
         // ====================================================
 
         let activeRate = selectedService.ratePer1000;
+        let activeFixedPrice = selectedService.fixedPrice;
 
-        if (userTier === 'reseller' && selectedService.resellerRatePer1000 !== undefined) {
-            activeRate = selectedService.resellerRatePer1000;
+        if (userTier === 'reseller') {
+            if (selectedService.resellerRatePer1000 !== undefined) {
+                activeRate = selectedService.resellerRatePer1000;
+            }
+            if (selectedService.resellerFixedPrice !== undefined) {
+                activeFixedPrice = selectedService.resellerFixedPrice;
+            }
+        } else if (userTier === 'vip') {
+            if (selectedService.vipRatePer1000 !== undefined) {
+                activeRate = selectedService.vipRatePer1000;
+            }
+            if (selectedService.vipFixedPrice !== undefined) {
+                activeFixedPrice = selectedService.vipFixedPrice;
+            }
         }
 
         let total;
-
 
         if (
             selectedService.ratePer1000 === null
@@ -347,7 +359,7 @@ export default async function handler(req, res) {
 
             total =
                 Number(
-                    selectedService.fixedPrice
+                    activeFixedPrice
                 ) *
                 numericQuantity;
 
