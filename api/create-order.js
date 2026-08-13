@@ -290,13 +290,14 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 8. USER REFERENCE & TIER CHECK (FOR PRICING)
+        // 8. GET USER
         // ====================================================
 
         const userRef =
             db.ref(
                 `users/${uid}`
             );
+
 
         const userSnapshot =
             await userRef.once(
@@ -321,37 +322,82 @@ export default async function handler(req, res) {
 
 
         const userData =
-            userSnapshot.val();
+            userSnapshot.val() || {};
 
-        const userTier = 
-            (userData.tier || 'regular').toLowerCase();
+
+        const userTier =
+            String(
+                userData.tier || "regular"
+            ).toLowerCase();
 
 
 
         // ====================================================
-        // 9. CALCULATE TOTAL (WITH VIP & RESELLER RATE SUPPORT)
+        // 9. CALCULATE TOTAL
+        //    REGULAR / VIP / RESELLER PRICING
         // ====================================================
 
-        let activeRate = selectedService.ratePer1000;
-        let activeFixedPrice = selectedService.fixedPrice;
+        let activeRate =
+            selectedService.ratePer1000;
 
-        if (userTier === 'reseller') {
-            if (selectedService.resellerRatePer1000 !== undefined) {
-                activeRate = selectedService.resellerRatePer1000;
+        let activeFixedPrice =
+            selectedService.fixedPrice;
+
+
+        if (userTier === "reseller") {
+
+            if (
+                selectedService.resellerRatePer1000 !==
+                undefined
+            ) {
+
+                activeRate =
+                    selectedService.resellerRatePer1000;
+
             }
-            if (selectedService.resellerFixedPrice !== undefined) {
-                activeFixedPrice = selectedService.resellerFixedPrice;
+
+
+            if (
+                selectedService.resellerFixedPrice !==
+                undefined
+            ) {
+
+                activeFixedPrice =
+                    selectedService.resellerFixedPrice;
+
             }
-        } else if (userTier === 'vip') {
-            if (selectedService.vipRatePer1000 !== undefined) {
-                activeRate = selectedService.vipRatePer1000;
-            }
-            if (selectedService.vipFixedPrice !== undefined) {
-                activeFixedPrice = selectedService.vipFixedPrice;
-            }
+
         }
 
+        else if (userTier === "vip") {
+
+            if (
+                selectedService.vipRatePer1000 !==
+                undefined
+            ) {
+
+                activeRate =
+                    selectedService.vipRatePer1000;
+
+            }
+
+
+            if (
+                selectedService.vipFixedPrice !==
+                undefined
+            ) {
+
+                activeFixedPrice =
+                    selectedService.vipFixedPrice;
+
+            }
+
+        }
+
+
+
         let total;
+
 
         if (
             selectedService.ratePer1000 === null
@@ -363,7 +409,9 @@ export default async function handler(req, res) {
                 ) *
                 numericQuantity;
 
-        } else {
+        }
+
+        else {
 
             total =
                 (
@@ -402,12 +450,12 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 10. GET CURRENT USER BALANCE
+        // 10. CHECK CURRENT WALLET
         // ====================================================
 
         const currentBalance =
             Number(
-                userData.wallet
+                userData.wallet || 0
             );
 
 
@@ -485,20 +533,21 @@ export default async function handler(req, res) {
 
                         }
 
+
                         const updatedUser =
                             {
                                 ...currentUserData
                             };
 
+
                         const balance =
                             Number(
-                                updatedUser.wallet
+                                updatedUser.wallet || 0
                             );
 
+
                         if (
-                            !Number.isFinite(
-                                balance
-                            )
+                            !Number.isFinite(balance)
                         ) {
 
                             throw new Error(
@@ -506,6 +555,7 @@ export default async function handler(req, res) {
                             );
 
                         }
+
 
                         if (
                             balance < total
@@ -517,6 +567,7 @@ export default async function handler(req, res) {
 
                         }
 
+
                         updatedUser.wallet =
                             Number(
                                 (
@@ -525,15 +576,16 @@ export default async function handler(req, res) {
                                 ).toFixed(2)
                             );
 
+
                         return updatedUser;
 
                     }
 
                 );
 
-        } catch (
-            walletError
-        ) {
+        }
+
+        catch (walletError) {
 
             console.error(
                 "WALLET TRANSACTION ERROR:",
@@ -563,10 +615,7 @@ export default async function handler(req, res) {
                 success: false,
 
                 message:
-                    "Unable to process wallet transaction.",
-
-                error:
-                    walletError.message
+                    "Unable to process wallet transaction."
 
             });
 
@@ -575,7 +624,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 13. CONFIRM TRANSACTION
+        // 13. CONFIRM WALLET TRANSACTION
         // ====================================================
 
         if (
@@ -681,8 +730,9 @@ export default async function handler(req, res) {
 
             createdAt:
                 Date.now(),
-            
-            email: userData.email || 'N/A'
+
+            email:
+                userData.email || "N/A"
 
         };
 
@@ -708,48 +758,48 @@ export default async function handler(req, res) {
                 orderData
             );
 
-        } catch (
-            orderError
-        ) {
+        }
+
+        catch (orderError) {
 
             console.error(
                 "ORDER SAVE ERROR:",
                 orderError
             );
 
+
+            // Refund wallet
             try {
 
                 await userRef.transaction(
 
                     currentUserData => {
 
-                        if (
-                            !currentUserData
-                        ) {
-
+                        if (!currentUserData) {
                             return null;
-
                         }
+
 
                         const refundUser =
                             {
                                 ...currentUserData
                             };
 
+
                         const balance =
                             Number(
-                                refundUser.wallet
+                                refundUser.wallet || 0
                             );
 
+
                         if (
-                            !Number.isFinite(
-                                balance
-                            )
+                            !Number.isFinite(balance)
                         ) {
 
                             return null;
 
                         }
+
 
                         refundUser.wallet =
                             Number(
@@ -759,15 +809,16 @@ export default async function handler(req, res) {
                                 ).toFixed(2)
                             );
 
+
                         return refundUser;
 
                     }
 
                 );
 
-            } catch (
-                refundError
-            ) {
+            }
+
+            catch (refundError) {
 
                 console.error(
                     "REFUND ERROR:",
@@ -791,7 +842,7 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 18. SAVE TRANSACTION RECORD
+        // 18. SAVE ORDER TRANSACTION
         // ====================================================
 
         try {
@@ -825,22 +876,24 @@ export default async function handler(req, res) {
 
             });
 
-        } catch (
-            transactionError
-        ) {
+        }
+
+        catch (transactionError) {
 
             console.error(
                 "TRANSACTION RECORD ERROR:",
                 transactionError
             );
 
+
+            // Remove order
             try {
 
                 await orderRef.remove();
 
-            } catch (
-                removeError
-            ) {
+            }
+
+            catch (removeError) {
 
                 console.error(
                     "ORDER REMOVE ERROR:",
@@ -849,39 +902,39 @@ export default async function handler(req, res) {
 
             }
 
+
+            // Refund wallet
             try {
 
                 await userRef.transaction(
 
                     currentUserData => {
 
-                        if (
-                            !currentUserData
-                        ) {
-
+                        if (!currentUserData) {
                             return null;
-
                         }
+
 
                         const refundUser =
                             {
                                 ...currentUserData
                             };
 
+
                         const balance =
                             Number(
-                                refundUser.wallet
+                                refundUser.wallet || 0
                             );
 
+
                         if (
-                            !Number.isFinite(
-                                balance
-                            )
+                            !Number.isFinite(balance)
                         ) {
 
                             return null;
 
                         }
+
 
                         refundUser.wallet =
                             Number(
@@ -891,15 +944,16 @@ export default async function handler(req, res) {
                                 ).toFixed(2)
                             );
 
+
                         return refundUser;
 
                     }
 
                 );
 
-            } catch (
-                refundError
-            ) {
+            }
+
+            catch (refundError) {
 
                 console.error(
                     "TRANSACTION REFUND ERROR:",
@@ -923,19 +977,145 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 19. SEND TELEGRAM NOTIFICATION
+        // 19. UPDATE CUMULATIVE QUALIFYING SPEND
+        //
+        // IMPORTANT:
+        // Wallet funding does NOT count here.
+        //
+        // Only successful WEBSITE ORDERS count.
+        //
+        // VIP threshold = ₦60,000
+        //
+        // Reseller remains completely separate.
+        // ====================================================
+
+        let updatedTotalSpent =
+            Number(
+                userData.totalSpent || 0
+            );
+
+
+        if (
+            !Number.isFinite(
+                updatedTotalSpent
+            )
+        ) {
+
+            updatedTotalSpent = 0;
+
+        }
+
+
+        updatedTotalSpent =
+            Number(
+                (
+                    updatedTotalSpent +
+                    total
+                ).toFixed(2)
+            );
+
+
+        const tierUpdates = {
+
+            totalSpent:
+                updatedTotalSpent,
+
+            updatedAt:
+                Date.now()
+
+        };
+
+
+        // ====================================================
+        // 20. AUTOMATIC VIP UPGRADE
+        // ====================================================
+
+        let finalTier =
+            userTier;
+
+
+        if (
+            userTier !== "reseller" &&
+            updatedTotalSpent >= 60000
+        ) {
+
+            finalTier =
+                "vip";
+
+
+            tierUpdates.tier =
+                "vip";
+
+
+            tierUpdates.vipUnlockedAt =
+                userData.vipUnlockedAt ||
+                Date.now();
+
+
+            console.log(
+                `VIP UPGRADE: User ${uid} automatically reached ₦${updatedTotalSpent} cumulative spend.`
+            );
+
+        }
+
+
+        // ====================================================
+        // 21. SAVE TOTAL SPEND + TIER
         // ====================================================
 
         try {
-            await sendTelegramNotification(orderData);
-        } catch (telegramError) {
-            console.error("TELEGRAM NOTIFICATION ERROR:", telegramError);
+
+            await userRef.update(
+                tierUpdates
+            );
+
+        }
+
+        catch (tierUpdateError) {
+
+            console.error(
+                "TOTAL SPEND / VIP UPDATE ERROR:",
+                tierUpdateError
+            );
+
+            /*
+             * The order itself has already succeeded.
+             * We do NOT refund the customer here because
+             * the order was successfully created.
+             *
+             * The error is logged so it can be fixed
+             * without reversing a legitimate order.
+             */
+
         }
 
 
 
         // ====================================================
-        // 20. SUCCESS
+        // 22. SEND TELEGRAM NOTIFICATION
+        // ====================================================
+
+        try {
+
+            await sendTelegramNotification(
+                orderData
+            );
+
+        }
+
+        catch (telegramError) {
+
+            console.error(
+                "TELEGRAM NOTIFICATION ERROR:",
+                telegramError
+            );
+
+        }
+
+
+
+        // ====================================================
+        // 23. SUCCESS RESPONSE
         // ====================================================
 
         return res.status(200).json({
@@ -953,12 +1133,23 @@ export default async function handler(req, res) {
             quantity:
                 numericQuantity,
 
-            newBalance
+            newBalance,
+
+            totalSpent:
+                updatedTotalSpent,
+
+            tier:
+                finalTier,
+
+            vipUnlocked:
+                finalTier === "vip"
 
         });
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "CREATE ORDER ERROR:",
