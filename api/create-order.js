@@ -290,8 +290,53 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 8. CALCULATE TOTAL
+        // 8. USER REFERENCE & TIER CHECK (FOR PRICING)
         // ====================================================
+
+        const userRef =
+            db.ref(
+                `users/${uid}`
+            );
+
+        const userSnapshot =
+            await userRef.once(
+                "value"
+            );
+
+
+        if (
+            !userSnapshot.exists()
+        ) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "User account could not be found."
+
+            });
+
+        }
+
+
+        const userData =
+            userSnapshot.val();
+
+        const userTier = 
+            (userData.tier || 'regular').toLowerCase();
+
+
+
+        // ====================================================
+        // 9. CALCULATE TOTAL (WITH RESELLER RATE SUPPORT)
+        // ====================================================
+
+        let activeRate = selectedService.ratePer1000;
+
+        if (userTier === 'reseller' && selectedService.resellerRatePer1000 !== undefined) {
+            activeRate = selectedService.resellerRatePer1000;
+        }
 
         let total;
 
@@ -314,7 +359,7 @@ export default async function handler(req, res) {
                     1000
                 ) *
                 Number(
-                    selectedService.ratePer1000
+                    activeRate
                 );
 
         }
@@ -345,45 +390,8 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 9. USER REFERENCE
+        // 10. GET CURRENT USER BALANCE
         // ====================================================
-
-        const userRef =
-            db.ref(
-                `users/${uid}`
-            );
-
-
-
-        // ====================================================
-        // 10. GET CURRENT USER
-        // ====================================================
-
-        const userSnapshot =
-            await userRef.once(
-                "value"
-            );
-
-
-        if (
-            !userSnapshot.exists()
-        ) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "User account could not be found."
-
-            });
-
-        }
-
-
-        const userData =
-            userSnapshot.val();
-
 
         const currentBalance =
             Number(
@@ -457,17 +465,6 @@ export default async function handler(req, res) {
 
                     currentUserData => {
 
-                        /*
-                         * IMPORTANT:
-                         *
-                         * Firebase may call the transaction
-                         * handler with null on the first attempt.
-                         *
-                         * If that happens, DO NOT abort.
-                         * Return null so Firebase can continue
-                         * the transaction process.
-                         */
-
                         if (
                             currentUserData === null
                         ) {
@@ -476,30 +473,15 @@ export default async function handler(req, res) {
 
                         }
 
-
-                        /*
-                         * Make a copy.
-                         */
-
                         const updatedUser =
                             {
                                 ...currentUserData
                             };
 
-
-                        /*
-                         * Read wallet.
-                         */
-
                         const balance =
                             Number(
                                 updatedUser.wallet
                             );
-
-
-                        /*
-                         * Invalid balance.
-                         */
 
                         if (
                             !Number.isFinite(
@@ -513,12 +495,6 @@ export default async function handler(req, res) {
 
                         }
 
-
-                        /*
-                         * Balance changed and is
-                         * no longer enough.
-                         */
-
                         if (
                             balance < total
                         ) {
@@ -529,11 +505,6 @@ export default async function handler(req, res) {
 
                         }
 
-
-                        /*
-                         * Deduct money.
-                         */
-
                         updatedUser.wallet =
                             Number(
                                 (
@@ -541,12 +512,6 @@ export default async function handler(req, res) {
                                     total
                                 ).toFixed(2)
                             );
-
-
-                        /*
-                         * Return the complete
-                         * updated user object.
-                         */
 
                         return updatedUser;
 
@@ -705,7 +670,7 @@ export default async function handler(req, res) {
             createdAt:
                 Date.now(),
             
-            email: userData.email || 'N/A' // Added to populate user email in Telegram
+            email: userData.email || 'N/A'
 
         };
 
@@ -740,11 +705,6 @@ export default async function handler(req, res) {
                 orderError
             );
 
-
-            /*
-             * Refund wallet.
-             */
-
             try {
 
                 await userRef.transaction(
@@ -759,18 +719,15 @@ export default async function handler(req, res) {
 
                         }
 
-
                         const refundUser =
                             {
                                 ...currentUserData
                             };
 
-
                         const balance =
                             Number(
                                 refundUser.wallet
                             );
-
 
                         if (
                             !Number.isFinite(
@@ -782,7 +739,6 @@ export default async function handler(req, res) {
 
                         }
 
-
                         refundUser.wallet =
                             Number(
                                 (
@@ -790,7 +746,6 @@ export default async function handler(req, res) {
                                     total
                                 ).toFixed(2)
                             );
-
 
                         return refundUser;
 
@@ -867,11 +822,6 @@ export default async function handler(req, res) {
                 transactionError
             );
 
-
-            /*
-             * Remove order.
-             */
-
             try {
 
                 await orderRef.remove();
@@ -887,11 +837,6 @@ export default async function handler(req, res) {
 
             }
 
-
-            /*
-             * Refund wallet.
-             */
-
             try {
 
                 await userRef.transaction(
@@ -906,18 +851,15 @@ export default async function handler(req, res) {
 
                         }
 
-
                         const refundUser =
                             {
                                 ...currentUserData
                             };
 
-
                         const balance =
                             Number(
                                 refundUser.wallet
                             );
-
 
                         if (
                             !Number.isFinite(
@@ -929,7 +871,6 @@ export default async function handler(req, res) {
 
                         }
 
-
                         refundUser.wallet =
                             Number(
                                 (
@@ -937,7 +878,6 @@ export default async function handler(req, res) {
                                     total
                                 ).toFixed(2)
                             );
-
 
                         return refundUser;
 
@@ -978,7 +918,6 @@ export default async function handler(req, res) {
             await sendTelegramNotification(orderData);
         } catch (telegramError) {
             console.error("TELEGRAM NOTIFICATION ERROR:", telegramError);
-            // We don't want to fail the order if Telegram fails, so we just log it
         }
 
 
