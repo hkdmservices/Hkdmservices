@@ -2,7 +2,8 @@ import { auth, database } from "./firebase.js";
 
 import {
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
     ref,
@@ -40,6 +41,9 @@ form.addEventListener("submit", async (e) => {
             password
         );
 
+        // Send the verification email to the newly created user
+        await sendEmailVerification(userCredential.user);
+
         await updateProfile(userCredential.user, {
             displayName: fullName
         });
@@ -58,7 +62,7 @@ form.addEventListener("submit", async (e) => {
             }
         );
 
-        alert("Account created successfully!");
+        alert("Account created successfully! Please check your email to verify your account.");
 
         window.location.href = "dashboard.html";
 
