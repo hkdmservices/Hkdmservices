@@ -3,9 +3,6 @@ import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "../services.js";
 import {
-    nigerianServicesCatalogue
-} from "../nigerian-services.js";
-import {
     sendTelegramNotification
 } from "../telegram.js";
 export default async function handler(req, res) {
@@ -56,27 +53,13 @@ export default async function handler(req, res) {
             });
         }
         // ====================================================
-        // 3. FIND SERVICE (CHECK BOTH CATALOGUES)
+        // 3. FIND SERVICE
         // ====================================================
-        let selectedService =
+        const selectedService =
             hkdmservicesOfficialServicePriceCatalogue.find(
                 item =>
                     item.id === serviceId
             );
-
-        let catalogType = "standard";
-
-        if (!selectedService) {
-            selectedService =
-                nigerianServicesCatalogue.find(
-                    item =>
-                        item.id === serviceId
-                );
-            if (selectedService) {
-                catalogType = "nigerian";
-            }
-        }
-
         if (!selectedService) {
             return res.status(400).json({
                 success: false,
@@ -465,8 +448,6 @@ export default async function handler(req, res) {
                 "pending",
             paymentMethod:
                 "wallet",
-            catalogType:
-                catalogType,
             createdAt:
                 Date.now(),
             email:
@@ -552,7 +533,7 @@ export default async function handler(req, res) {
                 status:
                     "success",
                 description:
-                    `Order - ${selectedService.platform} ${selectedService.service}${catalogType === 'nigerian' ? ' (Nigerian 3x)' : ''}`,
+                    `Order - ${selectedService.platform} ${selectedService.service}`,
                 createdAt:
                     Date.now()
             });
