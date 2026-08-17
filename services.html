@@ -82,15 +82,7 @@
             </div>
         </div>
 
-        <div class="card shadow-sm border-0 mt-5">
-            <div class="card-body p-4 text-center">
-                <i class="bi bi-info-circle text-success" style="font-size: 2rem;"></i>
-                <h4 class="mt-3">How it works</h4>
-                <p class="text-muted mb-0">Choose a tab, select a platform, select the service you want, then continue to place your order.</p>
-            </div>
-        </div>
-
-        <div class="text-center mt-4">
+        <div class="text-center mt-5">
             <a href="dashboard.html" class="btn btn-outline-dark">
                 <i class="bi bi-arrow-left"></i> Back to Dashboard
             </a>
@@ -158,7 +150,7 @@ function renderPlatforms(searchTerm = "") {
 platformSearch.addEventListener("input", () => { renderPlatforms(platformSearch.value); });
 renderPlatforms();
 
-// --- NIGERIAN CATALOG LOGIC (3X RATE RUNS SILENTLY IN BACKGROUND) ---
+// --- NIGERIAN CATALOG LOGIC ---
 const ngContainer = document.getElementById("nigerianPlatformContainer");
 const ngSearch = document.getElementById("ngPlatformSearch");
 const ngEmpty = document.getElementById("ngEmptyMessage");
