@@ -5,9 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>HKDMservices | Official Service & Price Catalogue</title>
+    <title>HKDMservices | Service & Price Catalogue</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
@@ -29,6 +32,10 @@
 
 <body>
 
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -79,36 +86,113 @@
 
 
 
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
 <section class="py-5">
 
     <div class="container">
 
 
-        <div class="text-center mb-5">
+        <!-- HEADER -->
+
+        <div class="text-center mb-4">
 
             <h1 class="fw-bold">
-
                 HKDMservices
-
             </h1>
 
 
             <h2 class="fw-bold">
-
-                Official Service &amp; Price Catalogue
-
+                Service &amp; Price Catalogue
             </h2>
 
 
             <p class="text-muted">
+                Select a service catalogue to view available platforms,
+                services and prices.
+            </p>
 
-                Select a platform to view available services and prices.
+        </div>
+
+
+
+        <!-- =================================================
+             CATALOGUE TABS
+        ================================================== -->
+
+        <div class="row justify-content-center mb-4">
+
+            <div class="col-12 col-md-8">
+
+                <div
+                    class="btn-group w-100"
+                    role="group"
+                    aria-label="Service catalogue"
+                >
+
+                    <button
+                        type="button"
+                        id="generalCatalogueBtn"
+                        class="btn btn-success active"
+                    >
+
+                        <i class="bi bi-globe2"></i>
+
+                        General Services
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="nigeriaCatalogueBtn"
+                        class="btn btn-outline-success"
+                    >
+
+                        🇳🇬
+
+                        Nigeria Services
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             CATALOGUE DESCRIPTION
+        ================================================== -->
+
+        <div
+            id="catalogueDescription"
+            class="text-center mb-4"
+        >
+
+            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+
+                General Services
+
+            </span>
+
+            <p class="text-muted mt-2 mb-0">
+
+                Official HKDMservices pricing catalogue.
 
             </p>
 
         </div>
 
 
+
+        <!-- =================================================
+             SEARCH
+        ================================================== -->
 
         <div class="row justify-content-center mb-5">
 
@@ -139,6 +223,10 @@
 
 
 
+        <!-- =================================================
+             PLATFORMS
+        ================================================== -->
+
         <div
             id="platformContainer"
             class="row g-4"
@@ -147,6 +235,10 @@
         </div>
 
 
+
+        <!-- =================================================
+             EMPTY MESSAGE
+        ================================================== -->
 
         <div
             id="emptyMessage"
@@ -175,6 +267,10 @@
 
 
 
+        <!-- =================================================
+             HOW IT WORKS
+        ================================================== -->
+
         <div class="card shadow-sm border-0 mt-5">
 
             <div class="card-body p-4 text-center">
@@ -194,8 +290,9 @@
 
                 <p class="text-muted mb-0">
 
-                    Choose a platform, select the service you want,
-                    then continue to place your order.
+                    Choose a catalogue, select a platform,
+                    choose the service you want, then continue
+                    to place your order.
 
                 </p>
 
@@ -204,6 +301,8 @@
         </div>
 
 
+
+        <!-- BACK -->
 
         <div class="text-center mt-4">
 
@@ -227,12 +326,36 @@
 
 
 
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
 <script type="module">
+
+
+/* ==========================================================
+   IMPORT GENERAL CATALOGUE
+========================================================== */
 
 import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "./services.js";
 
+
+
+/* ==========================================================
+   IMPORT NIGERIA CATALOGUE
+========================================================== */
+
+import {
+    hkdmservicesNigeriaServicePriceCatalogue
+} from "./nigeria-services-catalogue.js";
+
+
+
+/* ==========================================================
+   ELEMENTS
+========================================================== */
 
 const platformContainer =
     document.getElementById("platformContainer");
@@ -246,16 +369,33 @@ const emptyMessage =
     document.getElementById("emptyMessage");
 
 
-
-const platforms = [
-    ...new Set(
-        hkdmservicesOfficialServicePriceCatalogue.map(
-            item => item.platform
-        )
-    )
-];
+const generalCatalogueBtn =
+    document.getElementById("generalCatalogueBtn");
 
 
+const nigeriaCatalogueBtn =
+    document.getElementById("nigeriaCatalogueBtn");
+
+
+const catalogueDescription =
+    document.getElementById("catalogueDescription");
+
+
+
+/* ==========================================================
+   CURRENT CATALOGUE
+========================================================== */
+
+let currentCatalogue = "general";
+
+let currentServices =
+    hkdmservicesOfficialServicePriceCatalogue;
+
+
+
+/* ==========================================================
+   PLATFORM ICONS
+========================================================== */
 
 const platformIcons = {
 
@@ -275,11 +415,84 @@ const platformIcons = {
 
     "WhatsApp": "bi-whatsapp",
 
-    "Apple Music": "bi-apple-music"
+    "Apple Music": "bi-apple",
+
+    "Reddit": "bi-reddit"
 
 };
 
 
+
+/* ==========================================================
+   GET PLATFORMS
+========================================================== */
+
+function getPlatforms() {
+
+    return [
+        ...new Set(
+            currentServices.map(
+                item => item.platform
+            )
+        )
+    ];
+
+}
+
+
+
+/* ==========================================================
+   UPDATE CATALOGUE DESCRIPTION
+========================================================== */
+
+function updateCatalogueDescription() {
+
+    if (currentCatalogue === "nigeria") {
+
+        catalogueDescription.innerHTML = `
+
+            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+
+                🇳🇬 Nigeria Services
+
+            </span>
+
+            <p class="text-muted mt-2 mb-0">
+
+                Nigeria pricing catalogue with local NGN pricing.
+
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+
+    catalogueDescription.innerHTML = `
+
+        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+
+            General Services
+
+        </span>
+
+        <p class="text-muted mt-2 mb-0">
+
+            Official HKDMservices pricing catalogue.
+
+        </p>
+
+    `;
+
+}
+
+
+
+/* ==========================================================
+   RENDER PLATFORMS
+========================================================== */
 
 function renderPlatforms(searchTerm = "") {
 
@@ -290,6 +503,10 @@ function renderPlatforms(searchTerm = "") {
         searchTerm
             .trim()
             .toLowerCase();
+
+
+    const platforms =
+        getPlatforms();
 
 
     const filteredPlatforms =
@@ -316,8 +533,9 @@ function renderPlatforms(searchTerm = "") {
 
 
         const services =
-            hkdmservicesOfficialServicePriceCatalogue.filter(
-                item => item.platform === platform
+            currentServices.filter(
+                item =>
+                    item.platform === platform
             );
 
 
@@ -330,7 +548,23 @@ function renderPlatforms(searchTerm = "") {
 
 
         const icon =
-            platformIcons[platform] || "bi-grid";
+            platformIcons[platform] ||
+            "bi-grid";
+
+
+        /*
+         * IMPORTANT:
+         *
+         * catalogue=general
+         * or
+         * catalogue=nigeria
+         *
+         * is passed to order.html so the order
+         * page knows which catalogue to load.
+         */
+
+        const orderUrl =
+            `order.html?platform=${encodeURIComponent(platform)}&catalogue=${currentCatalogue}`;
 
 
         card.innerHTML = `
@@ -358,7 +592,9 @@ function renderPlatforms(searchTerm = "") {
                     <p class="text-center text-muted">
 
                         ${services.length}
+
                         service${services.length === 1 ? "" : "s"}
+
                         available
 
                     </p>
@@ -367,7 +603,7 @@ function renderPlatforms(searchTerm = "") {
                     <div class="d-grid mt-3">
 
                         <a
-                            href="order.html?platform=${encodeURIComponent(platform)}"
+                            href="${orderUrl}"
                             class="btn btn-success"
                         >
 
@@ -392,6 +628,112 @@ function renderPlatforms(searchTerm = "") {
 
 
 
+/* ==========================================================
+   GENERAL CATALOGUE
+========================================================== */
+
+generalCatalogueBtn.addEventListener(
+    "click",
+    () => {
+
+        currentCatalogue = "general";
+
+        currentServices =
+            hkdmservicesOfficialServicePriceCatalogue;
+
+
+        generalCatalogueBtn.classList.add(
+            "active"
+        );
+
+        generalCatalogueBtn.classList.remove(
+            "btn-outline-success"
+        );
+
+        generalCatalogueBtn.classList.add(
+            "btn-success"
+        );
+
+
+        nigeriaCatalogueBtn.classList.remove(
+            "active"
+        );
+
+        nigeriaCatalogueBtn.classList.remove(
+            "btn-success"
+        );
+
+        nigeriaCatalogueBtn.classList.add(
+            "btn-outline-success"
+        );
+
+
+        updateCatalogueDescription();
+
+        renderPlatforms(
+            platformSearch.value
+        );
+
+    }
+);
+
+
+
+/* ==========================================================
+   NIGERIA CATALOGUE
+========================================================== */
+
+nigeriaCatalogueBtn.addEventListener(
+    "click",
+    () => {
+
+        currentCatalogue = "nigeria";
+
+        currentServices =
+            hkdmservicesNigeriaServicePriceCatalogue;
+
+
+        nigeriaCatalogueBtn.classList.add(
+            "active"
+        );
+
+        nigeriaCatalogueBtn.classList.remove(
+            "btn-outline-success"
+        );
+
+        nigeriaCatalogueBtn.classList.add(
+            "btn-success"
+        );
+
+
+        generalCatalogueBtn.classList.remove(
+            "active"
+        );
+
+        generalCatalogueBtn.classList.remove(
+            "btn-success"
+        );
+
+        generalCatalogueBtn.classList.add(
+            "btn-outline-success"
+        );
+
+
+        updateCatalogueDescription();
+
+        renderPlatforms(
+            platformSearch.value
+        );
+
+    }
+);
+
+
+
+/* ==========================================================
+   SEARCH
+========================================================== */
+
 platformSearch.addEventListener(
     "input",
     () => {
@@ -405,7 +747,14 @@ platformSearch.addEventListener(
 
 
 
+/* ==========================================================
+   INITIAL LOAD
+========================================================== */
+
+updateCatalogueDescription();
+
 renderPlatforms();
+
 
 </script>
 
