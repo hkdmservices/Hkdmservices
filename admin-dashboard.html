@@ -82,8 +82,13 @@ body {
     min-width: 80px;
 }
 
-.order-status-select {
-    min-width: 125px;
+.service-status-active {
+    color: #198754;
+    font-weight: 600;
+}
+
+.service-status-inactive {
+    color: #dc3545;
     font-weight: 600;
 }
 
@@ -498,7 +503,6 @@ text-success">
 <div class="d-flex flex-wrap gap-2">
 
 <button
-type="button"
 class="btn btn-primary admin-nav-btn"
 data-section="usersSection">
 
@@ -510,7 +514,6 @@ Users
 
 
 <button
-type="button"
 class="btn btn-outline-success admin-nav-btn"
 data-section="ordersSection">
 
@@ -522,7 +525,6 @@ Orders
 
 
 <button
-type="button"
 class="btn btn-outline-dark admin-nav-btn"
 data-section="transactionsSection">
 
@@ -534,7 +536,6 @@ Transactions
 
 
 <button
-type="button"
 class="btn btn-outline-warning admin-nav-btn"
 data-section="servicesSection">
 
@@ -546,7 +547,6 @@ Services
 
 
 <button
-type="button"
 class="btn btn-outline-primary admin-nav-btn"
 data-section="vouchersSection">
 
@@ -593,7 +593,6 @@ Users
 
 <button
 id="refreshUsers"
-type="button"
 class="btn btn-outline-primary btn-sm">
 
 <i class="bi bi-arrow-clockwise"></i>
@@ -629,9 +628,9 @@ class="table table-hover align-middle">
 
 <th>Wallet</th>
 
-<th>Orders</th>
-
 <th>Tier</th>
+
+<th>Orders</th>
 
 <th>Status</th>
 
@@ -698,7 +697,6 @@ Orders
 
 <button
 id="refreshOrders"
-type="button"
 class="btn btn-outline-success btn-sm">
 
 <i class="bi bi-arrow-clockwise"></i>
@@ -807,7 +805,6 @@ Transactions
 
 <button
 id="refreshTransactions"
-type="button"
 class="btn btn-outline-dark btn-sm">
 
 <i class="bi bi-arrow-clockwise"></i>
@@ -916,7 +913,6 @@ Services
 
 <button
 id="addServiceBtn"
-type="button"
 class="btn btn-warning">
 
 <i class="bi bi-plus-circle"></i>
@@ -1044,7 +1040,6 @@ type="text"
 class="form-control"
 id="voucherCodeInput"
 placeholder="e.g. PROMO500"
-autocomplete="off"
 required>
 
 </div>
@@ -1066,7 +1061,6 @@ class="form-control"
 id="voucherAmountInput"
 placeholder="e.g. 1000"
 min="1"
-step="0.01"
 required>
 
 </div>
@@ -1122,7 +1116,6 @@ Existing Vouchers
 
 <button
 id="refreshVouchers"
-type="button"
 class="btn btn-outline-primary btn-sm">
 
 <i class="bi bi-arrow-clockwise"></i>
@@ -1240,8 +1233,7 @@ Admin authentication verified.
 <div
 class="modal fade"
 id="serviceModal"
-tabindex="-1"
-aria-hidden="true">
+tabindex="-1">
 
 <div class="modal-dialog">
 
@@ -1262,8 +1254,7 @@ Add Service
 <button
 type="button"
 class="btn-close"
-data-bs-dismiss="modal"
-aria-label="Close">
+data-bs-dismiss="modal">
 </button>
 
 </div>
@@ -1281,12 +1272,8 @@ id="serviceId">
 
 <div class="mb-3">
 
-<label
-for="servicePlatform"
-class="form-label">
-
+<label class="form-label">
 Platform
-
 </label>
 
 <input
@@ -1301,12 +1288,8 @@ required>
 
 <div class="mb-3">
 
-<label
-for="serviceName"
-class="form-label">
-
+<label class="form-label">
 Service Name
-
 </label>
 
 <input
@@ -1321,12 +1304,8 @@ required>
 
 <div class="mb-3">
 
-<label
-for="servicePrice"
-class="form-label">
-
+<label class="form-label">
 Price per 1,000
-
 </label>
 
 <input
@@ -1346,12 +1325,8 @@ required>
 
 <div class="mb-3">
 
-<label
-for="serviceMin"
-class="form-label">
-
+<label class="form-label">
 Minimum
-
 </label>
 
 <input
@@ -1370,12 +1345,8 @@ required>
 
 <div class="mb-3">
 
-<label
-for="serviceMax"
-class="form-label">
-
+<label class="form-label">
 Maximum
-
 </label>
 
 <input
@@ -1394,12 +1365,8 @@ required>
 
 <div class="mb-3">
 
-<label
-for="serviceStatus"
-class="form-label">
-
+<label class="form-label">
 Status
-
 </label>
 
 <select
@@ -1422,8 +1389,6 @@ Inactive
 <button
 type="submit"
 class="btn btn-warning w-100">
-
-<i class="bi bi-check-circle"></i>
 
 Save Service
 
