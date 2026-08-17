@@ -74,7 +74,7 @@
     import { nigerianServicesCatalogue } from "./nigerian-services.js";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const platform = urlParams.get("platform");
+    const platform = urlParams.get("platform") || "Instagram"; 
     const catalogType = urlParams.get("type"); 
 
     const platformTitle = document.getElementById("platformTitle");
@@ -84,73 +84,68 @@
     const rateDisplay = document.getElementById("rateDisplay");
     const totalPriceDisplay = document.getElementById("totalPriceDisplay");
 
-    if (!platform) {
-        platformTitle.innerText = "Error";
-        serviceSelect.innerHTML = '<option value="">Please go back and select a platform.</option>';
-    } else {
-        const isNigerian = catalogType === 'nigerian';
-        const catalogue = isNigerian ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
-        const platformServices = catalogue.filter(item => item.platform === platform);
+    const isNigerian = catalogType === 'nigerian';
+    const catalogue = isNigerian ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
+    const platformServices = catalogue.filter(item => item.platform === platform);
 
-        platformTitle.innerText = `${platform} Order`;
+    platformTitle.innerText = `${platform} Order`;
 
-        if (platformServices.length > 0) {
-            serviceSelect.innerHTML = '<option value="">Select a specific service</option>';
+    if (platformServices.length > 0) {
+        serviceSelect.innerHTML = '<option value="">Select a specific service</option>';
+        
+        platformServices.forEach(service => {
+            const option = document.createElement("option");
+            option.value = service.id;
             
-            platformServices.forEach(service => {
-                const option = document.createElement("option");
-                option.value = service.id;
-                
-                let baseRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
-                let finalRate = isNigerian ? baseRate * 3 : baseRate;
+            let baseRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
+            let finalRate = isNigerian ? baseRate * 3 : baseRate;
 
-                option.dataset.rate = finalRate;
-                const minOrder = service.min || 100;
-                option.dataset.min = minOrder;
-                
-                let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
-                const serviceName = service.service || service.name || "Unnamed Service";
-                
-                option.textContent = `${serviceName} — (${rateText}) [Min: ${minOrder}]`;
-                serviceSelect.appendChild(option);
-            });
-        } else {
-            serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
-        }
-
-        serviceSelect.addEventListener("change", () => {
-            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-            if (selectedOption && selectedOption.dataset.min) {
-                const minVal = parseInt(selectedOption.dataset.min);
-                orderQuantity.min = minVal;
-                minQtyLabel.innerText = `(Min: ${minVal})`;
-                
-                if (parseInt(orderQuantity.value) < minVal) {
-                    orderQuantity.value = minVal;
-                }
-            }
-            calculateTotal();
+            option.dataset.rate = finalRate;
+            const minOrder = service.min || 100;
+            option.dataset.min = minOrder;
+            
+            let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
+            const serviceName = service.service || service.name || "Unnamed Service";
+            
+            option.textContent = `${serviceName} — (${rateText}) [Min: ${minOrder}]`;
+            serviceSelect.appendChild(option);
         });
+    } else {
+        serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
+    }
 
-        function calculateTotal() {
-            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-            if (!selectedOption || !selectedOption.dataset.rate) {
-                rateDisplay.innerText = "Rate: --";
-                totalPriceDisplay.innerText = "Total: ₦0.00";
-                return;
-            }
-
-            const rate = parseFloat(selectedOption.dataset.rate);
-            const qty = parseInt(orderQuantity.value) || 0;
-
-            rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
+    serviceSelect.addEventListener("change", () => {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (selectedOption && selectedOption.dataset.min) {
+            const minVal = parseInt(selectedOption.dataset.min);
+            orderQuantity.min = minVal;
+            minQtyLabel.innerText = `(Min: ${minVal})`;
             
-            const total = (rate / 1000) * qty;
-            totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
+            if (parseInt(orderQuantity.value) < minVal) {
+                orderQuantity.value = minVal;
+            }
+        }
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (!selectedOption || !selectedOption.dataset.rate) {
+            rateDisplay.innerText = "Rate: --";
+            totalPriceDisplay.innerText = "Total: ₦0.00";
+            return;
         }
 
-        orderQuantity.addEventListener("input", calculateTotal);
+        const rate = parseFloat(selectedOption.dataset.rate);
+        const qty = parseInt(orderQuantity.value) || 0;
+
+        rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
+        
+        const total = (rate / 1000) * qty;
+        totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
     }
+
+    orderQuantity.addEventListener("input", calculateTotal);
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
