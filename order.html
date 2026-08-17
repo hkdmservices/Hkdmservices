@@ -126,7 +126,8 @@
                 
                 platformServices.forEach(service => {
                     const option = document.createElement("option");
-                    option.value = service.id || service.service;
+                    const serviceName = service.service || service.name || "Unnamed Service";
+                    option.value = serviceName; // Store clean service name directly in value
                     
                     let baseRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
                     let finalRate = isNigerian ? baseRate * 3 : baseRate;
@@ -136,7 +137,6 @@
                     option.dataset.min = minOrder;
                     
                     let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
-                    const serviceName = service.service || service.name || "Unnamed Service";
                     
                     option.textContent = `${serviceName} — (${rateText}) [Min: ${minOrder}]`;
                     serviceSelect.appendChild(option);
@@ -222,7 +222,6 @@
         submitBtn.innerText = "Processing Order...";
 
         try {
-            // 1. Fetch user data from Firebase to check wallet & totalSpent
             const userRef = ref(database, `users/${currentUser.uid}`);
             const userSnap = await get(userRef);
 
@@ -241,14 +240,12 @@
             const newWalletBalance = currentWallet - totalCost;
             const newTotalSpent = currentTotalSpent + totalCost;
 
-            // 2. Update user wallet and totalSpent in Firebase
             await set(userRef, {
                 ...userData,
                 wallet: newWalletBalance,
                 totalSpent: newTotalSpent
             });
 
-            // 3. Push new order to Firebase database
             const ordersRef = ref(database, "orders");
             const newOrderRef = push(ordersRef);
             const orderId = 'HKD-' + Date.now();
@@ -257,7 +254,7 @@
                 orderId: orderId,
                 uid: currentUser.uid,
                 platform: platform,
-                service: selectedOption.textContent,
+                service: selectedOption.value, // Clean service name
                 link: link,
                 quantity: qty,
                 amount: totalCost,
@@ -267,7 +264,6 @@
 
             await set(newOrderRef, orderData);
 
-            // 4. Success UI
             orderCardContainer.innerHTML = `
                 <div class="text-center py-4">
                     <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
