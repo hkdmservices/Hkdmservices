@@ -31,8 +31,7 @@
             <div class="col-12 col-md-8 col-lg-6">
                 
                 <div class="card shadow-sm border-0 p-4">
-                    <h3 class="fw-bold text-center mb-2" id="platformTitle">Loading...</h3>
-                    <div class="text-center mb-4" id="catalogBadge"></div>
+                    <h3 class="fw-bold text-center mb-4" id="platformTitle">Loading...</h3>
 
                     <!-- Order Form -->
                     <form id="orderForm">
@@ -53,7 +52,7 @@
                             <input type="number" id="orderQuantity" class="form-control" min="1" value="1000" required>
                         </div>
 
-                        <!-- Background / Display Calculation Box -->
+                        <!-- Background Live Calculation Display -->
                         <div class="alert alert-light border mb-3 py-2 px-3 d-flex justify-content-between align-items-center">
                             <span class="text-muted small" id="rateDisplay">Rate: --</span>
                             <span class="fw-bold text-success" id="totalPriceDisplay">Total: ₦0.00</span>
@@ -79,7 +78,6 @@
     const catalogType = urlParams.get("type"); 
 
     const platformTitle = document.getElementById("platformTitle");
-    const catalogBadge = document.getElementById("catalogBadge");
     const serviceSelect = document.getElementById("serviceSelect");
     const orderQuantity = document.getElementById("orderQuantity");
     const rateDisplay = document.getElementById("rateDisplay");
@@ -87,19 +85,13 @@
 
     if (!platform) {
         platformTitle.innerText = "Error";
-        catalogBadge.innerHTML = '<span class="text-danger">No platform specified.</span>';
         serviceSelect.innerHTML = '<option value="">Please go back and select a platform.</option>';
     } else {
+        // Runs catalog selection logic completely in background
         const catalogue = (catalogType === 'nigerian') ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
         const platformServices = catalogue.filter(item => item.platform === platform);
 
         platformTitle.innerText = `${platform} Order`;
-        
-        if (catalogType === 'nigerian') {
-            catalogBadge.innerHTML = '<span class="badge bg-success">🇳🇬 Geo-Targeted Nigerian Panel (3x Rate Applied)</span>';
-        } else {
-            catalogBadge.innerHTML = '<span class="badge bg-secondary">General Services Panel</span>';
-        }
 
         if (platformServices.length > 0) {
             serviceSelect.innerHTML = '<option value="">Select a specific service</option>';
@@ -108,7 +100,6 @@
                 const option = document.createElement("option");
                 option.value = service.id;
                 
-                // Support multiple property names used across catalogues (ratePer1000, price, rate)
                 const itemRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
                 option.dataset.rate = itemRate;
                 option.dataset.min = service.min || 1;
@@ -136,7 +127,6 @@
 
             rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
             
-            // Background math running live
             const total = (rate / 1000) * qty;
             totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
         }
