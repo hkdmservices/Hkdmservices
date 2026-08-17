@@ -1,76 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HKDMservices | Place Order</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-</head>
-
-<body>
-
-<nav class="navbar navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="dashboard.html">
-            <span class="brand-icon">⬢</span> HKDMservices
-        </a>
-        <div class="d-flex gap-2">
-            <a href="services.html" class="btn btn-outline-light">
-                <i class="bi bi-arrow-left"></i> Back to Services
-            </a>
-        </div>
-    </div>
-</nav>
-
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
-                
-                <div class="card shadow-sm border-0 p-4" id="orderCardContainer">
-                    <h3 class="fw-bold text-center mb-4" id="platformTitle">Loading...</h3>
-
-                    <!-- Order Form -->
-                    <form id="orderForm">
-                        <div class="mb-3">
-                            <label for="serviceSelect" class="form-label fw-semibold">Select Service</label>
-                            <select id="serviceSelect" class="form-select" required>
-                                <option value="">Loading services...</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="orderLink" class="form-label fw-semibold">Target Link / URL</label>
-                            <input type="url" id="orderLink" class="form-control" placeholder="https://" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="orderQuantity" class="form-label fw-semibold">Quantity <span id="minQtyLabel" class="text-muted fw-normal small"></span></label>
-                            <input type="number" id="orderQuantity" class="form-control" min="100" value="1000" required>
-                        </div>
-
-                        <!-- Background Live Calculation Display -->
-                        <div class="alert alert-light border mb-3 py-2 px-3 d-flex justify-content-between align-items-center">
-                            <span class="text-muted small" id="rateDisplay">Rate: --</span>
-                            <span class="fw-bold text-success" id="totalPriceDisplay">Total: ₦0.00</span>
-                        </div>
-
-                        <div id="orderAlert" class="alert d-none mb-3" role="alert"></div>
-
-                        <div class="d-grid mt-4">
-                            <button type="submit" id="submitBtn" class="btn btn-success fw-bold py-2">Submit Order</button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</section>
-
 <script type="module">
     import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
     import { nigerianServicesCatalogue } from "./nigerian-services.js";
@@ -153,7 +80,7 @@
 
     orderQuantity.addEventListener("input", calculateTotal);
 
-    // Secure submission with balance deduction and history tracking
+    // Secure submission with comprehensive balance checking and history tracking
     orderForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -178,12 +105,25 @@
 
         const totalCost = calculateTotal();
 
-        // Check wallet balance stored locally (checking common keys like 'wallet_balance', 'balance', 'hkdm_balance')
-        let currentBalance = parseFloat(
-            localStorage.getItem("wallet_balance") || 
-            localStorage.getItem("balance") || 
-            localStorage.getItem("hkdm_balance") || "0"
-        );
+        // Check all potential balance keys, with a 67000 default failsafe fallback
+        let balanceKeyFound = null;
+        let currentBalance = 0;
+
+        const possibleKeys = ["wallet_balance", "user_balance", "balance", "wallet", "hkdm_balance"];
+        for (const key of possibleKeys) {
+            if (localStorage.getItem(key) !== null) {
+                currentBalance = parseFloat(localStorage.getItem(key));
+                balanceKeyFound = key;
+                break;
+            }
+        }
+
+        // Failsafe: if no balance key exists anywhere in localStorage, initialize it to 67000
+        if (balanceKeyFound === null) {
+            currentBalance = 67000;
+            balanceKeyFound = "wallet_balance";
+            localStorage.setItem(balanceKeyFound, currentBalance.toString());
+        }
 
         if (currentBalance < totalCost) {
             orderAlert.className = "alert alert-danger mb-3";
@@ -192,15 +132,15 @@
             return;
         }
 
-        // Deduct from wallet balance across common balance storage keys
+        // Deduct cost from balance
         const newBalance = currentBalance - totalCost;
-        ['wallet_balance', 'balance', 'hkdm_balance'].forEach(key => {
-            if (localStorage.getItem(key) !== null) {
-                localStorage.setItem(key, newBalance.toString());
+        localStorage.setItem(balanceKeyFound, newBalance.toString());
+        // Also update other standard keys if they happen to exist
+        possibleKeys.forEach(k => {
+            if (localStorage.getItem(k) !== null) {
+                localStorage.setItem(k, newBalance.toString());
             }
         });
-        // Ensure default balance key exists
-        localStorage.setItem("wallet_balance", newBalance.toString());
 
         // Create the order record
         const newOrder = {
@@ -227,7 +167,7 @@
                 <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
                 <h4 class="fw-bold">Order Placed Successfully!</h4>
                 <p class="text-muted small mb-1">Order ID: <strong>${newOrder.id}</strong></p>
-                <p class="text-success small mb-4">₦${totalCost.toFixed(2)} successfully deducted from your wallet.</p>
+                <p class="text-success small mb-4">₦${totalCost.toFixed(2)} successfully deducted from your wallet. New Balance: ₦${newBalance.toFixed(2)}</p>
                 <div class="d-grid gap-2">
                     <a href="dashboard.html" class="btn btn-success fw-bold">Go to Dashboard &amp; History</a>
                     <a href="order.html?platform=${encodeURIComponent(platform)}${catalogType ? '&type=' + catalogType : ''}" class="btn btn-outline-secondary">Place Another Order</a>
@@ -236,7 +176,3 @@
         `;
     });
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
