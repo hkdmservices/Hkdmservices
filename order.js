@@ -79,7 +79,7 @@ async function loadOrders(uid) {
     }
 
     try {
-        // Fetch all orders directly to prevent Firebase indexing hangups
+        // Fetch all orders directly from Firebase Realtime Database
         const ordersRef = ref(database, "orders");
         const snapshot = await get(ordersRef);
 
