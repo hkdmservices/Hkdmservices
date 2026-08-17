@@ -1,5 +1,5 @@
 // ============================================================
-// HKDMservices Nigeria Services
+// HKDMservices Nigeria Services Page
 // ============================================================
 
 import {
@@ -11,27 +11,10 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-
-// ============================================================
-// ELEMENTS
-// ============================================================
-
-const servicesContainer =
-    document.getElementById("nigeriaServicesContainer");
-
-const userName =
-    document.getElementById("userName");
-
-const searchInput =
-    document.getElementById("serviceSearch");
-
-const platformFilter =
-    document.getElementById("platformFilter");
-
-
-// ============================================================
-// LOAD NIGERIA CATALOGUE
-// ============================================================
+import {
+    ref,
+    get
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 import {
     hkdmservicesNigeriaServicePriceCatalogue
@@ -39,375 +22,39 @@ import {
 
 
 // ============================================================
-// CURRENT USER
+// ELEMENTS
 // ============================================================
 
-let currentUser = null;
+const servicesContainer =
+    document.getElementById("servicesContainer");
 
+const noServices =
+    document.getElementById("noServices");
 
-// ============================================================
-// USER AUTHENTICATION
-// ============================================================
+const serviceSearch =
+    document.getElementById("serviceSearch");
 
-onAuthStateChanged(auth, async (user) => {
+const serviceCount =
+    document.getElementById("serviceCount");
 
-    if (!user) {
+const tierInfo =
+    document.getElementById("tierInfo");
 
-        window.location.href = "login.html";
-
-        return;
-    }
-
-    currentUser = user;
-
-    if (userName) {
-
-        userName.textContent =
-            user.displayName ||
-            user.email ||
-            "User";
-
-    }
-
-    populatePlatformFilter();
-
-    renderNigeriaServices();
-
-});
+const platformFilters =
+    document.querySelectorAll(".platform-filter");
 
 
 // ============================================================
-// POPULATE PLATFORM FILTER
+// STATE
 // ============================================================
 
-function populatePlatformFilter() {
+let nigeriaServices = [];
 
-    if (!platformFilter) {
-        return;
-    }
+let currentPlatform = "all";
 
-    const platforms = [
-        ...new Set(
-            hkdmservicesNigeriaServicePriceCatalogue
-                .map(service => service.platform)
-                .filter(Boolean)
-        )
-    ];
+let currentSearch = "";
 
-    platformFilter.innerHTML =
-        `<option value="all">All Platforms</option>`;
-
-    platforms.forEach(platform => {
-
-        const option =
-            document.createElement("option");
-
-        option.value = platform;
-
-        option.textContent = platform;
-
-        platformFilter.appendChild(option);
-
-    });
-
-}
-
-
-// ============================================================
-// RENDER SERVICES
-// ============================================================
-
-function renderNigeriaServices() {
-
-    if (!servicesContainer) {
-        return;
-    }
-
-    const searchTerm =
-        searchInput
-            ? searchInput.value.trim().toLowerCase()
-            : "";
-
-    const selectedPlatform =
-        platformFilter
-            ? platformFilter.value
-            : "all";
-
-
-    const filteredServices =
-        hkdmservicesNigeriaServicePriceCatalogue.filter(service => {
-
-            const matchesSearch =
-                !searchTerm ||
-
-                service.platform
-                    ?.toLowerCase()
-                    .includes(searchTerm) ||
-
-                service.service
-                    ?.toLowerCase()
-                    .includes(searchTerm) ||
-
-                service.id
-                    ?.toLowerCase()
-                    .includes(searchTerm);
-
-
-            const matchesPlatform =
-                selectedPlatform === "all" ||
-
-                service.platform === selectedPlatform;
-
-
-            return (
-                matchesSearch &&
-                matchesPlatform
-            );
-
-        });
-
-
-    servicesContainer.innerHTML = "";
-
-
-    // ========================================================
-    // NO SERVICES
-    // ========================================================
-
-    if (filteredServices.length === 0) {
-
-        servicesContainer.innerHTML = `
-
-            <div class="col-12">
-
-                <div class="alert alert-warning text-center">
-
-                    <i class="bi bi-search"></i>
-
-                    No Nigerian services found.
-
-                </div>
-
-            </div>
-
-        `;
-
-        return;
-    }
-
-
-    // ========================================================
-    // SERVICE CARDS
-    // ========================================================
-
-    filteredServices.forEach(service => {
-
-        const regularRate =
-            Number(service.ratePer1000 || 0);
-
-        const resellerRate =
-            Number(
-                service.resellerRatePer1000 ||
-                regularRate
-            );
-
-        const vipRate =
-            Number(
-                service.vipRatePer1000 ||
-                regularRate
-            );
-
-
-        const card =
-            document.createElement("div");
-
-        card.className =
-            "col-12 col-md-6 col-lg-4";
-
-
-        card.innerHTML = `
-
-            <div class="card h-100 shadow-sm border-success">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-
-                        <div>
-
-                            <span class="badge bg-success">
-
-                                ${escapeHtml(service.platform)}
-
-                            </span>
-
-                        </div>
-
-                        <small class="text-muted">
-
-                            ${escapeHtml(service.id || "")}
-
-                        </small>
-
-                    </div>
-
-
-                    <h5 class="card-title fw-bold">
-
-                        ${escapeHtml(service.service)}
-
-                    </h5>
-
-
-                    <div class="mt-3">
-
-                        <div class="mb-2">
-
-                            <small class="text-muted d-block">
-
-                                Regular Rate
-
-                            </small>
-
-                            <strong class="fs-5 text-success">
-
-                                ${formatNaira(regularRate)}
-
-                            </strong>
-
-                            <small class="text-muted">
-
-                                / 1,000
-
-                            </small>
-
-                        </div>
-
-
-                        <div class="mb-2">
-
-                            <small class="text-muted d-block">
-
-                                Reseller Rate
-
-                            </small>
-
-                            <strong>
-
-                                ${formatNaira(resellerRate)}
-
-                            </strong>
-
-                            <small class="text-muted">
-
-                                / 1,000
-
-                            </small>
-
-                        </div>
-
-
-                        <div>
-
-                            <small class="text-muted d-block">
-
-                                VIP Rate
-
-                            </small>
-
-                            <strong>
-
-                                ${formatNaira(vipRate)}
-
-                            </strong>
-
-                            <small class="text-muted">
-
-                                / 1,000
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        class="btn btn-success w-100 mt-4 order-service-btn"
-                        data-service-id="${escapeHtml(service.id || "")}"
-                    >
-
-                        <i class="bi bi-cart-plus"></i>
-
-                        Order Service
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        servicesContainer.appendChild(card);
-
-    });
-
-
-    // ========================================================
-    // ORDER BUTTONS
-    // ========================================================
-
-    document
-        .querySelectorAll(".order-service-btn")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const serviceId =
-                        button.dataset.serviceId;
-
-                    window.location.href =
-                        `create-order.html?service=${encodeURIComponent(serviceId)}`;
-
-                }
-            );
-
-        });
-
-}
-
-
-// ============================================================
-// SEARCH
-// ============================================================
-
-if (searchInput) {
-
-    searchInput.addEventListener(
-        "input",
-        renderNigeriaServices
-    );
-
-}
-
-
-// ============================================================
-// PLATFORM FILTER
-// ============================================================
-
-if (platformFilter) {
-
-    platformFilter.addEventListener(
-        "change",
-        renderNigeriaServices
-    );
-
-}
+let currentTier = "regular";
 
 
 // ============================================================
@@ -421,9 +68,10 @@ function formatNaira(amount) {
         {
             style: "currency",
             currency: "NGN",
-            minimumFractionDigits: 2
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
         }
-    ).format(amount);
+    ).format(Number(amount || 0));
 
 }
 
@@ -442,3 +90,633 @@ function escapeHtml(value) {
         .replace(/'/g, "&#039;");
 
 }
+
+
+// ============================================================
+// GET USER TIER
+// ============================================================
+
+async function loadUserTier(user) {
+
+    try {
+
+        const userRef =
+            ref(
+                database,
+                `users/${user.uid}`
+            );
+
+        const snapshot =
+            await get(userRef);
+
+        if (snapshot.exists()) {
+
+            const userData =
+                snapshot.val();
+
+            currentTier =
+                String(
+                    userData.tier || "regular"
+                ).toLowerCase();
+
+        } else {
+
+            currentTier = "regular";
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "NIGERIA USER TIER ERROR:",
+            error
+        );
+
+        currentTier = "regular";
+
+    }
+
+    updateTierDisplay();
+
+}
+
+
+// ============================================================
+// UPDATE TIER DISPLAY
+// ============================================================
+
+function updateTierDisplay() {
+
+    if (!tierInfo) {
+        return;
+    }
+
+    const tier =
+        currentTier.toLowerCase();
+
+    let badgeClass =
+        "bg-secondary";
+
+    if (tier === "vip") {
+        badgeClass =
+            "bg-warning text-dark";
+    }
+
+    if (tier === "reseller") {
+        badgeClass =
+            "bg-danger";
+    }
+
+    tierInfo.innerHTML = `
+
+        <i class="bi bi-shield-check"></i>
+
+        <strong class="badge ${badgeClass}">
+            ${escapeHtml(tier.toUpperCase())}
+        </strong>
+
+        pricing is currently displayed.
+
+    `;
+
+}
+
+
+// ============================================================
+// GET PRICE FOR USER TIER
+// ============================================================
+
+function getServicePrice(service) {
+
+    const regularPrice =
+        Number(
+            service.ratePer1000 || 0
+        );
+
+    if (
+        currentTier === "reseller" &&
+        service.resellerRatePer1000 !== undefined
+    ) {
+
+        return Number(
+            service.resellerRatePer1000
+        );
+
+    }
+
+    if (
+        currentTier === "vip" &&
+        service.vipRatePer1000 !== undefined
+    ) {
+
+        return Number(
+            service.vipRatePer1000
+        );
+
+    }
+
+    return regularPrice;
+
+}
+
+
+// ============================================================
+// LOAD NIGERIA CATALOGUE
+// ============================================================
+
+async function loadNigeriaServices() {
+
+    /*
+     * Primary source:
+     *
+     * nigeria-services-catalogue.js
+     *
+     * Firebase is checked first only if the Nigeria
+     * catalogue has been intentionally published there.
+     */
+
+    try {
+
+        const servicesRef =
+            ref(
+                database,
+                "services/nigeria"
+            );
+
+        const snapshot =
+            await get(servicesRef);
+
+        if (snapshot.exists()) {
+
+            const data =
+                snapshot.val();
+
+            nigeriaServices =
+                Object.entries(data)
+                    .map(
+                        ([key, value]) => ({
+                            id: value.id || key,
+                            ...value
+                        })
+                    );
+
+        } else {
+
+            nigeriaServices =
+                Array.isArray(
+                    hkdmservicesNigeriaServicePriceCatalogue
+                )
+                    ? hkdmservicesNigeriaServicePriceCatalogue
+                    : [];
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Firebase Nigeria catalogue unavailable. Using local catalogue.",
+            error
+        );
+
+        nigeriaServices =
+            Array.isArray(
+                hkdmservicesNigeriaServicePriceCatalogue
+            )
+                ? hkdmservicesNigeriaServicePriceCatalogue
+                : [];
+
+    }
+
+    renderServices();
+
+}
+
+
+// ============================================================
+// FILTER SERVICES
+// ============================================================
+
+function getFilteredServices() {
+
+    const search =
+        currentSearch.toLowerCase();
+
+    return nigeriaServices.filter(
+        service => {
+
+            const platform =
+                String(
+                    service.platform || ""
+                );
+
+            const serviceName =
+                String(
+                    service.service || ""
+                );
+
+            const id =
+                String(
+                    service.id || ""
+                );
+
+            const platformMatch =
+                currentPlatform === "all" ||
+                platform.toLowerCase() ===
+                currentPlatform.toLowerCase();
+
+            const searchMatch =
+                !search ||
+
+                platform.toLowerCase().includes(
+                    search
+                ) ||
+
+                serviceName.toLowerCase().includes(
+                    search
+                ) ||
+
+                id.toLowerCase().includes(
+                    search
+                );
+
+            return (
+                platformMatch &&
+                searchMatch
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// RENDER SERVICES
+// ============================================================
+
+function renderServices() {
+
+    if (!servicesContainer) {
+        return;
+    }
+
+    const filteredServices =
+        getFilteredServices();
+
+    if (serviceCount) {
+
+        serviceCount.textContent =
+            `${filteredServices.length} Services`;
+
+    }
+
+    servicesContainer.innerHTML = "";
+
+    if (
+        filteredServices.length === 0
+    ) {
+
+        if (noServices) {
+
+            noServices.classList.remove(
+                "d-none"
+            );
+
+        }
+
+        return;
+
+    }
+
+    if (noServices) {
+
+        noServices.classList.add(
+            "d-none"
+        );
+
+    }
+
+    filteredServices.forEach(
+        service => {
+
+            const regularRate =
+                Number(
+                    service.ratePer1000 || 0
+                );
+
+            const resellerRate =
+                service.resellerRatePer1000 !== undefined
+                    ? Number(
+                        service.resellerRatePer1000
+                    )
+                    : null;
+
+            const vipRate =
+                service.vipRatePer1000 !== undefined
+                    ? Number(
+                        service.vipRatePer1000
+                    )
+                    : null;
+
+            const currentPrice =
+                getServicePrice(service);
+
+            const platform =
+                service.platform ||
+                "Social Media";
+
+            const serviceName =
+                service.service ||
+                "Service";
+
+            const description =
+                service.description ||
+                `${serviceName} service for ${platform}.`;
+
+            const serviceId =
+                service.id || "";
+
+            const col =
+                document.createElement("div");
+
+            col.className =
+                "col-12 col-md-6 col-lg-4";
+
+            col.innerHTML = `
+
+                <div class="card h-100 shadow-sm border-success">
+
+                    <div class="card-body d-flex flex-column">
+
+                        <div
+                            class="d-flex
+                            justify-content-between
+                            align-items-start
+                            mb-3"
+                        >
+
+                            <span class="badge bg-success">
+
+                                ${escapeHtml(platform)}
+
+                            </span>
+
+                            <span
+                                class="badge bg-light text-dark"
+                            >
+
+                                #${escapeHtml(serviceId)}
+
+                            </span>
+
+                        </div>
+
+
+                        <h5 class="card-title fw-bold">
+
+                            ${escapeHtml(serviceName)}
+
+                        </h5>
+
+
+                        <p class="card-text text-muted small">
+
+                            ${escapeHtml(description)}
+
+                        </p>
+
+
+                        <hr>
+
+
+                        <div class="mb-3">
+
+                            <small class="text-muted d-block">
+
+                                Your Price per 1,000
+
+                            </small>
+
+                            <h4
+                                class="text-success
+                                fw-bold mb-0"
+                            >
+
+                                ${formatNaira(currentPrice)}
+
+                            </h4>
+
+                        </div>
+
+
+                        ${
+                            currentTier !== "regular"
+                            ? `
+                                <small class="text-muted">
+
+                                    Regular:
+                                    ${formatNaira(regularRate)}
+
+                                </small>
+                              `
+                            : ""
+                        }
+
+
+                        ${
+                            currentTier === "regular"
+                            && resellerRate !== null
+                            ? `
+                                <small class="text-muted d-block mt-2">
+
+                                    Reseller:
+                                    ${formatNaira(resellerRate)}
+
+                                </small>
+                              `
+                            : ""
+                        }
+
+
+                        ${
+                            currentTier === "regular"
+                            && vipRate !== null
+                            ? `
+                                <small class="text-muted d-block">
+
+                                    VIP:
+                                    ${formatNaira(vipRate)}
+
+                                </small>
+                              `
+                            : ""
+                        }
+
+
+                        <button
+                            type="button"
+                            class="btn btn-success w-100 mt-auto pt-2 order-service-btn"
+                            data-service-id="${escapeHtml(serviceId)}"
+                        >
+
+                            <i class="bi bi-cart-plus"></i>
+
+                            Order Service
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+            servicesContainer.appendChild(
+                col
+            );
+
+        }
+    );
+
+
+    attachOrderButtons();
+
+}
+
+
+// ============================================================
+// ORDER BUTTONS
+// ============================================================
+
+function attachOrderButtons() {
+
+    document
+        .querySelectorAll(".order-service-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const serviceId =
+                        button.dataset.serviceId;
+
+                    if (!serviceId) {
+
+                        alert(
+                            "Service ID is missing."
+                        );
+
+                        return;
+
+                    }
+
+                    window.location.href =
+                        `create-order.html?service=${encodeURIComponent(serviceId)}&catalogue=nigeria`;
+
+                }
+            );
+
+        });
+
+}
+
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+if (serviceSearch) {
+
+    serviceSearch.addEventListener(
+        "input",
+        event => {
+
+            currentSearch =
+                event.target.value.trim();
+
+            renderServices();
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// PLATFORM FILTERS
+// ============================================================
+
+platformFilters.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                platformFilters.forEach(
+                    btn => {
+
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                        btn.classList.remove(
+                            "btn-success"
+                        );
+
+                        btn.classList.add(
+                            "btn-outline-success"
+                        );
+
+                    }
+                );
+
+                button.classList.add(
+                    "active"
+                );
+
+                button.classList.remove(
+                    "btn-outline-success"
+                );
+
+                button.classList.add(
+                    "btn-success"
+                );
+
+                currentPlatform =
+                    button.dataset.platform ||
+                    "all";
+
+                renderServices();
+
+            }
+        );
+
+    }
+);
+
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
+
+onAuthStateChanged(
+    auth,
+    async user => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+        await loadUserTier(user);
+
+        await loadNigeriaServices();
+
+    }
+);
