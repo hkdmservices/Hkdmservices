@@ -153,7 +153,7 @@
 
     orderQuantity.addEventListener("input", calculateTotal);
 
-    // Prevent page refresh and handle submission logic securely
+    // Secure submission with balance deduction and history tracking
     orderForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -178,6 +178,31 @@
 
         const totalCost = calculateTotal();
 
+        // Check wallet balance stored locally (checking common keys like 'wallet_balance', 'balance', 'hkdm_balance')
+        let currentBalance = parseFloat(
+            localStorage.getItem("wallet_balance") || 
+            localStorage.getItem("balance") || 
+            localStorage.getItem("hkdm_balance") || "0"
+        );
+
+        if (currentBalance < totalCost) {
+            orderAlert.className = "alert alert-danger mb-3";
+            orderAlert.textContent = `Insufficient balance! Total cost is ₦${totalCost.toFixed(2)}, but your balance is ₦${currentBalance.toFixed(2)}. Please add funds.`;
+            orderAlert.classList.remove("d-none");
+            return;
+        }
+
+        // Deduct from wallet balance across common balance storage keys
+        const newBalance = currentBalance - totalCost;
+        ['wallet_balance', 'balance', 'hkdm_balance'].forEach(key => {
+            if (localStorage.getItem(key) !== null) {
+                localStorage.setItem(key, newBalance.toString());
+            }
+        });
+        // Ensure default balance key exists
+        localStorage.setItem("wallet_balance", newBalance.toString());
+
+        // Create the order record
         const newOrder = {
             id: 'HKD-' + Date.now(),
             platform: platform,
@@ -189,19 +214,20 @@
             status: 'Pending'
         };
 
-        // Save to multiple storage keys to guarantee your dashboard picks it up
-        ['hkdm_orders', 'orders'].forEach(key => {
+        // Save order to history keys so it populates the dashboard table immediately
+        ['hkdm_orders', 'orders', 'order_history'].forEach(key => {
             let history = JSON.parse(localStorage.getItem(key) || "[]");
             history.unshift(newOrder);
             localStorage.setItem(key, JSON.stringify(history));
         });
 
-        // Show success confirmation card on the page without force-redirecting
+        // Show success confirmation screen
         orderCardContainer.innerHTML = `
             <div class="text-center py-4">
                 <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
                 <h4 class="fw-bold">Order Placed Successfully!</h4>
-                <p class="text-muted small mb-4">Your order ID is <strong>${newOrder.id}</strong></p>
+                <p class="text-muted small mb-1">Order ID: <strong>${newOrder.id}</strong></p>
+                <p class="text-success small mb-4">₦${totalCost.toFixed(2)} successfully deducted from your wallet.</p>
                 <div class="d-grid gap-2">
                     <a href="dashboard.html" class="btn btn-success fw-bold">Go to Dashboard &amp; History</a>
                     <a href="order.html?platform=${encodeURIComponent(platform)}${catalogType ? '&type=' + catalogType : ''}" class="btn btn-outline-secondary">Place Another Order</a>
