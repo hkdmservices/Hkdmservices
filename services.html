@@ -2,216 +2,420 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>HKDMservices | Official Service & Price Catalogue</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <link
+        href="style.css"
+        rel="stylesheet"
+    >
+
 </head>
+
 
 <body>
 
+
 <nav class="navbar navbar-dark bg-dark">
+
     <div class="container">
-        <a class="navbar-brand fw-bold" href="dashboard.html">
-            <span class="brand-icon">⬢</span> HKDMservices
+
+        <a
+            class="navbar-brand fw-bold"
+            href="dashboard.html"
+        >
+
+            <span class="brand-icon">⬢</span>
+
+            HKDMservices
+
         </a>
+
+
         <div class="d-flex gap-2">
-            <a href="dashboard.html" class="btn btn-outline-light">
-                <i class="bi bi-speedometer2"></i> Dashboard
+
+            <a
+                href="dashboard.html"
+                class="btn btn-outline-light"
+            >
+
+                <i class="bi bi-speedometer2"></i>
+
+                Dashboard
+
             </a>
-            <a href="wallet.html" class="btn btn-success">
-                <i class="bi bi-wallet2"></i> Add Funds
+
+
+            <a
+                href="wallet.html"
+                class="btn btn-success"
+            >
+
+                <i class="bi bi-wallet2"></i>
+
+                Add Funds
+
             </a>
+
         </div>
+
     </div>
+
 </nav>
 
+
+
 <section class="py-5">
+
     <div class="container">
-        <div class="text-center mb-4">
-            <h1 class="fw-bold">HKDMservices</h1>
-            <h2 class="fw-bold">Official Service &amp; Price Catalogue</h2>
-            <p class="text-muted">Select a tab and platform to view available services and prices.</p>
+
+
+        <div class="text-center mb-5">
+
+            <h1 class="fw-bold">
+
+                HKDMservices
+
+            </h1>
+
+
+            <h2 class="fw-bold">
+
+                Official Service &amp; Price Catalogue
+
+            </h2>
+
+
+            <p class="text-muted">
+
+                Select a platform to view available services and prices.
+
+            </p>
+
         </div>
 
-        <!-- Quick Actions Tab Navigation -->
-        <div class="d-flex justify-content-center border-bottom mb-5 pb-3 gap-2">
-            <button onclick="switchTab('general')" id="tab-general" class="btn btn-success fw-semibold px-4">
-                General Services
-            </button>
-            <button onclick="switchTab('nigerian')" id="tab-nigerian" class="btn btn-outline-secondary fw-medium px-4">
-                Nigerian Services
-            </button>
-        </div>
 
-        <!-- ================= GENERAL SERVICES VIEW ================= -->
-        <div id="view-general" class="tab-view">
-            <div class="row justify-content-center mb-5">
-                <div class="col-12 col-md-8">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="search" id="platformSearch" class="form-control" placeholder="Search general platform..." autocomplete="off">
-                    </div>
+
+        <div class="row justify-content-center mb-5">
+
+            <div class="col-12 col-md-8">
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+
+                        <i class="bi bi-search"></i>
+
+                    </span>
+
+
+                    <input
+                        type="search"
+                        id="platformSearch"
+                        class="form-control"
+                        placeholder="Search platform..."
+                        autocomplete="off"
+                    >
+
                 </div>
+
             </div>
-            <div id="platformContainer" class="row g-4"></div>
-            <div id="emptyMessage" class="text-center py-5 d-none">
-                <i class="bi bi-search fs-1 text-muted"></i>
-                <h4 class="mt-3">No platform found</h4>
-                <p class="text-muted">Try another search.</p>
-            </div>
+
         </div>
 
-        <!-- ================= NIGERIAN SERVICES VIEW ================= -->
-        <div id="view-nigerian" class="tab-view d-none">
-            <div class="row justify-content-center mb-5">
-                <div class="col-12 col-md-8">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="search" id="ngPlatformSearch" class="form-control" placeholder="Search Nigerian platform..." autocomplete="off">
-                    </div>
-                </div>
-            </div>
-            <div id="nigerianPlatformContainer" class="row g-4"></div>
-            <div id="ngEmptyMessage" class="text-center py-5 d-none">
-                <i class="bi bi-search fs-1 text-muted"></i>
-                <h4 class="mt-3">No Nigerian platform found</h4>
-                <p class="text-muted">Try another search keyword.</p>
-            </div>
+
+
+        <div
+            id="platformContainer"
+            class="row g-4"
+        >
+
         </div>
 
-        <div class="text-center mt-5">
-            <a href="dashboard.html" class="btn btn-outline-dark">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
+
+
+        <div
+            id="emptyMessage"
+            class="text-center py-5 d-none"
+        >
+
+            <i
+                class="bi bi-search fs-1 text-muted"
+            ></i>
+
+
+            <h4 class="mt-3">
+
+                No platform found
+
+            </h4>
+
+
+            <p class="text-muted">
+
+                Try another search.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="card shadow-sm border-0 mt-5">
+
+            <div class="card-body p-4 text-center">
+
+                <i
+                    class="bi bi-info-circle text-success"
+                    style="font-size: 2rem;"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    How it works
+
+                </h4>
+
+
+                <p class="text-muted mb-0">
+
+                    Choose a platform, select the service you want,
+                    then continue to place your order.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="text-center mt-4">
+
+            <a
+                href="dashboard.html"
+                class="btn btn-outline-dark"
+            >
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Dashboard
+
             </a>
+
         </div>
+
+
     </div>
+
 </section>
 
+
+
 <script type="module">
-import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
-import { nigerianServicesCatalogue } from "./nigerian-services.js";
 
-const platformContainer = document.getElementById("platformContainer");
-const platformSearch = document.getElementById("platformSearch");
-const emptyMessage = document.getElementById("emptyMessage");
+import {
+    hkdmservicesOfficialServicePriceCatalogue
+} from "./services.js";
 
-const platforms = [...new Set(hkdmservicesOfficialServicePriceCatalogue.map(item => item.platform))];
+
+const platformContainer =
+    document.getElementById("platformContainer");
+
+
+const platformSearch =
+    document.getElementById("platformSearch");
+
+
+const emptyMessage =
+    document.getElementById("emptyMessage");
+
+
+
+const platforms = [
+    ...new Set(
+        hkdmservicesOfficialServicePriceCatalogue.map(
+            item => item.platform
+        )
+    )
+];
+
+
 
 const platformIcons = {
+
     "Instagram": "bi-instagram",
+
     "TikTok": "bi-tiktok",
+
     "YouTube": "bi-youtube",
+
     "Facebook": "bi-facebook",
+
     "X (Twitter)": "bi-twitter-x",
+
     "Telegram": "bi-telegram",
+
     "Spotify": "bi-spotify",
+
     "WhatsApp": "bi-whatsapp",
+
     "Apple Music": "bi-apple-music"
+
 };
+
+
 
 function renderPlatforms(searchTerm = "") {
+
     platformContainer.innerHTML = "";
-    const search = searchTerm.trim().toLowerCase();
-    const filteredPlatforms = platforms.filter(platform => platform.toLowerCase().includes(search));
+
+
+    const search =
+        searchTerm
+            .trim()
+            .toLowerCase();
+
+
+    const filteredPlatforms =
+        platforms.filter(platform =>
+            platform
+                .toLowerCase()
+                .includes(search)
+        );
+
 
     if (filteredPlatforms.length === 0) {
+
         emptyMessage.classList.remove("d-none");
+
         return;
+
     }
+
+
     emptyMessage.classList.add("d-none");
 
+
     filteredPlatforms.forEach(platform => {
-        const services = hkdmservicesOfficialServicePriceCatalogue.filter(item => item.platform === platform);
-        const card = document.createElement("div");
-        card.className = "col-12 col-md-6 col-lg-4";
-        const icon = platformIcons[platform] || "bi-grid";
+
+
+        const services =
+            hkdmservicesOfficialServicePriceCatalogue.filter(
+                item => item.platform === platform
+            );
+
+
+        const card =
+            document.createElement("div");
+
+
+        card.className =
+            "col-12 col-md-6 col-lg-4";
+
+
+        const icon =
+            platformIcons[platform] || "bi-grid";
+
 
         card.innerHTML = `
+
             <div class="card h-100 shadow-sm border-0">
+
                 <div class="card-body p-4">
+
                     <div class="text-center mb-3">
-                        <i class="bi ${icon} fs-1 text-success"></i>
+
+                        <i
+                            class="bi ${icon} fs-1 text-success"
+                        ></i>
+
                     </div>
-                    <h4 class="text-center fw-bold">${platform}</h4>
-                    <p class="text-center text-muted">${services.length} service${services.length === 1 ? "" : "s"} available</p>
+
+
+                    <h4 class="text-center fw-bold">
+
+                        ${platform}
+
+                    </h4>
+
+
+                    <p class="text-center text-muted">
+
+                        ${services.length}
+                        service${services.length === 1 ? "" : "s"}
+                        available
+
+                    </p>
+
+
                     <div class="d-grid mt-3">
-                        <a href="order.html?platform=${encodeURIComponent(platform)}" class="btn btn-success">View Services</a>
+
+                        <a
+                            href="order.html?platform=${encodeURIComponent(platform)}"
+                            class="btn btn-success"
+                        >
+
+                            View Services
+
+                        </a>
+
                     </div>
+
                 </div>
+
             </div>
+
         `;
+
+
         platformContainer.appendChild(card);
+
     });
+
 }
 
-platformSearch.addEventListener("input", () => { renderPlatforms(platformSearch.value); });
+
+
+platformSearch.addEventListener(
+    "input",
+    () => {
+
+        renderPlatforms(
+            platformSearch.value
+        );
+
+    }
+);
+
+
+
 renderPlatforms();
 
-// --- NIGERIAN CATALOG LOGIC ---
-const ngContainer = document.getElementById("nigerianPlatformContainer");
-const ngSearch = document.getElementById("ngPlatformSearch");
-const ngEmpty = document.getElementById("ngEmptyMessage");
-
-const ngPlatforms = [...new Set(nigerianServicesCatalogue.map(item => item.platform))];
-
-function renderNigerianPlatforms(searchTerm = "") {
-    ngContainer.innerHTML = "";
-    const search = searchTerm.trim().toLowerCase();
-    const filteredPlatforms = ngPlatforms.filter(platform => platform.toLowerCase().includes(search));
-
-    if (filteredPlatforms.length === 0) {
-        ngEmpty.classList.remove("d-none");
-        return;
-    }
-    ngEmpty.classList.add("d-none");
-
-    filteredPlatforms.forEach(platform => {
-        const services = nigerianServicesCatalogue.filter(item => item.platform === platform);
-        const card = document.createElement("div");
-        card.className = "col-12 col-md-6 col-lg-4";
-        const icon = platformIcons[platform] || "bi-grid";
-
-        card.innerHTML = `
-            <div class="card h-100 shadow-sm border-0 border-top border-success border-4">
-                <div class="card-body p-4">
-                    <div class="text-center mb-3">
-                        <i class="bi ${icon} fs-1 text-success"></i>
-                    </div>
-                    <h4 class="text-center fw-bold">${platform}</h4>
-                    <p class="text-center text-muted">${services.length} localized service${services.length === 1 ? "" : "s"} available</p>
-                    <div class="d-grid mt-3">
-                        <a href="order.html?platform=${encodeURIComponent(platform)}&type=nigerian" class="btn btn-success">View Services</a>
-                    </div>
-                </div>
-            </div>
-        `;
-        ngContainer.appendChild(card);
-    });
-}
-
-ngSearch.addEventListener("input", () => { renderNigerianPlatforms(ngSearch.value); });
-
-window.switchTab = function(tabName) {
-    document.querySelectorAll('.tab-view').forEach(el => el.classList.add('d-none'));
-    document.querySelectorAll('[id^="tab-"]').forEach(el => {
-        el.classList.remove('btn-success', 'fw-semibold');
-        el.classList.add('btn-outline-secondary', 'fw-medium');
-    });
-
-    document.getElementById(`view-${tabName}`).classList.remove('d-none');
-    const activeBtn = document.getElementById(`tab-${tabName}`);
-    activeBtn.classList.remove('btn-outline-secondary', 'fw-medium');
-    activeBtn.classList.add('btn-success', 'fw-semibold');
-
-    if (tabName === 'nigerian') {
-        renderNigerianPlatforms();
-    }
-};
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
 </body>
+
 </html>
