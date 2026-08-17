@@ -13,24 +13,6 @@ import {
 } from "../telegram.js";
 
 
-// ============================================================
-// HKDMservices CREATE ORDER API
-//
-// Supports:
-// - General / Official catalogue
-// - Nigeria catalogue
-// - Regular pricing
-// - Reseller pricing
-// - VIP pricing
-// - Comment services
-// - Fixed-price packages
-// - Wallet deduction
-// - Order creation
-// - Transaction records
-// - Automatic VIP upgrade
-// ============================================================
-
-
 export default async function handler(req, res) {
 
     if (req.method !== "POST") {
@@ -52,9 +34,7 @@ export default async function handler(req, res) {
         const authorization =
             req.headers.authorization || "";
 
-        if (
-            !authorization.startsWith("Bearer ")
-        ) {
+        if (!authorization.startsWith("Bearer ")) {
 
             return res.status(401).json({
                 success: false,
@@ -78,8 +58,9 @@ export default async function handler(req, res) {
             decodedToken.uid;
 
 
+
         // ====================================================
-        // 2. GET REQUEST DATA
+        // 2. GET ORDER DATA
         // ====================================================
 
         const {
@@ -106,43 +87,32 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
         // 3. SELECT CATALOGUE
         // ====================================================
 
+        const selectedCatalogue =
+            String(catalogue || "general").toLowerCase() === "nigeria"
+                ? hkdmservicesNigeriaServicePriceCatalogue
+                : hkdmservicesOfficialServicePriceCatalogue;
+
+
         const catalogueName =
-            String(
-                catalogue || "general"
-            ).toLowerCase();
+            String(catalogue || "general").toLowerCase() === "nigeria"
+                ? "nigeria"
+                : "general";
 
-
-        let activeCatalogue;
-
-
-        if (
-            catalogueName === "nigeria"
-        ) {
-
-            activeCatalogue =
-                hkdmservicesNigeriaServicePriceCatalogue;
-
-        } else {
-
-            activeCatalogue =
-                hkdmservicesOfficialServicePriceCatalogue;
-
-        }
 
 
         // ====================================================
-        // 4. FIND SERVICE IN SELECTED CATALOGUE
+        // 4. FIND SERVICE
         // ====================================================
 
         const selectedService =
-            activeCatalogue.find(
+            selectedCatalogue.find(
                 item =>
-                    String(item.id) ===
-                    String(serviceId)
+                    item.id === serviceId
             );
 
 
@@ -151,10 +121,11 @@ export default async function handler(req, res) {
             return res.status(400).json({
                 success: false,
                 message:
-                    "Selected service was not found in the requested catalogue."
+                    `Selected service was not found in the ${catalogueName} catalogue.`
             });
 
         }
+
 
 
         // ====================================================
@@ -169,6 +140,7 @@ export default async function handler(req, res) {
                 .includes("comment");
 
 
+
         // ====================================================
         // 6. VALIDATE QUANTITY
         // ====================================================
@@ -178,15 +150,14 @@ export default async function handler(req, res) {
         let numericQuantity;
 
 
+
         // ====================================================
         // COMMENT SERVICE
         // ====================================================
 
         if (isCommentService) {
 
-            if (
-                !Array.isArray(comments)
-            ) {
+            if (!Array.isArray(comments)) {
 
                 return res.status(400).json({
                     success: false,
@@ -244,8 +215,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 7. FIXED PACKAGE
+        // FIXED PACKAGE
         // ====================================================
 
         else if (
@@ -280,8 +252,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 8. NORMAL SERVICE
+        // NORMAL SERVICE
         // ====================================================
 
         else {
@@ -314,8 +287,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 9. GET USER
+        // 7. GET USER
         // ====================================================
 
         const userRef =
@@ -347,14 +321,20 @@ export default async function handler(req, res) {
             userSnapshot.val() || {};
 
 
+
+        // ====================================================
+        // 8. USER TIER
+        // ====================================================
+
         const userTier =
             String(
                 userData.tier || "regular"
             ).toLowerCase();
 
 
+
         // ====================================================
-        // 10. DETERMINE ACTIVE PRICING
+        // 9. GET ACTIVE PRICE
         // ====================================================
 
         let activeRate =
@@ -365,8 +345,9 @@ export default async function handler(req, res) {
             selectedService.fixedPrice;
 
 
+
         // ====================================================
-        // RESELLER
+        // RESELLER PRICE
         // ====================================================
 
         if (
@@ -375,9 +356,7 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.resellerRatePer1000 !==
-                undefined &&
-                selectedService.resellerRatePer1000 !==
-                null
+                undefined
             ) {
 
                 activeRate =
@@ -388,9 +367,7 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.resellerFixedPrice !==
-                undefined &&
-                selectedService.resellerFixedPrice !==
-                null
+                undefined
             ) {
 
                 activeFixedPrice =
@@ -401,8 +378,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // VIP
+        // VIP PRICE
         // ====================================================
 
         else if (
@@ -411,9 +389,7 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.vipRatePer1000 !==
-                undefined &&
-                selectedService.vipRatePer1000 !==
-                null
+                undefined
             ) {
 
                 activeRate =
@@ -424,9 +400,7 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.vipFixedPrice !==
-                undefined &&
-                selectedService.vipFixedPrice !==
-                null
+                undefined
             ) {
 
                 activeFixedPrice =
@@ -437,76 +411,37 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 11. CALCULATE TOTAL
+        // 10. CALCULATE TOTAL
         // ====================================================
 
         let total;
 
 
-        // Fixed package
+
         if (
             selectedService.ratePer1000 === null
         ) {
 
-            const packagePrice =
+            total =
                 Number(
                     activeFixedPrice
-                );
-
-
-            if (
-                !Number.isFinite(
-                    packagePrice
-                ) ||
-                packagePrice <= 0
-            ) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This package does not have a valid price."
-                });
-
-            }
-
-
-            total =
-                packagePrice *
+                ) *
                 numericQuantity;
 
         }
 
-
-        // Normal / comments service
         else {
-
-            const rate =
-                Number(
-                    activeRate
-                );
-
-
-            if (
-                !Number.isFinite(rate) ||
-                rate <= 0
-            ) {
-
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This service does not have a valid price."
-                });
-
-            }
-
 
             total =
                 (
                     numericQuantity /
                     1000
                 ) *
-                rate;
+                Number(
+                    activeRate
+                );
 
         }
 
@@ -515,6 +450,7 @@ export default async function handler(req, res) {
             Number(
                 total.toFixed(2)
             );
+
 
 
         if (
@@ -531,8 +467,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 12. GET WALLET BALANCE
+        // 11. CHECK WALLET
         // ====================================================
 
         const currentBalance =
@@ -555,10 +492,6 @@ export default async function handler(req, res) {
 
         }
 
-
-        // ====================================================
-        // 13. CHECK BALANCE
-        // ====================================================
 
         if (
             currentBalance < total
@@ -585,8 +518,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 14. DEDUCT WALLET
+        // 12. DEDUCT WALLET SAFELY
         // ====================================================
 
         let walletTransaction;
@@ -620,11 +554,13 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
 
                             throw new Error(
-                                "INVALID_WALLET"
+                                "Invalid wallet balance inside transaction."
                             );
 
                         }
@@ -656,6 +592,7 @@ export default async function handler(req, res) {
                 );
 
         }
+
         catch (walletError) {
 
             console.error(
@@ -687,8 +624,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 15. CONFIRM WALLET TRANSACTION
+        // 13. CONFIRM WALLET TRANSACTION
         // ====================================================
 
         if (
@@ -705,8 +643,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 16. NEW BALANCE
+        // 14. NEW BALANCE
         // ====================================================
 
         const committedUser =
@@ -736,8 +675,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 17. CREATE ORDER
+        // 15. CREATE ORDER
         // ====================================================
 
         const orderRef =
@@ -750,8 +690,9 @@ export default async function handler(req, res) {
             orderRef.key;
 
 
+
         // ====================================================
-        // 18. ORDER DATA
+        // 16. ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -780,13 +721,10 @@ export default async function handler(req, res) {
             amount:
                 total,
 
-            ratePer1000:
-                selectedService.ratePer1000,
-
-            chargedRate:
-                selectedService.ratePer1000 === null
-                    ? null
-                    : Number(activeRate),
+            rate:
+                Number(
+                    activeRate || activeFixedPrice || 0
+                ),
 
             tier:
                 userTier,
@@ -806,10 +744,6 @@ export default async function handler(req, res) {
         };
 
 
-        // ====================================================
-        // SAVE COMMENTS
-        // ====================================================
-
         if (
             isCommentService
         ) {
@@ -820,8 +754,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 19. SAVE ORDER
+        // 17. SAVE ORDER
         // ====================================================
 
         try {
@@ -831,6 +766,7 @@ export default async function handler(req, res) {
             );
 
         }
+
         catch (orderError) {
 
             console.error(
@@ -839,9 +775,9 @@ export default async function handler(req, res) {
             );
 
 
-            // ----------------------------------------------
+            // ------------------------------------------------
             // REFUND WALLET
-            // ----------------------------------------------
+            // ------------------------------------------------
 
             try {
 
@@ -870,7 +806,9 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
 
                             return null;
@@ -893,6 +831,7 @@ export default async function handler(req, res) {
                 );
 
             }
+
             catch (refundError) {
 
                 console.error(
@@ -912,8 +851,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 20. SAVE TRANSACTION
+        // 18. SAVE ORDER TRANSACTION
         // ====================================================
 
         try {
@@ -930,6 +870,9 @@ export default async function handler(req, res) {
 
                 orderId,
 
+                catalogue:
+                    catalogueName,
+
                 type:
                     "order",
 
@@ -942,18 +885,13 @@ export default async function handler(req, res) {
                 description:
                     `Order - ${selectedService.platform} ${selectedService.service}`,
 
-                catalogue:
-                    catalogueName,
-
-                tier:
-                    userTier,
-
                 createdAt:
                     Date.now()
 
             });
 
         }
+
         catch (transactionError) {
 
             console.error(
@@ -962,12 +900,16 @@ export default async function handler(req, res) {
             );
 
 
-            // Remove order
+            // ------------------------------------------------
+            // REMOVE ORDER
+            // ------------------------------------------------
+
             try {
 
                 await orderRef.remove();
 
             }
+
             catch (removeError) {
 
                 console.error(
@@ -978,7 +920,10 @@ export default async function handler(req, res) {
             }
 
 
-            // Refund wallet
+            // ------------------------------------------------
+            // REFUND WALLET
+            // ------------------------------------------------
+
             try {
 
                 await userRef.transaction(
@@ -1006,7 +951,9 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(balance)
+                            !Number.isFinite(
+                                balance
+                            )
                         ) {
 
                             return null;
@@ -1029,6 +976,7 @@ export default async function handler(req, res) {
                 );
 
             }
+
             catch (refundError) {
 
                 console.error(
@@ -1048,11 +996,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 21. UPDATE TOTAL SPEND
-        //
-        // Only successful orders count.
-        // Wallet funding does not count.
+        // 19. UPDATE TOTAL SPEND
         // ====================================================
 
         let updatedTotalSpent =
@@ -1067,8 +1013,7 @@ export default async function handler(req, res) {
             )
         ) {
 
-            updatedTotalSpent =
-                0;
+            updatedTotalSpent = 0;
 
         }
 
@@ -1093,12 +1038,9 @@ export default async function handler(req, res) {
         };
 
 
+
         // ====================================================
-        // 22. AUTOMATIC VIP
-        //
-        // VIP threshold = ₦60,000
-        //
-        // Reseller remains reseller.
+        // 20. AUTOMATIC VIP UPGRADE
         // ====================================================
 
         let finalTier =
@@ -1124,14 +1066,15 @@ export default async function handler(req, res) {
 
 
             console.log(
-                `VIP UPGRADE: ${uid} reached ₦${updatedTotalSpent} cumulative order spend.`
+                `VIP UPGRADE: User ${uid} automatically reached ₦${updatedTotalSpent} cumulative spend.`
             );
 
         }
 
 
+
         // ====================================================
-        // 23. SAVE SPEND / TIER
+        // 21. SAVE TOTAL SPEND + TIER
         // ====================================================
 
         try {
@@ -1141,6 +1084,7 @@ export default async function handler(req, res) {
             );
 
         }
+
         catch (tierUpdateError) {
 
             console.error(
@@ -1148,14 +1092,12 @@ export default async function handler(req, res) {
                 tierUpdateError
             );
 
-            // Order has already succeeded.
-            // Do not refund the customer.
-
         }
 
 
+
         // ====================================================
-        // 24. TELEGRAM NOTIFICATION
+        // 22. TELEGRAM NOTIFICATION
         // ====================================================
 
         try {
@@ -1165,6 +1107,7 @@ export default async function handler(req, res) {
             );
 
         }
+
         catch (telegramError) {
 
             console.error(
@@ -1175,8 +1118,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 25. SUCCESS
+        // 23. SUCCESS
         // ====================================================
 
         return res.status(200).json({
@@ -1191,12 +1135,6 @@ export default async function handler(req, res) {
 
             catalogue:
                 catalogueName,
-
-            platform:
-                selectedService.platform,
-
-            service:
-                selectedService.service,
 
             amount:
                 total,
@@ -1218,6 +1156,7 @@ export default async function handler(req, res) {
         });
 
     }
+
     catch (error) {
 
         console.error(
