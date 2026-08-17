@@ -58,8 +58,10 @@
                             <span class="fw-bold text-success" id="totalPriceDisplay">Total: ₦0.00</span>
                         </div>
 
+                        <div id="orderAlert" class="alert d-none mb-3" role="alert"></div>
+
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-success fw-bold py-2">Submit Order</button>
+                            <button type="submit" id="submitBtn" class="btn btn-success fw-bold py-2">Submit Order</button>
                         </div>
                     </form>
                 </div>
@@ -83,6 +85,8 @@
     const minQtyLabel = document.getElementById("minQtyLabel");
     const rateDisplay = document.getElementById("rateDisplay");
     const totalPriceDisplay = document.getElementById("totalPriceDisplay");
+    const orderForm = document.getElementById("orderForm");
+    const orderAlert = document.getElementById("orderAlert");
 
     const isNigerian = catalogType === 'nigerian';
     const catalogue = isNigerian ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
@@ -133,7 +137,7 @@
         if (!selectedOption || !selectedOption.dataset.rate) {
             rateDisplay.innerText = "Rate: --";
             totalPriceDisplay.innerText = "Total: ₦0.00";
-            return;
+            return 0;
         }
 
         const rate = parseFloat(selectedOption.dataset.rate);
@@ -143,9 +147,61 @@
         
         const total = (rate / 1000) * qty;
         totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
+        return total;
     }
 
     orderQuantity.addEventListener("input", calculateTotal);
+
+    // Prevent page refresh and handle submission logic securely
+    orderForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+        if (!selectedOption.value) {
+            orderAlert.className = "alert alert-danger mb-3";
+            orderAlert.textContent = "Please select a valid service.";
+            orderAlert.classList.remove("d-none");
+            return;
+        }
+
+        const link = document.getElementById("orderLink").value;
+        const qty = parseInt(orderQuantity.value);
+        const minVal = parseInt(selectedOption.dataset.min || 100);
+
+        if (qty < minVal) {
+            orderAlert.className = "alert alert-danger mb-3";
+            orderAlert.textContent = `Quantity cannot be less than the minimum order of ${minVal}.`;
+            orderAlert.classList.remove("d-none");
+            return;
+        }
+
+        const totalCost = calculateTotal();
+
+        // Save order structure to local storage history or backend database hook
+        const newOrder = {
+            id: 'HKD-' + Date.now(),
+            platform: platform,
+            serviceName: selectedOption.textContent,
+            link: link,
+            quantity: qty,
+            total: totalCost,
+            date: new Date().toISOString(),
+            status: 'Pending'
+        };
+
+        let existingHistory = JSON.parse(localStorage.getItem("hkdm_orders") || "[]");
+        existingHistory.unshift(newOrder);
+        localStorage.setItem("hkdm_orders", JSON.stringify(existingHistory));
+
+        // Show success confirmation message
+        orderAlert.className = "alert alert-success mb-3";
+        orderAlert.textContent = "Order submitted successfully! Redirecting...";
+        orderAlert.classList.remove("d-none");
+
+        setTimeout(() => {
+            window.location.href = "dashboard.html";
+        }, 1500);
+    });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
