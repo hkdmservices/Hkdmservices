@@ -87,7 +87,8 @@
         platformTitle.innerText = "Error";
         serviceSelect.innerHTML = '<option value="">Please go back and select a platform.</option>';
     } else {
-        const catalogue = (catalogType === 'nigerian') ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
+        const isNigerian = catalogType === 'nigerian';
+        const catalogue = isNigerian ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
         const platformServices = catalogue.filter(item => item.platform === platform);
 
         platformTitle.innerText = `${platform} Order`;
@@ -99,23 +100,26 @@
                 const option = document.createElement("option");
                 option.value = service.id;
                 
-                const itemRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
-                option.dataset.rate = itemRate;
+                // Extract base rate
+                let baseRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
+                
+                // Apply 3x multiplier explicitly here if it's the Nigerian service catalogue and hasn't been multiplied yet
+                let finalRate = isNigerian ? baseRate * 3 : baseRate;
+
+                option.dataset.rate = finalRate;
                 option.dataset.min = service.min || 1;
                 
-                let rateText = itemRate ? `₦${itemRate} per 1000` : 'Fixed Price';
-                
-                // Fixed: explicitly reading service.service for the exact catalogue title
+                let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
                 const serviceName = service.service || service.name || "Unnamed Service";
-                option.textContent = `${serviceName} — (${rateText})`;
                 
+                option.textContent = `${serviceName} — (${rateText})`;
                 serviceSelect.appendChild(option);
             });
         } else {
             serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
         }
 
-        // Background calculation runner
+        // Background calculation runner with automatic 3x total amount update
         function calculateTotal() {
             const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
             if (!selectedOption || !selectedOption.dataset.rate) {
@@ -129,6 +133,7 @@
 
             rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
             
+            // Computes the final calculated total automatically
             const total = (rate / 1000) * qty;
             totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
         }
