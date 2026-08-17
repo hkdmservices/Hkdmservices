@@ -31,8 +31,8 @@
             <div class="col-12 col-md-8 col-lg-6">
                 
                 <div class="card shadow-sm border-0 p-4">
-                    <h3 class="fw-bold text-center mb-3" id="platformTitle">Loading...</h3>
-                    <p class="text-center text-muted mb-4" id="catalogBadge"></p>
+                    <h3 class="fw-bold text-center mb-2" id="platformTitle">Loading...</h3>
+                    <div class="text-center mb-4" id="catalogBadge"></div>
 
                     <!-- Order Form -->
                     <form id="orderForm">
@@ -50,7 +50,13 @@
 
                         <div class="mb-3">
                             <label for="orderQuantity" class="form-label fw-semibold">Quantity</label>
-                            <input type="number" id="orderQuantity" class="form-control" min="1" required>
+                            <input type="number" id="orderQuantity" class="form-control" min="1" value="1000" required>
+                        </div>
+
+                        <!-- Background / Display Calculation Box -->
+                        <div class="alert alert-light border mb-3 py-2 px-3 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small" id="rateDisplay">Rate: --</span>
+                            <span class="fw-bold text-success" id="totalPriceDisplay">Total: ₦0.00</span>
                         </div>
 
                         <div class="d-grid mt-4">
@@ -68,45 +74,75 @@
     import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
     import { nigerianServicesCatalogue } from "./nigerian-services.js";
 
-    // 1. Read URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const platform = urlParams.get("platform");
-    const catalogType = urlParams.get("type"); // Checks if type=nigerian
+    const catalogType = urlParams.get("type"); 
 
     const platformTitle = document.getElementById("platformTitle");
     const catalogBadge = document.getElementById("catalogBadge");
     const serviceSelect = document.getElementById("serviceSelect");
+    const orderQuantity = document.getElementById("orderQuantity");
+    const rateDisplay = document.getElementById("rateDisplay");
+    const totalPriceDisplay = document.getElementById("totalPriceDisplay");
 
     if (!platform) {
         platformTitle.innerText = "Error";
-        catalogBadge.innerText = "No platform specified.";
+        catalogBadge.innerHTML = '<span class="text-danger">No platform specified.</span>';
         serviceSelect.innerHTML = '<option value="">Please go back and select a platform.</option>';
     } else {
-        // 2. Select correct catalogue based on type parameter
         const catalogue = (catalogType === 'nigerian') ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
-        
-        // 3. Filter services for the chosen platform
         const platformServices = catalogue.filter(item => item.platform === platform);
 
         platformTitle.innerText = `${platform} Order`;
         
         if (catalogType === 'nigerian') {
-            catalogBadge.innerHTML = '<span class="badge bg-success">🇳🇬 Geo-Targeted Nigerian Panel (3x Rate)</span>';
+            catalogBadge.innerHTML = '<span class="badge bg-success">🇳🇬 Geo-Targeted Nigerian Panel (3x Rate Applied)</span>';
         } else {
             catalogBadge.innerHTML = '<span class="badge bg-secondary">General Services Panel</span>';
         }
 
         if (platformServices.length > 0) {
             serviceSelect.innerHTML = '<option value="">Select a specific service</option>';
+            
             platformServices.forEach(service => {
                 const option = document.createElement("option");
                 option.value = service.id;
-                option.textContent = `${service.service} (Rate: ${service.rate || 'Fixed'})`;
+                
+                // Support multiple property names used across catalogues (ratePer1000, price, rate)
+                const itemRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
+                option.dataset.rate = itemRate;
+                option.dataset.min = service.min || 1;
+                
+                let rateText = itemRate ? `₦${itemRate} per 1000` : 'Fixed Price';
+                option.textContent = `${service.name || service.service} — (${rateText})`;
+                
                 serviceSelect.appendChild(option);
             });
         } else {
             serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
         }
+
+        // Background calculation runner
+        function calculateTotal() {
+            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+            if (!selectedOption || !selectedOption.dataset.rate) {
+                rateDisplay.innerText = "Rate: --";
+                totalPriceDisplay.innerText = "Total: ₦0.00";
+                return;
+            }
+
+            const rate = parseFloat(selectedOption.dataset.rate);
+            const qty = parseInt(orderQuantity.value) || 0;
+
+            rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
+            
+            // Background math running live
+            const total = (rate / 1000) * qty;
+            totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
+        }
+
+        serviceSelect.addEventListener("change", calculateTotal);
+        orderQuantity.addEventListener("input", calculateTotal);
     }
 </script>
 
