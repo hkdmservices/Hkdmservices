@@ -48,7 +48,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="orderQuantity" class="form-label fw-semibold">Quantity</label>
+                            <label for="orderQuantity" class="form-label fw-semibold">Quantity <span id="minQtyLabel" class="text-muted fw-normal small"></span></label>
                             <input type="number" id="orderQuantity" class="form-control" min="1" value="1000" required>
                         </div>
 
@@ -80,6 +80,7 @@
     const platformTitle = document.getElementById("platformTitle");
     const serviceSelect = document.getElementById("serviceSelect");
     const orderQuantity = document.getElementById("orderQuantity");
+    const minQtyLabel = document.getElementById("minQtyLabel");
     const rateDisplay = document.getElementById("rateDisplay");
     const totalPriceDisplay = document.getElementById("totalPriceDisplay");
 
@@ -100,26 +101,41 @@
                 const option = document.createElement("option");
                 option.value = service.id;
                 
-                // Extract base rate
                 let baseRate = service.ratePer1000 ?? service.price ?? service.rate ?? 0;
-                
-                // Apply 3x multiplier explicitly here if it's the Nigerian service catalogue and hasn't been multiplied yet
                 let finalRate = isNigerian ? baseRate * 3 : baseRate;
 
                 option.dataset.rate = finalRate;
-                option.dataset.min = service.min || 1;
+                const minOrder = service.min || 1;
+                option.dataset.min = minOrder;
                 
                 let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
                 const serviceName = service.service || service.name || "Unnamed Service";
                 
-                option.textContent = `${serviceName} — (${rateText})`;
+                // Displays the service name, rate, and Minimum order directly in the dropdown list
+                option.textContent = `${serviceName} — (${rateText}) [Min: ${minOrder}]`;
                 serviceSelect.appendChild(option);
             });
         } else {
             serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
         }
 
-        // Background calculation runner with automatic 3x total amount update
+        // Update minimum order constraints dynamically when a service is picked
+        serviceSelect.addEventListener("change", () => {
+            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+            if (selectedOption && selectedOption.dataset.min) {
+                const minVal = parseInt(selectedOption.dataset.min);
+                orderQuantity.min = minVal;
+                minQtyLabel.innerText = `(Min: ${minVal})`;
+                
+                // If current quantity is below the new minimum, adjust it
+                if (parseInt(orderQuantity.value) < minVal) {
+                    orderQuantity.value = minVal;
+                }
+            }
+            calculateTotal();
+        });
+
+        // Background calculation runner
         function calculateTotal() {
             const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
             if (!selectedOption || !selectedOption.dataset.rate) {
@@ -133,12 +149,10 @@
 
             rateDisplay.innerText = `Rate: ₦${rate} / 1000`;
             
-            // Computes the final calculated total automatically
             const total = (rate / 1000) * qty;
             totalPriceDisplay.innerText = `Total: ₦${total.toFixed(2)}`;
         }
 
-        serviceSelect.addEventListener("change", calculateTotal);
         orderQuantity.addEventListener("input", calculateTotal);
     }
 </script>
