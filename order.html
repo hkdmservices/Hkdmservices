@@ -87,7 +87,6 @@
         platformTitle.innerText = "Error";
         serviceSelect.innerHTML = '<option value="">Please go back and select a platform.</option>';
     } else {
-        // Runs catalog selection logic completely in background
         const catalogue = (catalogType === 'nigerian') ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
         const platformServices = catalogue.filter(item => item.platform === platform);
 
@@ -105,7 +104,10 @@
                 option.dataset.min = service.min || 1;
                 
                 let rateText = itemRate ? `₦${itemRate} per 1000` : 'Fixed Price';
-                option.textContent = `${service.name || service.service} — (${rateText})`;
+                
+                // Fixed: explicitly reading service.service for the exact catalogue title
+                const serviceName = service.service || service.name || "Unnamed Service";
+                option.textContent = `${serviceName} — (${rateText})`;
                 
                 serviceSelect.appendChild(option);
             });
