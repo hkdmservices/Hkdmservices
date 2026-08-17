@@ -49,7 +49,7 @@
 
                         <div class="mb-3">
                             <label for="orderQuantity" class="form-label fw-semibold">Quantity <span id="minQtyLabel" class="text-muted fw-normal small"></span></label>
-                            <input type="number" id="orderQuantity" class="form-control" min="1" value="1000" required>
+                            <input type="number" id="orderQuantity" class="form-control" min="100" value="1000" required>
                         </div>
 
                         <!-- Background Live Calculation Display -->
@@ -105,13 +105,12 @@
                 let finalRate = isNigerian ? baseRate * 3 : baseRate;
 
                 option.dataset.rate = finalRate;
-                const minOrder = service.min || 1;
+                const minOrder = service.min || 100;
                 option.dataset.min = minOrder;
                 
                 let rateText = finalRate ? `₦${finalRate} per 1000` : 'Fixed Price';
                 const serviceName = service.service || service.name || "Unnamed Service";
                 
-                // Displays the service name, rate, and Minimum order directly in the dropdown list
                 option.textContent = `${serviceName} — (${rateText}) [Min: ${minOrder}]`;
                 serviceSelect.appendChild(option);
             });
@@ -119,7 +118,6 @@
             serviceSelect.innerHTML = '<option value="">No services available for this platform</option>';
         }
 
-        // Update minimum order constraints dynamically when a service is picked
         serviceSelect.addEventListener("change", () => {
             const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
             if (selectedOption && selectedOption.dataset.min) {
@@ -127,7 +125,6 @@
                 orderQuantity.min = minVal;
                 minQtyLabel.innerText = `(Min: ${minVal})`;
                 
-                // If current quantity is below the new minimum, adjust it
                 if (parseInt(orderQuantity.value) < minVal) {
                     orderQuantity.value = minVal;
                 }
@@ -135,7 +132,6 @@
             calculateTotal();
         });
 
-        // Background calculation runner
         function calculateTotal() {
             const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
             if (!selectedOption || !selectedOption.dataset.rate) {
