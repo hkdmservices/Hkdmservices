@@ -84,7 +84,7 @@
     <div class="container">
 
 
-        <div class="text-center mb-5">
+        <div class="text-center mb-4">
 
             <h1 class="fw-bold">
 
@@ -102,7 +102,7 @@
 
             <p class="text-muted">
 
-                Select a platform to view available services and prices.
+                Select a tab and platform to view available services and prices.
 
             </p>
 
@@ -110,28 +110,81 @@
 
 
 
-        <div class="row justify-content-center mb-5">
-
-            <div class="col-12 col-md-8">
-
-                <div class="input-group">
-
-                    <span class="input-group-text">
-
-                        <i class="bi bi-search"></i>
-
-                    </span>
+        <!-- Quick Actions Tab Navigation -->
+        <div class="d-flex justify-content-center border-bottom mb-5 pb-3 gap-2">
+            <button onclick="switchTab('general')" id="tab-general" class="btn btn-success fw-semibold px-4">
+                General Services
+            </button>
+            <button onclick="switchTab('nigerian')" id="tab-nigerian" class="btn btn-outline-secondary fw-medium px-4">
+                🇳🇬 Nigerian Services (3x Rate)
+            </button>
+        </div>
 
 
-                    <input
-                        type="search"
-                        id="platformSearch"
-                        class="form-control"
-                        placeholder="Search platform..."
-                        autocomplete="off"
-                    >
+
+        <!-- ================= GENERAL SERVICES VIEW ================= -->
+        <div id="view-general" class="tab-view">
+
+            <div class="row justify-content-center mb-5">
+
+                <div class="col-12 col-md-8">
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+
+                            <i class="bi bi-search"></i>
+
+                        </span>
+
+
+                        <input
+                            type="search"
+                            id="platformSearch"
+                            class="form-control"
+                            placeholder="Search general platform..."
+                            autocomplete="off"
+                        >
+
+                    </div>
 
                 </div>
+
+            </div>
+
+
+
+            <div
+                id="platformContainer"
+                class="row g-4"
+            >
+
+            </div>
+
+
+
+            <div
+                id="emptyMessage"
+                class="text-center py-5 d-none"
+            >
+
+                <i
+                    class="bi bi-search fs-1 text-muted"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    No platform found
+
+                </h4>
+
+
+                <p class="text-muted">
+
+                    Try another search.
+
+                </p>
 
             </div>
 
@@ -139,37 +192,75 @@
 
 
 
-        <div
-            id="platformContainer"
-            class="row g-4"
-        >
+        <!-- ================= NIGERIAN SERVICES VIEW ================= -->
+        <div id="view-nigerian" class="tab-view d-none">
 
-        </div>
+            <div class="alert alert-success border-0 shadow-sm mb-4 text-center">
+                <i class="bi bi-shield-check me-2"></i> <strong>Geo-Targeted Nigerian Panel:</strong> Official catalog loaded with the 3x rate multiplier.
+            </div>
 
+            <div class="row justify-content-center mb-5">
 
+                <div class="col-12 col-md-8">
 
-        <div
-            id="emptyMessage"
-            class="text-center py-5 d-none"
-        >
+                    <div class="input-group">
 
-            <i
-                class="bi bi-search fs-1 text-muted"
-            ></i>
+                        <span class="input-group-text">
 
+                            <i class="bi bi-search"></i>
 
-            <h4 class="mt-3">
-
-                No platform found
-
-            </h4>
+                        </span>
 
 
-            <p class="text-muted">
+                        <input
+                            type="search"
+                            id="ngPlatformSearch"
+                            class="form-control"
+                            placeholder="Search Nigerian platform..."
+                            autocomplete="off"
+                        >
 
-                Try another search.
+                    </div>
 
-            </p>
+                </div>
+
+            </div>
+
+
+
+            <div
+                id="nigerianPlatformContainer"
+                class="row g-4"
+            >
+
+            </div>
+
+
+
+            <div
+                id="ngEmptyMessage"
+                class="text-center py-5 d-none"
+            >
+
+                <i
+                    class="bi bi-search fs-1 text-muted"
+                ></i>
+
+
+                <h4 class="mt-3">
+
+                    No Nigerian platform found
+
+                </h4>
+
+
+                <p class="text-muted">
+
+                    Try another search keyword.
+
+                </p>
+
+            </div>
 
         </div>
 
@@ -194,7 +285,7 @@
 
                 <p class="text-muted mb-0">
 
-                    Choose a platform, select the service you want,
+                    Choose a tab, select a platform, select the service you want,
                     then continue to place your order.
 
                 </p>
@@ -233,18 +324,20 @@ import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "./services.js";
 
+import {
+    nigerianServicesCatalogue
+} from "./nigerian-services.js";
 
+
+// --- GENERAL CATALOG LOGIC ---
 const platformContainer =
     document.getElementById("platformContainer");
-
 
 const platformSearch =
     document.getElementById("platformSearch");
 
-
 const emptyMessage =
     document.getElementById("emptyMessage");
-
 
 
 const platforms = [
@@ -254,7 +347,6 @@ const platforms = [
         )
     )
 ];
-
 
 
 const platformIcons = {
@@ -280,17 +372,14 @@ const platformIcons = {
 };
 
 
-
 function renderPlatforms(searchTerm = "") {
 
     platformContainer.innerHTML = "";
-
 
     const search =
         searchTerm
             .trim()
             .toLowerCase();
-
 
     const filteredPlatforms =
         platforms.filter(platform =>
@@ -298,7 +387,6 @@ function renderPlatforms(searchTerm = "") {
                 .toLowerCase()
                 .includes(search)
         );
-
 
     if (filteredPlatforms.length === 0) {
 
@@ -308,30 +396,23 @@ function renderPlatforms(searchTerm = "") {
 
     }
 
-
     emptyMessage.classList.add("d-none");
 
-
     filteredPlatforms.forEach(platform => {
-
 
         const services =
             hkdmservicesOfficialServicePriceCatalogue.filter(
                 item => item.platform === platform
             );
 
-
         const card =
             document.createElement("div");
-
 
         card.className =
             "col-12 col-md-6 col-lg-4";
 
-
         const icon =
             platformIcons[platform] || "bi-grid";
-
 
         card.innerHTML = `
 
@@ -383,13 +464,11 @@ function renderPlatforms(searchTerm = "") {
 
         `;
 
-
         platformContainer.appendChild(card);
 
     });
 
 }
-
 
 
 platformSearch.addEventListener(
@@ -403,9 +482,158 @@ platformSearch.addEventListener(
     }
 );
 
-
-
 renderPlatforms();
+
+
+
+// --- NIGERIAN CATALOG LOGIC (3X RATE) ---
+const ngContainer =
+    document.getElementById("nigerianPlatformContainer");
+
+const ngSearch =
+    document.getElementById("ngPlatformSearch");
+
+const ngEmpty =
+    document.getElementById("ngEmptyMessage");
+
+
+const ngPlatforms = [
+    ...new Set(
+        nigerianServicesCatalogue.map(
+            item => item.platform
+        )
+    )
+];
+
+
+function renderNigerianPlatforms(searchTerm = "") {
+
+    ngContainer.innerHTML = "";
+
+    const search =
+        searchTerm
+            .trim()
+            .toLowerCase();
+
+    const filteredPlatforms =
+        ngPlatforms.filter(platform =>
+            platform
+                .toLowerCase()
+                .includes(search)
+        );
+
+    if (filteredPlatforms.length === 0) {
+
+        ngEmpty.classList.remove("d-none");
+
+        return;
+
+    }
+
+    ngEmpty.classList.add("d-none");
+
+    filteredPlatforms.forEach(platform => {
+
+        const services =
+            nigerianServicesCatalogue.filter(
+                item => item.platform === platform
+            );
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "col-12 col-md-6 col-lg-4";
+
+        const icon =
+            platformIcons[platform] || "bi-grid";
+
+        card.innerHTML = `
+
+            <div class="card h-100 shadow-sm border-0 border-top border-success border-4">
+
+                <div class="card-body p-4">
+
+                    <div class="text-center mb-3">
+
+                        <i
+                            class="bi ${icon} fs-1 text-success"
+                        ></i>
+
+                    </div>
+
+
+                    <h4 class="text-center fw-bold">
+
+                        ${platform} <span class="badge bg-success fs-6">NG (3x)</span>
+
+                    </h4>
+
+
+                    <p class="text-center text-muted">
+
+                        ${services.length}
+                        localized service${services.length === 1 ? "" : "s"} available
+
+                    </p>
+
+
+                    <div class="d-grid mt-3">
+
+                        <a
+                            href="order.html?platform=${encodeURIComponent(platform)}&type=nigerian"
+                            class="btn btn-success"
+                        >
+
+                            View Nigerian Services
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+        ngContainer.appendChild(card);
+
+    });
+
+}
+
+
+ngSearch.addEventListener(
+    "input",
+    () => {
+
+        renderNigerianPlatforms(
+            ngSearch.value
+        );
+
+    }
+);
+
+
+
+// --- TAB SWITCHER LOGIC ---
+window.switchTab = function(tabName) {
+    document.querySelectorAll('.tab-view').forEach(el => el.classList.add('d-none'));
+    document.querySelectorAll('[id^="tab-"]').forEach(el => {
+        el.classList.remove('btn-success', 'fw-semibold');
+        el.classList.add('btn-outline-secondary', 'fw-medium');
+    });
+
+    document.getElementById(`view-${tabName}`).classList.remove('d-none');
+    const activeBtn = document.getElementById(`tab-${tabName}`);
+    activeBtn.classList.remove('btn-outline-secondary', 'fw-medium');
+    activeBtn.classList.add('btn-success', 'fw-semibold');
+
+    if (tabName === 'nigerian') {
+        renderNigerianPlatforms();
+    }
+};
 
 </script>
 
