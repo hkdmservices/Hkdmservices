@@ -30,7 +30,7 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-8 col-lg-6">
                 
-                <div class="card shadow-sm border-0 p-4">
+                <div class="card shadow-sm border-0 p-4" id="orderCardContainer">
                     <h3 class="fw-bold text-center mb-4" id="platformTitle">Loading...</h3>
 
                     <!-- Order Form -->
@@ -87,6 +87,7 @@
     const totalPriceDisplay = document.getElementById("totalPriceDisplay");
     const orderForm = document.getElementById("orderForm");
     const orderAlert = document.getElementById("orderAlert");
+    const orderCardContainer = document.getElementById("orderCardContainer");
 
     const isNigerian = catalogType === 'nigerian';
     const catalogue = isNigerian ? nigerianServicesCatalogue : hkdmservicesOfficialServicePriceCatalogue;
@@ -177,7 +178,6 @@
 
         const totalCost = calculateTotal();
 
-        // Save order structure to local storage history or backend database hook
         const newOrder = {
             id: 'HKD-' + Date.now(),
             platform: platform,
@@ -189,18 +189,25 @@
             status: 'Pending'
         };
 
-        let existingHistory = JSON.parse(localStorage.getItem("hkdm_orders") || "[]");
-        existingHistory.unshift(newOrder);
-        localStorage.setItem("hkdm_orders", JSON.stringify(existingHistory));
+        // Save to multiple storage keys to guarantee your dashboard picks it up
+        ['hkdm_orders', 'orders'].forEach(key => {
+            let history = JSON.parse(localStorage.getItem(key) || "[]");
+            history.unshift(newOrder);
+            localStorage.setItem(key, JSON.stringify(history));
+        });
 
-        // Show success confirmation message
-        orderAlert.className = "alert alert-success mb-3";
-        orderAlert.textContent = "Order submitted successfully! Redirecting...";
-        orderAlert.classList.remove("d-none");
-
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 1500);
+        // Show success confirmation card on the page without force-redirecting
+        orderCardContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
+                <h4 class="fw-bold">Order Placed Successfully!</h4>
+                <p class="text-muted small mb-4">Your order ID is <strong>${newOrder.id}</strong></p>
+                <div class="d-grid gap-2">
+                    <a href="dashboard.html" class="btn btn-success fw-bold">Go to Dashboard &amp; History</a>
+                    <a href="order.html?platform=${encodeURIComponent(platform)}${catalogType ? '&type=' + catalogType : ''}" class="btn btn-outline-secondary">Place Another Order</a>
+                </div>
+            </div>
+        `;
     });
 </script>
 
