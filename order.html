@@ -74,6 +74,10 @@
 </section>
 
 <script type="module">
+    import { auth, database } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+    import { ref, get, set, push } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
     const urlParams = new URLSearchParams(window.location.search);
     const platform = urlParams.get("platform") || "Instagram"; 
     const catalogType = urlParams.get("type"); 
@@ -88,8 +92,19 @@
     const orderAlert = document.getElementById("orderAlert");
     const orderCardContainer = document.getElementById("orderCardContainer");
     const loadError = document.getElementById("loadError");
+    const submitBtn = document.getElementById("submitBtn");
 
     platformTitle.innerText = `${platform} Order`;
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        currentUser = user;
+    });
 
     async function initCatalog() {
         try {
@@ -173,8 +188,14 @@
 
     orderQuantity.addEventListener("input", calculateTotal);
 
-    orderForm.addEventListener("submit", (e) => {
+    orderForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+
+        if (!currentUser) {
+            alert("You must be logged in to place an order.");
+            window.location.href = "login.html";
+            return;
+        }
 
         const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
         if (!selectedOption || !selectedOption.value) {
@@ -197,68 +218,77 @@
 
         const totalCost = calculateTotal();
 
-        let balanceKeyFound = null;
-        let currentBalance = 0;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Processing Order...";
 
-        const possibleKeys = ["wallet_balance", "user_balance", "balance", "wallet", "hkdm_balance"];
-        for (const key of possibleKeys) {
-            if (localStorage.getItem(key) !== null) {
-                currentBalance = parseFloat(localStorage.getItem(key));
-                balanceKeyFound = key;
-                break;
+        try {
+            // 1. Fetch user data from Firebase to check wallet & totalSpent
+            const userRef = ref(database, `users/${currentUser.uid}`);
+            const userSnap = await get(userRef);
+
+            if (!userSnap.exists()) {
+                throw new Error("User record not found in database.");
             }
-        }
 
-        if (balanceKeyFound === null) {
-            currentBalance = 67000;
-            balanceKeyFound = "wallet_balance";
-            localStorage.setItem(balanceKeyFound, currentBalance.toString());
-        }
+            const userData = userSnap.val();
+            const currentWallet = Number(userData.wallet || 0);
+            const currentTotalSpent = Number(userData.totalSpent || 0);
 
-        if (currentBalance < totalCost) {
-            orderAlert.className = "alert alert-danger mb-3";
-            orderAlert.textContent = `Insufficient balance! Total cost is ₦${totalCost.toFixed(2)}, but your balance is ₦${currentBalance.toFixed(2)}. Please add funds.`;
-            orderAlert.classList.remove("d-none");
-            return;
-        }
-
-        const newBalance = currentBalance - totalCost;
-        localStorage.setItem(balanceKeyFound, newBalance.toString());
-        possibleKeys.forEach(k => {
-            if (localStorage.getItem(k) !== null) {
-                localStorage.setItem(k, newBalance.toString());
+            if (currentWallet < totalCost) {
+                throw new Error(`Insufficient balance! Total cost is ₦${totalCost.toFixed(2)}, but your balance is ₦${currentWallet.toFixed(2)}. Please add funds.`);
             }
-        });
 
-        const newOrder = {
-            id: 'HKD-' + Date.now(),
-            platform: platform,
-            serviceName: selectedOption.textContent,
-            link: link,
-            quantity: qty,
-            total: totalCost,
-            date: new Date().toISOString(),
-            status: 'Pending'
-        };
+            const newWalletBalance = currentWallet - totalCost;
+            const newTotalSpent = currentTotalSpent + totalCost;
 
-        ['hkdm_orders', 'orders', 'order_history'].forEach(key => {
-            let history = JSON.parse(localStorage.getItem(key) || "[]");
-            history.unshift(newOrder);
-            localStorage.setItem(key, JSON.stringify(history));
-        });
+            // 2. Update user wallet and totalSpent in Firebase
+            await set(userRef, {
+                ...userData,
+                wallet: newWalletBalance,
+                totalSpent: newTotalSpent
+            });
 
-        orderCardContainer.innerHTML = `
-            <div class="text-center py-4">
-                <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
-                <h4 class="fw-bold">Order Placed Successfully!</h4>
-                <p class="text-muted small mb-1">Order ID: <strong>${newOrder.id}</strong></p>
-                <p class="text-success small mb-4">₦${totalCost.toFixed(2)} successfully deducted from your wallet. New Balance: ₦${newBalance.toFixed(2)}</p>
-                <div class="d-grid gap-2">
-                    <a href="dashboard.html" class="btn btn-success fw-bold">Go to Dashboard &amp; History</a>
-                    <a href="order.html?platform=${encodeURIComponent(platform)}${catalogType ? '&type=' + catalogType : ''}" class="btn btn-outline-secondary">Place Another Order</a>
+            // 3. Push new order to Firebase database
+            const ordersRef = ref(database, "orders");
+            const newOrderRef = push(ordersRef);
+            const orderId = 'HKD-' + Date.now();
+
+            const orderData = {
+                orderId: orderId,
+                uid: currentUser.uid,
+                platform: platform,
+                service: selectedOption.textContent,
+                link: link,
+                quantity: qty,
+                amount: totalCost,
+                status: "pending",
+                createdAt: Date.now()
+            };
+
+            await set(newOrderRef, orderData);
+
+            // 4. Success UI
+            orderCardContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="text-success mb-3" style="font-size: 3rem;"><i class="bi bi-check-circle-fill"></i></div>
+                    <h4 class="fw-bold">Order Placed Successfully!</h4>
+                    <p class="text-muted small mb-1">Order ID: <strong>${orderId}</strong></p>
+                    <p class="text-success small mb-4">₦${totalCost.toFixed(2)} successfully deducted from your wallet. New Balance: ₦${newWalletBalance.toLocaleString("en-NG", {minimumFractionDigits: 2})}</p>
+                    <div class="d-grid gap-2">
+                        <a href="dashboard.html" class="btn btn-success fw-bold">Go to Dashboard &amp; History</a>
+                        <a href="order.html?platform=${encodeURIComponent(platform)}${catalogType ? '&type=' + catalogType : ''}" class="btn btn-outline-secondary">Place Another Order</a>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+
+        } catch (error) {
+            console.error("ORDER SUBMISSION ERROR:", error);
+            orderAlert.className = "alert alert-danger mb-3";
+            orderAlert.textContent = error.message || "Failed to process order. Please try again.";
+            orderAlert.classList.remove("d-none");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Submit Order";
+        }
     });
 </script>
 
