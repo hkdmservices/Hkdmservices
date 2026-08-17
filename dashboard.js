@@ -30,6 +30,12 @@ const walletBalance =
 const ordersCount =
     document.getElementById("ordersCount");
 
+const servicesCount =
+    document.getElementById("servicesCount");
+
+const nigeriaServicesPreview =
+    document.getElementById("nigeriaServicesPreview");
+
 const recentOrders =
     document.getElementById("recentOrders");
 
@@ -112,31 +118,81 @@ function statusBadge(status) {
     const safeStatus =
         String(
             status || "pending"
-        ).toLowerCase()
-         .trim();
+        )
+        .toLowerCase()
+        .trim();
 
-    let badgeClass = "bg-warning text-dark";
-    let displayText = "Refunded";
+    let badgeClass =
+        "bg-warning text-dark";
 
-    if (safeStatus === "refund" || safeStatus === "refunded") {
-        badgeClass = "bg-warning text-dark";
-        displayText = "Refunded";
-    } else if (safeStatus === "pending") {
-        badgeClass = "bg-warning text-dark";
-        displayText = "Pending";
-    } else if (safeStatus === "processing") {
-        badgeClass = "bg-info text-dark";
-        displayText = "Processing";
-    } else if (safeStatus === "completed") {
-        badgeClass = "bg-success";
-        displayText = "Completed";
-    } else if (safeStatus === "cancelled" || safeStatus === "failed") {
-        badgeClass = "bg-danger";
-        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
+    let displayText =
+        "Pending";
+
+
+    if (
+        safeStatus === "refund" ||
+        safeStatus === "refunded"
+    ) {
+
+        badgeClass =
+            "bg-warning text-dark";
+
+        displayText =
+            "Refunded";
+
+    } else if (
+        safeStatus === "pending"
+    ) {
+
+        badgeClass =
+            "bg-warning text-dark";
+
+        displayText =
+            "Pending";
+
+    } else if (
+        safeStatus === "processing"
+    ) {
+
+        badgeClass =
+            "bg-info text-dark";
+
+        displayText =
+            "Processing";
+
+    } else if (
+        safeStatus === "completed"
+    ) {
+
+        badgeClass =
+            "bg-success";
+
+        displayText =
+            "Completed";
+
+    } else if (
+        safeStatus === "cancelled" ||
+        safeStatus === "failed"
+    ) {
+
+        badgeClass =
+            "bg-danger";
+
+        displayText =
+            safeStatus.charAt(0).toUpperCase() +
+            safeStatus.slice(1);
+
     } else {
-        badgeClass = "bg-warning text-dark";
-        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
+
+        badgeClass =
+            "bg-warning text-dark";
+
+        displayText =
+            safeStatus.charAt(0).toUpperCase() +
+            safeStatus.slice(1);
+
     }
+
 
     return `
         <span class="badge ${badgeClass}">
@@ -202,11 +258,6 @@ async function loadUserInformation(user) {
         }
 
 
-        /*
-            UPDATE WALLET ONLY WHEN
-            REAL USER DATA EXISTS
-        */
-
         if (walletBalance) {
 
             walletBalance.textContent =
@@ -240,7 +291,260 @@ async function loadUserInformation(user) {
 
 
 /* =========================================================
-   LOAD REFERRAL INFORMATION (CUSTOM XYZ DOMAIN)
+   LOAD NIGERIA SERVICE CATALOGUE
+========================================================= */
+
+async function loadNigeriaServices() {
+
+    try {
+
+        const servicesRef =
+            ref(
+                database,
+                "serviceCatalog"
+            );
+
+
+        const snapshot =
+            await get(servicesRef);
+
+
+        if (!snapshot.exists()) {
+
+            console.warn(
+                "NIGERIA SERVICE CATALOGUE NOT FOUND"
+            );
+
+
+            if (servicesCount) {
+
+                servicesCount.textContent =
+                    "0";
+
+            }
+
+
+            if (nigeriaServicesPreview) {
+
+                nigeriaServicesPreview.innerHTML = `
+
+                    <div class="alert alert-warning mb-0">
+
+                        Nigeria services are not available
+                        yet. Please try again shortly.
+
+                    </div>
+
+                `;
+
+            }
+
+
+            return;
+
+        }
+
+
+        const servicesData =
+            snapshot.val() || {};
+
+
+        const services =
+            Object.values(
+                servicesData
+            ).filter(
+                service =>
+                    service &&
+                    service.id
+            );
+
+
+        // ====================================================
+        // SERVICE COUNT
+        // ====================================================
+
+        if (servicesCount) {
+
+            servicesCount.textContent =
+                String(
+                    services.length
+                );
+
+        }
+
+
+        // ====================================================
+        // NO SERVICES
+        // ====================================================
+
+        if (
+            services.length === 0
+        ) {
+
+            if (nigeriaServicesPreview) {
+
+                nigeriaServicesPreview.innerHTML = `
+
+                    <div class="alert alert-warning mb-0">
+
+                        No Nigeria services are currently
+                        available.
+
+                    </div>
+
+                `;
+
+            }
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // SERVICE PREVIEW
+        // ====================================================
+
+        if (!nigeriaServicesPreview) {
+
+            return;
+
+        }
+
+
+        const previewServices =
+            services.slice(
+                0,
+                12
+            );
+
+
+        let html = "";
+
+
+        previewServices.forEach(
+            service => {
+
+                const platform =
+                    service.platform ||
+                    "Service";
+
+
+                const serviceName =
+                    service.service ||
+                    service.name ||
+                    "Unnamed Service";
+
+
+                let regularPrice =
+                    "Contact";
+
+
+                if (
+                    service.ratePer1000 !== null &&
+                    service.ratePer1000 !== undefined
+                ) {
+
+                    regularPrice =
+                        formatNaira(
+                            service.ratePer1000
+                        ) +
+                        " / 1,000";
+
+                } else if (
+                    service.fixedPrice !== null &&
+                    service.fixedPrice !== undefined
+                ) {
+
+                    regularPrice =
+                        formatNaira(
+                            service.fixedPrice
+                        );
+
+                }
+
+
+                html += `
+
+                    <div class="col-12 col-md-6 col-lg-4">
+
+                        <div class="card h-100 shadow-sm">
+
+                            <div class="card-body">
+
+                                <span class="badge bg-success mb-2">
+                                    ${platform}
+                                </span>
+
+                                <h5 class="card-title">
+                                    ${serviceName}
+                                </h5>
+
+                                <p class="mb-0 text-muted">
+
+                                    Regular:
+
+                                    <strong class="text-dark">
+                                        ${regularPrice}
+                                    </strong>
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        nigeriaServicesPreview.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        console.error(
+            "NIGERIA SERVICES ERROR:",
+            error
+        );
+
+
+        if (servicesCount) {
+
+            servicesCount.textContent =
+                "0";
+
+        }
+
+
+        if (nigeriaServicesPreview) {
+
+            nigeriaServicesPreview.innerHTML = `
+
+                <div class="alert alert-danger mb-0">
+
+                    Unable to load Nigeria services.
+                    Please refresh the dashboard.
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================================
+   LOAD REFERRAL INFORMATION
 ========================================================= */
 
 async function loadReferralInformation(uid) {
@@ -253,30 +557,45 @@ async function loadReferralInformation(uid) {
                 "users/" + uid
             );
 
+
         const snapshot =
             await get(userRef);
+
 
         if (snapshot.exists()) {
 
             const data =
                 snapshot.val();
 
+
             const refCode =
-                data.referralCode || uid;
+                data.referralCode ||
+                uid;
+
 
             if (referralLinkInput) {
+
                 referralLinkInput.value =
                     `https://hkdmservices.xyz/register.html?ref=${refCode}`;
+
             }
+
 
             if (totalReferralsEl) {
+
                 totalReferralsEl.textContent =
                     data.totalReferrals || 0;
+
             }
 
+
             if (totalEarningsEl) {
+
                 totalEarningsEl.textContent =
-                    formatNaira(data.totalReferralEarnings || 0);
+                    formatNaira(
+                        data.totalReferralEarnings || 0
+                    );
+
             }
 
         }
@@ -298,25 +617,73 @@ async function loadReferralInformation(uid) {
    COPY REFERRAL LINK
 ========================================================= */
 
-if (copyRefBtn && referralLinkInput) {
+if (
+    copyRefBtn &&
+    referralLinkInput
+) {
 
-    copyRefBtn.addEventListener("click", () => {
+    copyRefBtn.addEventListener(
+        "click",
+        () => {
 
-        if (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
+            if (
+                !referralLinkInput.value ||
+                referralLinkInput.value.includes(
+                    "Generating"
+                )
+            ) {
 
-        navigator.clipboard.writeText(referralLinkInput.value).then(() => {
-            copyRefBtn.textContent = "Copied!";
-            copyRefBtn.classList.remove("btn-success");
-            copyRefBtn.classList.add("btn-dark");
+                return;
 
-            setTimeout(() => {
-                copyRefBtn.textContent = "Copy Link";
-                copyRefBtn.classList.remove("btn-dark");
-                copyRefBtn.classList.add("btn-success");
-            }, 2000);
-        });
+            }
 
-    });
+
+            navigator.clipboard
+                .writeText(
+                    referralLinkInput.value
+                )
+                .then(
+                    () => {
+
+                        copyRefBtn.textContent =
+                            "Copied!";
+
+
+                        copyRefBtn.classList.remove(
+                            "btn-success"
+                        );
+
+
+                        copyRefBtn.classList.add(
+                            "btn-dark"
+                        );
+
+
+                        setTimeout(
+                            () => {
+
+                                copyRefBtn.textContent =
+                                    "Copy Link";
+
+
+                                copyRefBtn.classList.remove(
+                                    "btn-dark"
+                                );
+
+
+                                copyRefBtn.classList.add(
+                                    "btn-success"
+                                );
+
+                            },
+                            2000
+                        );
+
+                    }
+                );
+
+        }
+    );
 
 }
 
@@ -394,14 +761,12 @@ async function loadRecentOrders(uid) {
             Object.values(
                 orders
             )
-
             .filter(
                 order =>
                     order &&
                     String(order.uid) ===
                     String(uid)
             )
-
             .sort(
                 (a, b) =>
                     Number(
@@ -489,29 +854,12 @@ async function loadRecentOrders(uid) {
 
                             <tr>
 
-                                <th>
-                                    Order ID
-                                </th>
-
-                                <th>
-                                    Service
-                                </th>
-
-                                <th>
-                                    Quantity
-                                </th>
-
-                                <th>
-                                    Amount
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
 
                             </tr>
 
@@ -539,76 +887,47 @@ async function loadRecentOrders(uid) {
                     <tr>
 
                         <td>
-
                             <code>
                                 ${shortOrderId}
                             </code>
-
                         </td>
-
 
                         <td>
 
                             <strong>
-
                                 ${order.platform || "—"}
-
                             </strong>
 
                             <br>
 
-                            <small
-                                class="text-muted"
-                            >
-
+                            <small class="text-muted">
                                 ${order.service || "—"}
-
                             </small>
 
                         </td>
 
-
                         <td>
-
                             ${Number(
                                 order.quantity || 0
-                            ).toLocaleString(
-                                "en-NG"
-                            )}
-
+                            ).toLocaleString("en-NG")}
                         </td>
-
 
                         <td>
 
                             <strong>
-
-                                ${formatNaira(
-                                    order.amount
-                                )}
-
+                                ${formatNaira(order.amount)}
                             </strong>
 
                         </td>
 
-
                         <td>
-
-                            ${statusBadge(
-                                order.status
-                            )}
-
+                            ${statusBadge(order.status)}
                         </td>
-
 
                         <td>
 
                             <small>
-
-                                ${formatDate(
-                                    order.createdAt
-                                )}
-
+                                ${formatDate(order.createdAt)}
                             </small>
 
                         </td>
@@ -660,10 +979,7 @@ async function loadRecentOrders(uid) {
                         shadow-sm mb-3"
                     >
 
-                        <div
-                            class="card-body"
-                        >
-
+                        <div class="card-body">
 
                             <div
                                 class="d-flex
@@ -674,103 +990,65 @@ async function loadRecentOrders(uid) {
 
                                 <div>
 
-                                    <small
-                                        class="text-muted"
-                                    >
-
+                                    <small class="text-muted">
                                         Order ID
-
                                     </small>
 
                                     <div>
 
                                         <code>
-
                                             ${shortOrderId}
-
                                         </code>
 
                                     </div>
 
                                 </div>
 
-
                                 <div>
-
-                                    ${statusBadge(
-                                        order.status
-                                    )}
-
+                                    ${statusBadge(order.status)}
                                 </div>
 
                             </div>
 
 
-
                             <div class="mb-3">
 
-                                <small
-                                    class="text-muted"
-                                >
-
+                                <small class="text-muted">
                                     Service
-
                                 </small>
 
-                                <div
-                                    class="fw-bold"
-                                >
-
+                                <div class="fw-bold">
                                     ${order.platform || "—"}
-
                                 </div>
 
-                                <div
-                                    class="text-muted"
-                                >
-
+                                <div class="text-muted">
                                     ${order.service || "—"}
-
                                 </div>
 
                             </div>
 
 
-
                             <div class="mb-3">
 
-                                <small
-                                    class="text-muted"
-                                >
-
+                                <small class="text-muted">
                                     Quantity
-
                                 </small>
 
-                                <div
-                                    class="fw-bold"
-                                >
+                                <div class="fw-bold">
 
                                     ${Number(
                                         order.quantity || 0
-                                    ).toLocaleString(
-                                        "en-NG"
-                                    )}
+                                    ).toLocaleString("en-NG")}
 
                                 </div>
 
                             </div>
 
 
-
                             <div class="mb-3">
 
-                                <small
-                                    class="text-muted"
-                                >
-
+                                <small class="text-muted">
                                     Amount
-
                                 </small>
 
                                 <div
@@ -787,27 +1065,19 @@ async function loadRecentOrders(uid) {
                             </div>
 
 
-
                             <div>
 
-                                <small
-                                    class="text-muted"
-                                >
-
+                                <small class="text-muted">
                                     Date
-
                                 </small>
 
                                 <div>
-
                                     ${formatDate(
                                         order.createdAt
                                     )}
-
                                 </div>
 
                             </div>
-
 
                         </div>
 
@@ -820,9 +1090,7 @@ async function loadRecentOrders(uid) {
 
 
         mobileHtml += `
-
             </div>
-
         `;
 
 
@@ -830,10 +1098,8 @@ async function loadRecentOrders(uid) {
             desktopHtml +
             mobileHtml;
 
-    }
 
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "ORDERS ERROR:",
@@ -851,9 +1117,7 @@ async function loadRecentOrders(uid) {
                     mb-0"
                 >
 
-                    <i
-                        class="bi bi-wifi-off"
-                    ></i>
+                    <i class="bi bi-wifi-off"></i>
 
                     Recent orders could not
                     be loaded right now.
@@ -873,323 +1137,1045 @@ async function loadRecentOrders(uid) {
 
 
 /* =========================================================
-   REDEEM VOUCHER FUNCTIONALITY (SECURE API)
+   REDEEM VOUCHER
 ========================================================= */
 
 if (redeemVoucherForm) {
-    redeemVoucherForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (!redeemCodeInput) return;
-        
-        const voucherCode = redeemCodeInput.value.trim();
-        if (!voucherCode) return;
 
-        if (redeemMsg) {
-            redeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
-        }
+    redeemVoucherForm.addEventListener(
+        "submit",
+        async (e) => {
 
-        try {
-            if (!auth.currentUser) {
-                throw new Error("You must be logged in to redeem a voucher.");
+            e.preventDefault();
+
+
+            if (!redeemCodeInput) {
+                return;
             }
 
-            const idToken = await auth.currentUser.getIdToken(true);
 
-            const response = await fetch('/api/redeem-voucher', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${idToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ voucherCode })
-            });
+            const voucherCode =
+                redeemCodeInput.value.trim();
 
-            const textResponse = await response.text();
-            let result;
+
+            if (!voucherCode) {
+                return;
+            }
+
+
+            if (redeemMsg) {
+
+                redeemMsg.innerHTML = `
+
+                    <div class="alert alert-info mb-0">
+
+                        Processing voucher...
+
+                    </div>
+
+                `;
+
+            }
+
+
             try {
-                result = JSON.parse(textResponse);
-            } catch (e) {
-                console.error("Non-JSON response received:", textResponse);
-                throw new Error("Server returned an invalid response format.");
+
+                if (!auth.currentUser) {
+
+                    throw new Error(
+                        "You must be logged in to redeem a voucher."
+                    );
+
+                }
+
+
+                const idToken =
+                    await auth.currentUser.getIdToken(true);
+
+
+                const response =
+                    await fetch(
+                        "/api/redeem-voucher",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${idToken}`,
+
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    voucherCode
+                                })
+                        }
+                    );
+
+
+                const textResponse =
+                    await response.text();
+
+
+                let result;
+
+
+                try {
+
+                    result =
+                        JSON.parse(
+                            textResponse
+                        );
+
+                } catch (e) {
+
+                    console.error(
+                        "Non-JSON response received:",
+                        textResponse
+                    );
+
+
+                    throw new Error(
+                        "Server returned an invalid response format."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Failed to redeem voucher."
+                    );
+
+                }
+
+
+                if (redeemMsg) {
+
+                    redeemMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-success
+                            mb-0"
+                        >
+
+                            ${result.message}
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                redeemVoucherForm.reset();
+
+
+                await loadUserInformation(
+                    auth.currentUser
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "REDEEM VOUCHER ERROR:",
+                    error
+                );
+
+
+                if (redeemMsg) {
+
+                    redeemMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-danger
+                            mb-0"
+                        >
+
+                            ${error.message}
+
+                        </div>
+
+                    `;
+
+                }
+
             }
 
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Failed to redeem voucher.");
-            }
-
-            if (redeemMsg) {
-                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
-            }
-            redeemVoucherForm.reset();
-            
-            await loadUserInformation(auth.currentUser);
-        } catch (error) {
-            console.error("REDEEM VOUCHER ERROR:", error);
-            if (redeemMsg) {
-                redeemMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
-            }
         }
-    });
+    );
+
 }
 
 
 
 /* =========================================================
-   WHATSAPP SUPPORT FORM FUNCTIONALITY
+   WHATSAPP SUPPORT
 ========================================================= */
 
-const whatsappSupportForm = document.getElementById("whatsappSupportForm");
+const whatsappSupportForm =
+    document.getElementById(
+        "whatsappSupportForm"
+    );
+
 
 if (whatsappSupportForm) {
-    whatsappSupportForm.addEventListener("submit", (e) => {
-        e.preventDefault();
 
-        const subjectInput = document.getElementById("waSubject");
-        const messageInput = document.getElementById("waMessage");
+    whatsappSupportForm.addEventListener(
+        "submit",
+        (e) => {
 
-        if (!subjectInput || !messageInput) return;
+            e.preventDefault();
 
-        const subject = subjectInput.value.trim();
-        const message = messageInput.value.trim();
 
-        if (!subject || !message) return;
+            const subjectInput =
+                document.getElementById(
+                    "waSubject"
+                );
 
-        const currentUser = auth.currentUser;
-        const userEmail = currentUser ? currentUser.email : "Guest User";
-        const phoneNumber = "18253635037";
 
-        const text = `*New Support Message*%0A` +
-                     `*From:* ${userEmail}%0A` +
-                     `*Subject:* ${subject}%0A` +
-                     `*Message:* ${message}`;
+            const messageInput =
+                document.getElementById(
+                    "waMessage"
+                );
 
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
-        window.open(whatsappUrl, '_blank');
 
-        whatsappSupportForm.reset();
-    });
+            if (
+                !subjectInput ||
+                !messageInput
+            ) {
+
+                return;
+
+            }
+
+
+            const subject =
+                subjectInput.value.trim();
+
+
+            const message =
+                messageInput.value.trim();
+
+
+            if (
+                !subject ||
+                !message
+            ) {
+
+                return;
+
+            }
+
+
+            const currentUser =
+                auth.currentUser;
+
+
+            const userEmail =
+                currentUser
+                    ? currentUser.email
+                    : "Guest User";
+
+
+            const phoneNumber =
+                "18253635037";
+
+
+            const text =
+                `*New Support Message*%0A` +
+                `*From:* ${userEmail}%0A` +
+                `*Subject:* ${subject}%0A` +
+                `*Message:* ${message}`;
+
+
+            const whatsappUrl =
+                `https://wa.me/${phoneNumber}?text=${text}`;
+
+
+            window.open(
+                whatsappUrl,
+                "_blank"
+            );
+
+
+            whatsappSupportForm.reset();
+
+        }
+    );
+
 }
 
 
 
 /* =========================================================
-   USER TIERS & UPGRADE SYSTEM (RESELLER SEPARATED)
+   USER TIERS & UPGRADE SYSTEM
 ========================================================= */
 
-async function evaluateAndRenderUserTier(userId) {
-    try {
-        const userRef = ref(database, `users/${userId}`);
-        const userSnap = await get(userRef);
-        const userData = userSnap.val() || {};
-        const currentTier = (userData.tier || 'regular').toLowerCase();
-        const totalSpent = Number(userData.totalSpent || 0);
+async function evaluateAndRenderUserTier(
+    userId
+) {
 
-        const badgeEl = document.getElementById('user-current-tier-badge');
-        const resellerPromoSection = document.getElementById('resellerPromoSection');
+    try {
+
+        const userRef =
+            ref(
+                database,
+                `users/${userId}`
+            );
+
+
+        const userSnap =
+            await get(userRef);
+
+
+        const userData =
+            userSnap.val() || {};
+
+
+        const currentTier =
+            (
+                userData.tier ||
+                "regular"
+            ).toLowerCase();
+
+
+        const totalSpent =
+            Number(
+                userData.totalSpent || 0
+            );
+
+
+        const badgeEl =
+            document.getElementById(
+                "user-current-tier-badge"
+            );
+
+
+        const resellerPromoSection =
+            document.getElementById(
+                "resellerPromoSection"
+            );
+
 
         if (badgeEl) {
-            badgeEl.innerText = currentTier.toUpperCase();
-            badgeEl.className = "badge ";
-            if (currentTier === 'reseller') {
-                badgeEl.classList.add('bg-danger');
-            } else if (currentTier === 'vip') {
-                badgeEl.classList.add('bg-success');
+
+            badgeEl.innerText =
+                currentTier.toUpperCase();
+
+
+            badgeEl.className =
+                "badge ";
+
+
+            if (
+                currentTier === "reseller"
+            ) {
+
+                badgeEl.classList.add(
+                    "bg-danger"
+                );
+
+            } else if (
+                currentTier === "vip"
+            ) {
+
+                badgeEl.classList.add(
+                    "bg-success"
+                );
+
             } else {
-                badgeEl.classList.add('bg-secondary');
+
+                badgeEl.classList.add(
+                    "bg-secondary"
+                );
+
             }
+
         }
 
-        // If user is already a reseller, update the promo box
-        if (currentTier === 'reseller') {
+
+        if (
+            currentTier === "reseller"
+        ) {
+
             if (resellerPromoSection) {
+
                 resellerPromoSection.innerHTML = `
+
                     <div class="col-12">
-                        <div class="card p-3 shadow border-danger bg-light text-center">
-                            <h5 class="text-danger mb-0"><i class="bi bi-patch-check-fill"></i> You are an Official Reseller! Enjoy your exclusive rates.</h5>
+
+                        <div
+                            class="card p-3
+                            shadow border-danger
+                            bg-light text-center"
+                        >
+
+                            <h5 class="text-danger mb-0">
+
+                                <i class="bi bi-patch-check-fill"></i>
+
+                                You are an Official Reseller!
+                                Enjoy your exclusive rates.
+
+                            </h5>
+
                         </div>
+
                     </div>
+
                 `;
+
             }
+
         }
 
-        const actionContainer = document.getElementById('tier-action-container');
-        if (!actionContainer) return;
 
-        if (currentTier === 'reseller') {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #dc3545; display:block;"><i class="bi bi-patch-check-fill"></i> Reseller Status Active</span>`;
+        const actionContainer =
+            document.getElementById(
+                "tier-action-container"
+            );
+
+
+        if (!actionContainer) {
             return;
         }
 
-        // Check if there is already a pending request for VIP
-        const reqRef = ref(database, 'tierRequests');
-        const reqSnap = await get(reqRef);
-        let hasPending = false;
-        
-        if (reqSnap.exists()) {
-            const requests = reqSnap.val();
-            Object.values(requests).forEach(req => {
-                if (req && req.userId === userId && req.status === 'pending' && req.requestedTier === 'vip') {
-                    hasPending = true;
-                }
-            });
+
+        if (
+            currentTier === "reseller"
+        ) {
+
+            actionContainer.innerHTML = `
+
+                <span
+                    style="
+                        font-size:0.8rem;
+                        color:#dc3545;
+                        display:block;
+                    "
+                >
+
+                    <i class="bi bi-patch-check-fill"></i>
+
+                    Reseller Status Active
+
+                </span>
+
+            `;
+
+            return;
+
         }
+
+
+        const reqRef =
+            ref(
+                database,
+                "tierRequests"
+            );
+
+
+        const reqSnap =
+            await get(reqRef);
+
+
+        let hasPending =
+            false;
+
+
+        if (reqSnap.exists()) {
+
+            const requests =
+                reqSnap.val();
+
+
+            Object.values(
+                requests
+            ).forEach(
+                req => {
+
+                    if (
+                        req &&
+                        req.userId === userId &&
+                        req.status === "pending" &&
+                        req.requestedTier === "vip"
+                    ) {
+
+                        hasPending = true;
+
+                    }
+
+                }
+            );
+
+        }
+
 
         if (hasPending) {
-            actionContainer.innerHTML = `<span style="font-size: 0.8rem; color: #ffc107; display:block;"><i class="bi bi-clock-history"></i> VIP Upgrade Request Pending</span>`;
+
+            actionContainer.innerHTML = `
+
+                <span
+                    style="
+                        font-size:0.8rem;
+                        color:#ffc107;
+                        display:block;
+                    "
+                >
+
+                    <i class="bi bi-clock-history"></i>
+
+                    VIP Upgrade Request Pending
+
+                </span>
+
+            `;
+
             return;
+
         }
 
-        let html = '';
-        if (currentTier === 'regular') {
-            if (totalSpent >= 60000) {
-                html += `<button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">Request VIP Tier</button>`;
+
+        let html = "";
+
+
+        if (
+            currentTier === "regular"
+        ) {
+
+            if (
+                totalSpent >= 60000
+            ) {
+
+                html += `
+
+                    <button
+                        class="btn btn-success
+                        btn-sm w-100 mt-2"
+                        onclick="
+                            requestTierUpgrade(
+                                '${userId}',
+                                'vip',
+                                'Total spend of ₦60k+ met'
+                            )
+                        "
+                    >
+
+                        Request VIP Tier
+
+                    </button>
+
+                `;
+
             } else {
-                html = `<p class="text-muted small mb-0 mt-2">Spend ₦60,000 total across orders to unlock VIP tier automatically.</p>`;
+
+                html = `
+
+                    <p
+                        class="text-muted
+                        small mb-0 mt-2"
+                    >
+
+                        Spend ₦60,000 total across
+                        orders to unlock VIP tier
+                        automatically.
+
+                    </p>
+
+                `;
+
             }
-        } else if (currentTier === 'vip') {
-            html = `<p class="text-muted small mb-0 mt-2">You are currently on VIP. Use the Reseller box above to unlock Reseller status anytime.</p>`;
+
+        } else if (
+            currentTier === "vip"
+        ) {
+
+            html = `
+
+                <p
+                    class="text-muted
+                    small mb-0 mt-2"
+                >
+
+                    You are currently on VIP.
+                    Use the Reseller box above
+                    to unlock Reseller status anytime.
+
+                </p>
+
+            `;
+
         }
 
-        actionContainer.innerHTML = html;
+
+        actionContainer.innerHTML =
+            html;
+
 
     } catch (err) {
-        console.error("Error evaluating user tier:", err);
+
+        console.error(
+            "Error evaluating user tier:",
+            err
+        );
+
     }
+
 }
-
-async function requestTierUpgrade(userId, requestedTier, details) {
-    if (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) return;
-
-    try {
-        const userAuth = auth.currentUser;
-        const requestsRef = ref(database, 'tierRequests');
-        const newReqRef = push(requestsRef);
-        
-        await set(newReqRef, {
-            userId: userId,
-            userEmail: userAuth ? userAuth.email : 'Unknown',
-            currentTier: document.getElementById('user-current-tier-badge')?.innerText.toLowerCase() || 'regular',
-            requestedTier: requestedTier,
-            details: details,
-            status: 'pending',
-            timestamp: Date.now()
-        });
-
-        alert("Tier upgrade request submitted successfully!");
-        location.reload();
-    } catch (err) {
-        console.error("Error submitting upgrade request:", err);
-        alert("Failed to submit request.");
-    }
-}
-
-window.requestTierUpgrade = requestTierUpgrade;
 
 
 
 /* =========================================================
-   RESELLER MODAL & PAYMENT HANDLERS
+   REQUEST TIER UPGRADE
 ========================================================= */
 
-const openResellerModalBtn = document.getElementById("openResellerModalBtn");
-const confirmResellerPaymentBtn = document.getElementById("confirmResellerPaymentBtn");
-const modalWalletBalance = document.getElementById("modalWalletBalance");
-const resellerModalMsg = document.getElementById("resellerModalMsg");
+async function requestTierUpgrade(
+    userId,
+    requestedTier,
+    details
+) {
 
-if (openResellerModalBtn) {
-    openResellerModalBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) return;
+    if (
+        !confirm(
+            `Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`
+        )
+    ) {
 
-        try {
-            const userRef = ref(database, `users/${user.uid}`);
-            const snap = await get(userRef);
-            const data = snap.val() || {};
-            const currentWallet = Number(data.wallet || 0);
+        return;
 
-            if (modalWalletBalance) {
-                modalWalletBalance.textContent = formatNaira(currentWallet);
+    }
+
+
+    try {
+
+        const userAuth =
+            auth.currentUser;
+
+
+        const requestsRef =
+            ref(
+                database,
+                "tierRequests"
+            );
+
+
+        const newReqRef =
+            push(
+                requestsRef
+            );
+
+
+        await set(
+            newReqRef,
+            {
+
+                userId:
+                    userId,
+
+                userEmail:
+                    userAuth
+                        ? userAuth.email
+                        : "Unknown",
+
+                currentTier:
+                    document
+                        .getElementById(
+                            "user-current-tier-badge"
+                        )
+                        ?.innerText
+                        .toLowerCase() ||
+                    "regular",
+
+                requestedTier:
+                    requestedTier,
+
+                details:
+                    details,
+
+                status:
+                    "pending",
+
+                timestamp:
+                    Date.now()
+
             }
+        );
 
-            if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = "";
-            }
 
-            const myModal = new bootstrap.Modal(document.getElementById('resellerModal'));
-            myModal.show();
-        } catch (err) {
-            console.error("Error opening reseller modal:", err);
-        }
-    });
+        alert(
+            "Tier upgrade request submitted successfully!"
+        );
+
+
+        location.reload();
+
+
+    } catch (err) {
+
+        console.error(
+            "Error submitting upgrade request:",
+            err
+        );
+
+
+        alert(
+            "Failed to submit request."
+        );
+
+    }
+
 }
 
-if (confirmResellerPaymentBtn) {
-    confirmResellerPaymentBtn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) return;
 
-        // Disable button to prevent double-clicks and freezing loops
-        confirmResellerPaymentBtn.disabled = true;
-        const originalBtnText = confirmResellerPaymentBtn.innerHTML;
-        confirmResellerPaymentBtn.innerHTML = "Processing...";
+window.requestTierUpgrade =
+    requestTierUpgrade;
 
-        if (resellerModalMsg) {
-            resellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
-        }
 
-        try {
-            // Add a 15-second timeout controller so it never hangs forever
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-            const idToken = await user.getIdToken(true);
+/* =========================================================
+   RESELLER MODAL & PAYMENT
+========================================================= */
 
-            const response = await fetch('/api/unlock-reseller', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${idToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ amount: 100000 }),
-                signal: controller.signal
-            });
+const openResellerModalBtn =
+    document.getElementById(
+        "openResellerModalBtn"
+    );
 
-            clearTimeout(timeoutId);
 
-            const textResponse = await response.text();
-            let result;
+const confirmResellerPaymentBtn =
+    document.getElementById(
+        "confirmResellerPaymentBtn"
+    );
+
+
+const modalWalletBalance =
+    document.getElementById(
+        "modalWalletBalance"
+    );
+
+
+const resellerModalMsg =
+    document.getElementById(
+        "resellerModalMsg"
+    );
+
+
+
+if (openResellerModalBtn) {
+
+    openResellerModalBtn.addEventListener(
+        "click",
+        async () => {
+
+            const user =
+                auth.currentUser;
+
+
+            if (!user) {
+                return;
+            }
+
+
             try {
-                result = JSON.parse(textResponse);
-            } catch (e) {
-                console.error("Non-JSON response received:", textResponse);
-                throw new Error("Server returned an invalid response format.");
+
+                const userRef =
+                    ref(
+                        database,
+                        `users/${user.uid}`
+                    );
+
+
+                const snap =
+                    await get(
+                        userRef
+                    );
+
+
+                const data =
+                    snap.val() || {};
+
+
+                const currentWallet =
+                    Number(
+                        data.wallet || 0
+                    );
+
+
+                if (modalWalletBalance) {
+
+                    modalWalletBalance.textContent =
+                        formatNaira(
+                            currentWallet
+                        );
+
+                }
+
+
+                if (resellerModalMsg) {
+
+                    resellerModalMsg.innerHTML =
+                        "";
+
+                }
+
+
+                const modalElement =
+                    document.getElementById(
+                        "resellerModal"
+                    );
+
+
+                if (modalElement) {
+
+                    const myModal =
+                        new bootstrap.Modal(
+                            modalElement
+                        );
+
+
+                    myModal.show();
+
+                }
+
+
+            } catch (err) {
+
+                console.error(
+                    "Error opening reseller modal:",
+                    err
+                );
+
             }
 
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || "Failed to process reseller upgrade.");
-            }
-
-            if (resellerModalMsg) {
-                resellerModalMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
-            }
-
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-
-        } catch (error) {
-            console.error("RESELLER UPGRADE ERROR:", error);
-            if (resellerModalMsg) {
-                const errorMessage = error.name === 'AbortError' 
-                    ? "Request timed out. Please check your connection." 
-                    : (error.message || "Load failed. Please try again.");
-                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${errorMessage}</div>`;
-            }
-            // Re-enable button on error so the user can try again
-            confirmResellerPaymentBtn.disabled = false;
-            confirmResellerPaymentBtn.innerHTML = originalBtnText;
         }
-    });
+    );
+
+}
+
+
+
+if (confirmResellerPaymentBtn) {
+
+    confirmResellerPaymentBtn.addEventListener(
+        "click",
+        async () => {
+
+            const user =
+                auth.currentUser;
+
+
+            if (!user) {
+                return;
+            }
+
+
+            confirmResellerPaymentBtn.disabled =
+                true;
+
+
+            const originalBtnText =
+                confirmResellerPaymentBtn.innerHTML;
+
+
+            confirmResellerPaymentBtn.innerHTML =
+                "Processing...";
+
+
+            if (resellerModalMsg) {
+
+                resellerModalMsg.innerHTML = `
+
+                    <div class="alert alert-info mb-0">
+
+                        Processing payment...
+
+                    </div>
+
+                `;
+
+            }
+
+
+            try {
+
+                const controller =
+                    new AbortController();
+
+
+                const timeoutId =
+                    setTimeout(
+                        () => controller.abort(),
+                        15000
+                    );
+
+
+                const idToken =
+                    await user.getIdToken(true);
+
+
+                const response =
+                    await fetch(
+                        "/api/unlock-reseller",
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Authorization":
+                                    `Bearer ${idToken}`,
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    amount: 100000
+                                }),
+
+                            signal:
+                                controller.signal
+
+                        }
+                    );
+
+
+                clearTimeout(
+                    timeoutId
+                );
+
+
+                const textResponse =
+                    await response.text();
+
+
+                let result;
+
+
+                try {
+
+                    result =
+                        JSON.parse(
+                            textResponse
+                        );
+
+                } catch (e) {
+
+                    console.error(
+                        "Non-JSON response received:",
+                        textResponse
+                    );
+
+
+                    throw new Error(
+                        "Server returned an invalid response format."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Failed to process reseller upgrade."
+                    );
+
+                }
+
+
+                if (resellerModalMsg) {
+
+                    resellerModalMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-success
+                            mb-0"
+                        >
+
+                            ${result.message}
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                setTimeout(
+                    () => {
+                        location.reload();
+                    },
+                    2000
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "RESELLER UPGRADE ERROR:",
+                    error
+                );
+
+
+                if (resellerModalMsg) {
+
+                    const errorMessage =
+                        error.name === "AbortError"
+                            ? "Request timed out. Please check your connection."
+                            : (
+                                error.message ||
+                                "Load failed. Please try again."
+                            );
+
+
+                    resellerModalMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-danger
+                            mb-0"
+                        >
+
+                            ${errorMessage}
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                confirmResellerPaymentBtn.disabled =
+                    false;
+
+
+                confirmResellerPaymentBtn.innerHTML =
+                    originalBtnText;
+
+            }
+
+        }
+    );
+
 }
 
 
@@ -1211,11 +2197,14 @@ onAuthStateChanged(
 
         }
 
+
         await Promise.allSettled([
 
             loadUserInformation(
                 user
             ),
+
+            loadNigeriaServices(),
 
             loadRecentOrders(
                 user.uid
