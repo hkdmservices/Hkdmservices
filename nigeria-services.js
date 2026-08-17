@@ -1,20 +1,14 @@
 // ============================================================
-// HKDMservices Nigeria Services Page
+// HKDMservices Nigeria Services
 // ============================================================
 
 import {
-    auth,
-    database
+    auth
 } from "./firebase.js";
 
 import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-import {
-    ref,
-    get
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 import {
     hkdmservicesNigeriaServicePriceCatalogue
@@ -28,17 +22,17 @@ import {
 const servicesContainer =
     document.getElementById("servicesContainer");
 
-const noServices =
-    document.getElementById("noServices");
-
-const serviceSearch =
+const searchInput =
     document.getElementById("serviceSearch");
+
+const tierInfo =
+    document.getElementById("tierInfo");
 
 const serviceCount =
     document.getElementById("serviceCount");
 
-const tierInfo =
-    document.getElementById("tierInfo");
+const noServices =
+    document.getElementById("noServices");
 
 const platformFilters =
     document.querySelectorAll(".platform-filter");
@@ -48,13 +42,11 @@ const platformFilters =
 // STATE
 // ============================================================
 
-let nigeriaServices = [];
+let currentTier = "regular";
 
 let currentPlatform = "all";
 
 let currentSearch = "";
-
-let currentTier = "regular";
 
 
 // ============================================================
@@ -71,7 +63,9 @@ function formatNaira(amount) {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }
-    ).format(Number(amount || 0));
+    ).format(
+        Number(amount || 0)
+    );
 
 }
 
@@ -93,50 +87,44 @@ function escapeHtml(value) {
 
 
 // ============================================================
-// GET USER TIER
+// GET PRICE FOR USER TIER
 // ============================================================
 
-async function loadUserTier(user) {
+function getServicePrice(service) {
 
-    try {
-
-        const userRef =
-            ref(
-                database,
-                `users/${user.uid}`
-            );
-
-        const snapshot =
-            await get(userRef);
-
-        if (snapshot.exists()) {
-
-            const userData =
-                snapshot.val();
-
-            currentTier =
-                String(
-                    userData.tier || "regular"
-                ).toLowerCase();
-
-        } else {
-
-            currentTier = "regular";
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "NIGERIA USER TIER ERROR:",
-            error
+    const regularRate =
+        Number(
+            service.ratePer1000 || 0
         );
 
-        currentTier = "regular";
+    const resellerRate =
+        Number(
+            service.resellerRatePer1000 ??
+            regularRate
+        );
+
+    const vipRate =
+        Number(
+            service.vipRatePer1000 ??
+            regularRate
+        );
+
+
+    if (currentTier === "reseller") {
+
+        return resellerRate;
 
     }
 
-    updateTierDisplay();
+
+    if (currentTier === "vip") {
+
+        return vipRate;
+
+    }
+
+
+    return regularRate;
 
 }
 
@@ -151,28 +139,37 @@ function updateTierDisplay() {
         return;
     }
 
+
     const tier =
-        currentTier.toLowerCase();
+        currentTier.toUpperCase();
+
 
     let badgeClass =
         "bg-secondary";
 
-    if (tier === "vip") {
+
+    if (currentTier === "vip") {
+
         badgeClass =
             "bg-warning text-dark";
+
     }
 
-    if (tier === "reseller") {
+
+    if (currentTier === "reseller") {
+
         badgeClass =
             "bg-danger";
+
     }
+
 
     tierInfo.innerHTML = `
 
         <i class="bi bi-shield-check"></i>
 
         <strong class="badge ${badgeClass}">
-            ${escapeHtml(tier.toUpperCase())}
+            ${escapeHtml(tier)}
         </strong>
 
         pricing is currently displayed.
@@ -183,111 +180,89 @@ function updateTierDisplay() {
 
 
 // ============================================================
-// GET PRICE FOR USER TIER
+// LOAD USER TIER
 // ============================================================
 
-function getServicePrice(service) {
-
-    const regularPrice =
-        Number(
-            service.ratePer1000 || 0
-        );
-
-    if (
-        currentTier === "reseller" &&
-        service.resellerRatePer1000 !== undefined
-    ) {
-
-        return Number(
-            service.resellerRatePer1000
-        );
-
-    }
-
-    if (
-        currentTier === "vip" &&
-        service.vipRatePer1000 !== undefined
-    ) {
-
-        return Number(
-            service.vipRatePer1000
-        );
-
-    }
-
-    return regularPrice;
-
-}
-
-
-// ============================================================
-// LOAD NIGERIA CATALOGUE
-// ============================================================
-
-async function loadNigeriaServices() {
-
-    /*
-     * Primary source:
-     *
-     * nigeria-services-catalogue.js
-     *
-     * Firebase is checked first only if the Nigeria
-     * catalogue has been intentionally published there.
-     */
+async function loadUserTier(user) {
 
     try {
 
-        const servicesRef =
+        const {
+            database
+        } = await import("./firebase.js");
+
+
+        const {
+            ref,
+            get
+        } = await import(
+            "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+        );
+
+
+        const userRef =
             ref(
                 database,
-                "services/nigeria"
+                `users/${user.uid}`
             );
 
+
         const snapshot =
-            await get(servicesRef);
+            await get(userRef);
+
 
         if (snapshot.exists()) {
 
-            const data =
-                snapshot.val();
+            const userData =
+                snapshot.val() || {};
 
-            nigeriaServices =
-                Object.entries(data)
-                    .map(
-                        ([key, value]) => ({
-                            id: value.id || key,
-                            ...value
-                        })
-                    );
+
+            const tier =
+                String(
+                    userData.tier || "regular"
+                )
+                .toLowerCase()
+                .trim();
+
+
+            if (
+                tier === "reseller" ||
+                tier === "vip" ||
+                tier === "regular"
+            ) {
+
+                currentTier =
+                    tier;
+
+            } else {
+
+                currentTier =
+                    "regular";
+
+            }
 
         } else {
 
-            nigeriaServices =
-                Array.isArray(
-                    hkdmservicesNigeriaServicePriceCatalogue
-                )
-                    ? hkdmservicesNigeriaServicePriceCatalogue
-                    : [];
+            currentTier =
+                "regular";
 
         }
 
     } catch (error) {
 
-        console.warn(
-            "Firebase Nigeria catalogue unavailable. Using local catalogue.",
+        console.error(
+            "NIGERIA USER TIER ERROR:",
             error
         );
 
-        nigeriaServices =
-            Array.isArray(
-                hkdmservicesNigeriaServicePriceCatalogue
-            )
-                ? hkdmservicesNigeriaServicePriceCatalogue
-                : [];
+
+        currentTier =
+            "regular";
 
     }
 
-    renderServices();
+
+    updateTierDisplay();
 
 }
 
@@ -298,54 +273,62 @@ async function loadNigeriaServices() {
 
 function getFilteredServices() {
 
-    const search =
-        currentSearch.toLowerCase();
+    return hkdmservicesNigeriaServicePriceCatalogue
+        .filter(
+            service => {
 
-    return nigeriaServices.filter(
-        service => {
+                const platform =
+                    String(
+                        service.platform || ""
+                    );
 
-            const platform =
-                String(
-                    service.platform || ""
+
+                const serviceName =
+                    String(
+                        service.service || ""
+                    );
+
+
+                const serviceId =
+                    String(
+                        service.id || ""
+                    );
+
+
+                const normalizedPlatform =
+                    platform.toLowerCase();
+
+
+                const normalizedSearch =
+                    currentSearch.toLowerCase();
+
+
+                const platformMatch =
+                    currentPlatform === "all" ||
+                    normalizedPlatform ===
+                    currentPlatform.toLowerCase();
+
+
+                const searchMatch =
+                    !normalizedSearch ||
+                    normalizedPlatform.includes(
+                        normalizedSearch
+                    ) ||
+                    serviceName.toLowerCase().includes(
+                        normalizedSearch
+                    ) ||
+                    serviceId.toLowerCase().includes(
+                        normalizedSearch
+                    );
+
+
+                return (
+                    platformMatch &&
+                    searchMatch
                 );
 
-            const serviceName =
-                String(
-                    service.service || ""
-                );
-
-            const id =
-                String(
-                    service.id || ""
-                );
-
-            const platformMatch =
-                currentPlatform === "all" ||
-                platform.toLowerCase() ===
-                currentPlatform.toLowerCase();
-
-            const searchMatch =
-                !search ||
-
-                platform.toLowerCase().includes(
-                    search
-                ) ||
-
-                serviceName.toLowerCase().includes(
-                    search
-                ) ||
-
-                id.toLowerCase().includes(
-                    search
-                );
-
-            return (
-                platformMatch &&
-                searchMatch
-            );
-
-        }
-    );
+            }
+        );
 
 }
 
@@ -354,14 +337,16 @@ function getFilteredServices() {
 // RENDER SERVICES
 // ============================================================
 
-function renderServices() {
+function renderNigeriaServices() {
 
     if (!servicesContainer) {
         return;
     }
 
+
     const filteredServices =
         getFilteredServices();
+
 
     if (serviceCount) {
 
@@ -370,7 +355,9 @@ function renderServices() {
 
     }
 
+
     servicesContainer.innerHTML = "";
+
 
     if (
         filteredServices.length === 0
@@ -384,9 +371,11 @@ function renderServices() {
 
         }
 
+
         return;
 
     }
+
 
     if (noServices) {
 
@@ -396,6 +385,7 @@ function renderServices() {
 
     }
 
+
     filteredServices.forEach(
         service => {
 
@@ -404,49 +394,72 @@ function renderServices() {
                     service.ratePer1000 || 0
                 );
 
+
             const resellerRate =
-                service.resellerRatePer1000 !== undefined
-                    ? Number(
-                        service.resellerRatePer1000
-                    )
-                    : null;
+                Number(
+                    service.resellerRatePer1000 ??
+                    regularRate
+                );
+
 
             const vipRate =
-                service.vipRatePer1000 !== undefined
-                    ? Number(
-                        service.vipRatePer1000
-                    )
-                    : null;
+                Number(
+                    service.vipRatePer1000 ??
+                    regularRate
+                );
+
 
             const currentPrice =
-                getServicePrice(service);
+                getServicePrice(
+                    service
+                );
+
 
             const platform =
-                service.platform ||
-                "Social Media";
+                escapeHtml(
+                    service.platform ||
+                    "Social Media"
+                );
+
 
             const serviceName =
-                service.service ||
-                "Service";
+                escapeHtml(
+                    service.service ||
+                    "Service"
+                );
 
-            const description =
-                service.description ||
-                `${serviceName} service for ${platform}.`;
 
             const serviceId =
-                service.id || "";
+                String(
+                    service.id || ""
+                );
 
-            const col =
-                document.createElement("div");
 
-            col.className =
+            const description =
+                escapeHtml(
+                    service.description ||
+                    `${service.service || "Service"} service for ${service.platform || "social media"}.`
+                );
+
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
                 "col-12 col-md-6 col-lg-4";
 
-            col.innerHTML = `
 
-                <div class="card h-100 shadow-sm border-success">
+            card.innerHTML = `
 
-                    <div class="card-body d-flex flex-column">
+                <div
+                    class="card h-100 shadow-sm border-success"
+                >
+
+                    <div class="card-body">
+
 
                         <div
                             class="d-flex
@@ -457,9 +470,10 @@ function renderServices() {
 
                             <span class="badge bg-success">
 
-                                ${escapeHtml(platform)}
+                                ${platform}
 
                             </span>
+
 
                             <span
                                 class="badge bg-light text-dark"
@@ -474,14 +488,14 @@ function renderServices() {
 
                         <h5 class="card-title fw-bold">
 
-                            ${escapeHtml(serviceName)}
+                            ${serviceName}
 
                         </h5>
 
 
                         <p class="card-text text-muted small">
 
-                            ${escapeHtml(description)}
+                            ${description}
 
                         </p>
 
@@ -491,11 +505,14 @@ function renderServices() {
 
                         <div class="mb-3">
 
-                            <small class="text-muted d-block">
+                            <small
+                                class="text-muted d-block"
+                            >
 
                                 Your Price per 1,000
 
                             </small>
+
 
                             <h4
                                 class="text-success
@@ -509,53 +526,50 @@ function renderServices() {
                         </div>
 
 
-                        ${
-                            currentTier !== "regular"
-                            ? `
-                                <small class="text-muted">
+                        <div class="small">
 
-                                    Regular:
-                                    ${formatNaira(regularRate)}
+                            ${
+                                currentTier !== "regular"
+                                ? `
+                                    <div class="text-muted mb-1">
 
-                                </small>
-                              `
-                            : ""
-                        }
+                                        Regular:
+                                        ${formatNaira(regularRate)}
 
-
-                        ${
-                            currentTier === "regular"
-                            && resellerRate !== null
-                            ? `
-                                <small class="text-muted d-block mt-2">
-
-                                    Reseller:
-                                    ${formatNaira(resellerRate)}
-
-                                </small>
-                              `
-                            : ""
-                        }
+                                    </div>
+                                `
+                                : ""
+                            }
 
 
-                        ${
-                            currentTier === "regular"
-                            && vipRate !== null
-                            ? `
-                                <small class="text-muted d-block">
+                            ${
+                                currentTier === "regular"
+                                ? `
+                                    <div class="text-muted">
 
-                                    VIP:
-                                    ${formatNaira(vipRate)}
+                                        Reseller:
+                                        ${formatNaira(resellerRate)}
 
-                                </small>
-                              `
-                            : ""
-                        }
+                                    </div>
+
+                                    <div class="text-muted">
+
+                                        VIP:
+                                        ${formatNaira(vipRate)}
+
+                                    </div>
+                                `
+                                : ""
+                            }
+
+                        </div>
 
 
                         <button
                             type="button"
-                            class="btn btn-success w-100 mt-auto pt-2 order-service-btn"
+                            class="btn btn-success
+                            w-100 mt-4
+                            order-service-btn"
                             data-service-id="${escapeHtml(serviceId)}"
                         >
 
@@ -571,8 +585,9 @@ function renderServices() {
 
             `;
 
+
             servicesContainer.appendChild(
-                col
+                card
             );
 
         }
@@ -590,9 +605,14 @@ function renderServices() {
 
 function attachOrderButtons() {
 
-    document
-        .querySelectorAll(".order-service-btn")
-        .forEach(button => {
+    const buttons =
+        document.querySelectorAll(
+            ".order-service-btn"
+        );
+
+
+    buttons.forEach(
+        button => {
 
             button.addEventListener(
                 "click",
@@ -601,23 +621,26 @@ function attachOrderButtons() {
                     const serviceId =
                         button.dataset.serviceId;
 
+
                     if (!serviceId) {
 
-                        alert(
-                            "Service ID is missing."
+                        console.error(
+                            "Missing Nigeria service ID."
                         );
 
                         return;
 
                     }
 
+
                     window.location.href =
-                        `create-order.html?service=${encodeURIComponent(serviceId)}&catalogue=nigeria`;
+                        `order.html?service=${encodeURIComponent(serviceId)}&catalogue=nigeria`;
 
                 }
             );
 
-        });
+        }
+    );
 
 }
 
@@ -626,16 +649,16 @@ function attachOrderButtons() {
 // SEARCH
 // ============================================================
 
-if (serviceSearch) {
+if (searchInput) {
 
-    serviceSearch.addEventListener(
+    searchInput.addEventListener(
         "input",
         event => {
 
             currentSearch =
                 event.target.value.trim();
 
-            renderServices();
+            renderNigeriaServices();
 
         }
     );
@@ -672,6 +695,7 @@ platformFilters.forEach(
                     }
                 );
 
+
                 button.classList.add(
                     "active"
                 );
@@ -684,11 +708,13 @@ platformFilters.forEach(
                     "btn-success"
                 );
 
+
                 currentPlatform =
                     button.dataset.platform ||
                     "all";
 
-                renderServices();
+
+                renderNigeriaServices();
 
             }
         );
@@ -714,9 +740,13 @@ onAuthStateChanged(
 
         }
 
-        await loadUserTier(user);
 
-        await loadNigeriaServices();
+        await loadUserTier(
+            user
+        );
+
+
+        renderNigeriaServices();
 
     }
 );
