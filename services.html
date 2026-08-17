@@ -10,7 +10,12 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>HKDMservices | Service & Price Catalogue</title>
+    <title>HKDMservices - Services</title>
+
+
+    <!-- =====================================================
+         BOOTSTRAP
+    ====================================================== -->
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
@@ -33,9 +38,9 @@
 <body>
 
 
-<!-- =========================================================
+<!-- =====================================================
      NAVBAR
-========================================================= -->
+====================================================== -->
 
 <nav class="navbar navbar-dark bg-dark">
 
@@ -57,7 +62,7 @@
 
             <a
                 href="dashboard.html"
-                class="btn btn-outline-light"
+                class="btn btn-outline-light btn-sm"
             >
 
                 <i class="bi bi-speedometer2"></i>
@@ -68,13 +73,11 @@
 
 
             <a
-                href="wallet.html"
-                class="btn btn-success"
+                href="nigeria-services.html"
+                class="btn btn-success btn-sm"
             >
 
-                <i class="bi bi-wallet2"></i>
-
-                Add Funds
+                🇳🇬 Nigeria Services
 
             </a>
 
@@ -86,105 +89,65 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
+     HEADER
+====================================================== -->
+
+<section class="py-5 bg-light">
+
+    <div class="container text-center">
+
+        <span class="badge bg-primary mb-2">
+
+            HKDMservices
+
+        </span>
+
+
+        <h1 class="fw-bold">
+
+            Services Catalogue
+
+        </h1>
+
+
+        <p class="text-muted mb-0">
+
+            Browse our existing social media marketing services.
+
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
      MAIN
-========================================================= -->
+====================================================== -->
 
 <section class="py-5">
 
     <div class="container">
 
 
-        <!-- HEADER -->
-
-        <div class="text-center mb-4">
-
-            <h1 class="fw-bold">
-                HKDMservices
-            </h1>
-
-
-            <h2 class="fw-bold">
-                Service &amp; Price Catalogue
-            </h2>
-
-
-            <p class="text-muted">
-                Select a service catalogue to view available platforms,
-                services and prices.
-            </p>
-
-        </div>
-
-
-
         <!-- =================================================
-             CATALOGUE TABS
+             CATALOGUE NOTICE
         ================================================== -->
 
-        <div class="row justify-content-center mb-4">
+        <div class="alert alert-primary text-center">
 
-            <div class="col-12 col-md-8">
+            <i class="bi bi-info-circle me-1"></i>
 
-                <div
-                    class="btn-group w-100"
-                    role="group"
-                    aria-label="Service catalogue"
-                >
+            <strong>Existing / General Services</strong>
 
-                    <button
-                        type="button"
-                        id="generalCatalogueBtn"
-                        class="btn btn-success active"
-                    >
+            <br>
 
-                        <i class="bi bi-globe2"></i>
-
-                        General Services
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="nigeriaCatalogueBtn"
-                        class="btn btn-outline-success"
-                    >
-
-                        🇳🇬
-
-                        Nigeria Services
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- =================================================
-             CATALOGUE DESCRIPTION
-        ================================================== -->
-
-        <div
-            id="catalogueDescription"
-            class="text-center mb-4"
-        >
-
-            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
-
-                General Services
-
-            </span>
-
-            <p class="text-muted mt-2 mb-0">
-
-                Official HKDMservices pricing catalogue.
-
-            </p>
+            <small>
+                For Nigerian Naira services, use the
+                <strong>Nigeria Services</strong> catalogue.
+            </small>
 
         </div>
 
@@ -194,9 +157,9 @@
              SEARCH
         ================================================== -->
 
-        <div class="row justify-content-center mb-5">
+        <div class="row mb-4">
 
-            <div class="col-12 col-md-8">
+            <div class="col-12 col-md-8 mx-auto">
 
                 <div class="input-group">
 
@@ -208,11 +171,10 @@
 
 
                     <input
-                        type="search"
-                        id="platformSearch"
+                        type="text"
+                        id="serviceSearch"
                         class="form-control"
-                        placeholder="Search platform..."
-                        autocomplete="off"
+                        placeholder="Search Instagram, TikTok, YouTube..."
                     >
 
                 </div>
@@ -224,75 +186,90 @@
 
 
         <!-- =================================================
-             PLATFORMS
+             PLATFORM FILTERS
         ================================================== -->
 
         <div
-            id="platformContainer"
-            class="row g-4"
+            id="platformFilters"
+            class="d-flex flex-wrap justify-content-center gap-2 mb-4"
         >
+
+            <button
+                type="button"
+                class="btn btn-primary platform-filter active"
+                data-platform="all"
+            >
+                All
+            </button>
 
         </div>
 
 
 
         <!-- =================================================
-             EMPTY MESSAGE
+             TIER
         ================================================== -->
 
         <div
-            id="emptyMessage"
-            class="text-center py-5 d-none"
+            id="tierInfo"
+            class="alert alert-success text-center mb-4"
         >
 
-            <i
-                class="bi bi-search fs-1 text-muted"
-            ></i>
+            <i class="bi bi-shield-check"></i>
+
+            <strong>REGULAR</strong>
+
+            pricing is currently displayed.
+
+        </div>
 
 
-            <h4 class="mt-3">
 
-                No platform found
+        <!-- =================================================
+             COUNT
+        ================================================== -->
+
+        <div
+            class="d-flex justify-content-between align-items-center mb-3"
+        >
+
+            <h4 class="mb-0">
+
+                Available Services
 
             </h4>
 
 
-            <p class="text-muted">
-
-                Try another search.
-
-            </p>
+            <span
+                id="serviceCount"
+                class="badge bg-secondary"
+            >
+                0 Services
+            </span>
 
         </div>
 
 
 
         <!-- =================================================
-             HOW IT WORKS
+             SERVICES
         ================================================== -->
 
-        <div class="card shadow-sm border-0 mt-5">
+        <div
+            id="servicesContainer"
+            class="row g-4"
+        >
 
-            <div class="card-body p-4 text-center">
+            <div class="col-12 text-center py-5">
 
-                <i
-                    class="bi bi-info-circle text-success"
-                    style="font-size: 2rem;"
-                ></i>
+                <div
+                    class="spinner-border text-primary"
+                    role="status"
+                ></div>
 
+                <p class="text-muted mt-3">
 
-                <h4 class="mt-3">
-
-                    How it works
-
-                </h4>
-
-
-                <p class="text-muted mb-0">
-
-                    Choose a catalogue, select a platform,
-                    choose the service you want, then continue
-                    to place your order.
+                    Loading services...
 
                 </p>
 
@@ -302,23 +279,32 @@
 
 
 
-        <!-- BACK -->
+        <!-- =================================================
+             NO SERVICES
+        ================================================== -->
 
-        <div class="text-center mt-4">
+        <div
+            id="noServices"
+            class="text-center py-5 d-none"
+        >
 
-            <a
-                href="dashboard.html"
-                class="btn btn-outline-dark"
-            >
+            <i class="bi bi-search fs-1 text-muted"></i>
 
-                <i class="bi bi-arrow-left"></i>
 
-                Back to Dashboard
+            <h4 class="mt-3">
 
-            </a>
+                No services found
+
+            </h4>
+
+
+            <p class="text-muted">
+
+                Try another search or platform.
+
+            </p>
 
         </div>
-
 
     </div>
 
@@ -326,16 +312,55 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
+     FOOTER
+====================================================== -->
+
+<footer class="bg-dark text-white py-4">
+
+    <div class="container text-center">
+
+        <p class="mb-1">
+
+            © 2026 HKDMservices
+
+        </p>
+
+
+        <small class="text-secondary">
+
+            Existing Services Catalogue
+
+        </small>
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
      JAVASCRIPT
-========================================================= -->
+====================================================== -->
 
 <script type="module">
 
+import {
+    auth,
+    database
+} from "./firebase.js";
 
-/* ==========================================================
-   IMPORT GENERAL CATALOGUE
-========================================================== */
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+import {
+    ref,
+    get
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
 
 import {
     hkdmservicesOfficialServicePriceCatalogue
@@ -343,146 +368,174 @@ import {
 
 
 
-/* ==========================================================
-   IMPORT NIGERIA CATALOGUE
-========================================================== */
-
-import {
-    hkdmservicesNigeriaServicePriceCatalogue
-} from "./nigeria-services-catalogue.js";
-
-
-
-/* ==========================================================
+/* =====================================================
    ELEMENTS
-========================================================== */
+===================================================== */
 
-const platformContainer =
-    document.getElementById("platformContainer");
-
-
-const platformSearch =
-    document.getElementById("platformSearch");
+const servicesContainer =
+    document.getElementById(
+        "servicesContainer"
+    );
 
 
-const emptyMessage =
-    document.getElementById("emptyMessage");
+const noServices =
+    document.getElementById(
+        "noServices"
+    );
 
 
-const generalCatalogueBtn =
-    document.getElementById("generalCatalogueBtn");
+const serviceSearch =
+    document.getElementById(
+        "serviceSearch"
+    );
 
 
-const nigeriaCatalogueBtn =
-    document.getElementById("nigeriaCatalogueBtn");
+const serviceCount =
+    document.getElementById(
+        "serviceCount"
+    );
 
 
-const catalogueDescription =
-    document.getElementById("catalogueDescription");
+const tierInfo =
+    document.getElementById(
+        "tierInfo"
+    );
 
 
-
-/* ==========================================================
-   CURRENT CATALOGUE
-========================================================== */
-
-let currentCatalogue = "general";
-
-let currentServices =
-    hkdmservicesOfficialServicePriceCatalogue;
-
-
-
-/* ==========================================================
-   PLATFORM ICONS
-========================================================== */
-
-const platformIcons = {
-
-    "Instagram": "bi-instagram",
-
-    "TikTok": "bi-tiktok",
-
-    "YouTube": "bi-youtube",
-
-    "Facebook": "bi-facebook",
-
-    "X (Twitter)": "bi-twitter-x",
-
-    "Telegram": "bi-telegram",
-
-    "Spotify": "bi-spotify",
-
-    "WhatsApp": "bi-whatsapp",
-
-    "Apple Music": "bi-apple",
-
-    "Reddit": "bi-reddit"
-
-};
+const platformFilters =
+    document.getElementById(
+        "platformFilters"
+    );
 
 
 
-/* ==========================================================
-   GET PLATFORMS
-========================================================== */
+/* =====================================================
+   VARIABLES
+===================================================== */
 
-function getPlatforms() {
+let services = [];
 
-    return [
-        ...new Set(
-            currentServices.map(
-                item => item.platform
-            )
-        )
-    ];
+let currentPlatform = "all";
+
+let currentSearch = "";
+
+let currentTier = "regular";
+
+
+
+/* =====================================================
+   FORMAT NAIRA
+===================================================== */
+
+function formatNaira(amount) {
+
+    return new Intl.NumberFormat(
+        "en-NG",
+        {
+            style: "currency",
+            currency: "NGN",
+            minimumFractionDigits: 2
+        }
+    ).format(
+        Number(amount || 0)
+    );
 
 }
 
 
 
-/* ==========================================================
-   UPDATE CATALOGUE DESCRIPTION
-========================================================== */
+/* =====================================================
+   LOAD USER TIER
+===================================================== */
 
-function updateCatalogueDescription() {
+async function loadUserTier(user) {
 
-    if (currentCatalogue === "nigeria") {
+    try {
 
-        catalogueDescription.innerHTML = `
+        const userRef =
+            ref(
+                database,
+                `users/${user.uid}`
+            );
 
-            <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
 
-                🇳🇬 Nigeria Services
+        const snapshot =
+            await get(userRef);
 
-            </span>
 
-            <p class="text-muted mt-2 mb-0">
+        if (snapshot.exists()) {
 
-                Nigeria pricing catalogue with local NGN pricing.
+            const data =
+                snapshot.val() || {};
 
-            </p>
 
-        `;
+            currentTier =
+                String(
+                    data.tier || "regular"
+                ).toLowerCase();
 
-        return;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Unable to load user tier:",
+            error
+        );
+
+        currentTier =
+            "regular";
 
     }
 
 
-    catalogueDescription.innerHTML = `
+    updateTierDisplay();
 
-        <span class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+}
 
-            General Services
 
-        </span>
 
-        <p class="text-muted mt-2 mb-0">
+/* =====================================================
+   TIER DISPLAY
+===================================================== */
 
-            Official HKDMservices pricing catalogue.
+function updateTierDisplay() {
 
-        </p>
+    const tier =
+        String(
+            currentTier
+        ).toUpperCase();
+
+
+    let badgeClass =
+        "bg-secondary";
+
+
+    if (tier === "RESELLER") {
+
+        badgeClass =
+            "bg-success";
+
+    }
+
+
+    if (tier === "VIP") {
+
+        badgeClass =
+            "bg-warning text-dark";
+
+    }
+
+
+    tierInfo.innerHTML = `
+
+        <i class="bi bi-shield-check"></i>
+
+        <strong class="badge ${badgeClass}">
+            ${tier}
+        </strong>
+
+        pricing is currently displayed.
 
     `;
 
@@ -490,271 +543,617 @@ function updateCatalogueDescription() {
 
 
 
-/* ==========================================================
-   RENDER PLATFORMS
-========================================================== */
+/* =====================================================
+   GET ACTIVE PRICE
+===================================================== */
 
-function renderPlatforms(searchTerm = "") {
+function getServicePrice(service) {
 
-    platformContainer.innerHTML = "";
+    if (
+        currentTier === "reseller" &&
+        service.resellerRatePer1000 !== undefined
+    ) {
 
-
-    const search =
-        searchTerm
-            .trim()
-            .toLowerCase();
-
-
-    const platforms =
-        getPlatforms();
-
-
-    const filteredPlatforms =
-        platforms.filter(platform =>
-            platform
-                .toLowerCase()
-                .includes(search)
+        return Number(
+            service.resellerRatePer1000
         );
 
+    }
 
-    if (filteredPlatforms.length === 0) {
 
-        emptyMessage.classList.remove("d-none");
+    if (
+        currentTier === "vip" &&
+        service.vipRatePer1000 !== undefined
+    ) {
+
+        return Number(
+            service.vipRatePer1000
+        );
+
+    }
+
+
+    return Number(
+        service.ratePer1000 || 0
+    );
+
+}
+
+
+
+/* =====================================================
+   BUILD PLATFORM FILTERS
+===================================================== */
+
+function buildPlatformFilters() {
+
+    const platforms = [
+        ...new Set(
+            services
+                .map(
+                    service =>
+                        service.platform
+                )
+                .filter(Boolean)
+        )
+    ];
+
+
+    platformFilters.innerHTML = "";
+
+
+    const allButton =
+        document.createElement("button");
+
+
+    allButton.type =
+        "button";
+
+    allButton.className =
+        "btn btn-primary platform-filter active";
+
+    allButton.dataset.platform =
+        "all";
+
+    allButton.textContent =
+        "All";
+
+
+    platformFilters.appendChild(
+        allButton
+    );
+
+
+    platforms.forEach(
+        platform => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+            button.className =
+                "btn btn-outline-primary platform-filter";
+
+            button.dataset.platform =
+                platform;
+
+            button.textContent =
+                platform;
+
+
+            platformFilters.appendChild(
+                button
+            );
+
+        }
+    );
+
+
+    document
+        .querySelectorAll(
+            ".platform-filter"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        document
+                            .querySelectorAll(
+                                ".platform-filter"
+                            )
+                            .forEach(
+                                btn => {
+
+                                    btn.classList.remove(
+                                        "active"
+                                    );
+
+                                    btn.classList.remove(
+                                        "btn-primary"
+                                    );
+
+                                    btn.classList.add(
+                                        "btn-outline-primary"
+                                    );
+
+                                }
+                            );
+
+
+                        button.classList.add(
+                            "active"
+                        );
+
+                        button.classList.remove(
+                            "btn-outline-primary"
+                        );
+
+                        button.classList.add(
+                            "btn-primary"
+                        );
+
+
+                        currentPlatform =
+                            button.dataset.platform;
+
+
+                        renderServices();
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+function getFilteredServices() {
+
+    return services.filter(
+        service => {
+
+            const platform =
+                String(
+                    service.platform || ""
+                ).toLowerCase();
+
+
+            const name =
+                String(
+                    service.service || ""
+                ).toLowerCase();
+
+
+            const id =
+                String(
+                    service.id || ""
+                ).toLowerCase();
+
+
+            const search =
+                currentSearch.toLowerCase();
+
+
+            const platformMatch =
+                currentPlatform === "all" ||
+                platform ===
+                    currentPlatform.toLowerCase();
+
+
+            const searchMatch =
+                !search ||
+                platform.includes(search) ||
+                name.includes(search) ||
+                id.includes(search);
+
+
+            return (
+                platformMatch &&
+                searchMatch
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+
+/* =====================================================
+   RENDER SERVICES
+===================================================== */
+
+function renderServices() {
+
+    const filtered =
+        getFilteredServices();
+
+
+    serviceCount.textContent =
+        `${filtered.length} Services`;
+
+
+    servicesContainer.innerHTML =
+        "";
+
+
+    if (!filtered.length) {
+
+        noServices.classList.remove(
+            "d-none"
+        );
 
         return;
 
     }
 
 
-    emptyMessage.classList.add("d-none");
+    noServices.classList.add(
+        "d-none"
+    );
 
 
-    filteredPlatforms.forEach(platform => {
+    filtered.forEach(
+        service => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
 
 
-        const services =
-            currentServices.filter(
-                item =>
-                    item.platform === platform
-            );
+            card.className =
+                "col-12 col-md-6 col-lg-4";
 
 
-        const card =
-            document.createElement("div");
+            const price =
+                getServicePrice(
+                    service
+                );
 
 
-        card.className =
-            "col-12 col-md-6 col-lg-4";
+            const regularRate =
+                Number(
+                    service.ratePer1000 || 0
+                );
 
 
-        const icon =
-            platformIcons[platform] ||
-            "bi-grid";
+            const resellerRate =
+                service.resellerRatePer1000;
 
 
-        /*
-         * IMPORTANT:
-         *
-         * catalogue=general
-         * or
-         * catalogue=nigeria
-         *
-         * is passed to order.html so the order
-         * page knows which catalogue to load.
-         */
-
-        const orderUrl =
-            `order.html?platform=${encodeURIComponent(platform)}&catalogue=${currentCatalogue}`;
+            const vipRate =
+                service.vipRatePer1000;
 
 
-        card.innerHTML = `
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <div class="card-body p-4">
-
-                    <div class="text-center mb-3">
-
-                        <i
-                            class="bi ${icon} fs-1 text-success"
-                        ></i>
-
-                    </div>
+            const platform =
+                escapeHtml(
+                    service.platform ||
+                    "Social Media"
+                );
 
 
-                    <h4 class="text-center fw-bold">
-
-                        ${platform}
-
-                    </h4>
-
-
-                    <p class="text-center text-muted">
-
-                        ${services.length}
-
-                        service${services.length === 1 ? "" : "s"}
-
-                        available
-
-                    </p>
+            const serviceName =
+                escapeHtml(
+                    service.service ||
+                    "Service"
+                );
 
 
-                    <div class="d-grid mt-3">
+            const description =
+                escapeHtml(
+                    service.description ||
+                    `${service.service || "Service"} service for ${service.platform || "social media"}.`
+                );
 
-                        <a
-                            href="${orderUrl}"
-                            class="btn btn-success"
-                        >
 
-                            View Services
+            card.innerHTML = `
 
-                        </a>
+                <div class="card h-100 shadow-sm">
+
+                    <div class="card-body d-flex flex-column">
+
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+
+                            <span class="badge bg-primary">
+
+                                ${platform}
+
+                            </span>
+
+
+                            <span class="badge bg-light text-dark">
+
+                                #${escapeHtml(
+                                    service.id || ""
+                                )}
+
+                            </span>
+
+                        </div>
+
+
+                        <h5 class="card-title fw-bold">
+
+                            ${serviceName}
+
+                        </h5>
+
+
+                        <p class="card-text text-muted small">
+
+                            ${description}
+
+                        </p>
+
+
+                        <hr>
+
+
+                        <div class="mb-3">
+
+                            <small class="text-muted d-block">
+
+                                Price per 1,000
+
+                            </small>
+
+
+                            <h4 class="text-primary fw-bold mb-0">
+
+                                ${formatNaira(price)}
+
+                            </h4>
+
+                        </div>
+
+
+                        ${
+                            currentTier !== "regular" &&
+                            price !== regularRate
+                            ? `
+
+                                <small class="text-muted mb-3">
+
+                                    Regular:
+                                    ${formatNaira(
+                                        regularRate
+                                    )}
+
+                                </small>
+
+                              `
+                            : ""
+                        }
+
+
+                        ${
+                            currentTier === "regular" &&
+                            (
+                                resellerRate !== undefined ||
+                                vipRate !== undefined
+                            )
+                            ? `
+
+                                <div class="small text-muted mb-3">
+
+                                    ${
+                                        resellerRate !== undefined
+                                        ? `
+                                            <div>
+                                                Reseller:
+                                                ${formatNaira(
+                                                    resellerRate
+                                                )}
+                                            </div>
+                                          `
+                                        : ""
+                                    }
+
+
+                                    ${
+                                        vipRate !== undefined
+                                        ? `
+                                            <div>
+                                                VIP:
+                                                ${formatNaira(
+                                                    vipRate
+                                                )}
+                                            </div>
+                                          `
+                                        : ""
+                                    }
+
+                                </div>
+
+                              `
+                            : ""
+                        }
+
+
+                        <div class="mt-auto">
+
+                            <button
+                                type="button"
+                                class="btn btn-primary w-100 order-service-btn"
+                                data-service-id="${escapeHtml(
+                                    service.id || ""
+                                )}"
+                            >
+
+                                <i class="bi bi-cart-plus"></i>
+
+                                Order Service
+
+                            </button>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
-
-        `;
+            `;
 
 
-        platformContainer.appendChild(card);
+            servicesContainer.appendChild(
+                card
+            );
 
-    });
+        }
+    );
+
+
+    document
+        .querySelectorAll(
+            ".order-service-btn"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const serviceId =
+                            button.dataset.serviceId;
+
+
+                        window.location.href =
+                            `order.html?platform=${encodeURIComponent(
+                                services.find(
+                                    service =>
+                                        String(
+                                            service.id
+                                        ) ===
+                                        String(
+                                            serviceId
+                                        )
+                                )?.platform || ""
+                            )}&service=${encodeURIComponent(
+                                serviceId
+                            )}&catalogue=general`;
+
+                    }
+                );
+
+            }
+        );
 
 }
 
 
 
-/* ==========================================================
-   GENERAL CATALOGUE
-========================================================== */
-
-generalCatalogueBtn.addEventListener(
-    "click",
-    () => {
-
-        currentCatalogue = "general";
-
-        currentServices =
-            hkdmservicesOfficialServicePriceCatalogue;
-
-
-        generalCatalogueBtn.classList.add(
-            "active"
-        );
-
-        generalCatalogueBtn.classList.remove(
-            "btn-outline-success"
-        );
-
-        generalCatalogueBtn.classList.add(
-            "btn-success"
-        );
-
-
-        nigeriaCatalogueBtn.classList.remove(
-            "active"
-        );
-
-        nigeriaCatalogueBtn.classList.remove(
-            "btn-success"
-        );
-
-        nigeriaCatalogueBtn.classList.add(
-            "btn-outline-success"
-        );
-
-
-        updateCatalogueDescription();
-
-        renderPlatforms(
-            platformSearch.value
-        );
-
-    }
-);
-
-
-
-/* ==========================================================
-   NIGERIA CATALOGUE
-========================================================== */
-
-nigeriaCatalogueBtn.addEventListener(
-    "click",
-    () => {
-
-        currentCatalogue = "nigeria";
-
-        currentServices =
-            hkdmservicesNigeriaServicePriceCatalogue;
-
-
-        nigeriaCatalogueBtn.classList.add(
-            "active"
-        );
-
-        nigeriaCatalogueBtn.classList.remove(
-            "btn-outline-success"
-        );
-
-        nigeriaCatalogueBtn.classList.add(
-            "btn-success"
-        );
-
-
-        generalCatalogueBtn.classList.remove(
-            "active"
-        );
-
-        generalCatalogueBtn.classList.remove(
-            "btn-success"
-        );
-
-        generalCatalogueBtn.classList.add(
-            "btn-outline-success"
-        );
-
-
-        updateCatalogueDescription();
-
-        renderPlatforms(
-            platformSearch.value
-        );
-
-    }
-);
-
-
-
-/* ==========================================================
+/* =====================================================
    SEARCH
-========================================================== */
+===================================================== */
 
-platformSearch.addEventListener(
+serviceSearch.addEventListener(
     "input",
     () => {
 
-        renderPlatforms(
-            platformSearch.value
-        );
+        currentSearch =
+            serviceSearch.value.trim();
+
+
+        renderServices();
 
     }
 );
 
 
 
-/* ==========================================================
-   INITIAL LOAD
-========================================================== */
+/* =====================================================
+   AUTHENTICATION
+===================================================== */
 
-updateCatalogueDescription();
+onAuthStateChanged(
+    auth,
+    async user => {
 
-renderPlatforms();
+        if (!user) {
 
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        /*
+         * IMPORTANT:
+         * The existing/general catalogue
+         * comes directly from services.js.
+         */
+
+        services =
+            Array.isArray(
+                hkdmservicesOfficialServicePriceCatalogue
+            )
+            ? hkdmservicesOfficialServicePriceCatalogue
+            : [];
+
+
+        await loadUserTier(
+            user
+        );
+
+
+        buildPlatformFilters();
+
+        renderServices();
+
+    }
+);
 
 </script>
 
