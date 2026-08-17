@@ -118,11 +118,8 @@ const serviceModalElement =
     document.getElementById("serviceModal");
 
 const serviceModal =
-    serviceModalElement &&
-    window.bootstrap
-        ? new window.bootstrap.Modal(
-            serviceModalElement
-        )
+    serviceModalElement
+        ? new window.bootstrap.Modal(serviceModalElement)
         : null;
 
 
@@ -159,7 +156,6 @@ const serviceStatus =
 ========================================================= */
 
 let currentUser = null;
-
 let usersData = {};
 let ordersData = {};
 let transactionsData = {};
@@ -258,78 +254,6 @@ function escapeHtml(value) {
 
 
 /* =========================================================
-   NORMALIZE ORDER STATUS
-========================================================= */
-
-function normalizeOrderStatus(status) {
-
-    const value =
-        String(status || "pending")
-            .toLowerCase()
-            .trim();
-
-
-    if (value === "cancelled") {
-        return "canceled";
-    }
-
-
-    if (
-        value === "refund" ||
-        value === "refunded"
-    ) {
-        return "refunded";
-    }
-
-
-    return value;
-
-}
-
-
-/* =========================================================
-   DISPLAY ORDER STATUS
-========================================================= */
-
-function displayOrderStatus(status) {
-
-    const normalized =
-        normalizeOrderStatus(status);
-
-
-    const names = {
-
-        pending:
-            "Pending",
-
-        processing:
-            "Processing",
-
-        completed:
-            "Completed",
-
-        canceled:
-            "Canceled",
-
-        failed:
-            "Failed",
-
-        refunded:
-            "Refunded"
-
-    };
-
-
-    return (
-        names[normalized] ||
-        normalized.charAt(0).toUpperCase() +
-        normalized.slice(1)
-    );
-
-}
-
-
-/* =========================================================
    ACCOUNT TIER BADGE
 ========================================================= */
 
@@ -381,11 +305,15 @@ function tierBadge(tier) {
 function statusBadge(status) {
 
     const safeStatus =
-        normalizeOrderStatus(status);
-
+        String(status || "pending")
+            .toLowerCase();
 
     let badgeClass =
         "bg-secondary";
+
+    let displayText =
+        safeStatus.charAt(0).toUpperCase() +
+        safeStatus.slice(1);
 
 
     if (safeStatus === "pending") {
@@ -393,20 +321,12 @@ function statusBadge(status) {
         badgeClass =
             "bg-warning text-dark";
 
-    }
-
-
-    else if (
-        safeStatus === "processing"
-    ) {
+    } else if (safeStatus === "processing") {
 
         badgeClass =
             "bg-info text-dark";
 
-    }
-
-
-    else if (
+    } else if (
         safeStatus === "completed" ||
         safeStatus === "success"
     ) {
@@ -414,37 +334,28 @@ function statusBadge(status) {
         badgeClass =
             "bg-success";
 
-    }
-
-
-    else if (
-        safeStatus === "canceled" ||
+    } else if (
+        safeStatus === "cancelled" ||
         safeStatus === "failed"
     ) {
 
         badgeClass =
             "bg-danger";
 
-    }
-
-
-    else if (
-        safeStatus === "refunded"
-    ) {
+    } else if (safeStatus === "refund") {
 
         badgeClass =
             "bg-warning text-dark";
+
+        displayText =
+            "Refund";
 
     }
 
 
     return `
         <span class="badge ${badgeClass}">
-            ${escapeHtml(
-                displayOrderStatus(
-                    safeStatus
-                )
-            )}
+            ${escapeHtml(displayText)}
         </span>
     `;
 
@@ -461,20 +372,18 @@ function orderStatusSelect(
 ) {
 
     const safeStatus =
-        normalizeOrderStatus(
-            currentStatus
-        );
+        String(
+            currentStatus || "pending"
+        ).toLowerCase();
 
 
     const statuses = [
-
         "pending",
         "processing",
         "completed",
-        "canceled",
+        "cancelled",
         "failed",
-        "refunded"
-
+        "refund"
     ];
 
 
@@ -494,11 +403,10 @@ function orderStatusSelect(
                 value="${status}"
                 ${selected}
             >
-                ${escapeHtml(
-                    displayOrderStatus(
-                        status
-                    )
-                )}
+                ${
+                    status.charAt(0).toUpperCase() +
+                    status.slice(1)
+                }
             </option>
         `;
 
@@ -508,10 +416,8 @@ function orderStatusSelect(
     return `
         <select
             class="form-select form-select-sm order-status-select"
-            data-order-id="${escapeHtml(
-                orderId
-            )}"
-            style="min-width:135px;font-weight:600;"
+            data-order-id="${escapeHtml(orderId)}"
+            style="min-width:125px;font-weight:600;"
         >
             ${options}
         </select>
@@ -527,18 +433,14 @@ function orderStatusSelect(
 function showAccessDenied(message) {
 
     if (adminLoading) {
-
         adminLoading.style.display =
             "none";
-
     }
 
 
     if (adminContent) {
-
         adminContent.style.display =
             "none";
-
     }
 
 
@@ -553,10 +455,8 @@ function showAccessDenied(message) {
 
 
         if (paragraph) {
-
             paragraph.textContent =
                 message;
-
         }
 
     }
@@ -564,33 +464,23 @@ function showAccessDenied(message) {
 }
 
 
-/* =========================================================
-   SHOW ADMIN CONTENT
-========================================================= */
-
 function showAdminContent() {
 
     if (adminLoading) {
-
         adminLoading.style.display =
             "none";
-
     }
 
 
     if (accessDenied) {
-
         accessDenied.style.display =
             "none";
-
     }
 
 
     if (adminContent) {
-
         adminContent.style.display =
             "block";
-
     }
 
 }
@@ -645,9 +535,7 @@ document
                     .forEach(navButton => {
 
                         navButton.classList
-                            .remove(
-                                "btn-primary"
-                            );
+                            .remove("btn-primary");
 
                         navButton.classList
                             .add(
@@ -664,18 +552,14 @@ document
 
 
                 button.classList
-                    .add(
-                        "btn-primary"
-                    );
+                    .add("btn-primary");
 
 
                 if (
                     sectionId ===
                     "usersSection"
                 ) {
-
                     loadUsers();
-
                 }
 
 
@@ -683,9 +567,7 @@ document
                     sectionId ===
                     "ordersSection"
                 ) {
-
                     loadOrders();
-
                 }
 
 
@@ -693,9 +575,7 @@ document
                     sectionId ===
                     "transactionsSection"
                 ) {
-
                     loadTransactions();
-
                 }
 
 
@@ -703,9 +583,7 @@ document
                     sectionId ===
                     "servicesSection"
                 ) {
-
                     loadServices();
-
                 }
 
 
@@ -713,9 +591,7 @@ document
                     sectionId ===
                     "vouchersSection"
                 ) {
-
                     loadVouchers();
-
                 }
 
             }
@@ -731,10 +607,8 @@ document
 async function loadUsers() {
 
     if (usersMessage) {
-
         usersMessage.textContent =
             "Loading users...";
-
     }
 
 
@@ -835,16 +709,13 @@ async function loadUsers() {
                 Object.values(
                     ordersData || {}
                 )
-                .filter(order => {
-
-                    return (
+                .filter(
+                    order =>
                         order &&
                         String(
                             order.uid
                         ) === String(uid)
-                    );
-
-                })
+                )
                 .length;
 
 
@@ -868,19 +739,6 @@ async function loadUsers() {
                 ).toLowerCase() !==
                 "inactive";
 
-
-            /*
-             * IMPORTANT:
-             * Column order now matches
-             * admin-dashboard.html:
-             *
-             * Name
-             * Email
-             * Wallet
-             * Tier
-             * Orders
-             * Status
-             */
 
             html += `
                 <tr>
@@ -914,14 +772,14 @@ async function loadUsers() {
 
 
                     <td>
-                        ${tierBadge(
-                            userTier
-                        )}
+                        ${userOrders}
                     </td>
 
 
                     <td>
-                        ${userOrders}
+                        ${tierBadge(
+                            userTier
+                        )}
                     </td>
 
 
@@ -1058,21 +916,20 @@ async function loadOrders() {
 
 
         orders.forEach(
-            ([, order]) => {
+            ([id, order]) => {
 
                 const status =
-                    normalizeOrderStatus(
-                        order?.status
-                    );
+                    String(
+                        order?.status ||
+                        "pending"
+                    ).toLowerCase();
 
 
                 if (
                     status ===
                     "pending"
                 ) {
-
                     pending++;
-
                 }
 
 
@@ -1080,9 +937,7 @@ async function loadOrders() {
                     status ===
                     "completed"
                 ) {
-
                     completed++;
-
                 }
 
             }
@@ -1152,9 +1007,8 @@ async function loadOrders() {
 
 
         orders.sort(
-            ([, a], [, b]) => {
-
-                return Number(
+            ([, a], [, b]) =>
+                Number(
                     b?.createdAt ||
                     b?.timestamp ||
                     0
@@ -1163,9 +1017,7 @@ async function loadOrders() {
                     a?.createdAt ||
                     a?.timestamp ||
                     0
-                );
-
-            }
+                )
         );
 
 
@@ -1218,9 +1070,10 @@ async function loadOrders() {
 
 
                 const status =
-                    normalizeOrderStatus(
-                        order?.status
-                    );
+                    String(
+                        order?.status ||
+                        "pending"
+                    ).toLowerCase();
 
 
                 const createdAt =
@@ -1254,7 +1107,6 @@ async function loadOrders() {
 
 
                         <td>
-
                             <strong>
                                 ${escapeHtml(
                                     platform
@@ -1270,7 +1122,6 @@ async function loadOrders() {
                                     service
                                 )}
                             </small>
-
                         </td>
 
 
@@ -1285,7 +1136,6 @@ async function loadOrders() {
                                                 link
                                             )}"
                                             target="_blank"
-                                            rel="noopener noreferrer"
                                             class="text-decoration-underline text-truncate d-inline-block"
                                             style="max-width:140px;"
                                             title="${escapeHtml(
@@ -1388,240 +1238,6 @@ async function loadOrders() {
 
 
 /* =========================================================
-   REFUND ORDER
-========================================================= */
-
-async function refundOrder(
-    orderId,
-    order
-) {
-
-    if (!order) {
-
-        throw new Error(
-            "Order could not be found."
-        );
-
-    }
-
-
-    /*
-     * Prevent double refunds.
-     *
-     * Once refund information exists,
-     * this order must not be refunded again.
-     */
-
-    if (
-        order.refundedAt ||
-        order.refundTransactionId ||
-        normalizeOrderStatus(
-            order.status
-        ) === "refunded"
-    ) {
-
-        throw new Error(
-            "This order has already been refunded."
-        );
-
-    }
-
-
-    const uid =
-        order.uid;
-
-
-    const amount =
-        Number(
-            order.amount || 0
-        );
-
-
-    if (!uid) {
-
-        throw new Error(
-            "This order does not have a valid user ID."
-        );
-
-    }
-
-
-    if (
-        !Number.isFinite(amount) ||
-        amount <= 0
-    ) {
-
-        throw new Error(
-            "This order does not have a valid refund amount."
-        );
-
-    }
-
-
-    const userRef =
-        ref(
-            database,
-            "users/" +
-            uid
-        );
-
-
-    const userSnapshot =
-        await get(
-            userRef
-        );
-
-
-    if (!userSnapshot.exists()) {
-
-        throw new Error(
-            "Customer account could not be found."
-        );
-
-    }
-
-
-    const userData =
-        userSnapshot.val() || {};
-
-
-    const currentWallet =
-        Number(
-            userData.wallet || 0
-        );
-
-
-    const newWalletBalance =
-        currentWallet +
-        amount;
-
-
-    const refundTransactionRef =
-        push(
-            ref(
-                database,
-                "transactions"
-            )
-        );
-
-
-    const transactionKey =
-        refundTransactionRef.key;
-
-
-    const transactionId =
-        "REF-" +
-        Date.now();
-
-
-    const now =
-        Date.now();
-
-
-    /*
-     * Update the customer wallet.
-     */
-
-    await update(
-        userRef,
-        {
-
-            wallet:
-                newWalletBalance,
-
-            updatedAt:
-                now
-
-        }
-    );
-
-
-    /*
-     * Create refund transaction.
-     */
-
-    await set(
-        refundTransactionRef,
-        {
-
-            transactionId,
-
-            uid,
-
-            email:
-                order?.email ||
-                order?.userEmail ||
-                userData?.email ||
-                "—",
-
-            type:
-                "Refund",
-
-            description:
-                `Refund for order ${
-                    order?.orderId ||
-                    orderId
-                }`,
-
-            amount,
-
-            status:
-                "completed",
-
-            orderId:
-                order?.orderId ||
-                orderId,
-
-            createdAt:
-                now
-
-        }
-    );
-
-
-    /*
-     * Mark the order as refunded.
-     *
-     * refundTransactionId and refundedAt
-     * make the refund idempotent.
-     */
-
-    await update(
-        ref(
-            database,
-            "orders/" +
-            orderId
-        ),
-        {
-
-            status:
-                "refunded",
-
-            refundedAt:
-                now,
-
-            refundTransactionId:
-                transactionKey,
-
-            updatedAt:
-                now
-
-        }
-    );
-
-
-    return {
-
-        newWalletBalance,
-
-        transactionId
-
-    };
-
-}
-
-
-/* =========================================================
    UPDATE ORDER STATUS
 ========================================================= */
 
@@ -1637,21 +1253,19 @@ async function updateOrderStatus(
 
 
     const allowedStatuses = [
-
         "pending",
         "processing",
         "completed",
-        "canceled",
+        "cancelled",
         "failed",
-        "refunded"
-
+        "refund"
     ];
 
 
     const status =
-        normalizeOrderStatus(
-            newStatus
-        );
+        String(
+            newStatus || ""
+        ).toLowerCase();
 
 
     if (
@@ -1664,8 +1278,6 @@ async function updateOrderStatus(
             "Invalid order status."
         );
 
-        await loadOrders();
-
         return;
 
     }
@@ -1674,10 +1286,8 @@ async function updateOrderStatus(
     try {
 
         if (selectElement) {
-
             selectElement.disabled =
                 true;
-
         }
 
 
@@ -1687,74 +1297,149 @@ async function updateOrderStatus(
 
 
         const oldStatus =
-            normalizeOrderStatus(
-                order.status
-            );
+            String(
+                order.status ||
+                "pending"
+            ).toLowerCase();
 
-
-        /*
-         * If admin selects REFUNDED,
-         * process the refund first.
-         */
 
         if (
-            status === "refunded"
+            status === "refund" &&
+            oldStatus !== "refund"
         ) {
 
+            const uid =
+                order?.uid;
+
+
+            const amount =
+                Number(
+                    order?.amount ||
+                    0
+                );
+
+
             if (
-                oldStatus ===
-                "refunded" ||
-                order.refundedAt ||
-                order.refundTransactionId
+                uid &&
+                amount > 0
             ) {
 
-                throw new Error(
-                    "This order has already been refunded."
+                const userRef =
+                    ref(
+                        database,
+                        "users/" +
+                        uid
+                    );
+
+
+                const userSnap =
+                    await get(
+                        userRef
+                    );
+
+
+                const userData =
+                    userSnap.exists()
+                        ? userSnap.val()
+                        : {};
+
+
+                const currentWallet =
+                    Number(
+                        userData.wallet ||
+                        0
+                    );
+
+
+                const newWalletBalance =
+                    currentWallet +
+                    amount;
+
+
+                await update(
+                    userRef,
+                    {
+                        wallet:
+                            newWalletBalance,
+
+                        updatedAt:
+                            Date.now()
+                    }
+                );
+
+
+                const newTxRef =
+                    push(
+                        ref(
+                            database,
+                            "transactions"
+                        )
+                    );
+
+
+                await set(
+                    newTxRef,
+                    {
+
+                        transactionId:
+                            "REF-" +
+                            Math.floor(
+                                100000 +
+                                Math.random() *
+                                900000
+                            ),
+
+                        uid: uid,
+
+                        email:
+                            order?.email ||
+                            order?.userEmail ||
+                            userData.email ||
+                            "—",
+
+                        type:
+                            "Refund",
+
+                        description:
+                            `Refund for order ${
+                                order?.orderId ||
+                                orderId
+                            }`,
+
+                        amount:
+                            amount,
+
+                        status:
+                            "completed",
+
+                        createdAt:
+                            Date.now()
+
+                    }
                 );
 
             }
 
-
-            await refundOrder(
-                orderId,
-                order
-            );
-
         }
 
 
-        else {
+        await update(
+            ref(
+                database,
+                "orders/" +
+                orderId
+            ),
+            {
 
-            /*
-             * Normal manual status update.
-             *
-             * No API.
-             * No external provider.
-             * No automatic fulfillment.
-             */
-
-            await update(
-                ref(
-                    database,
-                    "orders/" +
-                    orderId
-                ),
-                {
-
+                status:
                     status,
 
-                    updatedAt:
-                        Date.now()
+                updatedAt:
+                    Date.now()
 
-                }
-            );
+            }
+        );
 
-        }
-
-
-        /*
-         * Update local memory.
-         */
 
         if (
             ordersData &&
@@ -1777,28 +1462,14 @@ async function updateOrderStatus(
         await loadOrders();
 
 
-        if (status === "refunded") {
+        if (ordersMessage) {
 
-            if (ordersMessage) {
+            ordersMessage.textContent =
+                status === "refund"
 
-                ordersMessage.textContent =
-                    "Order refunded successfully. The customer's wallet has been credited and the refund transaction has been recorded.";
+                    ? "Order refunded, user wallet updated, and transaction logged."
 
-            }
-
-        }
-
-
-        else {
-
-            if (ordersMessage) {
-
-                ordersMessage.textContent =
-                    `Order status changed to ${displayOrderStatus(
-                        status
-                    )}.`;
-
-            }
+                    : "Order status updated successfully.";
 
         }
 
@@ -1812,7 +1483,6 @@ async function updateOrderStatus(
 
 
         alert(
-            error?.message ||
             "Unable to update order status."
         );
 
@@ -1823,10 +1493,8 @@ async function updateOrderStatus(
     } finally {
 
         if (selectElement) {
-
             selectElement.disabled =
                 false;
-
         }
 
     }
@@ -1958,9 +1626,8 @@ async function loadTransactions() {
 
 
         transactions.sort(
-            ([, a], [, b]) => {
-
-                return Number(
+            ([, a], [, b]) =>
+                Number(
                     b?.createdAt ||
                     b?.timestamp ||
                     0
@@ -1969,9 +1636,7 @@ async function loadTransactions() {
                     a?.createdAt ||
                     a?.timestamp ||
                     0
-                );
-
-            }
+                )
         );
 
 
@@ -2012,8 +1677,10 @@ async function loadTransactions() {
 
 
                 const status =
-                    transaction?.status ||
-                    "completed";
+                    String(
+                        transaction?.status ||
+                        "completed"
+                    ).toLowerCase();
 
 
                 const date =
@@ -2024,16 +1691,8 @@ async function loadTransactions() {
 
                 const isResellerUpgrade =
                     String(type)
-                        .toLowerCase()
-                        .trim() ===
+                        .toLowerCase() ===
                     "reseller upgrade";
-
-
-                const isRefund =
-                    String(type)
-                        .toLowerCase()
-                        .trim() ===
-                    "refund";
 
 
                 html += `
@@ -2073,19 +1732,6 @@ async function loadTransactions() {
                                                 class="bi bi-star-fill"
                                             ></i>
                                             Reseller Upgrade
-                                        </span>
-                                    `
-
-                                    : isRefund
-
-                                    ? `
-                                        <span
-                                            class="badge bg-warning text-dark"
-                                        >
-                                            <i
-                                                class="bi bi-arrow-counterclockwise"
-                                            ></i>
-                                            Refund
                                         </span>
                                     `
 
@@ -2406,9 +2052,7 @@ async function loadServices() {
                                     type="button"
                                     class="btn btn-sm btn-outline-primary action-btn"
                                     data-action="edit-service"
-                                    data-id="${escapeHtml(
-                                        id
-                                    )}"
+                                    data-id="${escapeHtml(id)}"
                                 >
                                     <i
                                         class="bi bi-pencil"
@@ -2421,9 +2065,7 @@ async function loadServices() {
                                     type="button"
                                     class="btn btn-sm btn-outline-danger action-btn"
                                     data-action="delete-service"
-                                    data-id="${escapeHtml(
-                                        id
-                                    )}"
+                                    data-id="${escapeHtml(id)}"
                                 >
                                     <i
                                         class="bi bi-trash"
@@ -2584,18 +2226,15 @@ async function loadVouchers() {
 
 
         vouchers.sort(
-            ([, a], [, b]) => {
-
-                return Number(
+            ([, a], [, b]) =>
+                Number(
                     b?.createdAt ||
                     0
                 ) -
                 Number(
                     a?.createdAt ||
                     0
-                );
-
-            }
+                )
         );
 
 
@@ -2689,9 +2328,7 @@ async function loadVouchers() {
                                 type="button"
                                 class="btn btn-sm btn-outline-danger action-btn"
                                 data-action="delete-voucher"
-                                data-code="${escapeHtml(
-                                    code
-                                )}"
+                                data-code="${escapeHtml(code)}"
                             >
                                 <i
                                     class="bi bi-trash"
@@ -2753,7 +2390,7 @@ async function loadVouchers() {
 
 
 /* =========================================================
-   VOUCHER ACTIONS
+   VOUCHER DELETE
 ========================================================= */
 
 if (vouchersTableBody) {
@@ -2788,40 +2425,37 @@ if (vouchersTableBody) {
             ) {
 
                 if (
-                    !confirm(
+                    confirm(
                         `Are you sure you want to delete voucher "${code}"?`
                     )
                 ) {
 
-                    return;
+                    try {
 
-                }
-
-
-                try {
-
-                    await remove(
-                        ref(
-                            database,
-                            "vouchers/" +
-                            code
-                        )
-                    );
+                        await remove(
+                            ref(
+                                database,
+                                "vouchers/" +
+                                code
+                            )
+                        );
 
 
-                    await loadVouchers();
+                        await loadVouchers();
 
-                } catch (error) {
+                    } catch (error) {
 
-                    console.error(
-                        "DELETE VOUCHER ERROR:",
-                        error
-                    );
+                        console.error(
+                            "DELETE VOUCHER ERROR:",
+                            error
+                        );
 
 
-                    alert(
-                        "Unable to delete voucher."
-                    );
+                        alert(
+                            "Unable to delete voucher."
+                        );
+
+                    }
 
                 }
 
@@ -2841,18 +2475,16 @@ if (createVoucherForm) {
 
     createVoucherForm.addEventListener(
         "submit",
-        async event => {
+        async e => {
 
-            event.preventDefault();
+            e.preventDefault();
 
 
             if (
                 !voucherCodeInput ||
                 !voucherAmountInput
             ) {
-
                 return;
-
             }
 
 
@@ -2935,12 +2567,11 @@ if (createVoucherForm) {
                     voucherRef,
                     {
 
-                        code,
+                        code: code,
 
-                        amount,
+                        amount: amount,
 
-                        isUsed:
-                            false,
+                        isUsed: false,
 
                         createdBy:
                             currentUser
@@ -2950,8 +2581,7 @@ if (createVoucherForm) {
                         createdAt:
                             Date.now(),
 
-                        usedBy:
-                            null
+                        usedBy: null
 
                     }
                 );
@@ -2965,13 +2595,9 @@ if (createVoucherForm) {
                         >
                             Voucher
                             <strong>
-                                ${escapeHtml(
-                                    code
-                                )}
+                                ${escapeHtml(code)}
                             </strong>
-                            (${formatNaira(
-                                amount
-                            )})
+                            (₦${amount.toLocaleString()})
                             created successfully!
                         </div>
                     `;
@@ -2999,8 +2625,7 @@ if (createVoucherForm) {
                             class="alert alert-danger mb-0"
                         >
                             ${escapeHtml(
-                                error?.message ||
-                                "Unable to create voucher."
+                                error.message
                             )}
                         </div>
                     `;
@@ -3016,7 +2641,7 @@ if (createVoucherForm) {
 
 
 /* =========================================================
-   ADD SERVICE
+   SERVICE MODAL
 ========================================================= */
 
 if (addServiceBtn) {
@@ -3034,10 +2659,7 @@ if (addServiceBtn) {
 
 
             if (serviceId) {
-
-                serviceId.value =
-                    "";
-
+                serviceId.value = "";
             }
 
 
@@ -3058,9 +2680,7 @@ if (addServiceBtn) {
 
 
             if (serviceModal) {
-
                 serviceModal.show();
-
             }
 
         }
@@ -3150,10 +2770,7 @@ function openEditService(id) {
 
 
     if (serviceId) {
-
-        serviceId.value =
-            id;
-
+        serviceId.value = id;
     }
 
 
@@ -3227,9 +2844,7 @@ function openEditService(id) {
 
 
     if (serviceModal) {
-
         serviceModal.show();
-
     }
 
 }
@@ -3396,9 +3011,7 @@ if (serviceForm) {
 
 
                 if (serviceModal) {
-
                     serviceModal.hide();
-
                 }
 
 
@@ -3458,9 +3071,7 @@ async function deleteService(id) {
             `Delete ${serviceNameValue}? This cannot be undone.`
         )
     ) {
-
         return;
-
     }
 
 
@@ -3613,14 +3224,14 @@ onAuthStateChanged(
 
 
             /*
-             * Load orders first because
-             * users display their order count.
-             */
+                Load orders first because
+                users display their order count.
+            */
 
             await loadOrders();
 
-            await loadUsers();
 
+            await loadUsers();
 
         } catch (error) {
 
