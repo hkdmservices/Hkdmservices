@@ -13,9 +13,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "ig_followers",
         platform: "Instagram",
         service: "Followers",
-        ratePer1000: 6000,
-        resellerRatePer1000: 4500,
-        vipRatePer1000: 5400,
+        ratePer1000: 12000,
+        resellerRatePer1000: 9000,
+        vipRatePer1000: 10800,
         minimumQuantity: 100
     },
 
@@ -98,9 +98,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "tt_followers",
         platform: "TikTok",
         service: "Followers",
-        ratePer1000: 6500,
-        resellerRatePer1000: 4875,
-        vipRatePer1000: 5850,
+        ratePer1000: 13000,
+        resellerRatePer1000: 9750,
+        vipRatePer1000: 11700,
         minimumQuantity: 100
     },
 
@@ -341,9 +341,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "fb_followers",
         platform: "Facebook",
         service: "Followers",
-        ratePer1000: 6050,
-        resellerRatePer1000: 4538,
-        vipRatePer1000: 5445,
+        ratePer1000: 12000,
+        resellerRatePer1000: 9000,
+        vipRatePer1000: 10800,
         minimumQuantity: 100
     },
 
@@ -501,9 +501,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "tg_members",
         platform: "Telegram",
         service: "Channel / Group Members",
-        ratePer1000: 5000,
-        resellerRatePer1000: 3750,
-        vipRatePer1000: 4500,
+        ratePer1000: 7000,
+        resellerRatePer1000: 5250,
+        vipRatePer1000: 6300,
         minimumQuantity: 100
     },
 
@@ -546,9 +546,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "sp_followers",
         platform: "Spotify",
         service: "Followers",
-        ratePer1000: 10000,
-        resellerRatePer1000: 7500,
-        vipRatePer1000: 9000,
+        ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -556,9 +556,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "sp_monthly_listeners",
         platform: "Spotify",
         service: "Monthly Listeners",
-        ratePer1000: 10000,
-        resellerRatePer1000: 7500,
-        vipRatePer1000: 9000,
+        ratePer1000: 15000,
+        resellerRatePer1000: 11250,
+        vipRatePer1000: 13500,
         minimumQuantity: 100
     },
 
@@ -616,9 +616,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "am_followers",
         platform: "Apple Music",
         service: "Followers",
-        ratePer1000: 10000,
-        resellerRatePer1000: 7500,
-        vipRatePer1000: 9000,
+        ratePer1000: 16000,
+        resellerRatePer1000: 12000,
+        vipRatePer1000: 14400,
         minimumQuantity: 100
     },
 
