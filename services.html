@@ -10,12 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>HKDMservices - Services</title>
-
-
-    <!-- =====================================================
-         BOOTSTRAP
-    ====================================================== -->
+    <title>HKDMservices | Services</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
@@ -23,7 +18,7 @@
     >
 
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
         rel="stylesheet"
     >
 
@@ -58,30 +53,16 @@
         </a>
 
 
-        <div class="d-flex gap-2">
+        <a
+            href="dashboard.html"
+            class="btn btn-outline-light btn-sm"
+        >
 
-            <a
-                href="dashboard.html"
-                class="btn btn-outline-light btn-sm"
-            >
+            <i class="bi bi-speedometer2"></i>
 
-                <i class="bi bi-speedometer2"></i>
+            Dashboard
 
-                Dashboard
-
-            </a>
-
-
-            <a
-                href="nigeria-services.html"
-                class="btn btn-success btn-sm"
-            >
-
-                🇳🇬 Nigeria Services
-
-            </a>
-
-        </div>
+        </a>
 
     </div>
 
@@ -97,24 +78,12 @@
 
     <div class="container text-center">
 
-        <span class="badge bg-primary mb-2">
-
-            HKDMservices
-
-        </span>
-
-
         <h1 class="fw-bold">
-
-            Services Catalogue
-
+            HKDMservices Services
         </h1>
 
-
         <p class="text-muted mb-0">
-
-            Browse our existing social media marketing services.
-
+            Choose from our General and Nigeria service catalogues.
         </p>
 
     </div>
@@ -124,51 +93,66 @@
 
 
 <!-- =====================================================
-     MAIN
+     CATALOGUE SELECTOR
 ====================================================== -->
 
-<section class="py-5">
+<section class="py-4">
 
     <div class="container">
 
+        <div class="d-flex flex-wrap justify-content-center gap-2">
 
-        <!-- =================================================
-             CATALOGUE NOTICE
-        ================================================== -->
+            <button
+                type="button"
+                class="btn btn-success catalogue-btn active"
+                data-catalogue="all"
+            >
+                All Services
+            </button>
 
-        <div class="alert alert-primary text-center">
 
-            <i class="bi bi-info-circle me-1"></i>
+            <button
+                type="button"
+                class="btn btn-outline-success catalogue-btn"
+                data-catalogue="general"
+            >
+                General Services
+            </button>
 
-            <strong>Existing / General Services</strong>
 
-            <br>
-
-            <small>
-                For Nigerian Naira services, use the
-                <strong>Nigeria Services</strong> catalogue.
-            </small>
+            <button
+                type="button"
+                class="btn btn-outline-success catalogue-btn"
+                data-catalogue="nigeria"
+            >
+                🇳🇬 Nigeria Services
+            </button>
 
         </div>
 
+    </div>
+
+</section>
 
 
-        <!-- =================================================
-             SEARCH
-        ================================================== -->
 
-        <div class="row mb-4">
+<!-- =====================================================
+     SEARCH
+====================================================== -->
 
-            <div class="col-12 col-md-8 mx-auto">
+<section class="pb-4">
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-12 col-md-8 col-lg-6 mx-auto">
 
                 <div class="input-group">
 
                     <span class="input-group-text">
-
                         <i class="bi bi-search"></i>
-
                     </span>
-
 
                     <input
                         type="text"
@@ -183,62 +167,83 @@
 
         </div>
 
+    </div>
+
+</section>
 
 
-        <!-- =================================================
-             PLATFORM FILTERS
-        ================================================== -->
+
+<!-- =====================================================
+     PLATFORM FILTER
+====================================================== -->
+
+<section class="pb-4">
+
+    <div class="container">
 
         <div
             id="platformFilters"
-            class="d-flex flex-wrap justify-content-center gap-2 mb-4"
+            class="d-flex flex-wrap justify-content-center gap-2"
         >
 
             <button
                 type="button"
-                class="btn btn-primary platform-filter active"
+                class="btn btn-success platform-btn active"
                 data-platform="all"
             >
-                All
+                All Platforms
             </button>
 
         </div>
 
+    </div>
+
+</section>
 
 
-        <!-- =================================================
-             TIER
-        ================================================== -->
+
+<!-- =====================================================
+     TIER INFORMATION
+====================================================== -->
+
+<section class="pb-4">
+
+    <div class="container">
 
         <div
             id="tierInfo"
-            class="alert alert-success text-center mb-4"
+            class="alert alert-success text-center mb-0"
         >
 
             <i class="bi bi-shield-check"></i>
 
-            <strong>REGULAR</strong>
+            <strong id="tierName">
+                REGULAR
+            </strong>
 
             pricing is currently displayed.
 
         </div>
 
+    </div>
+
+</section>
 
 
-        <!-- =================================================
-             COUNT
-        ================================================== -->
 
-        <div
-            class="d-flex justify-content-between align-items-center mb-3"
-        >
+<!-- =====================================================
+     SERVICE COUNT
+====================================================== -->
 
-            <h4 class="mb-0">
+<section class="pb-3">
 
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <h4 class="fw-bold mb-0">
                 Available Services
-
             </h4>
-
 
             <span
                 id="serviceCount"
@@ -249,11 +254,19 @@
 
         </div>
 
+    </div>
+
+</section>
 
 
-        <!-- =================================================
-             SERVICES
-        ================================================== -->
+
+<!-- =====================================================
+     SERVICES
+====================================================== -->
+
+<section class="pb-5">
+
+    <div class="container">
 
         <div
             id="servicesContainer"
@@ -263,25 +276,18 @@
             <div class="col-12 text-center py-5">
 
                 <div
-                    class="spinner-border text-primary"
+                    class="spinner-border text-success"
                     role="status"
                 ></div>
 
                 <p class="text-muted mt-3">
-
                     Loading services...
-
                 </p>
 
             </div>
 
         </div>
 
-
-
-        <!-- =================================================
-             NO SERVICES
-        ================================================== -->
 
         <div
             id="noServices"
@@ -290,18 +296,12 @@
 
             <i class="bi bi-search fs-1 text-muted"></i>
 
-
             <h4 class="mt-3">
-
                 No services found
-
             </h4>
 
-
             <p class="text-muted">
-
-                Try another search or platform.
-
+                Try another search or filter.
             </p>
 
         </div>
@@ -321,16 +321,11 @@
     <div class="container text-center">
 
         <p class="mb-1">
-
             © 2026 HKDMservices
-
         </p>
 
-
         <small class="text-secondary">
-
-            Existing Services Catalogue
-
+            General & Nigeria Services
         </small>
 
     </div>
@@ -340,7 +335,7 @@
 
 
 <!-- =====================================================
-     JAVASCRIPT
+     SERVICES LOGIC
 ====================================================== -->
 
 <script type="module">
@@ -365,6 +360,11 @@ import {
 import {
     hkdmservicesOfficialServicePriceCatalogue
 } from "./services.js";
+
+
+import {
+    hkdmservicesNigeriaServicePriceCatalogue
+} from "./nigeria-services-catalogue.js";
 
 
 
@@ -396,9 +396,9 @@ const serviceCount =
     );
 
 
-const tierInfo =
+const tierName =
     document.getElementById(
-        "tierInfo"
+        "tierName"
     );
 
 
@@ -408,18 +408,71 @@ const platformFilters =
     );
 
 
+const catalogueButtons =
+    document.querySelectorAll(
+        ".catalogue-btn"
+    );
+
+
 
 /* =====================================================
    VARIABLES
 ===================================================== */
 
-let services = [];
+let currentTier = "regular";
+
+let currentCatalogue = "all";
 
 let currentPlatform = "all";
 
 let currentSearch = "";
 
-let currentTier = "regular";
+
+let allServices = [];
+
+
+
+/* =====================================================
+   BUILD COMBINED CATALOGUE
+===================================================== */
+
+function buildCatalogue() {
+
+    const generalServices =
+        Array.isArray(
+            hkdmservicesOfficialServicePriceCatalogue
+        )
+            ? hkdmservicesOfficialServicePriceCatalogue
+            : [];
+
+
+    const nigeriaServices =
+        Array.isArray(
+            hkdmservicesNigeriaServicePriceCatalogue
+        )
+            ? hkdmservicesNigeriaServicePriceCatalogue
+            : [];
+
+
+    allServices = [
+
+        ...generalServices.map(
+            service => ({
+                ...service,
+                catalogue: "general"
+            })
+        ),
+
+        ...nigeriaServices.map(
+            service => ({
+                ...service,
+                catalogue: "nigeria"
+            })
+        )
+
+    ];
+
+}
 
 
 
@@ -445,7 +498,45 @@ function formatNaira(amount) {
 
 
 /* =====================================================
-   LOAD USER TIER
+   GET ACTIVE PRICE
+===================================================== */
+
+function getServicePrice(service) {
+
+    const tier =
+        String(
+            currentTier || "regular"
+        ).toLowerCase();
+
+
+    if (
+        tier === "reseller" &&
+        service.resellerRatePer1000 !== undefined
+    ) {
+
+        return service.resellerRatePer1000;
+
+    }
+
+
+    if (
+        tier === "vip" &&
+        service.vipRatePer1000 !== undefined
+    ) {
+
+        return service.vipRatePer1000;
+
+    }
+
+
+    return service.ratePer1000 || 0;
+
+}
+
+
+
+/* =====================================================
+   UPDATE TIER
 ===================================================== */
 
 async function loadUserTier(user) {
@@ -463,15 +554,18 @@ async function loadUserTier(user) {
             await get(userRef);
 
 
-        if (snapshot.exists()) {
+        if (
+            snapshot.exists()
+        ) {
 
-            const data =
-                snapshot.val() || {};
+            const userData =
+                snapshot.val();
 
 
             currentTier =
                 String(
-                    data.tier || "regular"
+                    userData.tier ||
+                    "regular"
                 ).toLowerCase();
 
         }
@@ -489,285 +583,8 @@ async function loadUserTier(user) {
     }
 
 
-    updateTierDisplay();
-
-}
-
-
-
-/* =====================================================
-   TIER DISPLAY
-===================================================== */
-
-function updateTierDisplay() {
-
-    const tier =
-        String(
-            currentTier
-        ).toUpperCase();
-
-
-    let badgeClass =
-        "bg-secondary";
-
-
-    if (tier === "RESELLER") {
-
-        badgeClass =
-            "bg-success";
-
-    }
-
-
-    if (tier === "VIP") {
-
-        badgeClass =
-            "bg-warning text-dark";
-
-    }
-
-
-    tierInfo.innerHTML = `
-
-        <i class="bi bi-shield-check"></i>
-
-        <strong class="badge ${badgeClass}">
-            ${tier}
-        </strong>
-
-        pricing is currently displayed.
-
-    `;
-
-}
-
-
-
-/* =====================================================
-   GET ACTIVE PRICE
-===================================================== */
-
-function getServicePrice(service) {
-
-    if (
-        currentTier === "reseller" &&
-        service.resellerRatePer1000 !== undefined
-    ) {
-
-        return Number(
-            service.resellerRatePer1000
-        );
-
-    }
-
-
-    if (
-        currentTier === "vip" &&
-        service.vipRatePer1000 !== undefined
-    ) {
-
-        return Number(
-            service.vipRatePer1000
-        );
-
-    }
-
-
-    return Number(
-        service.ratePer1000 || 0
-    );
-
-}
-
-
-
-/* =====================================================
-   BUILD PLATFORM FILTERS
-===================================================== */
-
-function buildPlatformFilters() {
-
-    const platforms = [
-        ...new Set(
-            services
-                .map(
-                    service =>
-                        service.platform
-                )
-                .filter(Boolean)
-        )
-    ];
-
-
-    platformFilters.innerHTML = "";
-
-
-    const allButton =
-        document.createElement("button");
-
-
-    allButton.type =
-        "button";
-
-    allButton.className =
-        "btn btn-primary platform-filter active";
-
-    allButton.dataset.platform =
-        "all";
-
-    allButton.textContent =
-        "All";
-
-
-    platformFilters.appendChild(
-        allButton
-    );
-
-
-    platforms.forEach(
-        platform => {
-
-            const button =
-                document.createElement(
-                    "button"
-                );
-
-
-            button.type =
-                "button";
-
-            button.className =
-                "btn btn-outline-primary platform-filter";
-
-            button.dataset.platform =
-                platform;
-
-            button.textContent =
-                platform;
-
-
-            platformFilters.appendChild(
-                button
-            );
-
-        }
-    );
-
-
-    document
-        .querySelectorAll(
-            ".platform-filter"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        document
-                            .querySelectorAll(
-                                ".platform-filter"
-                            )
-                            .forEach(
-                                btn => {
-
-                                    btn.classList.remove(
-                                        "active"
-                                    );
-
-                                    btn.classList.remove(
-                                        "btn-primary"
-                                    );
-
-                                    btn.classList.add(
-                                        "btn-outline-primary"
-                                    );
-
-                                }
-                            );
-
-
-                        button.classList.add(
-                            "active"
-                        );
-
-                        button.classList.remove(
-                            "btn-outline-primary"
-                        );
-
-                        button.classList.add(
-                            "btn-primary"
-                        );
-
-
-                        currentPlatform =
-                            button.dataset.platform;
-
-
-                        renderServices();
-
-                    }
-                );
-
-            }
-        );
-
-}
-
-
-
-/* =====================================================
-   FILTER
-===================================================== */
-
-function getFilteredServices() {
-
-    return services.filter(
-        service => {
-
-            const platform =
-                String(
-                    service.platform || ""
-                ).toLowerCase();
-
-
-            const name =
-                String(
-                    service.service || ""
-                ).toLowerCase();
-
-
-            const id =
-                String(
-                    service.id || ""
-                ).toLowerCase();
-
-
-            const search =
-                currentSearch.toLowerCase();
-
-
-            const platformMatch =
-                currentPlatform === "all" ||
-                platform ===
-                    currentPlatform.toLowerCase();
-
-
-            const searchMatch =
-                !search ||
-                platform.includes(search) ||
-                name.includes(search) ||
-                id.includes(search);
-
-
-            return (
-                platformMatch &&
-                searchMatch
-            );
-
-        }
-    );
+    tierName.textContent =
+        currentTier.toUpperCase();
 
 }
 
@@ -808,24 +625,273 @@ function escapeHtml(value) {
 
 
 /* =====================================================
+   GET PLATFORMS
+===================================================== */
+
+function updatePlatformFilters() {
+
+    const platforms = [
+
+        ...new Set(
+
+            allServices
+
+                .filter(service => {
+
+                    if (
+                        currentCatalogue === "all"
+                    ) {
+                        return true;
+                    }
+
+                    return (
+                        service.catalogue ===
+                        currentCatalogue
+                    );
+
+                })
+
+                .map(
+                    service =>
+                        service.platform
+                )
+
+                .filter(Boolean)
+
+        )
+
+    ];
+
+
+    platformFilters.innerHTML = "";
+
+
+    const allButton =
+        document.createElement(
+            "button"
+        );
+
+
+    allButton.type =
+        "button";
+
+
+    allButton.className =
+        "btn btn-success platform-btn active";
+
+
+    allButton.dataset.platform =
+        "all";
+
+
+    allButton.textContent =
+        "All Platforms";
+
+
+    platformFilters.appendChild(
+        allButton
+    );
+
+
+    platforms.forEach(
+        platform => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "btn btn-outline-success platform-btn";
+
+
+            button.dataset.platform =
+                platform;
+
+
+            button.textContent =
+                platform;
+
+
+            platformFilters.appendChild(
+                button
+            );
+
+        }
+    );
+
+
+    currentPlatform =
+        "all";
+
+
+    attachPlatformEvents();
+
+}
+
+
+
+/* =====================================================
+   PLATFORM EVENTS
+===================================================== */
+
+function attachPlatformEvents() {
+
+    document
+        .querySelectorAll(
+            ".platform-btn"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        document
+                            .querySelectorAll(
+                                ".platform-btn"
+                            )
+                            .forEach(
+                                btn => {
+
+                                    btn.classList.remove(
+                                        "active"
+                                    );
+
+                                    btn.classList.remove(
+                                        "btn-success"
+                                    );
+
+                                    btn.classList.add(
+                                        "btn-outline-success"
+                                    );
+
+                                }
+                            );
+
+
+                        button.classList.add(
+                            "active"
+                        );
+
+                        button.classList.remove(
+                            "btn-outline-success"
+                        );
+
+                        button.classList.add(
+                            "btn-success"
+                        );
+
+
+                        currentPlatform =
+                            button.dataset.platform;
+
+
+                        renderServices();
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =====================================================
+   FILTER SERVICES
+===================================================== */
+
+function getFilteredServices() {
+
+    const search =
+        currentSearch.toLowerCase();
+
+
+    return allServices.filter(
+        service => {
+
+            const catalogueMatch =
+                currentCatalogue === "all" ||
+                service.catalogue ===
+                    currentCatalogue;
+
+
+            const platformMatch =
+                currentPlatform === "all" ||
+                String(
+                    service.platform || ""
+                ).toLowerCase() ===
+                    currentPlatform.toLowerCase();
+
+
+            const searchableText =
+
+                String(
+                    service.platform || ""
+                ).toLowerCase()
+
+                + " " +
+
+                String(
+                    service.service || ""
+                ).toLowerCase()
+
+                + " " +
+
+                String(
+                    service.id || ""
+                ).toLowerCase();
+
+
+            const searchMatch =
+                !search ||
+                searchableText.includes(
+                    search
+                );
+
+
+            return (
+                catalogueMatch &&
+                platformMatch &&
+                searchMatch
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
    RENDER SERVICES
 ===================================================== */
 
 function renderServices() {
 
-    const filtered =
+    const services =
         getFilteredServices();
 
 
     serviceCount.textContent =
-        `${filtered.length} Services`;
+        `${services.length} Services`;
 
 
     servicesContainer.innerHTML =
         "";
 
 
-    if (!filtered.length) {
+    if (
+        services.length === 0
+    ) {
 
         noServices.classList.remove(
             "d-none"
@@ -841,7 +907,7 @@ function renderServices() {
     );
 
 
-    filtered.forEach(
+    services.forEach(
         service => {
 
             const card =
@@ -874,63 +940,75 @@ function renderServices() {
                 service.vipRatePer1000;
 
 
-            const platform =
-                escapeHtml(
-                    service.platform ||
-                    "Social Media"
-                );
+            const catalogueBadge =
+                service.catalogue === "nigeria"
 
+                    ? `
+                        <span class="badge bg-success">
+                            🇳🇬 Nigeria
+                        </span>
+                      `
 
-            const serviceName =
-                escapeHtml(
-                    service.service ||
-                    "Service"
-                );
-
-
-            const description =
-                escapeHtml(
-                    service.description ||
-                    `${service.service || "Service"} service for ${service.platform || "social media"}.`
-                );
+                    : `
+                        <span class="badge bg-primary">
+                            General
+                        </span>
+                      `;
 
 
             card.innerHTML = `
 
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100 shadow-sm border-0">
 
-                    <div class="card-body d-flex flex-column">
+                    <div class="card-body">
 
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div
+                            class="d-flex justify-content-between align-items-start mb-3"
+                        >
 
-                            <span class="badge bg-primary">
+                            <div class="d-flex flex-wrap gap-1">
 
-                                ${platform}
+                                <span class="badge bg-dark">
 
-                            </span>
+                                    ${escapeHtml(
+                                        service.platform ||
+                                        "Social Media"
+                                    )}
+
+                                </span>
+
+                                ${catalogueBadge}
+
+                            </div>
 
 
-                            <span class="badge bg-light text-dark">
+                            <small class="text-muted">
 
                                 #${escapeHtml(
                                     service.id || ""
                                 )}
 
-                            </span>
+                            </small>
 
                         </div>
 
 
-                        <h5 class="card-title fw-bold">
+                        <h5 class="fw-bold">
 
-                            ${serviceName}
+                            ${escapeHtml(
+                                service.service ||
+                                "Service"
+                            )}
 
                         </h5>
 
 
-                        <p class="card-text text-muted small">
+                        <p class="text-muted small">
 
-                            ${description}
+                            ${escapeHtml(
+                                service.description ||
+                                `${service.service || "Service"} service for ${service.platform || "social media"}.`
+                            )}
 
                         </p>
 
@@ -941,17 +1019,14 @@ function renderServices() {
                         <div class="mb-3">
 
                             <small class="text-muted d-block">
-
                                 Price per 1,000
-
                             </small>
 
-
-                            <h4 class="text-primary fw-bold mb-0">
+                            <div class="fs-4 fw-bold text-success">
 
                                 ${formatNaira(price)}
 
-                            </h4>
+                            </div>
 
                         </div>
 
@@ -959,19 +1034,19 @@ function renderServices() {
                         ${
                             currentTier !== "regular" &&
                             price !== regularRate
-                            ? `
+                                ? `
 
-                                <small class="text-muted mb-3">
+                                    <small class="text-muted d-block">
 
-                                    Regular:
-                                    ${formatNaira(
-                                        regularRate
-                                    )}
+                                        Regular:
+                                        ${formatNaira(
+                                            regularRate
+                                        )}
 
-                                </small>
+                                    </small>
 
-                              `
-                            : ""
+                                  `
+                                : ""
                         }
 
 
@@ -981,61 +1056,59 @@ function renderServices() {
                                 resellerRate !== undefined ||
                                 vipRate !== undefined
                             )
-                            ? `
+                                ? `
 
-                                <div class="small text-muted mb-3">
+                                    <div class="small text-muted">
 
-                                    ${
-                                        resellerRate !== undefined
-                                        ? `
-                                            <div>
-                                                Reseller:
-                                                ${formatNaira(
-                                                    resellerRate
-                                                )}
-                                            </div>
-                                          `
-                                        : ""
-                                    }
+                                        ${
+                                            resellerRate !== undefined
+                                                ? `
+                                                    Reseller:
+                                                    ${formatNaira(
+                                                        resellerRate
+                                                    )}
+                                                  `
+                                                : ""
+                                        }
 
+                                        ${
+                                            vipRate !== undefined
+                                                ? `
+                                                    <br>
+                                                    VIP:
+                                                    ${formatNaira(
+                                                        vipRate
+                                                    )}
+                                                  `
+                                                : ""
+                                        }
 
-                                    ${
-                                        vipRate !== undefined
-                                        ? `
-                                            <div>
-                                                VIP:
-                                                ${formatNaira(
-                                                    vipRate
-                                                )}
-                                            </div>
-                                          `
-                                        : ""
-                                    }
+                                    </div>
 
-                                </div>
-
-                              `
-                            : ""
+                                  `
+                                : ""
                         }
 
 
-                        <div class="mt-auto">
+                        <button
+                            type="button"
+                            class="btn btn-success w-100 mt-4 order-service-btn"
+                            data-service-id="${escapeHtml(
+                                service.id || ""
+                            )}"
+                            data-catalogue="${escapeHtml(
+                                service.catalogue
+                            )}"
+                            data-platform="${escapeHtml(
+                                service.platform || ""
+                            )}"
+                        >
 
-                            <button
-                                type="button"
-                                class="btn btn-primary w-100 order-service-btn"
-                                data-service-id="${escapeHtml(
-                                    service.id || ""
-                                )}"
-                            >
+                            <i class="bi bi-cart-plus"></i>
 
-                                <i class="bi bi-cart-plus"></i>
+                            Order Service
 
-                                Order Service
-
-                            </button>
-
-                        </div>
+                        </button>
 
                     </div>
 
@@ -1052,6 +1125,18 @@ function renderServices() {
     );
 
 
+    attachOrderButtons();
+
+}
+
+
+
+/* =====================================================
+   ORDER BUTTONS
+===================================================== */
+
+function attachOrderButtons() {
+
     document
         .querySelectorAll(
             ".order-service-btn"
@@ -1067,20 +1152,23 @@ function renderServices() {
                             button.dataset.serviceId;
 
 
+                        const catalogue =
+                            button.dataset.catalogue;
+
+
+                        const platform =
+                            button.dataset.platform;
+
+
                         window.location.href =
-                            `order.html?platform=${encodeURIComponent(
-                                services.find(
-                                    service =>
-                                        String(
-                                            service.id
-                                        ) ===
-                                        String(
-                                            serviceId
-                                        )
-                                )?.platform || ""
-                            )}&service=${encodeURIComponent(
+
+                            `order.html?service=${encodeURIComponent(
                                 serviceId
-                            )}&catalogue=general`;
+                            )}&platform=${encodeURIComponent(
+                                platform
+                            )}&catalogue=${encodeURIComponent(
+                                catalogue
+                            )}`;
 
                     }
                 );
@@ -1089,6 +1177,65 @@ function renderServices() {
         );
 
 }
+
+
+
+/* =====================================================
+   CATALOGUE BUTTONS
+===================================================== */
+
+catalogueButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                catalogueButtons.forEach(
+                    btn => {
+
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                        btn.classList.remove(
+                            "btn-success"
+                        );
+
+                        btn.classList.add(
+                            "btn-outline-success"
+                        );
+
+                    }
+                );
+
+
+                button.classList.add(
+                    "active"
+                );
+
+                button.classList.remove(
+                    "btn-outline-success"
+                );
+
+                button.classList.add(
+                    "btn-success"
+                );
+
+
+                currentCatalogue =
+                    button.dataset.catalogue;
+
+
+                updatePlatformFilters();
+
+                renderServices();
+
+            }
+        );
+
+    }
+);
 
 
 
@@ -1129,18 +1276,7 @@ onAuthStateChanged(
         }
 
 
-        /*
-         * IMPORTANT:
-         * The existing/general catalogue
-         * comes directly from services.js.
-         */
-
-        services =
-            Array.isArray(
-                hkdmservicesOfficialServicePriceCatalogue
-            )
-            ? hkdmservicesOfficialServicePriceCatalogue
-            : [];
+        buildCatalogue();
 
 
         await loadUserTier(
@@ -1148,7 +1284,8 @@ onAuthStateChanged(
         );
 
 
-        buildPlatformFilters();
+        updatePlatformFilters();
+
 
         renderServices();
 
@@ -1156,12 +1293,6 @@ onAuthStateChanged(
 );
 
 </script>
-
-
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-></script>
 
 
 </body>
