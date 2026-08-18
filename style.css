@@ -2,7 +2,6 @@
    HKDMServices v1.0
    Main Stylesheet
 ========================= */
-
 :root {
     --primary: #22c55e;
     --dark: #0f172a;
@@ -11,29 +10,23 @@
     --muted: #64748b;
     --white: #ffffff;
 }
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 body {
     font-family: 'Poppins', sans-serif;
     color: var(--text);
     background: var(--light);
     line-height: 1.6;
 }
-
 a {
     text-decoration: none;
 }
-
-
 /* =========================================================
    ANNOUNCEMENT BAR
 ========================================================= */
-
 .announcement-bar {
     background: var(--primary);
     color: white;
@@ -42,55 +35,42 @@ a {
     position: relative;
     z-index: 2000;
 }
-
-
 /* =========================================================
    NAVBAR
 ========================================================= */
-
 .navbar {
     background: var(--dark);
     padding: 18px 0;
 }
-
 .navbar-brand {
     font-size: 22px;
 }
-
 .brand-icon {
     color: var(--primary);
 }
-
 .nav-link {
     color: white !important;
     margin-left: 15px;
 }
-
 .nav-link:hover {
     color: var(--primary) !important;
 }
-
-
 /* =========================================================
    HERO SECTION
 ========================================================= */
-
 .hero-section {
     min-height: 100vh;
     display: flex;
     align-items: center;
-
     background:
         linear-gradient(
             135deg,
             #0f172a,
             #1e293b
         );
-
     color: white;
     padding-top: 120px;
 }
-
 .hero-badge {
     background: rgba(34,197,94,.15);
     color: #86efac;
@@ -99,26 +79,21 @@ a {
     display: inline-block;
     margin-bottom: 20px;
 }
-
 .hero-title {
     font-size: 55px;
     font-weight: 700;
 }
-
 .hero-title span {
     color: var(--primary);
 }
-
 .hero-description {
     color: #cbd5e1;
     font-size: 18px;
     max-width: 600px;
 }
-
 .hero-trust {
     color: #cbd5e1;
 }
-
 .dashboard-preview {
     background: rgba(255,255,255,0.1);
     backdrop-filter: blur(15px);
@@ -126,12 +101,10 @@ a {
     border-radius: 25px;
     border: 1px solid rgba(255,255,255,.15);
 }
-
 .preview-header {
     font-weight: 600;
     margin-bottom: 25px;
 }
-
 .preview-card,
 .mini-card {
     background: white;
@@ -140,12 +113,9 @@ a {
     border-radius: 15px;
     margin-bottom: 15px;
 }
-
-
 /* =========================================================
    SECTIONS
 ========================================================= */
-
 .platform-section,
 .features-section,
 .how-section,
@@ -154,46 +124,35 @@ a {
 .faq-section {
     padding: 90px 0;
 }
-
 .section-heading h2 {
     font-size: 38px;
     font-weight: 700;
 }
-
 .section-heading p {
     color: var(--muted);
 }
-
-
 /* =========================================================
    PLATFORM CARDS
 ========================================================= */
-
 .platform-card {
     background: white;
     padding: 30px;
     border-radius: 20px;
     text-align: center;
     transition: .3s;
-
     box-shadow:
         0 10px 30px rgba(0,0,0,.05);
 }
-
 .platform-card i {
     font-size: 35px;
     color: var(--primary);
 }
-
 .platform-card:hover {
     transform: translateY(-8px);
 }
-
-
 /* =========================================================
    FEATURE CARDS
 ========================================================= */
-
 .feature-card,
 .service-card,
 .step-card,
@@ -203,50 +162,39 @@ a {
     border-radius: 20px;
     height: 100%;
     transition: .3s;
-
     box-shadow:
         0 10px 30px rgba(0,0,0,.05);
 }
-
 .feature-card:hover,
 .service-card:hover,
 .step-card:hover {
     transform: translateY(-8px);
 }
-
 .feature-card i,
 .service-card i {
     font-size: 40px;
     color: var(--primary);
     margin-bottom: 20px;
 }
-
-
 /* =========================================================
    STEPS
 ========================================================= */
-
 .step-number {
     width: 50px;
     height: 50px;
     background: var(--primary);
     color: white;
     border-radius: 50%;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 22px;
     font-weight: bold;
     margin-bottom: 20px;
 }
-
-
 /* =========================================================
    SERVICES NOTICE
 ========================================================= */
-
 .login-notice {
     background: #dcfce7;
     color: #166534;
@@ -254,537 +202,323 @@ a {
     border-radius: 15px;
     display: inline-block;
 }
-
-
 /* =========================================================
    STATISTICS
 ========================================================= */
-
 .stats-section {
     background: var(--dark);
     color: white;
     padding: 70px 0;
 }
-
 .stats-section h2 {
     color: var(--primary);
     font-size: 45px;
 }
-
-
 /* =========================================================
    TESTIMONIALS
 ========================================================= */
-
 .testimonial-card {
     border-left:
         5px solid var(--primary);
 }
-
-
 /* =========================================================
    FAQ
 ========================================================= */
-
 .accordion-button {
     font-weight: 600;
 }
-
-
 /* =========================================================
    CTA
 ========================================================= */
-
 .cta-section {
     background: var(--dark);
     color: white;
     padding: 90px 0;
     text-align: center;
 }
-
 .cta-section h2 {
     font-size: 40px;
 }
-
-
 /* =========================================================
    FOOTER
 ========================================================= */
-
 footer {
     background: #020617;
     color: white;
     padding: 40px 0;
 }
-
 footer p {
     color: #94a3b8;
 }
-
-
 /* =========================================================
    DASHBOARD TOGGLE BUTTON
 ========================================================= */
-
 .dashboard-toggle {
     position: fixed !important;
     top: 80px !important;
     left: 15px !important;
-
     width: 52px !important;
     height: 52px !important;
-
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-
     background: #198754 !important;
     color: #ffffff !important;
-
     border: none !important;
     border-radius: 12px !important;
-
     font-size: 25px !important;
     cursor: pointer !important;
-
     z-index: 99999 !important;
     pointer-events: auto !important;
-
     box-shadow:
         0 5px 18px rgba(0,0,0,0.25);
-
     transition:
         transform 0.25s ease,
         background 0.25s ease;
 }
-
 .dashboard-toggle:hover {
     background: #157347 !important;
     transform: scale(1.05);
 }
-
-
 /* =========================================================
    SIDE PANEL
 ========================================================= */
-
 .dashboard-panel {
     position: fixed !important;
     top: 0 !important;
     left: -450px !important;
-
     width: 430px !important;
     max-width: 92vw !important;
     height: 100vh !important;
-
     background: #f8f9fa !important;
-
     z-index: 99998 !important;
-
     overflow-y: auto !important;
-
     box-shadow:
         8px 0 30px rgba(0,0,0,0.25);
-
     transition:
         left 0.3s ease !important;
-
     visibility: hidden;
 }
-
 .dashboard-panel.open {
     left: 0 !important;
     visibility: visible !important;
 }
-
-
 /* =========================================================
    PANEL HEADER
 ========================================================= */
-
 .dashboard-panel-header {
     position: sticky;
     top: 0;
     z-index: 10;
-
     background: #212529;
     color: white;
-
     padding: 18px 20px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
-
 /* =========================================================
    CLOSE BUTTON
 ========================================================= */
-
 .dashboard-panel-close {
     width: 42px;
     height: 42px;
-
     border: none;
     border-radius: 10px;
-
     background: #dc3545;
     color: white;
-
     font-size: 18px;
     cursor: pointer;
-
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 .dashboard-panel-close:hover {
     background: #bb2d3b;
 }
-
-
 /* =========================================================
    PANEL CONTENT
 ========================================================= */
-
 .dashboard-panel-content {
     padding: 20px;
 }
-
 .dashboard-panel-content .btn {
     width: 100%;
     padding: 12px;
     font-size: 16px;
 }
-
-
 /* =========================================================
-   GLOBAL ACTIVE USERS
-   ONE COUNTER — VISIBLE THROUGHOUT DASHBOARD
+   ACTIVE USERS
+   MAIN COUNTER ONLY
 ========================================================= */
-
+/*
+   This is the ONLY active-user display.
+   The floating active-user system has intentionally
+   been removed from the stylesheet.
+*/
 #activeUsersContainer {
-
-    /*
-       IMPORTANT:
-       Fixed positioning means the counter is attached
-       to the browser viewport rather than one section.
-    */
-
-    position: fixed !important;
-
-    /*
-       Keep it below the navbar/announcement area.
-    */
-
-    top: 82px !important;
-    right: 18px !important;
-
-    width: auto !important;
-    min-width: 150px;
-
-    min-height: 0 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-
-    z-index: 99990 !important;
-
-    pointer-events: none !important;
-}
-
-
-/* =========================================================
-   ACTIVE USERS MAIN DISPLAY
-========================================================= */
-
-#activeUsersMain {
-
-    display: inline-flex !important;
-
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-
+    width: 100%;
+    min-height: 24px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    z-index: 50;
+}
+/*
+   Main active-user indicator
+*/
+#activeUsersMain {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 7px;
-
-    padding: 7px 13px;
-
+    padding: 5px 12px;
     border-radius: 999px;
-
-    background: rgba(255,255,255,0.96);
-
+    background: rgba(34, 197, 94, 0.10);
     color: #166534;
-
     font-size: 13px;
-
     font-weight: 600;
-
     white-space: nowrap;
-
     box-shadow:
-        0 4px 15px rgba(0,0,0,0.12);
-
-    border:
-        1px solid rgba(34,197,94,0.18);
-
+        0 2px 8px rgba(0,0,0,0.05);
     animation:
         hkdmActivePulse 3s ease-in-out infinite;
 }
-
-
-/* =========================================================
-   ACTIVE USERS GREEN INDICATOR
-========================================================= */
-
+/*
+   Green online indicator
+*/
 #activeUsersMain::before {
-
     content: "";
-
     width: 8px;
     height: 8px;
-
     min-width: 8px;
-
     border-radius: 50%;
-
     background: #22c55e;
-
     box-shadow:
         0 0 0 3px rgba(34,197,94,0.12);
 }
-
-
-/* =========================================================
-   ACTIVE USER NUMBER
-========================================================= */
-
+/*
+   Active user number
+*/
 #activeUsersMainCount {
-
     font-weight: 700;
-
     color: #15803d;
-
-    font-variant-numeric:
-        tabular-nums;
+    font-variant-numeric: tabular-nums;
 }
-
-
-/* =========================================================
-   ACTIVE USER LABEL
-========================================================= */
-
-#activeUsersMain span:last-child {
-
-    color: #166534;
-}
-
-
-/* =========================================================
-   ACTIVE USER PULSE
-========================================================= */
-
+/*
+   Keep the main counter visually stable.
+   The JavaScript controls the actual two-minute update.
+*/
 @keyframes hkdmActivePulse {
-
     0%,
     100% {
-
-        opacity: 0.92;
-
-        transform:
-            scale(1);
-
+        opacity: 0.88;
+        transform: scale(1);
     }
-
     50% {
-
         opacity: 1;
-
-        transform:
-            scale(1.01);
-
+        transform: scale(1.01);
     }
-
 }
-
-
 /* =========================================================
-   PREVENT OLD FLOATING ACTIVE USERS
+   REMOVE OLD FLOATING ACTIVE USERS
 ========================================================= */
-
+/*
+   The JavaScript currently contains a floating
+   active-user system.
+   These rules make sure any old floating elements
+   cannot appear on the screen.
+*/
 #floatingActiveUsers {
-
     display: none !important;
-
     visibility: hidden !important;
-
     pointer-events: none !important;
 }
-
 .hkdm-floating-active-user,
 .floating-active-user {
-
     display: none !important;
-
     visibility: hidden !important;
-
     opacity: 0 !important;
-
     pointer-events: none !important;
 }
-
-
 /* =========================================================
-   ACTIVE USER MOBILE DISPLAY
+   ACTIVE USER RESPONSIVE DISPLAY
 ========================================================= */
-
 @media (max-width: 768px) {
-
     #activeUsersContainer {
-
-        top: 72px !important;
-
-        right: 12px !important;
-
+        width: 100%;
+        margin-top: 6px;
+        margin-bottom: 8px;
     }
-
     #activeUsersMain {
-
         font-size: 12px;
-
-        padding:
-            6px 10px;
-
+        padding: 5px 10px;
         gap: 6px;
-
     }
-
     #activeUsersMain::before {
-
         width: 7px;
         height: 7px;
         min-width: 7px;
-
     }
-
 }
-
-
-/* =========================================================
-   SMALL MOBILE
-========================================================= */
-
 @media (max-width: 576px) {
-
     #activeUsersContainer {
-
-        top: 68px !important;
-
-        right: 8px !important;
-
-        max-width:
-            calc(100vw - 16px);
-
+        width: 100%;
+        min-height: 22px;
+        margin-top: 5px !important;
+        margin-bottom: 7px !important;
     }
-
     #activeUsersMain {
-
-        max-width:
-            calc(100vw - 30px);
-
+        max-width: calc(100vw - 30px);
         overflow: hidden;
-
         text-overflow: ellipsis;
-
-        font-size:
-            11px !important;
-
-        padding:
-            5px 9px;
-
+        font-size: 11px !important;
+        padding: 4px 9px;
         gap: 5px;
-
     }
-
     #activeUsersMain::before {
-
         width: 6px;
         height: 6px;
-
         min-width: 6px;
-
     }
-
 }
-
-
 /* =========================================================
    GENERAL RESPONSIVE
 ========================================================= */
-
 @media (max-width: 768px) {
-
     .hero-title {
         font-size: 38px;
     }
-
     .section-heading h2 {
         font-size: 30px;
     }
-
     .nav-link {
         margin-left: 0;
     }
-
 }
-
-
 @media (max-width: 576px) {
-
     .dashboard-toggle {
-
         top: 75px !important;
-
         left: 12px !important;
-
         width: 48px !important;
-
         height: 48px !important;
-
     }
-
     .dashboard-panel {
-
         width: 100% !important;
-
         max-width: 100% !important;
-
     }
-
     .dashboard-panel-content {
-
         padding: 15px;
-
     }
-
 }
-
-
 /* =========================================================
    REDUCE MOTION ACCESSIBILITY
 ========================================================= */
-
 @media (prefers-reduced-motion: reduce) {
-
     #activeUsersMain {
-
         animation: none;
-
     }
-
 }
