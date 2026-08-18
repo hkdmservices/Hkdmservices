@@ -60,18 +60,19 @@ const totalEarningsEl =
 
 
 /* =========================================================
-   ACTIVE USERS SYSTEM
+   GLOBAL ACTIVE USERS SYSTEM
    HKDMservices GLOBAL ACTIVE USER COUNTER
 
    - ONE counter only
    - No floating notifications
-   - Updates every 2 minutes
-   - Fixed to the viewport
-   - Visible throughout the dashboard
+   - Changes every 2 minutes
+   - Fixed to viewport
+   - Available across the entire dashboard
+   - Automatically created if HTML element is missing
 ========================================================= */
 
 const ACTIVE_USERS_UPDATE_INTERVAL =
-    120000; // 2 minutes
+    120000; // 120,000ms = 2 minutes
 
 
 let currentActiveUsers =
@@ -82,7 +83,7 @@ let currentActiveUsers =
 
 
 /* =========================================================
-   CREATE / FIND GLOBAL ACTIVE USER DISPLAY
+   CREATE GLOBAL ACTIVE USERS ELEMENT
 ========================================================= */
 
 function getOrCreateGlobalActiveUsers() {
@@ -94,9 +95,44 @@ function getOrCreateGlobalActiveUsers() {
 
 
     /*
-        If the existing counter is already in the HTML,
-        move it to the body so it remains visible
-        throughout the entire dashboard.
+        Remove duplicate active-user containers
+        if another part of the HTML contains one.
+    */
+
+    const duplicateContainers =
+        document.querySelectorAll(
+            "#activeUsersContainer"
+        );
+
+
+    if (
+        duplicateContainers.length > 1
+    ) {
+
+        duplicateContainers.forEach(
+            (element, index) => {
+
+                if (index > 0) {
+
+                    element.remove();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    container =
+        document.getElementById(
+            "activeUsersContainer"
+        );
+
+
+    /*
+        If there is no existing container,
+        create one automatically.
     */
 
     if (!container) {
@@ -112,9 +148,10 @@ function getOrCreateGlobalActiveUsers() {
 
         container.innerHTML = `
 
-            <span
+            <div
                 id="activeUsersMain"
                 aria-live="polite"
+                role="status"
             >
 
                 <span
@@ -122,7 +159,10 @@ function getOrCreateGlobalActiveUsers() {
                     aria-hidden="true"
                 ></span>
 
-                <span>
+                <span
+                    class="active-users-text"
+                >
+
                     <strong
                         id="activeUsersMainCount"
                     >
@@ -132,9 +172,10 @@ function getOrCreateGlobalActiveUsers() {
                     <span>
                         active users
                     </span>
+
                 </span>
 
-            </span>
+            </div>
 
         `;
 
@@ -142,11 +183,20 @@ function getOrCreateGlobalActiveUsers() {
 
 
     /*
-        Move the single active-user counter
-        directly under body.
+        IMPORTANT:
 
-        This prevents it from disappearing when
-        the user enters another dashboard section.
+        Put the counter directly inside BODY.
+
+        This makes it independent from:
+        - Welcome section
+        - Service Catalogue
+        - Recent Services
+        - NX Mode
+        - Other dashboard sections
+        - Bootstrap containers
+        - Cards
+        - Tabs
+        - Navigation sections
     */
 
     if (
@@ -171,6 +221,12 @@ const activeUsersContainer =
     getOrCreateGlobalActiveUsers();
 
 
+const activeUsersMain =
+    document.getElementById(
+        "activeUsersMain"
+    );
+
+
 const activeUsersMainCount =
     document.getElementById(
         "activeUsersMainCount"
@@ -179,13 +235,16 @@ const activeUsersMainCount =
 
 
 /* =========================================================
-   GENERATE ACTIVE USERS
+   GENERATE ACTIVE USERS NUMBER
 ========================================================= */
 
 function generateActiveUsers() {
 
     /*
-        Small gradual change.
+        Change gradually.
+
+        Maximum movement:
+        +50 or -50.
 
         This prevents unrealistic jumps.
     */
@@ -201,8 +260,7 @@ function generateActiveUsers() {
 
 
     /*
-        Keep the number within the
-        1,000 - 9,999 range.
+        Minimum limit.
     */
 
     if (
@@ -217,6 +275,10 @@ function generateActiveUsers() {
 
     }
 
+
+    /*
+        Maximum limit.
+    */
 
     if (
         currentActiveUsers > 9999
@@ -238,13 +300,15 @@ function generateActiveUsers() {
 
 
 /* =========================================================
-   UPDATE GLOBAL ACTIVE USER COUNTER
+   UPDATE GLOBAL ACTIVE USERS
 ========================================================= */
 
 function updateMainActiveUsers() {
 
     if (!activeUsersMainCount) {
+
         return;
+
     }
 
 
@@ -262,22 +326,25 @@ function updateMainActiveUsers() {
 
 
 /* =========================================================
-   START ACTIVE USERS SYSTEM
+   START GLOBAL ACTIVE USERS SYSTEM
 ========================================================= */
 
 function startActiveUsersSystem() {
 
     /*
-        Show the first number immediately.
+        Display the first number immediately.
     */
 
     updateMainActiveUsers();
 
 
     /*
-        Update ONLY every 2 minutes.
+        IMPORTANT:
 
-        120,000 milliseconds = 2 minutes.
+        The counter changes ONLY every 2 minutes.
+
+        120000 milliseconds =
+        2 minutes.
     */
 
     setInterval(
@@ -353,8 +420,10 @@ function statusBadge(status) {
         .toLowerCase()
         .trim();
 
+
     let badgeClass =
         "bg-warning text-dark";
+
 
     let displayText =
         "Pending";
@@ -865,9 +934,11 @@ async function loadRecentOrders(uid) {
                     <tr>
 
                         <td>
+
                             <code>
                                 ${shortOrderId}
                             </code>
+
                         </td>
 
                         <td>
@@ -885,27 +956,39 @@ async function loadRecentOrders(uid) {
                         </td>
 
                         <td>
+
                             ${Number(
                                 order.quantity || 0
-                            ).toLocaleString("en-NG")}
+                            ).toLocaleString(
+                                "en-NG"
+                            )}
+
                         </td>
 
                         <td>
 
                             <strong>
-                                ${formatNaira(order.amount)}
+                                ${formatNaira(
+                                    order.amount
+                                )}
                             </strong>
 
                         </td>
 
                         <td>
-                            ${statusBadge(order.status)}
+
+                            ${statusBadge(
+                                order.status
+                            )}
+
                         </td>
 
                         <td>
 
                             <small>
-                                ${formatDate(order.createdAt)}
+                                ${formatDate(
+                                    order.createdAt
+                                )}
                             </small>
 
                         </td>
@@ -983,7 +1066,11 @@ async function loadRecentOrders(uid) {
                                 </div>
 
                                 <div>
-                                    ${statusBadge(order.status)}
+
+                                    ${statusBadge(
+                                        order.status
+                                    )}
+
                                 </div>
 
                             </div>
@@ -1016,7 +1103,9 @@ async function loadRecentOrders(uid) {
 
                                     ${Number(
                                         order.quantity || 0
-                                    ).toLocaleString("en-NG")}
+                                    ).toLocaleString(
+                                        "en-NG"
+                                    )}
 
                                 </div>
 
@@ -1050,9 +1139,11 @@ async function loadRecentOrders(uid) {
                                 </small>
 
                                 <div>
+
                                     ${formatDate(
                                         order.createdAt
                                     )}
+
                                 </div>
 
                             </div>
@@ -1128,7 +1219,9 @@ if (redeemVoucherForm) {
 
 
             if (!redeemCodeInput) {
+
                 return;
+
             }
 
 
@@ -1137,7 +1230,9 @@ if (redeemVoucherForm) {
 
 
             if (!voucherCode) {
+
                 return;
+
             }
 
 
@@ -1168,27 +1263,33 @@ if (redeemVoucherForm) {
 
 
                 const idToken =
-                    await auth.currentUser.getIdToken(true);
+                    await auth.currentUser.getIdToken(
+                        true
+                    );
 
 
                 const response =
                     await fetch(
                         "/api/redeem-voucher",
                         {
-                            method: "POST",
+                            method:
+                                "POST",
 
                             headers: {
+
                                 "Authorization":
                                     `Bearer ${idToken}`,
 
                                 "Content-Type":
                                     "application/json"
+
                             },
 
                             body:
                                 JSON.stringify({
                                     voucherCode
                                 })
+
                         }
                     );
 
@@ -1414,7 +1515,9 @@ async function evaluateAndRenderUserTier(
 
 
         const userSnap =
-            await get(userRef);
+            await get(
+                userRef
+            );
 
 
         const userData =
@@ -1501,7 +1604,10 @@ async function evaluateAndRenderUserTier(
 
                             <h5 class="text-danger mb-0">
 
-                                <i class="bi bi-patch-check-fill"></i>
+                                <i
+                                    class="bi
+                                    bi-patch-check-fill"
+                                ></i>
 
                                 You are an Official Reseller!
                                 Enjoy your exclusive rates.
@@ -1526,7 +1632,9 @@ async function evaluateAndRenderUserTier(
 
 
         if (!actionContainer) {
+
             return;
+
         }
 
 
@@ -1544,7 +1652,10 @@ async function evaluateAndRenderUserTier(
                     "
                 >
 
-                    <i class="bi bi-patch-check-fill"></i>
+                    <i
+                        class="bi
+                        bi-patch-check-fill"
+                    ></i>
 
                     Reseller Status Active
 
@@ -1565,7 +1676,9 @@ async function evaluateAndRenderUserTier(
 
 
         const reqSnap =
-            await get(reqRef);
+            await get(
+                reqRef
+            );
 
 
         let hasPending =
@@ -1612,7 +1725,10 @@ async function evaluateAndRenderUserTier(
                     "
                 >
 
-                    <i class="bi bi-clock-history"></i>
+                    <i
+                        class="bi
+                        bi-clock-history"
+                    ></i>
 
                     VIP Upgrade Request Pending
 
@@ -1861,7 +1977,9 @@ if (openResellerModalBtn) {
 
 
             if (!user) {
+
                 return;
+
             }
 
 
@@ -1954,7 +2072,9 @@ if (confirmResellerPaymentBtn) {
 
 
             if (!user) {
+
                 return;
+
             }
 
 
@@ -1999,7 +2119,9 @@ if (confirmResellerPaymentBtn) {
 
 
                 const idToken =
-                    await user.getIdToken(true);
+                    await user.getIdToken(
+                        true
+                    );
 
 
                 const response =
@@ -2100,7 +2222,9 @@ if (confirmResellerPaymentBtn) {
 
                 setTimeout(
                     () => {
+
                         location.reload();
+
                     },
                     2000
                 );
@@ -2174,6 +2298,15 @@ onAuthStateChanged(
             return;
 
         }
+
+
+        /*
+            Make absolutely sure the global
+            active-user counter exists after
+            authentication/dashboard rendering.
+        */
+
+        getOrCreateGlobalActiveUsers();
 
 
         await Promise.allSettled([
