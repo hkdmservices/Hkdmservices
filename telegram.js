@@ -5,6 +5,14 @@ const CHAT_ID =
     process.env.TELEGRAM_CHAT_ID;
 
 
+/**
+ * Send Telegram notification for every order.
+ *
+ * Supports:
+ * - General Services
+ * - Nigeria Services
+ * - Customer comments
+ */
 export async function sendTelegramNotification(orderData) {
 
     if (!BOT_TOKEN || !CHAT_ID) {
@@ -18,39 +26,80 @@ export async function sendTelegramNotification(orderData) {
     }
 
 
-    // ====================================================
-    // 1. NORMAL ORDER INFORMATION
-    // ====================================================
-
-    const message = `
-🚨 New Order Received! 🚨
-
-Order ID: ${orderData.orderId || "N/A"}
-
-User: ${orderData.email || orderData.userEmail || "N/A"}
-
-Platform: ${orderData.platform || "N/A"}
-
-Service: ${orderData.service || orderData.serviceName || "N/A"}
-
-Quantity: ${Number(
-        orderData.quantity || 0
-    ).toLocaleString()}
-
-Amount: ₦${Number(
-        orderData.amount || 0
-    ).toLocaleString()}
-
-Link: ${orderData.link || "N/A"}
-    `.trim();
-
-
     const url =
         `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
 
     // ====================================================
-    // 2. SEND NORMAL ORDER NOTIFICATION
+    // 1. DETERMINE SERVICE CATALOGUE
+    // ====================================================
+
+    const catalogue =
+        String(
+            orderData.catalogue || "General"
+        ).toLowerCase() === "nigeria"
+
+            ? "🇳🇬 Nigeria Services"
+
+            : "🌐 General Services";
+
+
+    // ====================================================
+    // 2. NORMAL ORDER INFORMATION
+    // ====================================================
+
+    const message = `
+🚨 NEW ORDER RECEIVED 🚨
+
+━━━━━━━━━━━━━━━━━━━━
+
+📂 SERVICE TYPE:
+${catalogue}
+
+🆔 Order ID:
+${orderData.orderId || "N/A"}
+
+👤 User:
+${orderData.email ||
+    orderData.userEmail ||
+    "N/A"}
+
+📱 Platform:
+${orderData.platform || "N/A"}
+
+🛠 Service:
+${orderData.service ||
+    orderData.serviceName ||
+    "N/A"}
+
+🔢 Quantity:
+${Number(
+    orderData.quantity || 0
+).toLocaleString()}
+
+💰 Amount:
+₦${Number(
+    orderData.amount || 0
+).toLocaleString()}
+
+🔗 Link:
+${orderData.link || "N/A"}
+
+📊 Status:
+${orderData.status || "pending"}
+
+💳 Payment:
+${orderData.paymentMethod || "wallet"}
+
+━━━━━━━━━━━━━━━━━━━━
+
+📌 Catalogue:
+${catalogue}
+`.trim();
+
+
+    // ====================================================
+    // 3. SEND NORMAL ORDER NOTIFICATION
     // ====================================================
 
     try {
@@ -67,8 +116,13 @@ Link: ${orderData.link || "N/A"}
                     },
 
                     body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message
+
+                        chat_id:
+                            CHAT_ID,
+
+                        text:
+                            message
+
                     })
                 }
             );
@@ -99,9 +153,8 @@ Link: ${orderData.link || "N/A"}
     }
 
 
-
     // ====================================================
-    // 3. CHECK FOR CUSTOMER COMMENTS
+    // 4. CHECK FOR CUSTOMER COMMENTS
     // ====================================================
 
     if (
@@ -114,9 +167,8 @@ Link: ${orderData.link || "N/A"}
     }
 
 
-
     // ====================================================
-    // 4. PREPARE COMMENTS
+    // 5. PREPARE COMMENTS
     // ====================================================
 
     const comments =
@@ -129,22 +181,40 @@ Link: ${orderData.link || "N/A"}
 
 
     const commentsHeader =
-        `💬 CUSTOMER COMMENTS
+        `
+💬 CUSTOMER COMMENTS
 
-Order ID: ${orderData.orderId || "N/A"}
+━━━━━━━━━━━━━━━━━━━━
 
-Total Comments: ${orderData.comments.length}
+📂 SERVICE TYPE:
+${catalogue}
 
---------------------------------
-`;
+🆔 Order ID:
+${orderData.orderId || "N/A"}
 
+📱 Platform:
+${orderData.platform || "N/A"}
+
+🛠 Service:
+${orderData.service ||
+    orderData.serviceName ||
+    "N/A"}
+
+🔗 Link:
+${orderData.link || "N/A"}
+
+🔢 Total Comments:
+${orderData.comments.length}
+
+━━━━━━━━━━━━━━━━━━━━
+
+COMMENTS:
+
+`.trim() + "\n\n";
 
 
     // ====================================================
-    // 5. TELEGRAM MESSAGE LIMIT
-    //
-    // Telegram allows approximately 4096 characters
-    // per message. We use a safer limit.
+    // 6. TELEGRAM MESSAGE LIMIT
     // ====================================================
 
     const MAX_LENGTH = 3500;
@@ -165,16 +235,16 @@ Total Comments: ${orderData.comments.length}
     ) {
 
         if (
-            (
-                currentChunk.length +
-                line.length +
-                1
-            ) > MAX_LENGTH
+            currentChunk.length +
+            line.length +
+            1 >
+            MAX_LENGTH
         ) {
 
             chunks.push(
                 currentChunk.trim()
             );
+
 
             currentChunk =
                 line + "\n";
@@ -202,9 +272,8 @@ Total Comments: ${orderData.comments.length}
     }
 
 
-
     // ====================================================
-    // 6. SEND COMMENT CHUNKS
+    // 7. SEND COMMENT CHUNKS
     // ====================================================
 
     for (
@@ -219,7 +288,11 @@ Total Comments: ${orderData.comments.length}
 
         const chunkMessage =
             chunks.length > 1
-                ? `${chunk}\n\n📄 Part ${i + 1} of ${chunks.length}`
+
+                ? `${chunk}
+
+📄 Part ${i + 1} of ${chunks.length}`
+
                 : chunk;
 
 
