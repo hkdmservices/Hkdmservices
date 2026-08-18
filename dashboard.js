@@ -60,6 +60,316 @@ const totalEarningsEl =
 
 
 /* =========================================================
+   ACTIVE USERS SYSTEM
+========================================================= */
+
+const activeUsersMainCount =
+    document.getElementById(
+        "activeUsersMainCount"
+    );
+
+const floatingActiveUsers =
+    document.getElementById(
+        "floatingActiveUsers"
+    );
+
+
+/*
+    Generate a realistic-looking active-user number.
+
+    Minimum: 1,000
+    Maximum: 9,999
+
+    The number changes gradually instead of jumping
+    dramatically.
+*/
+
+let currentActiveUsers =
+    Math.floor(
+        Math.random() * 900
+    ) + 1200;
+
+
+function generateActiveUsers() {
+
+    const change =
+        Math.floor(
+            Math.random() * 101
+        ) - 50;
+
+
+    currentActiveUsers +=
+        change;
+
+
+    if (
+        currentActiveUsers < 1000
+    ) {
+
+        currentActiveUsers =
+            1000 +
+            Math.floor(
+                Math.random() * 100
+            );
+
+    }
+
+
+    if (
+        currentActiveUsers > 9999
+    ) {
+
+        currentActiveUsers =
+            9900 +
+            Math.floor(
+                Math.random() * 100
+            );
+
+    }
+
+
+    return currentActiveUsers;
+
+}
+
+
+
+/*
+    Update the main active-user counter.
+*/
+
+function updateMainActiveUsers() {
+
+    if (!activeUsersMainCount) {
+        return;
+    }
+
+
+    const number =
+        generateActiveUsers();
+
+
+    activeUsersMainCount.textContent =
+        number.toLocaleString(
+            "en-NG"
+        );
+
+}
+
+
+
+/*
+    Create a tiny floating active-user notification.
+*/
+
+function createFloatingActiveUser() {
+
+    if (!floatingActiveUsers) {
+        return;
+    }
+
+
+    const activeNumber =
+        1000 +
+        Math.floor(
+            Math.random() * 8500
+        );
+
+
+    const notification =
+        document.createElement(
+            "div"
+        );
+
+
+    notification.className =
+        "floating-active-user";
+
+
+    notification.innerHTML = `
+
+        <span class="floating-active-dot"></span>
+
+        <span>
+            ${activeNumber.toLocaleString("en-NG")}
+            active
+        </span>
+
+    `;
+
+
+    /*
+        Random screen position.
+        We keep the middle area reasonably clear so
+        it doesn't cover the dashboard content too much.
+    */
+
+    const positions = [
+
+        {
+            top: "8%",
+            left: "3%"
+        },
+
+        {
+            top: "15%",
+            right: "3%"
+        },
+
+        {
+            top: "35%",
+            left: "2%"
+        },
+
+        {
+            top: "42%",
+            right: "2%"
+        },
+
+        {
+            bottom: "18%",
+            left: "3%"
+        },
+
+        {
+            bottom: "12%",
+            right: "3%"
+        },
+
+        {
+            bottom: "5%",
+            left: "20%"
+        },
+
+        {
+            top: "6%",
+            right: "20%"
+        }
+
+    ];
+
+
+    const position =
+        positions[
+            Math.floor(
+                Math.random() *
+                positions.length
+            )
+        ];
+
+
+    Object.keys(
+        position
+    ).forEach(
+        key => {
+
+            notification.style[key] =
+                position[key];
+
+        }
+    );
+
+
+    floatingActiveUsers.appendChild(
+        notification
+    );
+
+
+    /*
+        Remove notification after a few seconds.
+    */
+
+    setTimeout(
+        () => {
+
+            notification.classList.add(
+                "floating-active-user-hide"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    notification.remove();
+
+                },
+                700
+            );
+
+        },
+        4500
+    );
+
+}
+
+
+
+/*
+    Start the floating active-user system.
+*/
+
+function startActiveUsersSystem() {
+
+    updateMainActiveUsers();
+
+
+    /*
+        Create several tiny indicators initially.
+    */
+
+    for (
+        let i = 0;
+        i < 4;
+        i++
+    ) {
+
+        setTimeout(
+            () => {
+
+                createFloatingActiveUser();
+
+            },
+            i * 1000
+        );
+
+    }
+
+
+    /*
+        Update the main number every 8 seconds.
+    */
+
+    setInterval(
+        () => {
+
+            updateMainActiveUsers();
+
+        },
+        8000
+    );
+
+
+    /*
+        Add a new floating notification periodically.
+    */
+
+    setInterval(
+        () => {
+
+            createFloatingActiveUser();
+
+        },
+        5500
+    );
+
+}
+
+
+startActiveUsersSystem();
+
+
+
+/* =========================================================
    FORMAT NAIRA
 ========================================================= */
 
