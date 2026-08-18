@@ -889,3 +889,170 @@ footer p {
     }
 
 }
+
+
+/* =========================================================
+   ACTIVE USERS - MAIN DISPLAY
+========================================================= */
+
+#activeUsersContainer {
+
+    position: relative;
+
+    z-index: 20;
+
+    min-height: 18px;
+
+}
+
+
+#activeUsersMain {
+
+    animation:
+        hkdmActivePulse 2.5s ease-in-out infinite;
+
+}
+
+
+#activeUsersMainNumber {
+
+    font-weight: 700;
+
+}
+
+
+@keyframes hkdmActivePulse {
+
+    0%,
+    100% {
+
+        opacity: 0.75;
+
+    }
+
+    50% {
+
+        opacity: 1;
+
+    }
+
+}
+
+
+/* =========================================================
+   FLOATING ACTIVE USERS
+========================================================= */
+
+#floatingActiveUsers {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    pointer-events: none;
+
+    z-index: 9990;
+
+}
+
+
+/* =========================================================
+   INDIVIDUAL FLOATING ACTIVE USER
+========================================================= */
+
+.hkdm-floating-active-user {
+
+    font-family:
+        'Poppins',
+        sans-serif;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    opacity: 0;
+
+    will-change:
+        opacity,
+        transform;
+
+    backdrop-filter:
+        blur(5px);
+
+    -webkit-backdrop-filter:
+        blur(5px);
+
+}
+
+
+/* =========================================================
+   MOBILE ACTIVE USERS
+========================================================= */
+
+@media (max-width: 576px) {
+
+    #activeUsersContainer {
+
+        margin-bottom: 4px !important;
+
+    }
+
+
+    #activeUsersMain {
+
+        font-size: 10px !important;
+
+    }
+
+
+    .hkdm-floating-active-user {
+
+        font-size: 8px !important;
+
+        padding: 3px 6px !important;
+
+        opacity: 0.72;
+
+    }
+
+
+    /*
+       Keep floating notifications away
+       from the extreme screen edges.
+    */
+
+    #floatingActiveUsers {
+
+        padding-left: 2px;
+
+        padding-right: 2px;
+
+    }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    #activeUsersMain {
+
+        animation: none;
+
+    }
+
+
+    .hkdm-floating-active-user {
+
+        transition: none !important;
+
+    }
+
+}
