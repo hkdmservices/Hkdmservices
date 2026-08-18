@@ -70,7 +70,9 @@
         </a>
 
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+
+            <!-- SERVICES & CATALOG SELECTOR -->
 
             <a
                 href="services.html"
@@ -83,6 +85,8 @@
 
             </a>
 
+
+            <!-- DASHBOARD -->
 
             <a
                 href="dashboard.html"
@@ -112,12 +116,16 @@
     <div class="container text-center">
 
         <span class="badge bg-primary mb-3">
+
             General Catalogue
+
         </span>
 
 
         <h1 class="fw-bold">
+
             General Services
+
         </h1>
 
 
@@ -127,6 +135,61 @@
             marketing services and pricing.
 
         </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     CATALOGUE NAVIGATION
+====================================================== -->
+
+<section class="py-4">
+
+    <div class="container">
+
+        <div class="row g-3 justify-content-center">
+
+            <!-- GENERAL SERVICES -->
+
+            <div class="col-12 col-md-5">
+
+                <a
+                    href="general-services.html"
+                    class="btn btn-primary w-100 py-3"
+                >
+
+                    <i class="bi bi-globe2 me-2"></i>
+
+                    General Services
+
+                </a>
+
+            </div>
+
+
+            <!-- NIGERIA SERVICES -->
+
+            <div class="col-12 col-md-5">
+
+                <a
+                    href="nigeria-services.html"
+                    class="btn btn-outline-success w-100 py-3"
+                >
+
+                    🇳🇬
+
+                    <span class="ms-2">
+                        Nigeria Services
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -222,7 +285,9 @@
 
 
             <strong id="tierName">
+
                 REGULAR
+
             </strong>
 
 
@@ -342,7 +407,7 @@
 
 
 <!-- =====================================================
-     BACK TO CATALOGUE
+     BACK TO SERVICES & CATALOG
 ====================================================== -->
 
 <section class="pb-5">
