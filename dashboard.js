@@ -16,7 +16,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
-
 /* =========================================================
    ELEMENTS
 ========================================================= */
@@ -29,12 +28,6 @@ const walletBalance =
 
 const ordersCount =
     document.getElementById("ordersCount");
-
-const servicesCount =
-    document.getElementById("servicesCount");
-
-const nigeriaServicesPreview =
-    document.getElementById("nigeriaServicesPreview");
 
 const recentOrders =
     document.getElementById("recentOrders");
@@ -64,7 +57,6 @@ const totalEarningsEl =
     document.getElementById("totalEarnings");
 
 
-
 /* =========================================================
    FORMAT NAIRA
 ========================================================= */
@@ -81,7 +73,6 @@ function formatNaira(amount) {
         );
 
 }
-
 
 
 /* =========================================================
@@ -106,7 +97,6 @@ function formatDate(timestamp) {
     );
 
 }
-
 
 
 /* =========================================================
@@ -203,7 +193,6 @@ function statusBadge(status) {
 }
 
 
-
 /* =========================================================
    LOAD USER INFORMATION
 ========================================================= */
@@ -289,260 +278,6 @@ async function loadUserInformation(user) {
 }
 
 
-
-/* =========================================================
-   LOAD NIGERIA SERVICE CATALOGUE
-========================================================= */
-
-async function loadNigeriaServices() {
-
-    try {
-
-        const servicesRef =
-            ref(
-                database,
-                "serviceCatalog"
-            );
-
-
-        const snapshot =
-            await get(servicesRef);
-
-
-        if (!snapshot.exists()) {
-
-            console.warn(
-                "NIGERIA SERVICE CATALOGUE NOT FOUND"
-            );
-
-
-            if (servicesCount) {
-
-                servicesCount.textContent =
-                    "0";
-
-            }
-
-
-            if (nigeriaServicesPreview) {
-
-                nigeriaServicesPreview.innerHTML = `
-
-                    <div class="alert alert-warning mb-0">
-
-                        Nigeria services are not available
-                        yet. Please try again shortly.
-
-                    </div>
-
-                `;
-
-            }
-
-
-            return;
-
-        }
-
-
-        const servicesData =
-            snapshot.val() || {};
-
-
-        const services =
-            Object.values(
-                servicesData
-            ).filter(
-                service =>
-                    service &&
-                    service.id
-            );
-
-
-        // ====================================================
-        // SERVICE COUNT
-        // ====================================================
-
-        if (servicesCount) {
-
-            servicesCount.textContent =
-                String(
-                    services.length
-                );
-
-        }
-
-
-        // ====================================================
-        // NO SERVICES
-        // ====================================================
-
-        if (
-            services.length === 0
-        ) {
-
-            if (nigeriaServicesPreview) {
-
-                nigeriaServicesPreview.innerHTML = `
-
-                    <div class="alert alert-warning mb-0">
-
-                        No Nigeria services are currently
-                        available.
-
-                    </div>
-
-                `;
-
-            }
-
-            return;
-
-        }
-
-
-        // ====================================================
-        // SERVICE PREVIEW
-        // ====================================================
-
-        if (!nigeriaServicesPreview) {
-
-            return;
-
-        }
-
-
-        const previewServices =
-            services.slice(
-                0,
-                12
-            );
-
-
-        let html = "";
-
-
-        previewServices.forEach(
-            service => {
-
-                const platform =
-                    service.platform ||
-                    "Service";
-
-
-                const serviceName =
-                    service.service ||
-                    service.name ||
-                    "Unnamed Service";
-
-
-                let regularPrice =
-                    "Contact";
-
-
-                if (
-                    service.ratePer1000 !== null &&
-                    service.ratePer1000 !== undefined
-                ) {
-
-                    regularPrice =
-                        formatNaira(
-                            service.ratePer1000
-                        ) +
-                        " / 1,000";
-
-                } else if (
-                    service.fixedPrice !== null &&
-                    service.fixedPrice !== undefined
-                ) {
-
-                    regularPrice =
-                        formatNaira(
-                            service.fixedPrice
-                        );
-
-                }
-
-
-                html += `
-
-                    <div class="col-12 col-md-6 col-lg-4">
-
-                        <div class="card h-100 shadow-sm">
-
-                            <div class="card-body">
-
-                                <span class="badge bg-success mb-2">
-                                    ${platform}
-                                </span>
-
-                                <h5 class="card-title">
-                                    ${serviceName}
-                                </h5>
-
-                                <p class="mb-0 text-muted">
-
-                                    Regular:
-
-                                    <strong class="text-dark">
-                                        ${regularPrice}
-                                    </strong>
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
-        );
-
-
-        nigeriaServicesPreview.innerHTML =
-            html;
-
-
-    } catch (error) {
-
-        console.error(
-            "NIGERIA SERVICES ERROR:",
-            error
-        );
-
-
-        if (servicesCount) {
-
-            servicesCount.textContent =
-                "0";
-
-        }
-
-
-        if (nigeriaServicesPreview) {
-
-            nigeriaServicesPreview.innerHTML = `
-
-                <div class="alert alert-danger mb-0">
-
-                    Unable to load Nigeria services.
-                    Please refresh the dashboard.
-
-                </div>
-
-            `;
-
-        }
-
-    }
-
-}
-
-
-
 /* =========================================================
    LOAD REFERRAL INFORMATION
 ========================================================= */
@@ -610,7 +345,6 @@ async function loadReferralInformation(uid) {
     }
 
 }
-
 
 
 /* =========================================================
@@ -686,7 +420,6 @@ if (
     );
 
 }
-
 
 
 /* =========================================================
@@ -1135,7 +868,6 @@ async function loadRecentOrders(uid) {
 }
 
 
-
 /* =========================================================
    REDEEM VOUCHER
 ========================================================= */
@@ -1318,7 +1050,6 @@ if (redeemVoucherForm) {
 }
 
 
-
 /* =========================================================
    WHATSAPP SUPPORT
 ========================================================= */
@@ -1415,7 +1146,6 @@ if (whatsappSupportForm) {
     );
 
 }
-
 
 
 /* =========================================================
@@ -1735,7 +1465,6 @@ async function evaluateAndRenderUserTier(
 }
 
 
-
 /* =========================================================
    REQUEST TIER UPGRADE
 ========================================================= */
@@ -1842,7 +1571,6 @@ window.requestTierUpgrade =
     requestTierUpgrade;
 
 
-
 /* =========================================================
    RESELLER MODAL & PAYMENT
 ========================================================= */
@@ -1869,7 +1597,6 @@ const resellerModalMsg =
     document.getElementById(
         "resellerModalMsg"
     );
-
 
 
 if (openResellerModalBtn) {
@@ -1962,7 +1689,6 @@ if (openResellerModalBtn) {
     );
 
 }
-
 
 
 if (confirmResellerPaymentBtn) {
@@ -2179,7 +1905,6 @@ if (confirmResellerPaymentBtn) {
 }
 
 
-
 /* =========================================================
    AUTHENTICATION
 ========================================================= */
@@ -2204,8 +1929,6 @@ onAuthStateChanged(
                 user
             ),
 
-            loadNigeriaServices(),
-
             loadRecentOrders(
                 user.uid
             ),
@@ -2222,7 +1945,6 @@ onAuthStateChanged(
 
     }
 );
-
 
 
 /* =========================================================
