@@ -61,28 +61,18 @@ const totalEarningsEl =
 
 /* =========================================================
    ACTIVE USERS SYSTEM
+   HKDMservices GLOBAL ACTIVE USER COUNTER
+
+   - ONE counter only
+   - No floating notifications
+   - Updates every 2 minutes
+   - Fixed to the viewport
+   - Visible throughout the dashboard
 ========================================================= */
 
-const activeUsersMainCount =
-    document.getElementById(
-        "activeUsersMainCount"
-    );
+const ACTIVE_USERS_UPDATE_INTERVAL =
+    120000; // 2 minutes
 
-const floatingActiveUsers =
-    document.getElementById(
-        "floatingActiveUsers"
-    );
-
-
-/*
-    Generate a realistic-looking active-user number.
-
-    Minimum: 1,000
-    Maximum: 9,999
-
-    The number changes gradually instead of jumping
-    dramatically.
-*/
 
 let currentActiveUsers =
     Math.floor(
@@ -90,7 +80,115 @@ let currentActiveUsers =
     ) + 1200;
 
 
+
+/* =========================================================
+   CREATE / FIND GLOBAL ACTIVE USER DISPLAY
+========================================================= */
+
+function getOrCreateGlobalActiveUsers() {
+
+    let container =
+        document.getElementById(
+            "activeUsersContainer"
+        );
+
+
+    /*
+        If the existing counter is already in the HTML,
+        move it to the body so it remains visible
+        throughout the entire dashboard.
+    */
+
+    if (!container) {
+
+        container =
+            document.createElement(
+                "div"
+            );
+
+        container.id =
+            "activeUsersContainer";
+
+
+        container.innerHTML = `
+
+            <span
+                id="activeUsersMain"
+                aria-live="polite"
+            >
+
+                <span
+                    class="active-users-dot"
+                    aria-hidden="true"
+                ></span>
+
+                <span>
+                    <strong
+                        id="activeUsersMainCount"
+                    >
+                        1,200
+                    </strong>
+
+                    <span>
+                        active users
+                    </span>
+                </span>
+
+            </span>
+
+        `;
+
+    }
+
+
+    /*
+        Move the single active-user counter
+        directly under body.
+
+        This prevents it from disappearing when
+        the user enters another dashboard section.
+    */
+
+    if (
+        container.parentElement !==
+        document.body
+    ) {
+
+        document.body.appendChild(
+            container
+        );
+
+    }
+
+
+    return container;
+
+}
+
+
+
+const activeUsersContainer =
+    getOrCreateGlobalActiveUsers();
+
+
+const activeUsersMainCount =
+    document.getElementById(
+        "activeUsersMainCount"
+    );
+
+
+
+/* =========================================================
+   GENERATE ACTIVE USERS
+========================================================= */
+
 function generateActiveUsers() {
+
+    /*
+        Small gradual change.
+
+        This prevents unrealistic jumps.
+    */
 
     const change =
         Math.floor(
@@ -101,6 +199,11 @@ function generateActiveUsers() {
     currentActiveUsers +=
         change;
 
+
+    /*
+        Keep the number within the
+        1,000 - 9,999 range.
+    */
 
     if (
         currentActiveUsers < 1000
@@ -134,9 +237,9 @@ function generateActiveUsers() {
 
 
 
-/*
-    Update the main active-user counter.
-*/
+/* =========================================================
+   UPDATE GLOBAL ACTIVE USER COUNTER
+========================================================= */
 
 function updateMainActiveUsers() {
 
@@ -158,185 +261,23 @@ function updateMainActiveUsers() {
 
 
 
-/*
-    Create a tiny floating active-user notification.
-*/
-
-function createFloatingActiveUser() {
-
-    if (!floatingActiveUsers) {
-        return;
-    }
-
-
-    const activeNumber =
-        1000 +
-        Math.floor(
-            Math.random() * 8500
-        );
-
-
-    const notification =
-        document.createElement(
-            "div"
-        );
-
-
-    notification.className =
-        "floating-active-user";
-
-
-    notification.innerHTML = `
-
-        <span class="floating-active-dot"></span>
-
-        <span>
-            ${activeNumber.toLocaleString("en-NG")}
-            active
-        </span>
-
-    `;
-
-
-    /*
-        Random screen position.
-        We keep the middle area reasonably clear so
-        it doesn't cover the dashboard content too much.
-    */
-
-    const positions = [
-
-        {
-            top: "8%",
-            left: "3%"
-        },
-
-        {
-            top: "15%",
-            right: "3%"
-        },
-
-        {
-            top: "35%",
-            left: "2%"
-        },
-
-        {
-            top: "42%",
-            right: "2%"
-        },
-
-        {
-            bottom: "18%",
-            left: "3%"
-        },
-
-        {
-            bottom: "12%",
-            right: "3%"
-        },
-
-        {
-            bottom: "5%",
-            left: "20%"
-        },
-
-        {
-            top: "6%",
-            right: "20%"
-        }
-
-    ];
-
-
-    const position =
-        positions[
-            Math.floor(
-                Math.random() *
-                positions.length
-            )
-        ];
-
-
-    Object.keys(
-        position
-    ).forEach(
-        key => {
-
-            notification.style[key] =
-                position[key];
-
-        }
-    );
-
-
-    floatingActiveUsers.appendChild(
-        notification
-    );
-
-
-    /*
-        Remove notification after a few seconds.
-    */
-
-    setTimeout(
-        () => {
-
-            notification.classList.add(
-                "floating-active-user-hide"
-            );
-
-
-            setTimeout(
-                () => {
-
-                    notification.remove();
-
-                },
-                700
-            );
-
-        },
-        4500
-    );
-
-}
-
-
-
-/*
-    Start the floating active-user system.
-*/
+/* =========================================================
+   START ACTIVE USERS SYSTEM
+========================================================= */
 
 function startActiveUsersSystem() {
+
+    /*
+        Show the first number immediately.
+    */
 
     updateMainActiveUsers();
 
 
     /*
-        Create several tiny indicators initially.
-    */
+        Update ONLY every 2 minutes.
 
-    for (
-        let i = 0;
-        i < 4;
-        i++
-    ) {
-
-        setTimeout(
-            () => {
-
-                createFloatingActiveUser();
-
-            },
-            i * 1000
-        );
-
-    }
-
-
-    /*
-        Update the main number every 8 seconds.
+        120,000 milliseconds = 2 minutes.
     */
 
     setInterval(
@@ -345,21 +286,7 @@ function startActiveUsersSystem() {
             updateMainActiveUsers();
 
         },
-        8000
-    );
-
-
-    /*
-        Add a new floating notification periodically.
-    */
-
-    setInterval(
-        () => {
-
-            createFloatingActiveUser();
-
-        },
-        5500
+        ACTIVE_USERS_UPDATE_INTERVAL
     );
 
 }
