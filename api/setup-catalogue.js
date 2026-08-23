@@ -1,75 +1,37 @@
 import { db } from "../firebase-admin.js";
-import { hkdmservicesOfficialServicePriceCatalogue } from "../services.js";
 import { hkdmservicesNigeriaServicePriceCatalogue } from "../nigeria-services-catalogue.js";
 
-// ============================================================
-// HKDMservices Dual Catalogue Setup (General & Manual Nigeria)
-// ============================================================
-
 export default async function handler(req, res) {
-
-    // Allow both GET (with ?key=...) and POST for easy iPhone/browser triggering
     const setupKey = req.headers["x-setup-key"] || req.query.key;
     
-    if (
-        !setupKey ||
-        setupKey !== process.env.CATALOGUE_SETUP_KEY
-    ) {
-        return res.status(401).json({
-            success: false,
-            message: "Unauthorized. Provide your setup key via header or ?key= query string."
-        });
+    if (!setupKey || setupKey !== process.env.CATALOGUE_SETUP_KEY) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
     try {
-        const generalUpdates = {};
-        const nigeriaUpdates = {};
+        const updates = {};
 
-        // 1. Process General Services
-        hkdmservicesOfficialServicePriceCatalogue.forEach(service => {
-            if (service && service.id) {
-                generalUpdates[service.id] = service;
-            }
-        });
-
-        // 2. Process Manual Nigeria Services
         hkdmservicesNigeriaServicePriceCatalogue.forEach(service => {
             if (service && service.id) {
-                nigeriaUpdates[service.id] = service;
+                updates[service.id] = service;
             }
         });
 
-        const generalCount = Object.keys(generalUpdates).length;
-        const nigeriaCount = Object.keys(nigeriaUpdates).length;
-
-        if (generalCount === 0 || nigeriaCount === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "One of the catalogues is empty. Please verify service files."
-            });
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ success: false, message: "No services found." });
         }
 
-        // 3. Write both catalogs to separate paths in Firebase
-        await db.ref("serviceCatalog").set({
-            general: generalUpdates,
-            nigeria: nigeriaUpdates
-        });
+        // Push directly to the main serviceCatalog node your site reads from
+        await db.ref("serviceCatalog").set(updates);
 
         return res.status(200).json({
             success: true,
-            message: "Both General and Nigeria service catalogues updated successfully in separate nodes.",
-            counts: {
-                generalServices: generalCount,
-                nigeriaServices: nigeriaCount
-            }
+            message: "Nigeria catalogue updated successfully!",
+            count: Object.keys(updates).length
         });
 
     } catch (error) {
-        console.error("CATALOGUE SETUP ERROR:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Unable to update service catalogues.",
-            error: error.message
-        });
+        console.error("SETUP ERROR:", error);
+        return res.status(500).json({ success: false, message: error.message });
     }
 }
