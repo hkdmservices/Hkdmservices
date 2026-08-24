@@ -15,6 +15,10 @@ import {
 
 export default async function handler(req, res) {
 
+    // ========================================================
+    // 1. METHOD CHECK
+    // ========================================================
+
     if (req.method !== "POST") {
 
         return res.status(405).json({
@@ -28,11 +32,12 @@ export default async function handler(req, res) {
     try {
 
         // ====================================================
-        // 1. VERIFY FIREBASE USER
+        // 2. VERIFY FIREBASE USER
         // ====================================================
 
         const authorization =
             req.headers.authorization || "";
+
 
         if (!authorization.startsWith("Bearer ")) {
 
@@ -43,20 +48,24 @@ export default async function handler(req, res) {
 
         }
 
+
         const idToken =
             authorization.substring(7);
+
 
         const decodedToken =
             await admin
                 .auth()
                 .verifyIdToken(idToken);
 
+
         const uid =
             decodedToken.uid;
 
 
+
         // ====================================================
-        // 2. GET ORDER DATA
+        // 3. GET ORDER DATA
         // ====================================================
 
         const {
@@ -83,27 +92,32 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 3. SELECT CATALOGUE
+        // 4. SELECT CATALOGUE
         // ====================================================
 
-        const selectedCatalogue =
+        const requestedCatalogue =
             String(
                 catalogue || "general"
-            ).toLowerCase() === "nigeria"
+            )
+                .trim()
+                .toLowerCase();
 
+
+        const isNigeriaCatalogue =
+            requestedCatalogue === "nigeria";
+
+
+        const selectedCatalogue =
+            isNigeriaCatalogue
                 ? hkdmservicesNigeriaServicePriceCatalogue
-
                 : hkdmservicesOfficialServicePriceCatalogue;
 
 
         const catalogueName =
-            String(
-                catalogue || "general"
-            ).toLowerCase() === "nigeria"
-
+            isNigeriaCatalogue
                 ? "Nigeria"
-
                 : "General";
 
 
@@ -112,14 +126,15 @@ export default async function handler(req, res) {
         );
 
 
+
         // ====================================================
-        // 4. FIND SERVICE
+        // 5. FIND SERVICE
         // ====================================================
 
         const selectedService =
             selectedCatalogue.find(
-                item =>
-                    String(item.id) ===
+                service =>
+                    String(service.id) ===
                     String(serviceId)
             );
 
@@ -135,20 +150,34 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 5. DETECT COMMENT SERVICE
+        // 6. DETERMINE SERVICE TYPE
         // ====================================================
 
-        const isCommentService =
+        const serviceName =
             String(
                 selectedService.service || ""
-            )
+            );
+
+
+        const isCommentService =
+            serviceName
                 .toLowerCase()
                 .includes("comment");
 
 
+        const isFixedPackage =
+            selectedService.ratePer1000 === null ||
+            (
+                selectedService.fixedPrice !== undefined &&
+                selectedService.fixedPrice !== null
+            );
+
+
+
         // ====================================================
-        // 6. VALIDATE QUANTITY
+        // 7. VALIDATE QUANTITY
         // ====================================================
 
         let cleanedComments = [];
@@ -156,8 +185,9 @@ export default async function handler(req, res) {
         let numericQuantity;
 
 
+
         // ====================================================
-        // COMMENT SERVICE
+        // COMMENT SERVICES
         // ====================================================
 
         if (isCommentService) {
@@ -220,13 +250,12 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 7. FIXED PACKAGE
+        // FIXED PACKAGE
         // ====================================================
 
-        else if (
-            selectedService.ratePer1000 === null
-        ) {
+        else if (isFixedPackage) {
 
             numericQuantity =
                 Number(quantity);
@@ -239,9 +268,7 @@ export default async function handler(req, res) {
 
 
             if (
-                !Number.isFinite(
-                    numericQuantity
-                ) ||
+                !Number.isFinite(numericQuantity) ||
                 numericQuantity < minimum
             ) {
 
@@ -256,8 +283,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 8. NORMAL SERVICE
+        // NORMAL SERVICE
         // ====================================================
 
         else {
@@ -273,9 +301,7 @@ export default async function handler(req, res) {
 
 
             if (
-                !Number.isFinite(
-                    numericQuantity
-                ) ||
+                !Number.isFinite(numericQuantity) ||
                 numericQuantity < minimum
             ) {
 
@@ -290,8 +316,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 9. GET USER
+        // 8. GET USER
         // ====================================================
 
         const userRef =
@@ -323,14 +350,22 @@ export default async function handler(req, res) {
             userSnapshot.val() || {};
 
 
+
+        // ====================================================
+        // 9. GET USER TIER
+        // ====================================================
+
         const userTier =
             String(
                 userData.tier || "regular"
-            ).toLowerCase();
+            )
+                .trim()
+                .toLowerCase();
+
 
 
         // ====================================================
-        // 10. CALCULATE ACTIVE PRICE
+        // 10. SELECT ACTIVE PRICE
         // ====================================================
 
         let activeRate =
@@ -339,6 +374,7 @@ export default async function handler(req, res) {
 
         let activeFixedPrice =
             selectedService.fixedPrice;
+
 
 
         // ====================================================
@@ -351,7 +387,9 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.resellerRatePer1000 !==
-                undefined
+                undefined &&
+                selectedService.resellerRatePer1000 !==
+                null
             ) {
 
                 activeRate =
@@ -362,7 +400,9 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.resellerFixedPrice !==
-                undefined
+                undefined &&
+                selectedService.resellerFixedPrice !==
+                null
             ) {
 
                 activeFixedPrice =
@@ -371,6 +411,7 @@ export default async function handler(req, res) {
             }
 
         }
+
 
 
         // ====================================================
@@ -383,7 +424,9 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.vipRatePer1000 !==
-                undefined
+                undefined &&
+                selectedService.vipRatePer1000 !==
+                null
             ) {
 
                 activeRate =
@@ -394,7 +437,9 @@ export default async function handler(req, res) {
 
             if (
                 selectedService.vipFixedPrice !==
-                undefined
+                undefined &&
+                selectedService.vipFixedPrice !==
+                null
             ) {
 
                 activeFixedPrice =
@@ -405,26 +450,85 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 11. CALCULATE TOTAL
+        // 11. VALIDATE ACTIVE PRICE
+        // ====================================================
+
+        if (isFixedPackage) {
+
+            if (
+                !Number.isFinite(
+                    Number(activeFixedPrice)
+                ) ||
+                Number(activeFixedPrice) <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "This service does not have a valid package price."
+                });
+
+            }
+
+        }
+
+        else {
+
+            if (
+                !Number.isFinite(
+                    Number(activeRate)
+                ) ||
+                Number(activeRate) <= 0
+            ) {
+
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "This service does not have a valid price."
+                });
+
+            }
+
+        }
+
+
+
+        // ====================================================
+        // 12. CALCULATE TOTAL
         // ====================================================
 
         let total;
 
 
-        if (
-            selectedService.ratePer1000 === null
-        ) {
+        if (isFixedPackage) {
+
+            // Fixed package = one package price.
+            //
+            // Example:
+            // YouTube 4000hr package
+            // quantity = 1
+            // total = package price
 
             total =
                 Number(
                     activeFixedPrice
-                ) *
-                numericQuantity;
+                );
 
         }
 
         else {
+
+            // Normal service:
+            //
+            // price is per 1,000 units.
+            //
+            // Example:
+            // 500 units at ₦39,830.637 / 1000
+            //
+            // total =
+            // 500 / 1000 × 39,830.637
 
             total =
                 (
@@ -458,8 +562,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 12. CHECK WALLET
+        // 13. GET WALLET BALANCE
         // ====================================================
 
         const currentBalance =
@@ -482,6 +587,11 @@ export default async function handler(req, res) {
 
         }
 
+
+
+        // ====================================================
+        // 14. CHECK WALLET BALANCE
+        // ====================================================
 
         if (
             currentBalance < total
@@ -508,8 +618,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 13. DEDUCT WALLET
+        // 15. DEDUCT WALLET
         // ====================================================
 
         let walletTransaction;
@@ -543,13 +654,11 @@ export default async function handler(req, res) {
 
 
                         if (
-                            !Number.isFinite(
-                                balance
-                            )
+                            !Number.isFinite(balance)
                         ) {
 
                             throw new Error(
-                                "Invalid wallet balance inside transaction."
+                                "INVALID_WALLET_BALANCE"
                             );
 
                         }
@@ -613,8 +722,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 14. CONFIRM WALLET TRANSACTION
+        // 16. CONFIRM WALLET DEDUCTION
         // ====================================================
 
         if (
@@ -631,8 +741,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 15. NEW BALANCE
+        // 17. GET NEW BALANCE
         // ====================================================
 
         const committedUser =
@@ -648,9 +759,7 @@ export default async function handler(req, res) {
 
 
         if (
-            !Number.isFinite(
-                newBalance
-            )
+            !Number.isFinite(newBalance)
         ) {
 
             return res.status(500).json({
@@ -662,8 +771,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 16. CREATE ORDER
+        // 18. CREATE ORDER REFERENCE
         // ====================================================
 
         const orderRef =
@@ -676,8 +786,9 @@ export default async function handler(req, res) {
             orderRef.key;
 
 
+
         // ====================================================
-        // 17. ORDER DATA
+        // 19. CREATE ORDER DATA
         // ====================================================
 
         const orderData = {
@@ -731,8 +842,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 18. SAVE ORDER
+        // 20. SAVE ORDER
         // ====================================================
 
         try {
@@ -760,8 +872,12 @@ export default async function handler(req, res) {
                 await userRef.transaction(
                     currentUserData => {
 
-                        if (!currentUserData) {
+                        if (
+                            !currentUserData
+                        ) {
+
                             return null;
+
                         }
 
 
@@ -821,8 +937,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 19. SAVE ORDER TRANSACTION
+        // 21. SAVE ORDER TRANSACTION
         // ====================================================
 
         try {
@@ -895,8 +1012,12 @@ export default async function handler(req, res) {
                 await userRef.transaction(
                     currentUserData => {
 
-                        if (!currentUserData) {
+                        if (
+                            !currentUserData
+                        ) {
+
                             return null;
+
                         }
 
 
@@ -956,8 +1077,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 20. UPDATE TOTAL SPENT
+        // 22. UPDATE TOTAL SPENT
         // ====================================================
 
         let updatedTotalSpent =
@@ -986,6 +1108,11 @@ export default async function handler(req, res) {
             );
 
 
+
+        // ====================================================
+        // 23. PREPARE TIER UPDATE
+        // ====================================================
+
         const tierUpdates = {
 
             totalSpent:
@@ -997,13 +1124,14 @@ export default async function handler(req, res) {
         };
 
 
-        // ====================================================
-        // 21. AUTOMATIC VIP
-        // ====================================================
-
         let finalTier =
             userTier;
 
+
+
+        // ====================================================
+        // 24. AUTOMATIC VIP
+        // ====================================================
 
         if (
             userTier !== "reseller" &&
@@ -1030,8 +1158,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 22. SAVE TOTAL SPEND / TIER
+        // 25. SAVE TOTAL SPEND / TIER
         // ====================================================
 
         try {
@@ -1052,8 +1181,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 23. TELEGRAM NOTIFICATION
+        // 26. TELEGRAM NOTIFICATION
         // ====================================================
 
         try {
@@ -1074,8 +1204,9 @@ export default async function handler(req, res) {
         }
 
 
+
         // ====================================================
-        // 24. SUCCESS
+        // 27. SUCCESS
         // ====================================================
 
         return res.status(200).json({
@@ -1089,6 +1220,12 @@ export default async function handler(req, res) {
 
             catalogue:
                 catalogueName,
+
+            platform:
+                selectedService.platform,
+
+            service:
+                selectedService.service,
 
             amount:
                 total,
@@ -1109,8 +1246,12 @@ export default async function handler(req, res) {
 
         });
 
-
     }
+
+
+    // ========================================================
+    // 28. GLOBAL ERROR
+    // ========================================================
 
     catch (error) {
 
