@@ -1,16 +1,15 @@
 // ============================================================
-// HKDMservices — Nigeria Services Catalogue
+// HKDMservices — Nigeria SMM Services Catalogue
 // ============================================================
 //
-// SOURCE:
-// services.js official catalogue
+// Nigeria-specific services
 //
-// NIGERIA PRICING RULE:
-// Regular = Official Price × 3
-// Reseller = Nigeria Regular × 75%
-// VIP = Nigeria Regular × 90%
+// Pricing:
+// Regular  = supplied Nigeria price
+// Reseller = Regular × 75%
+// VIP      = Regular × 90%
 //
-// Currency: NGN (₦)
+// All normal services are priced per 1,000 units.
 // ============================================================
 
 
@@ -18,27 +17,13 @@
 // NIGERIA PRICING CONSTANTS
 // ============================================================
 
-const NIGERIA_PRICE_MULTIPLIER = 3;
-
 const NIGERIA_RESELLER_MULTIPLIER = 0.75;
-
 const NIGERIA_VIP_MULTIPLIER = 0.90;
 
 
 // ============================================================
-// PRICE CALCULATION HELPERS
+// PRICE HELPERS
 // ============================================================
-
-function nigeriaRegularPrice(price) {
-
-    if (price === null || price === undefined) {
-        return null;
-    }
-
-    return Math.round(Number(price) * NIGERIA_PRICE_MULTIPLIER);
-
-}
-
 
 function nigeriaResellerPrice(price) {
 
@@ -46,9 +31,8 @@ function nigeriaResellerPrice(price) {
         return null;
     }
 
-    return Math.round(
-        nigeriaRegularPrice(price) *
-        NIGERIA_RESELLER_MULTIPLIER
+    return Number(
+        (Number(price) * NIGERIA_RESELLER_MULTIPLIER).toFixed(4)
     );
 
 }
@@ -60,9 +44,8 @@ function nigeriaVipPrice(price) {
         return null;
     }
 
-    return Math.round(
-        nigeriaRegularPrice(price) *
-        NIGERIA_VIP_MULTIPLIER
+    return Number(
+        (Number(price) * NIGERIA_VIP_MULTIPLIER).toFixed(4)
     );
 
 }
@@ -75,861 +58,296 @@ function nigeriaVipPrice(price) {
 const hkdmservicesNigeriaServicePriceCatalogue = [
 
     // ========================================================
-    // 1. INSTAGRAM
+    // X / TWITTER
     // ========================================================
 
     {
-        id: "NG-ig_followers",
-        platform: "Instagram",
-        service: "Followers",
-
-        ratePer1000: 36000,
-        resellerRatePer1000: 27000,
-        vipRatePer1000: 32400,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_likes",
-        platform: "Instagram",
-        service: "Likes",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_views",
-        platform: "Instagram",
-        service: "Views",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_comments",
-        platform: "Instagram",
-        service: "Comments",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_live_stream",
-        platform: "Instagram",
-        service: "Live Stream",
-
-        ratePer1000: 300000,
-        resellerRatePer1000: 225000,
-        vipRatePer1000: 270000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_repost",
-        platform: "Instagram",
-        service: "Repost",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_story_views_impressions",
-        platform: "Instagram",
-        service: "Story Views + Impressions",
-
-        ratePer1000: 7800,
-        resellerRatePer1000: 5850,
-        vipRatePer1000: 7020,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-ig_channel_members",
-        platform: "Instagram",
-        service: "Channel Members",
-
-        ratePer1000: 15000,
-        resellerRatePer1000: 11250,
-        vipRatePer1000: 13500,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 2. TIKTOK
-    // ========================================================
-
-    {
-        id: "NG-tt_followers",
-        platform: "TikTok",
-        service: "Followers",
-
-        ratePer1000: 39000,
-        resellerRatePer1000: 29250,
-        vipRatePer1000: 35100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_likes",
-        platform: "TikTok",
-        service: "Likes",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_views",
-        platform: "TikTok",
-        service: "Views",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_shares",
-        platform: "TikTok",
-        service: "Shares",
-
-        ratePer1000: 6000,
-        resellerRatePer1000: 4500,
-        vipRatePer1000: 5400,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_saves",
-        platform: "TikTok",
-        service: "Saves",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_comments",
-        platform: "TikTok",
-        service: "Comments",
-
-        ratePer1000: 30000,
-        resellerRatePer1000: 22500,
-        vipRatePer1000: 27000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_story_views",
-        platform: "TikTok",
-        service: "Story Views",
-
-        ratePer1000: 6000,
-        resellerRatePer1000: 4500,
-        vipRatePer1000: 5400,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_video_downloads",
-        platform: "TikTok",
-        service: "Video Downloads",
-
-        ratePer1000: 15000,
-        resellerRatePer1000: 11250,
-        vipRatePer1000: 13500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_monetization_views",
-        platform: "TikTok",
-        service: "Monetization Views | 100,000 Views |",
-
-        ratePer1000: null,
-
-        fixedPrice: 150000,
-        resellerFixedPrice: 112500,
-        vipFixedPrice: 135000,
-
-        minimumQuantity: 1,
-        oneTimePayment: true
-    },
-
-    {
-        id: "NG-tt_live_viewers",
-        platform: "TikTok",
-        service: "Livestream Engagement - Viewers",
-
-        ratePer1000: 300000,
-        resellerRatePer1000: 225000,
-        vipRatePer1000: 270000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_live_likes",
-        platform: "TikTok",
-        service: "Livestream Engagement - Likes",
-
-        ratePer1000: 6000,
-        resellerRatePer1000: 4500,
-        vipRatePer1000: 5400,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_live_comments",
-        platform: "TikTok",
-        service: "Livestream Engagement - Comments",
-
-        ratePer1000: 15000,
-        resellerRatePer1000: 11250,
-        vipRatePer1000: 13500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tt_live_shares",
-        platform: "TikTok",
-        service: "Livestream Engagement - Shares",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 3. YOUTUBE
-    // ========================================================
-
-    {
-        id: "NG-yt_subscribers",
-        platform: "YouTube",
-        service: "Subscribers",
-
-        ratePer1000: 90000,
-        resellerRatePer1000: 67500,
-        vipRatePer1000: 81000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_likes",
-        platform: "YouTube",
-        service: "Likes",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_views",
-        platform: "YouTube",
-        service: "Views",
-
-        ratePer1000: 7500,
-        resellerRatePer1000: 5625,
-        vipRatePer1000: 6750,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_watch_time",
-        platform: "YouTube",
-        service: "Watch Time (4000hr Package)",
-
-        ratePer1000: null,
-
-        fixedPrice: 300000,
-        resellerFixedPrice: 225000,
-        vipFixedPrice: 270000,
-
-        minimumQuantity: 1
-    },
-
-    {
-        id: "NG-yt_comments",
-        platform: "YouTube",
-        service: "Comments",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_livestream_views",
-        platform: "YouTube",
-        service: "Livestream Views | 24 Hours |",
-
-        ratePer1000: 300000,
-        resellerRatePer1000: 225000,
-        vipRatePer1000: 270000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_livestream_chat_comments",
-        platform: "YouTube",
-        service: "Livestream Chat Comments",
-
-        ratePer1000: 30000,
-        resellerRatePer1000: 22500,
-        vipRatePer1000: 27000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_short_views",
-        platform: "YouTube",
-        service: "Short Views",
-
-        ratePer1000: 9600,
-        resellerRatePer1000: 7200,
-        vipRatePer1000: 8640,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_comment_likes",
-        platform: "YouTube",
-        service: "Comment Likes",
-
-        ratePer1000: 15600,
-        resellerRatePer1000: 11700,
-        vipRatePer1000: 14040,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-yt_social_shares",
-        platform: "YouTube",
-        service: "Social Shares",
-
-        ratePer1000: 12000,
-        resellerRatePer1000: 9000,
-        vipRatePer1000: 10800,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 4. FACEBOOK
-    // ========================================================
-
-    {
-        id: "NG-fb_followers",
-        platform: "Facebook",
-        service: "Followers",
-
-        ratePer1000: 36000,
-        resellerRatePer1000: 27000,
-        vipRatePer1000: 32400,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_post_likes",
-        platform: "Facebook",
-        service: "Post Likes",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_video_views",
-        platform: "Facebook",
-        service: "Video Views",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_comments",
-        platform: "Facebook",
-        service: "Comments",
-
-        ratePer1000: 30000,
-        resellerRatePer1000: 22500,
-        vipRatePer1000: 27000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_livestream_views",
-        platform: "Facebook",
-        service: "Livestream Views | 6 Hours |",
-
-        ratePer1000: 300000,
-        resellerRatePer1000: 225000,
-        vipRatePer1000: 270000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_group_members",
-        platform: "Facebook",
-        service: "Group Members",
-
-        ratePer1000: 15000,
-        resellerRatePer1000: 11250,
-        vipRatePer1000: 13500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_post_reactions",
-        platform: "Facebook",
-        service: "Post Reactions | Random Emojis |",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-fb_page_reviews",
-        platform: "Facebook",
-        service: "Page Reviews | Custom |",
-
-        ratePer1000: 470400,
-        resellerRatePer1000: 352800,
-        vipRatePer1000: 423360,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 5. X (TWITTER)
-    // ========================================================
-
-    {
-        id: "NG-tw_followers",
+        id: "NG-x_followers",
         platform: "X (Twitter)",
-        service: "Followers",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
+        service: "Nigeria Followers",
+        ratePer1000: 70210.1005,
+        resellerRatePer1000: nigeriaResellerPrice(70210.1005),
+        vipRatePer1000: nigeriaVipPrice(70210.1005),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-tw_likes",
+        id: "NG-x_likes",
         platform: "X (Twitter)",
-        service: "Likes",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
+        service: "Nigeria Likes",
+        ratePer1000: 46431.887,
+        resellerRatePer1000: nigeriaResellerPrice(46431.887),
+        vipRatePer1000: nigeriaVipPrice(46431.887),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-tw_retweets",
+        id: "NG-x_retweets",
         platform: "X (Twitter)",
-        service: "Retweets",
-
-        ratePer1000: 7500,
-        resellerRatePer1000: 5625,
-        vipRatePer1000: 6750,
-
-        minimumQuantity: 100
+        service: "Nigeria Retweets",
+        ratePer1000: 60333.50,
+        resellerRatePer1000: nigeriaResellerPrice(60333.50),
+        vipRatePer1000: nigeriaVipPrice(60333.50),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-tw_views",
+        id: "NG-x_bookmarks",
         platform: "X (Twitter)",
-        service: "Views",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tw_poll_votes",
-        platform: "X (Twitter)",
-        service: "Poll Votes",
-
-        ratePer1000: 9150,
-        resellerRatePer1000: 6863,
-        vipRatePer1000: 8235,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tw_live_listeners",
-        platform: "X (Twitter)",
-        service: "Live Listeners",
-
-        ratePer1000: 150000,
-        resellerRatePer1000: 112500,
-        vipRatePer1000: 135000,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tw_comments",
-        platform: "X (Twitter)",
-        service: "Comments",
-
-        ratePer1000: 30000,
-        resellerRatePer1000: 22500,
-        vipRatePer1000: 27000,
-
-        minimumQuantity: 100
+        service: "Nigeria Bookmarks",
+        ratePer1000: 68400.20,
+        resellerRatePer1000: nigeriaResellerPrice(68400.20),
+        vipRatePer1000: nigeriaVipPrice(68400.20),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
 
     // ========================================================
-    // 6. TELEGRAM
+    // SPOTIFY
     // ========================================================
 
     {
-        id: "NG-tg_members",
-        platform: "Telegram",
-        service: "Channel / Group Members",
-
-        ratePer1000: 21000,
-        resellerRatePer1000: 15750,
-        vipRatePer1000: 18900,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tg_views",
-        platform: "Telegram",
-        service: "Post Views",
-
-        ratePer1000: 4500,
-        resellerRatePer1000: 3375,
-        vipRatePer1000: 4050,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tg_reactions",
-        platform: "Telegram",
-        service: "Reactions",
-
-        ratePer1000: 10500,
-        resellerRatePer1000: 7875,
-        vipRatePer1000: 9450,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-tg_comments",
-        platform: "Telegram",
-        service: "Comments",
-
-        ratePer1000: 30000,
-        resellerRatePer1000: 22500,
-        vipRatePer1000: 27000,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 7. SPOTIFY
-    // ========================================================
-
-    {
-        id: "NG-sp_followers",
+        id: "NG-spotify_followers",
         platform: "Spotify",
-        service: "Followers",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-sp_monthly_listeners",
-        platform: "Spotify",
-        service: "Monthly Listeners",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-sp_plays",
-        platform: "Spotify",
-        service: "Plays",
-
-        ratePer1000: 24000,
-        resellerRatePer1000: 18000,
-        vipRatePer1000: 21600,
-
-        minimumQuantity: 100
-    },
-
-    {
-        id: "NG-sp_saves",
-        platform: "Spotify",
-        service: "Saves",
-
-        ratePer1000: 9000,
-        resellerRatePer1000: 6750,
-        vipRatePer1000: 8100,
-
-        minimumQuantity: 100
+        service: "Nigeria Followers",
+        ratePer1000: 26800.89,
+        resellerRatePer1000: nigeriaResellerPrice(26800.89),
+        vipRatePer1000: nigeriaVipPrice(26800.89),
+        minimumQuantity: 100,
+        maximumQuantity: 1000000
     },
 
 
     // ========================================================
-    // 8. WHATSAPP
+    // TIKTOK
     // ========================================================
 
     {
-        id: "NG-wa_channel_followers",
-        platform: "WhatsApp",
-        service: "Channel Followers",
-
-        ratePer1000: 45000,
-        resellerRatePer1000: 33750,
-        vipRatePer1000: 40500,
-
-        minimumQuantity: 100
+        id: "NG-tiktok_video_views",
+        platform: "TikTok",
+        service: "Nigeria Video Views",
+        ratePer1000: 8033.35,
+        resellerRatePer1000: nigeriaResellerPrice(8033.35),
+        vipRatePer1000: nigeriaVipPrice(8033.35),
+        minimumQuantity: 100,
+        maximumQuantity: 100000
     },
 
     {
-        id: "NG-wa_post_reactions",
-        platform: "WhatsApp",
-        service: "Channel Post Reactions",
-
-        ratePer1000: 10500,
-        resellerRatePer1000: 7875,
-        vipRatePer1000: 9450,
-
-        minimumQuantity: 100
-    },
-
-
-    // ========================================================
-    // 9. APPLE MUSIC
-    // ========================================================
-
-    {
-        id: "NG-am_followers",
-        platform: "Apple Music",
-        service: "Followers",
-
-        ratePer1000: 48000,
-        resellerRatePer1000: 36000,
-        vipRatePer1000: 43200,
-
-        minimumQuantity: 100
+        id: "NG-tiktok_comments",
+        platform: "TikTok",
+        service: "Nigeria Comments",
+        ratePer1000: 60333.50,
+        resellerRatePer1000: nigeriaResellerPrice(60333.50),
+        vipRatePer1000: nigeriaVipPrice(60333.50),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-am_plays",
-        platform: "Apple Music",
-        service: "Plays",
+        id: "NG-tiktok_followers",
+        platform: "TikTok",
+        service: "Nigeria Followers",
+        ratePer1000: 49739.234,
+        resellerRatePer1000: nigeriaResellerPrice(49739.234),
+        vipRatePer1000: nigeriaVipPrice(49739.234),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
 
-        ratePer1000: 27000,
-        resellerRatePer1000: 20250,
-        vipRatePer1000: 24300,
-
-        minimumQuantity: 100
+    {
+        id: "NG-tiktok_likes",
+        platform: "TikTok",
+        service: "Nigeria Likes",
+        ratePer1000: 44778.2135,
+        resellerRatePer1000: nigeriaResellerPrice(44778.2135),
+        vipRatePer1000: nigeriaVipPrice(44778.2135),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
 
     // ========================================================
-    // 10. REDDIT
+    // FACEBOOK
     // ========================================================
 
     {
-        id: "NG-reddit_followers",
-        platform: "Reddit",
-        service: "Followers",
-
-        ratePer1000: 28800,
-        resellerRatePer1000: 21600,
-        vipRatePer1000: 25920,
-
-        minimumQuantity: 100
+        id: "NG-facebook_video_views",
+        platform: "Facebook",
+        service: "Nigeria Video Views",
+        ratePer1000: 10453.36,
+        resellerRatePer1000: nigeriaResellerPrice(10453.36),
+        vipRatePer1000: nigeriaVipPrice(10453.36),
+        minimumQuantity: 100,
+        maximumQuantity: 100000
     },
 
     {
-        id: "NG-reddit_subscribers",
-        platform: "Reddit",
-        service: "Channel Subscribers",
-
-        ratePer1000: 28800,
-        resellerRatePer1000: 21600,
-        vipRatePer1000: 25920,
-
-        minimumQuantity: 100
+        id: "NG-facebook_story_views",
+        platform: "Facebook",
+        service: "Nigeria Story Views",
+        ratePer1000: 34200.10,
+        resellerRatePer1000: nigeriaResellerPrice(34200.10),
+        vipRatePer1000: nigeriaVipPrice(34200.10),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-reddit_post_upvotes",
-        platform: "Reddit",
-        service: "Post Upvotes",
-
-        ratePer1000: 228000,
-        resellerRatePer1000: 171000,
-        vipRatePer1000: 205200,
-
-        minimumQuantity: 100
+        id: "NG-facebook_comments",
+        platform: "Facebook",
+        service: "Nigeria Comments",
+        ratePer1000: 52266.80,
+        resellerRatePer1000: nigeriaResellerPrice(52266.80),
+        vipRatePer1000: nigeriaVipPrice(52266.80),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-reddit_post_downvotes",
-        platform: "Reddit",
-        service: "Post Downvotes",
+        id: "NG-facebook_shares",
+        platform: "Facebook",
+        service: "Nigeria Shares",
+        ratePer1000: 76466.90,
+        resellerRatePer1000: nigeriaResellerPrice(76466.90),
+        vipRatePer1000: nigeriaVipPrice(76466.90),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
 
-        ratePer1000: 360000,
-        resellerRatePer1000: 270000,
-        vipRatePer1000: 324000,
 
-        minimumQuantity: 100
+    // ========================================================
+    // YOUTUBE
+    // ========================================================
+
+    {
+        id: "NG-youtube_video_views",
+        platform: "YouTube",
+        service: "Nigeria Video Views",
+        ratePer1000: 10453.36,
+        resellerRatePer1000: nigeriaResellerPrice(10453.36),
+        vipRatePer1000: nigeriaVipPrice(10453.36),
+        minimumQuantity: 100,
+        maximumQuantity: 500000
     },
 
     {
-        id: "NG-reddit_comment_upvotes",
-        platform: "Reddit",
-        service: "Comments Upvotes",
-
-        ratePer1000: 600000,
-        resellerRatePer1000: 450000,
-        vipRatePer1000: 540000,
-
-        minimumQuantity: 100
+        id: "NG-youtube_comments",
+        platform: "YouTube",
+        service: "Nigeria Comments",
+        ratePer1000: 52266.80,
+        resellerRatePer1000: nigeriaResellerPrice(52266.80),
+        vipRatePer1000: nigeriaVipPrice(52266.80),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-reddit_views",
-        platform: "Reddit",
-        service: "Views",
-
-        ratePer1000: 7500,
-        resellerRatePer1000: 5625,
-        vipRatePer1000: 6750,
-
-        minimumQuantity: 100
+        id: "NG-youtube_shorts_comments",
+        platform: "YouTube",
+        service: "Nigeria Shorts Comments",
+        ratePer1000: 52266.80,
+        resellerRatePer1000: nigeriaResellerPrice(52266.80),
+        vipRatePer1000: nigeriaVipPrice(52266.80),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     },
 
     {
-        id: "NG-reddit_shares",
-        platform: "Reddit",
-        service: "Shares",
+        id: "NG-youtube_subscribers",
+        platform: "YouTube",
+        service: "Nigeria Subscribers",
+        ratePer1000: 84533.60,
+        resellerRatePer1000: nigeriaResellerPrice(84533.60),
+        vipRatePer1000: nigeriaVipPrice(84533.60),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
 
-        ratePer1000: 7500,
-        resellerRatePer1000: 5625,
-        vipRatePer1000: 6750,
 
-        minimumQuantity: 100
+    // ========================================================
+    // INSTAGRAM
+    // ========================================================
+
+    {
+        id: "NG-instagram_views",
+        platform: "Instagram",
+        service: "Nigeria Views",
+        ratePer1000: 5226.68,
+        resellerRatePer1000: nigeriaResellerPrice(5226.68),
+        vipRatePer1000: nigeriaVipPrice(5226.68),
+        minimumQuantity: 100,
+        maximumQuantity: 1000000
     },
 
     {
-        id: "NG-reddit_comments",
-        platform: "Reddit",
-        service: "Comments | Custom |",
-
-        ratePer1000: 450000,
-        resellerRatePer1000: 337500,
-        vipRatePer1000: 405000,
-
-        minimumQuantity: 100
+        id: "NG-instagram_story_views",
+        platform: "Instagram",
+        service: "Nigeria Story Views",
+        ratePer1000: 34200.10,
+        resellerRatePer1000: nigeriaResellerPrice(34200.10),
+        vipRatePer1000: nigeriaVipPrice(34200.10),
+        minimumQuantity: 100,
+        maximumQuantity: 2000
     },
 
     {
-        id: "NG-reddit_community_members",
-        platform: "Reddit",
-        service: "Community Members",
+        id: "NG-instagram_likes",
+        platform: "Instagram",
+        service: "Nigeria Likes",
+        ratePer1000: 39778.2135,
+        resellerRatePer1000: nigeriaResellerPrice(39778.2135),
+        vipRatePer1000: nigeriaVipPrice(39778.2135),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
 
-        ratePer1000: 900000,
-        resellerRatePer1000: 675000,
-        vipRatePer1000: 810000,
+    {
+        id: "NG-instagram_channel_members",
+        platform: "Instagram",
+        service: "Nigeria Channel Members",
+        ratePer1000: 5075.56,
+        resellerRatePer1000: nigeriaResellerPrice(5075.56),
+        vipRatePer1000: nigeriaVipPrice(5075.56),
+        minimumQuantity: 100,
+        maximumQuantity: 1000000
+    },
 
-        minimumQuantity: 100
+    {
+        id: "NG-instagram_followers",
+        platform: "Instagram",
+        service: "Nigeria Followers",
+        ratePer1000: 39830.637,
+        resellerRatePer1000: nigeriaResellerPrice(39830.637),
+        vipRatePer1000: nigeriaVipPrice(39830.637),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
+
+    {
+        id: "NG-instagram_comments",
+        platform: "Instagram",
+        service: "Custom Comments | Nigeria",
+        ratePer1000: 87719.9465,
+        resellerRatePer1000: nigeriaResellerPrice(87719.9465),
+        vipRatePer1000: nigeriaVipPrice(87719.9465),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
+    },
+
+    {
+        id: "NG-instagram_repost",
+        platform: "Instagram",
+        service: "Nigeria Repost",
+        ratePer1000: 40431.887,
+        resellerRatePer1000: nigeriaResellerPrice(40431.887),
+        vipRatePer1000: nigeriaVipPrice(40431.887),
+        minimumQuantity: 100,
+        maximumQuantity: 5000
     }
 
 ];
@@ -942,7 +360,7 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
 export function getNigeriaServiceById(serviceId) {
 
     return hkdmservicesNigeriaServicePriceCatalogue.find(
-        service => service.id === serviceId
+        service => String(service.id) === String(serviceId)
     );
 
 }
@@ -956,7 +374,7 @@ export function getNigeriaServicesByPlatform(platform) {
 
     if (
         !platform ||
-        platform.toLowerCase() === "all"
+        String(platform).toLowerCase() === "all"
     ) {
 
         return hkdmservicesNigeriaServicePriceCatalogue;
@@ -965,8 +383,8 @@ export function getNigeriaServicesByPlatform(platform) {
 
     return hkdmservicesNigeriaServicePriceCatalogue.filter(
         service =>
-            service.platform.toLowerCase() ===
-            platform.toLowerCase()
+            String(service.platform).toLowerCase() ===
+            String(platform).toLowerCase()
     );
 
 }
@@ -1005,46 +423,25 @@ export function getNigeriaServicePrice(
     const normalizedTier =
         String(tier).toLowerCase();
 
-
-    // Fixed-price service
-
-    if (
-        service.fixedPrice !== undefined &&
-        service.fixedPrice !== null
-    ) {
-
-        if (normalizedTier === "reseller") {
-
-            return service.resellerFixedPrice;
-
-        }
-
-        if (normalizedTier === "vip") {
-
-            return service.vipFixedPrice;
-
-        }
-
-        return service.fixedPrice;
-
-    }
-
-
-    // Normal service
-
     if (normalizedTier === "reseller") {
 
-        return service.resellerRatePer1000;
+        return Number(
+            service.resellerRatePer1000 || 0
+        );
 
     }
 
     if (normalizedTier === "vip") {
 
-        return service.vipRatePer1000;
+        return Number(
+            service.vipRatePer1000 || 0
+        );
 
     }
 
-    return service.ratePer1000;
+    return Number(
+        service.ratePer1000 || 0
+    );
 
 }
 
@@ -1063,31 +460,8 @@ export function calculateNigeriaOrderPrice(
         return 0;
     }
 
-
-    const price =
-        getNigeriaServicePrice(
-            service,
-            tier
-        );
-
-
-    // Fixed package
-
-    if (
-        service.fixedPrice !== undefined &&
-        service.fixedPrice !== null
-    ) {
-
-        return Number(price) || 0;
-
-    }
-
-
-    // Normal service
-
     const numericQuantity =
         Number(quantity);
-
 
     if (
         !Number.isFinite(numericQuantity) ||
@@ -1098,30 +472,42 @@ export function calculateNigeriaOrderPrice(
 
     }
 
-
     if (
-        service.minimumQuantity &&
         numericQuantity <
-        service.minimumQuantity
+        Number(service.minimumQuantity || 0)
     ) {
 
         return 0;
 
     }
 
+    if (
+        service.maximumQuantity !== undefined &&
+        numericQuantity >
+        Number(service.maximumQuantity)
+    ) {
 
-    return Math.round(
+        return 0;
+
+    }
+
+    const price =
+        getNigeriaServicePrice(
+            service,
+            tier
+        );
+
+    return Number(
         (
             numericQuantity / 1000
-        ) *
-        Number(price)
+        ) * Number(price)
     );
 
 }
 
 
 // ============================================================
-// CHECK MINIMUM QUANTITY
+// CHECK QUANTITY
 // ============================================================
 
 export function isNigeriaQuantityValid(
@@ -1133,20 +519,30 @@ export function isNigeriaQuantityValid(
         return false;
     }
 
+    const numericQuantity =
+        Number(quantity);
 
     if (
-        service.fixedPrice !== undefined &&
-        service.fixedPrice !== null
+        !Number.isFinite(numericQuantity)
     ) {
 
-        return Number(quantity) >= 1;
+        return false;
 
     }
 
+    const minimum =
+        Number(
+            service.minimumQuantity || 0
+        );
+
+    const maximum =
+        service.maximumQuantity !== undefined
+            ? Number(service.maximumQuantity)
+            : Infinity;
 
     return (
-        Number(quantity) >=
-        Number(service.minimumQuantity || 0)
+        numericQuantity >= minimum &&
+        numericQuantity <= maximum
     );
 
 }
@@ -1179,8 +575,6 @@ export function formatNigeriaNaira(amount) {
 
 export {
     hkdmservicesNigeriaServicePriceCatalogue,
-
-    NIGERIA_PRICE_MULTIPLIER,
 
     NIGERIA_RESELLER_MULTIPLIER,
 
