@@ -298,11 +298,75 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
 
 
 // ============================================================
+// GET NIGERIA SERVICE PRICE
+// ============================================================
+//
+// Returns the correct price for the user's tier.
+//
+// regular  → ratePer1000
+// reseller → resellerRatePer1000
+// vip      → vipRatePer1000
+//
+// If a special tier price does not exist, the regular price
+// is used as a fallback.
+// ============================================================
+
+function getNigeriaServicePrice(
+    service,
+    tier = "regular"
+) {
+
+    if (!service) {
+        return 0;
+    }
+
+
+    const userTier =
+        String(
+            tier || "regular"
+        )
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        userTier === "reseller" &&
+        service.resellerRatePer1000 !== undefined &&
+        service.resellerRatePer1000 !== null
+    ) {
+
+        return Number(
+            service.resellerRatePer1000
+        );
+
+    }
+
+
+    if (
+        userTier === "vip" &&
+        service.vipRatePer1000 !== undefined &&
+        service.vipRatePer1000 !== null
+    ) {
+
+        return Number(
+            service.vipRatePer1000
+        );
+
+    }
+
+
+    return Number(
+        service.ratePer1000 || 0
+    );
+
+}
+
+
+// ============================================================
 // EXPORT
 // ============================================================
 
 export {
-
-    hkdmservicesNigeriaServicePriceCatalogue
-
+    hkdmservicesNigeriaServicePriceCatalogue,
+    getNigeriaServicePrice
 };
