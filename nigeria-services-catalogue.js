@@ -1,6 +1,14 @@
 // ============================================================
 // HKDMservices Nigeria Service & Price Catalogue
 // ============================================================
+//
+// PRICING:
+// Regular  = 100%
+// VIP      = 90%  → 10% OFF
+// Reseller = 75%  → 25% OFF
+//
+// ============================================================
+
 
 const hkdmservicesNigeriaServicePriceCatalogue = [
 
@@ -13,8 +21,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Nigeria Followers",
         ratePer1000: 70210.1005,
-        resellerRatePer1000: 70210.1005,
-        vipRatePer1000: 70210.1005,
+        resellerRatePer1000: 52657.5754,
+        vipRatePer1000: 63189.0905,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -24,8 +32,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Nigeria Likes",
         ratePer1000: 46431.887,
-        resellerRatePer1000: 46431.887,
-        vipRatePer1000: 46431.887,
+        resellerRatePer1000: 34823.9153,
+        vipRatePer1000: 41788.6983,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -35,8 +43,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Nigeria Retweets",
         ratePer1000: 60333.50,
-        resellerRatePer1000: 60333.50,
-        vipRatePer1000: 60333.50,
+        resellerRatePer1000: 45250.125,
+        vipRatePer1000: 54300.15,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -46,8 +54,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "X (Twitter)",
         service: "Nigeria Bookmarks",
         ratePer1000: 68400.20,
-        resellerRatePer1000: 68400.20,
-        vipRatePer1000: 68400.20,
+        resellerRatePer1000: 51300.15,
+        vipRatePer1000: 61560.18,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -62,8 +70,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Spotify",
         service: "Nigeria Followers",
         ratePer1000: 26800.89,
-        resellerRatePer1000: 26800.89,
-        vipRatePer1000: 26800.89,
+        resellerRatePer1000: 20100.6675,
+        vipRatePer1000: 24120.801,
         minimumQuantity: 100
     },
 
@@ -77,8 +85,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "TikTok",
         service: "Nigeria Video Views",
         ratePer1000: 8033.35,
-        resellerRatePer1000: 8033.35,
-        vipRatePer1000: 8033.35,
+        resellerRatePer1000: 6025.0125,
+        vipRatePer1000: 7230.015,
         minimumQuantity: 100,
         maximumQuantity: 100000
     },
@@ -88,8 +96,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "TikTok",
         service: "Nigeria Comments",
         ratePer1000: 60333.50,
-        resellerRatePer1000: 60333.50,
-        vipRatePer1000: 60333.50,
+        resellerRatePer1000: 45250.125,
+        vipRatePer1000: 54300.15,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -99,8 +107,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "TikTok",
         service: "Nigeria Followers",
         ratePer1000: 49739.234,
-        resellerRatePer1000: 49739.234,
-        vipRatePer1000: 49739.234,
+        resellerRatePer1000: 37304.4255,
+        vipRatePer1000: 44765.3106,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -110,8 +118,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "TikTok",
         service: "Nigeria Likes",
         ratePer1000: 44778.2135,
-        resellerRatePer1000: 44778.2135,
-        vipRatePer1000: 44778.2135,
+        resellerRatePer1000: 33583.6601,
+        vipRatePer1000: 40300.3921,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -126,8 +134,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Facebook",
         service: "Nigeria Video Views",
         ratePer1000: 10453.36,
-        resellerRatePer1000: 10453.36,
-        vipRatePer1000: 10453.36,
+        resellerRatePer1000: 7840.02,
+        vipRatePer1000: 9408.024,
         minimumQuantity: 100,
         maximumQuantity: 100000
     },
@@ -137,8 +145,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Facebook",
         service: "Nigeria Story Views",
         ratePer1000: 34200.10,
-        resellerRatePer1000: 34200.10,
-        vipRatePer1000: 34200.10,
+        resellerRatePer1000: 25650.075,
+        vipRatePer1000: 30780.09,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -148,8 +156,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Facebook",
         service: "Nigeria Comments",
         ratePer1000: 52266.80,
-        resellerRatePer1000: 52266.80,
-        vipRatePer1000: 52266.80,
+        resellerRatePer1000: 39200.10,
+        vipRatePer1000: 47040.12,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -159,8 +167,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Facebook",
         service: "Nigeria Shares",
         ratePer1000: 76466.90,
-        resellerRatePer1000: 76466.90,
-        vipRatePer1000: 76466.90,
+        resellerRatePer1000: 57350.175,
+        vipRatePer1000: 68820.21,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -175,8 +183,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "YouTube",
         service: "Nigeria Video Views",
         ratePer1000: 10453.36,
-        resellerRatePer1000: 10453.36,
-        vipRatePer1000: 10453.36,
+        resellerRatePer1000: 7840.02,
+        vipRatePer1000: 9408.024,
         minimumQuantity: 100,
         maximumQuantity: 500000
     },
@@ -186,8 +194,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "YouTube",
         service: "Nigeria Comments",
         ratePer1000: 52266.80,
-        resellerRatePer1000: 52266.80,
-        vipRatePer1000: 52266.80,
+        resellerRatePer1000: 39200.10,
+        vipRatePer1000: 47040.12,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -197,8 +205,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "YouTube",
         service: "Nigeria Shorts Comments",
         ratePer1000: 52266.80,
-        resellerRatePer1000: 52266.80,
-        vipRatePer1000: 52266.80,
+        resellerRatePer1000: 39200.10,
+        vipRatePer1000: 47040.12,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -208,8 +216,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "YouTube",
         service: "Nigeria Subscribers",
         ratePer1000: 84533.60,
-        resellerRatePer1000: 84533.60,
-        vipRatePer1000: 84533.60,
+        resellerRatePer1000: 63400.20,
+        vipRatePer1000: 76080.24,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -224,8 +232,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Views",
         ratePer1000: 5226.68,
-        resellerRatePer1000: 5226.68,
-        vipRatePer1000: 5226.68,
+        resellerRatePer1000: 3920.01,
+        vipRatePer1000: 4704.012,
         minimumQuantity: 100,
         maximumQuantity: 1000000
     },
@@ -235,8 +243,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Story Views",
         ratePer1000: 34200.10,
-        resellerRatePer1000: 34200.10,
-        vipRatePer1000: 34200.10,
+        resellerRatePer1000: 25650.075,
+        vipRatePer1000: 30780.09,
         minimumQuantity: 100,
         maximumQuantity: 2000
     },
@@ -246,8 +254,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Likes",
         ratePer1000: 39778.2135,
-        resellerRatePer1000: 39778.2135,
-        vipRatePer1000: 39778.2135,
+        resellerRatePer1000: 29833.6601,
+        vipRatePer1000: 35800.3921,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -257,8 +265,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Channel Members",
         ratePer1000: 5075.56,
-        resellerRatePer1000: 5075.56,
-        vipRatePer1000: 5075.56,
+        resellerRatePer1000: 3806.67,
+        vipRatePer1000: 4568.004,
         minimumQuantity: 100,
         maximumQuantity: 1000000
     },
@@ -268,8 +276,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Followers",
         ratePer1000: 39830.637,
-        resellerRatePer1000: 39830.637,
-        vipRatePer1000: 39830.637,
+        resellerRatePer1000: 29872.9778,
+        vipRatePer1000: 35847.5733,
         minimumQuantity: 100,
         maximumQuantity: 5000
     },
@@ -279,8 +287,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Comments | Custom",
         ratePer1000: 87719.9465,
-        resellerRatePer1000: 87719.9465,
-        vipRatePer1000: 87719.9465,
+        resellerRatePer1000: 65789.9599,
+        vipRatePer1000: 78947.9519,
         minimumQuantity: 100
     },
 
@@ -289,8 +297,8 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
         platform: "Instagram",
         service: "Nigeria Repost",
         ratePer1000: 40431.887,
-        resellerRatePer1000: 40431.887,
-        vipRatePer1000: 40431.887,
+        resellerRatePer1000: 30323.9153,
+        vipRatePer1000: 36388.6983,
         minimumQuantity: 100
     }
 
@@ -301,14 +309,10 @@ const hkdmservicesNigeriaServicePriceCatalogue = [
 // GET NIGERIA SERVICE PRICE
 // ============================================================
 //
-// Returns the correct price for the user's tier.
+// regular  → 100%
+// reseller → 75%  (25% OFF)
+// vip      → 90%  (10% OFF)
 //
-// regular  → ratePer1000
-// reseller → resellerRatePer1000
-// vip      → vipRatePer1000
-//
-// If a special tier price does not exist, the regular price
-// is used as a fallback.
 // ============================================================
 
 function getNigeriaServicePrice(
