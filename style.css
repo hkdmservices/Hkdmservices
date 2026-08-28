@@ -519,19 +519,8 @@ footer p {
     border-color: #1e293b !important;
 }
 
-/* SIDE PANEL & ACTION MENU DARK MODE OVERRIDES */
 [data-bs-theme="dark"] .dashboard-panel {
-    background-color: #0b0f19 !important;
-    color: #f1f5f9 !important;
-}
-
-[data-bs-theme="dark"] .dashboard-panel .card {
-    background-color: #131d31 !important;
-    color: #f1f5f9 !important;
-    border-color: #1e293b !important;
-}
-
-[data-bs-theme="dark"] .dashboard-panel h3 {
+    background-color: #0f172a !important;
     color: #f1f5f9 !important;
 }
 
