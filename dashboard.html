@@ -133,7 +133,7 @@
      NAVBAR
 ===================================================== -->
 <nav class="navbar navbar-dark bg-dark">
-<div class="container">
+<div class="container d-flex justify-content-between align-items-center">
     <a
         class="navbar-brand fw-bold"
         href="index.html"
@@ -143,6 +143,14 @@
         </span>
         HKDMservices
     </a>
+    <button
+        id="themeToggleBtn"
+        class="btn btn-sm btn-outline-light"
+        type="button"
+        aria-label="Toggle theme"
+    >
+        <i id="themeIcon" class="bi bi-moon-fill"></i>
+    </button>
 </div>
 </nav>
 <!-- =====================================================
@@ -218,6 +226,24 @@
                 <p class="mb-0">
                     Total orders placed
                 </p>
+            </div>
+        </div>
+    </div>
+    <!-- =================================================
+         RECENT ORDERS SECTION
+    ================================================= -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card p-4 shadow">
+                <h4 class="mb-3">
+                    <i class="bi bi-clock-history text-success"></i>
+                    Recent Orders
+                </h4>
+                <div id="recentOrders">
+                    <div class="text-center text-muted py-4">
+                        <p class="mb-0">Loading recent orders...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
