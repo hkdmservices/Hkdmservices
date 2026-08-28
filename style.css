@@ -20,6 +20,7 @@ body {
     color: var(--text);
     background: var(--light);
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 a {
     text-decoration: none;
@@ -494,6 +495,74 @@ footer p {
     #activeUsersMain {
         animation: none;
     }
+}
+
+/* =========================================================
+   LIGHT MODE EXPLICIT OVERRIDES
+========================================================= */
+[data-bs-theme="light"] body {
+    background-color: var(--light) !important;
+    color: var(--text) !important;
+}
+
+[data-bs-theme="light"] .card,
+[data-bs-theme="light"] .dashboard-panel-content .card,
+[data-bs-theme="light"] .platform-card,
+[data-bs-theme="light"] .feature-card,
+[data-bs-theme="light"] .service-card,
+[data-bs-theme="light"] .step-card,
+[data-bs-theme="light"] .testimonial-card,
+[data-bs-theme="light"] .dashboard-preview,
+[data-bs-theme="light"] .preview-card,
+[data-bs-theme="light"] .mini-card {
+    background-color: #ffffff !important;
+    color: var(--text) !important;
+    border-color: rgba(0,0,0,0.125) !important;
+}
+
+[data-bs-theme="light"] .dashboard-panel {
+    background-color: #f8f9fa !important;
+    color: var(--text) !important;
+}
+
+[data-bs-theme="light"] .form-control, 
+[data-bs-theme="light"] .form-select, 
+[data-bs-theme="light"] textarea {
+    background-color: #ffffff !important;
+    color: var(--text) !important;
+    border-color: #ced4da !important;
+}
+
+[data-bs-theme="light"] .form-control::placeholder, 
+[data-bs-theme="light"] textarea::placeholder {
+    color: #6c757d !important;
+}
+
+[data-bs-theme="light"] .bg-light,
+[data-bs-theme="light"] .bg-white {
+    background-color: #ffffff !important;
+    color: var(--text) !important;
+}
+
+[data-bs-theme="light"] .text-muted {
+    color: #64748b !important;
+}
+
+[data-bs-theme="light"] .accordion-item,
+[data-bs-theme="light"] .accordion-button {
+    background-color: #ffffff !important;
+    color: var(--text) !important;
+    border-color: rgba(0,0,0,0.125) !important;
+}
+
+[data-bs-theme="light"] .accordion-button:not(.collapsed) {
+    background-color: #e8f5e9 !important;
+    color: #1b5e20 !important;
+}
+
+[data-bs-theme="light"] .login-notice {
+    background: #dcfce7 !important;
+    color: #166534 !important;
 }
 
 /* =========================================================
