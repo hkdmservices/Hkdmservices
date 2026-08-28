@@ -1979,39 +1979,6 @@ if (confirmResellerPaymentBtn) {
 
 
 /* =========================================================
-   DAY/NIGHT THEME TOGGLE
-========================================================= */
-
-const themeToggleBtn = document.getElementById("themeToggleBtn");
-const themeIcon = document.getElementById("themeIcon");
-
-const savedTheme = localStorage.getItem("hkdm_theme") || "light";
-document.documentElement.setAttribute("data-bs-theme", savedTheme);
-updateThemeIcon(savedTheme);
-
-if (themeToggleBtn) {
-    themeToggleBtn.addEventListener("click", () => {
-        const currentTheme = document.documentElement.getAttribute("data-bs-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-
-        document.documentElement.setAttribute("data-bs-theme", newTheme);
-        localStorage.setItem("hkdm_theme", newTheme);
-        updateThemeIcon(newTheme);
-    });
-}
-
-function updateThemeIcon(theme) {
-    if (!themeIcon) return;
-    if (theme === "dark") {
-        themeIcon.className = "bi bi-sun-fill text-warning";
-    } else {
-        themeIcon.className = "bi bi-moon-fill";
-    }
-}
-
-
-
-/* =========================================================
    AUTHENTICATION
 ========================================================= */
 
