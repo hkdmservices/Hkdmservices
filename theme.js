@@ -1,18 +1,18 @@
-// =====================================================
-// HKDMservices - Global Day / Night Theme
-// =====================================================
+// ============================================================
+// HKDMSERVICES GLOBAL THEME
+// Light / Dark Mode
+// ============================================================
 
 (function () {
-    "use strict";
 
     const STORAGE_KEY = "hkdm-theme";
 
-    // ---------------------------------------------
-    // Get saved theme
-    // ---------------------------------------------
+    const html = document.documentElement;
 
     function getSavedTheme() {
-        const saved = localStorage.getItem(STORAGE_KEY);
+
+        const saved =
+            localStorage.getItem(STORAGE_KEY);
 
         if (saved === "dark" || saved === "light") {
             return saved;
@@ -22,13 +22,9 @@
     }
 
 
-    // ---------------------------------------------
-    // Apply theme
-    // ---------------------------------------------
-
     function applyTheme(theme) {
 
-        document.documentElement.setAttribute(
+        html.setAttribute(
             "data-theme",
             theme
         );
@@ -38,153 +34,114 @@
             theme
         );
 
-        updateThemeButtons(theme);
+        updateThemeButton(theme);
     }
 
 
-    // ---------------------------------------------
-    // Update all theme buttons
-    // ---------------------------------------------
+    function updateThemeButton(theme) {
 
-    function updateThemeButtons(theme) {
-
-        const buttons =
-            document.querySelectorAll(
-                ".theme-toggle"
+        const button =
+            document.getElementById(
+                "themeToggle"
             );
 
-
-        buttons.forEach(button => {
-
-            const icon =
-                button.querySelector(
-                    ".theme-icon"
-                );
-
-            const text =
-                button.querySelector(
-                    ".theme-text"
-                );
-
-
-            if (theme === "dark") {
-
-                if (icon) {
-                    icon.className =
-                        "bi bi-sun-fill theme-icon";
-                }
-
-                if (text) {
-                    text.textContent =
-                        "Light Mode";
-                }
-
-                button.setAttribute(
-                    "aria-label",
-                    "Switch to light mode"
-                );
-
-                button.setAttribute(
-                    "title",
-                    "Switch to light mode"
-                );
-
-            } else {
-
-                if (icon) {
-                    icon.className =
-                        "bi bi-moon-stars-fill theme-icon";
-                }
-
-                if (text) {
-                    text.textContent =
-                        "Dark Mode";
-                }
-
-                button.setAttribute(
-                    "aria-label",
-                    "Switch to dark mode"
-                );
-
-                button.setAttribute(
-                    "title",
-                    "Switch to dark mode"
-                );
-            }
-
-        });
-    }
-
-
-    // ---------------------------------------------
-    // Toggle theme
-    // ---------------------------------------------
-
-    function toggleTheme() {
-
-        const current =
-            document.documentElement.getAttribute(
-                "data-theme"
-            ) || "light";
-
-
-        const next =
-            current === "dark"
-                ? "light"
-                : "dark";
-
-
-        applyTheme(next);
-    }
-
-
-    // ---------------------------------------------
-    // Initialize before page is fully loaded
-    // ---------------------------------------------
-
-    applyTheme(
-        getSavedTheme()
-    );
-
-
-    // ---------------------------------------------
-    // Setup buttons
-    // ---------------------------------------------
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-            updateThemeButtons(
-                getSavedTheme()
+        const icon =
+            document.getElementById(
+                "themeIcon"
             );
 
+        if (!button || !icon) {
+            return;
+        }
 
-            document
-                .querySelectorAll(
-                    ".theme-toggle"
-                )
-                .forEach(button => {
 
-                    button.addEventListener(
-                        "click",
-                        toggleTheme
-                    );
+        if (theme === "dark") {
 
-                });
+            icon.className =
+                "bi bi-sun-fill";
+
+            button.setAttribute(
+                "aria-label",
+                "Switch to light mode"
+            );
+
+            button.setAttribute(
+                "title",
+                "Switch to light mode"
+            );
+
+        } else {
+
+            icon.className =
+                "bi bi-moon-stars-fill";
+
+            button.setAttribute(
+                "aria-label",
+                "Switch to dark mode"
+            );
+
+            button.setAttribute(
+                "title",
+                "Switch to dark mode"
+            );
 
         }
-    );
+
+    }
 
 
-    // ---------------------------------------------
-    // Expose functions if needed
-    // ---------------------------------------------
+    function initializeTheme() {
 
-    window.HKDMTheme = {
-        applyTheme,
-        toggleTheme,
-        getSavedTheme
-    };
+        const theme =
+            getSavedTheme();
+
+        applyTheme(theme);
+
+        const button =
+            document.getElementById(
+                "themeToggle"
+            );
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                const currentTheme =
+                    html.getAttribute(
+                        "data-theme"
+                    ) || "light";
+
+                const newTheme =
+                    currentTheme === "dark"
+                        ? "light"
+                        : "dark";
+
+                applyTheme(newTheme);
+
+            }
+        );
+
+    }
+
+
+    if (
+        document.readyState === "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeTheme
+        );
+
+    } else {
+
+        initializeTheme();
+
+    }
 
 })();
