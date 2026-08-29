@@ -14,7 +14,7 @@
 
     <meta
         name="description"
-        content="HKDMservices provides digital marketing and social media growth services."
+        content="HKDMservices - Your trusted digital growth partner for social media and digital marketing services."
     >
 
     <link
@@ -23,13 +23,13 @@
     >
 
     <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
         rel="stylesheet"
     >
 
     <link
-        href="style.css"
         rel="stylesheet"
+        href="style.css"
     >
 
     <style>
@@ -41,52 +41,73 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #ffffff;
         }
 
-        .navbar {
-            padding: 15px 0;
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .main-navbar {
+            background: #111;
         }
 
         .brand-icon {
-            margin-right: 6px;
+            margin-right: 7px;
         }
+
+        /* =========================
+           HERO
+        ========================= */
 
         .hero {
             min-height: 720px;
+
             display: flex;
             align-items: center;
+
+            position: relative;
+            overflow: hidden;
+
+            color: #fff;
+
             background:
                 linear-gradient(
                     135deg,
                     #06140d 0%,
-                    #0b2b19 50%,
+                    #0b2d1b 50%,
                     #198754 100%
                 );
-            color: white;
-            position: relative;
-            overflow: hidden;
         }
 
         .hero::before {
             content: "";
+
             position: absolute;
+
             width: 500px;
             height: 500px;
+
             border-radius: 50%;
+
             background: rgba(255,255,255,0.05);
-            top: -180px;
+
+            top: -200px;
             right: -120px;
         }
 
         .hero::after {
             content: "";
+
             position: absolute;
+
             width: 350px;
             height: 350px;
+
             border-radius: 50%;
+
             background: rgba(255,255,255,0.04);
-            bottom: -150px;
+
+            bottom: -170px;
             left: -100px;
         }
 
@@ -97,34 +118,51 @@
 
         .hero-badge {
             display: inline-block;
+
             padding: 8px 16px;
+
             border-radius: 50px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 20px;
+
+            background: rgba(255,255,255,0.10);
+
+            border: 1px solid rgba(255,255,255,0.20);
+
+            margin-bottom: 22px;
+
             font-size: 14px;
         }
 
         .hero h1 {
             font-size: clamp(2.5rem, 6vw, 5rem);
+
             font-weight: 800;
+
             line-height: 1.05;
+
+            margin-bottom: 25px;
         }
 
         .hero h1 span {
             color: #75e6a5;
         }
 
-        .hero-text {
-            max-width: 700px;
+        .hero-description {
+            max-width: 720px;
+
             font-size: 1.15rem;
+
             line-height: 1.8;
+
             color: rgba(255,255,255,0.85);
         }
 
         .hero-buttons {
-            margin-top: 30px;
+            margin-top: 32px;
         }
+
+        /* =========================
+           GENERAL SECTIONS
+        ========================= */
 
         .section-padding {
             padding: 90px 0;
@@ -132,123 +170,173 @@
 
         .section-title {
             font-weight: 800;
-            margin-bottom: 15px;
         }
 
         .section-subtitle {
-            max-width: 700px;
+            max-width: 720px;
+
             margin: 0 auto 50px;
+
             color: #6c757d;
+
             line-height: 1.7;
         }
 
+        /* =========================
+           CARDS
+        ========================= */
+
         .feature-card {
             height: 100%;
+
             padding: 30px;
+
             border: 1px solid #e9ecef;
+
             border-radius: 18px;
+
             background: #fff;
-            transition: transform .2s ease, box-shadow .2s ease;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,.08);
+
+            box-shadow:
+                0 15px 35px rgba(0,0,0,0.08);
         }
 
         .feature-icon {
             width: 60px;
             height: 60px;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             border-radius: 15px;
+
             background: #e9f8ef;
+
             color: #198754;
+
             font-size: 28px;
+
             margin-bottom: 20px;
         }
 
+        /* =========================
+           PLATFORM CARDS
+        ========================= */
+
         .platform-card {
-            border: 1px solid #e9ecef;
-            border-radius: 18px;
-            padding: 30px 20px;
             height: 100%;
+
+            padding: 30px 20px;
+
             text-align: center;
-            background: white;
-            transition: .2s;
+
+            border: 1px solid #e9ecef;
+
+            border-radius: 18px;
+
+            background: #fff;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .platform-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,.07);
+
+            box-shadow:
+                0 12px 30px rgba(0,0,0,0.08);
         }
 
         .platform-icon {
             font-size: 42px;
+
             color: #198754;
+
             margin-bottom: 15px;
         }
+
+        /* =========================
+           STEPS
+        ========================= */
 
         .step-number {
             width: 55px;
             height: 55px;
+
+            margin: 0 auto 20px;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             border-radius: 50%;
+
             background: #198754;
-            color: white;
-            font-weight: 800;
+
+            color: #fff;
+
             font-size: 20px;
-            margin: 0 auto 20px;
+
+            font-weight: 800;
         }
+
+        /* =========================
+           CTA
+        ========================= */
 
         .cta-section {
             background: #198754;
-            color: white;
+
+            color: #fff;
         }
 
-        .faq-item {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-
-        .faq-item button {
-            width: 100%;
-            text-align: left;
-            border: 0;
-            background: white;
-            padding: 20px;
-            font-weight: 700;
-        }
+        /* =========================
+           FOOTER
+        ========================= */
 
         .footer-link {
             color: #adb5bd;
+
             text-decoration: none;
         }
 
         .footer-link:hover {
-            color: white;
+            color: #fff;
         }
+
+        /* =========================
+           MOBILE
+        ========================= */
 
         @media (max-width: 768px) {
 
             .hero {
                 min-height: 650px;
+
                 text-align: center;
             }
 
-            .hero-text {
+            .hero-description {
                 margin-left: auto;
                 margin-right: auto;
             }
 
             .hero-buttons .btn {
                 width: 100%;
-                margin-bottom: 10px;
+
+                margin-bottom: 12px;
             }
 
         }
@@ -261,11 +349,11 @@
 <body>
 
 
-<!-- =========================================================
+<!-- =====================================================
      NAVBAR
-========================================================= -->
+===================================================== -->
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
 
     <div class="container">
 
@@ -302,6 +390,7 @@
         >
 
             <ul class="navbar-nav ms-auto align-items-lg-center">
+
 
                 <li class="nav-item">
 
@@ -354,10 +443,12 @@
                 <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
 
                     <a
-                        href="#"
-                        class="btn btn-outline-light login-btn"
+                        class="btn btn-outline-light"
+                        href="login.html"
                     >
+
                         Login
+
                     </a>
 
                 </li>
@@ -366,13 +457,16 @@
                 <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
 
                     <a
-                        href="#"
-                        class="btn btn-success register-btn"
+                        class="btn btn-success"
+                        href="register.html"
                     >
+
                         Create Account
+
                     </a>
 
                 </li>
+
 
             </ul>
 
@@ -384,9 +478,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      HERO
-========================================================= -->
+===================================================== -->
 
 <section class="hero">
 
@@ -395,6 +489,7 @@
         <div class="row">
 
             <div class="col-12">
+
 
                 <div class="hero-badge">
 
@@ -416,7 +511,7 @@
                 </h1>
 
 
-                <p class="hero-text mt-4">
+                <p class="hero-description">
 
                     Grow your social media presence with
                     reliable digital marketing services
@@ -429,9 +524,10 @@
 
                 <div class="hero-buttons">
 
+
                     <a
-                        href="#"
-                        class="btn btn-success btn-lg px-4 me-md-2 register-btn"
+                        href="register.html"
+                        class="btn btn-success btn-lg px-4 me-md-2"
                     >
 
                         <i class="bi bi-rocket-takeoff me-2"></i>
@@ -442,8 +538,8 @@
 
 
                     <a
-                        href="#"
-                        class="btn btn-outline-light btn-lg px-4 login-btn"
+                        href="login.html"
+                        class="btn btn-outline-light btn-lg px-4"
                     >
 
                         <i class="bi bi-box-arrow-in-right me-2"></i>
@@ -452,6 +548,7 @@
 
                     </a>
 
+
                 </div>
 
             </div>
@@ -464,30 +561,35 @@
 
 
 
-<!-- =========================================================
-     SERVICES INTRO
-========================================================= -->
+<!-- =====================================================
+     INTRO
+===================================================== -->
 
 <section class="section-padding">
 
     <div class="container">
 
+
         <div class="text-center">
 
             <h2 class="section-title">
+
                 Everything You Need to Grow
+
             </h2>
+
 
             <p class="section-subtitle">
 
-                HKDMservices provides a range of digital
-                marketing and social media services to help
-                individuals, brands and businesses improve
-                their online presence.
+                HKDMservices provides digital marketing
+                and social media services designed to help
+                individuals, creators, brands and businesses
+                improve their online presence.
 
             </p>
 
         </div>
+
 
 
         <div class="row g-4">
@@ -497,23 +599,27 @@
 
                 <div class="feature-card">
 
+
                     <div class="feature-icon">
 
                         <i class="bi bi-bar-chart-fill"></i>
 
                     </div>
 
+
                     <h4>
                         Social Media Growth
                     </h4>
 
+
                     <p class="text-muted">
 
-                        Access services designed to help
-                        improve the visibility and reach of
-                        your social media profiles and content.
+                        Access services across popular social
+                        media platforms to support your digital
+                        marketing goals.
 
                     </p>
+
 
                 </div>
 
@@ -524,6 +630,7 @@
             <div class="col-12 col-md-4">
 
                 <div class="feature-card">
+
 
                     <div class="feature-icon">
 
@@ -531,17 +638,20 @@
 
                     </div>
 
+
                     <h4>
-                        Fast & Simple
+                        Simple Ordering
                     </h4>
+
 
                     <p class="text-muted">
 
                         Select a service, provide your target
                         link and quantity, and place your order
-                        through a simple process.
+                        through a straightforward process.
 
                     </p>
+
 
                 </div>
 
@@ -553,22 +663,26 @@
 
                 <div class="feature-card">
 
+
                     <div class="feature-icon">
 
                         <i class="bi bi-shield-check"></i>
 
                     </div>
 
+
                     <h4>
                         Reliable Platform
                     </h4>
 
+
                     <p class="text-muted">
 
-                        Manage your account, wallet, orders and
-                        services from one convenient platform.
+                        Manage your account, wallet and orders
+                        from one convenient platform.
 
                     </p>
+
 
                 </div>
 
@@ -583,9 +697,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      PLATFORMS
-========================================================= -->
+===================================================== -->
 
 <section
     class="section-padding bg-light"
@@ -594,20 +708,25 @@
 
     <div class="container">
 
+
         <div class="text-center">
 
             <h2 class="section-title">
+
                 Supported Platforms
+
             </h2>
+
 
             <p class="section-subtitle">
 
-                Explore digital marketing services across
+                Explore digital marketing services for
                 popular social media platforms.
 
             </p>
 
         </div>
+
 
 
         <div class="row g-4">
@@ -617,19 +736,25 @@
 
                 <div class="platform-card">
 
+
                     <div class="platform-icon">
 
                         <i class="bi bi-instagram"></i>
 
                     </div>
 
+
                     <h5>
                         Instagram
                     </h5>
 
+
                     <p class="text-muted mb-0">
+
                         Growth & Engagement
+
                     </p>
+
 
                 </div>
 
@@ -640,6 +765,7 @@
             <div class="col-6 col-md-3">
 
                 <div class="platform-card">
+
 
                     <div class="platform-icon">
 
@@ -647,13 +773,18 @@
 
                     </div>
 
+
                     <h5>
                         TikTok
                     </h5>
 
+
                     <p class="text-muted mb-0">
+
                         Growth & Engagement
+
                     </p>
+
 
                 </div>
 
@@ -664,6 +795,7 @@
             <div class="col-6 col-md-3">
 
                 <div class="platform-card">
+
 
                     <div class="platform-icon">
 
@@ -671,13 +803,18 @@
 
                     </div>
 
+
                     <h5>
                         YouTube
                     </h5>
 
+
                     <p class="text-muted mb-0">
+
                         Video & Channel Growth
+
                     </p>
+
 
                 </div>
 
@@ -689,19 +826,25 @@
 
                 <div class="platform-card">
 
+
                     <div class="platform-icon">
 
                         <i class="bi bi-facebook"></i>
 
                     </div>
 
+
                     <h5>
                         Facebook
                     </h5>
 
+
                     <p class="text-muted mb-0">
+
                         Page & Content Growth
+
                     </p>
+
 
                 </div>
 
@@ -711,7 +854,9 @@
         </div>
 
 
+
         <div class="text-center mt-5">
+
 
             <a
                 href="services.html"
@@ -724,6 +869,7 @@
 
             </a>
 
+
         </div>
 
     </div>
@@ -732,28 +878,33 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      WHY CHOOSE US
-========================================================= -->
+===================================================== -->
 
 <section class="section-padding">
 
     <div class="container">
 
+
         <div class="text-center">
 
             <h2 class="section-title">
+
                 Why Choose HKDMservices?
+
             </h2>
+
 
             <p class="section-subtitle">
 
-                Built to make digital marketing easier,
-                faster and more convenient.
+                Everything is designed to make managing
+                your digital growth easier.
 
             </p>
 
         </div>
+
 
 
         <div class="row g-4">
@@ -763,22 +914,26 @@
 
                 <div class="feature-card text-center">
 
+
                     <div class="feature-icon mx-auto">
 
                         <i class="bi bi-grid-1x2-fill"></i>
 
                     </div>
 
+
                     <h5>
                         Wide Selection
                     </h5>
 
+
                     <p class="text-muted mb-0">
 
-                        Choose from different services and
-                        platforms according to your needs.
+                        Browse services across multiple
+                        platforms.
 
                     </p>
+
 
                 </div>
 
@@ -789,6 +944,7 @@
             <div class="col-12 col-md-6 col-lg-3">
 
                 <div class="feature-card text-center">
+
 
                     <div class="feature-icon mx-auto">
 
@@ -796,16 +952,19 @@
 
                     </div>
 
+
                     <h5>
                         Wallet System
                     </h5>
 
+
                     <p class="text-muted mb-0">
 
-                        Fund your account and use your wallet
-                        balance to place orders.
+                        Manage your account balance and
+                        use it for your orders.
 
                     </p>
+
 
                 </div>
 
@@ -816,6 +975,7 @@
             <div class="col-12 col-md-6 col-lg-3">
 
                 <div class="feature-card text-center">
+
 
                     <div class="feature-icon mx-auto">
 
@@ -823,16 +983,18 @@
 
                     </div>
 
+
                     <h5>
                         Order History
                     </h5>
 
+
                     <p class="text-muted mb-0">
 
-                        Keep track of your previous orders and
-                        their status from your account.
+                        Keep track of your previous orders.
 
                     </p>
+
 
                 </div>
 
@@ -844,22 +1006,25 @@
 
                 <div class="feature-card text-center">
 
+
                     <div class="feature-icon mx-auto">
 
                         <i class="bi bi-person-check-fill"></i>
 
                     </div>
 
+
                     <h5>
                         Account Management
                     </h5>
 
+
                     <p class="text-muted mb-0">
 
-                        Manage your profile, account and
-                        available services in one place.
+                        Manage your account from one place.
 
                     </p>
+
 
                 </div>
 
@@ -874,27 +1039,32 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      HOW IT WORKS
-========================================================= -->
+===================================================== -->
 
 <section class="section-padding bg-light">
 
     <div class="container">
 
+
         <div class="text-center">
 
             <h2 class="section-title">
+
                 How It Works
+
             </h2>
+
 
             <p class="section-subtitle">
 
-                Getting started with HKDMservices is simple.
+                Getting started with HKDMservices is easy.
 
             </p>
 
         </div>
+
 
 
         <div class="row g-5">
@@ -902,41 +1072,49 @@
 
             <div class="col-12 col-md-4 text-center">
 
+
                 <div class="step-number">
                     1
                 </div>
 
+
                 <h5>
-                    Create Your Account
+                    Create an Account
                 </h5>
+
 
                 <p class="text-muted">
 
-                    Register for a free account and access
-                    your HKDMservices dashboard.
+                    Register for your free HKDMservices
+                    account.
 
                 </p>
+
 
             </div>
 
 
 
             <div class="col-12 col-md-4 text-center">
+
 
                 <div class="step-number">
                     2
                 </div>
 
+
                 <h5>
                     Choose a Service
                 </h5>
 
+
                 <p class="text-muted">
 
-                    Browse our service catalogue and select
-                    the service that matches your needs.
+                    Browse the available services and
+                    select what you need.
 
                 </p>
+
 
             </div>
 
@@ -944,20 +1122,24 @@
 
             <div class="col-12 col-md-4 text-center">
 
+
                 <div class="step-number">
                     3
                 </div>
+
 
                 <h5>
                     Place Your Order
                 </h5>
 
+
                 <p class="text-muted">
 
-                    Enter your target information, quantity
-                    and place your order.
+                    Enter your target information and
+                    place your order.
 
                 </p>
+
 
             </div>
 
@@ -970,9 +1152,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      ABOUT
-========================================================= -->
+===================================================== -->
 
 <section
     class="section-padding"
@@ -981,14 +1163,19 @@
 
     <div class="container">
 
+
         <div class="row align-items-center g-5">
 
 
             <div class="col-12 col-lg-6">
 
+
                 <span class="text-success fw-bold">
+
                     ABOUT HKDMSERVICES
+
                 </span>
+
 
                 <h2 class="section-title mt-2">
 
@@ -1008,10 +1195,10 @@
 
                 <p class="text-muted">
 
-                    Whether you are an individual creator,
-                    business owner, marketer or brand, our
-                    platform gives you access to services that
-                    can support your digital growth goals.
+                    Whether you are a creator, business owner,
+                    marketer or brand, HKDMservices gives you
+                    access to tools and services designed to
+                    support your digital growth goals.
 
                 </p>
 
@@ -1027,18 +1214,22 @@
 
                 </a>
 
+
             </div>
 
 
 
             <div class="col-12 col-lg-6">
 
+
                 <div class="feature-card">
+
 
                     <div class="row g-4">
 
 
                         <div class="col-6">
+
 
                             <div class="feature-icon">
 
@@ -1046,19 +1237,26 @@
 
                             </div>
 
+
                             <h6>
                                 Mobile Friendly
                             </h6>
 
+
                             <p class="small text-muted">
-                                Designed for phones,
-                                tablets and computers.
+
+                                Designed for mobile,
+                                tablet and desktop.
+
                             </p>
+
 
                         </div>
 
 
+
                         <div class="col-6">
+
 
                             <div class="feature-icon">
 
@@ -1066,19 +1264,26 @@
 
                             </div>
 
+
                             <h6>
                                 Easy Dashboard
                             </h6>
 
+
                             <p class="small text-muted">
-                                Manage your account and
-                                services easily.
+
+                                Manage your account
+                                conveniently.
+
                             </p>
+
 
                         </div>
 
 
+
                         <div class="col-6">
+
 
                             <div class="feature-icon">
 
@@ -1086,19 +1291,26 @@
 
                             </div>
 
+
                             <h6>
                                 Easy Ordering
                             </h6>
 
+
                             <p class="small text-muted">
+
                                 Place orders through a
-                                straightforward process.
+                                simple process.
+
                             </p>
+
 
                         </div>
 
 
+
                         <div class="col-6">
+
 
                             <div class="feature-icon">
 
@@ -1106,14 +1318,18 @@
 
                             </div>
 
+
                             <h6>
                                 Support
                             </h6>
 
+
                             <p class="small text-muted">
-                                Get assistance when you
-                                need it.
+
+                                Get help when you need it.
+
                             </p>
+
 
                         </div>
 
@@ -1133,9 +1349,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      FAQ
-========================================================= -->
+===================================================== -->
 
 <section
     class="section-padding bg-light"
@@ -1144,17 +1360,24 @@
 
     <div class="container">
 
+
         <div class="text-center">
 
             <h2 class="section-title">
+
                 Frequently Asked Questions
+
             </h2>
 
+
             <p class="section-subtitle">
-                Some common questions about HKDMservices.
+
+                Here are answers to some common questions.
+
             </p>
 
         </div>
+
 
 
         <div
@@ -1165,18 +1388,19 @@
 
             <div class="accordion-item">
 
+
                 <h2
                     class="accordion-header"
-                    id="faqOneHeading"
+                    id="headingOne"
                 >
 
                     <button
                         class="accordion-button"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#faqOne"
+                        data-bs-target="#collapseOne"
                         aria-expanded="true"
-                        aria-controls="faqOne"
+                        aria-controls="collapseOne"
                     >
 
                         How do I get started?
@@ -1187,21 +1411,22 @@
 
 
                 <div
-                    id="faqOne"
+                    id="collapseOne"
                     class="accordion-collapse collapse show"
-                    aria-labelledby="faqOneHeading"
+                    aria-labelledby="headingOne"
                     data-bs-parent="#faqAccordion"
                 >
 
                     <div class="accordion-body">
 
-                        Click the <strong>Get Started</strong>
+                        Click <strong>Get Started</strong>
                         or <strong>Create Account</strong>
-                        button and register for your account.
+                        and register for your account.
 
                     </div>
 
                 </div>
+
 
             </div>
 
@@ -1209,21 +1434,22 @@
 
             <div class="accordion-item">
 
+
                 <h2
                     class="accordion-header"
-                    id="faqTwoHeading"
+                    id="headingTwo"
                 >
 
                     <button
                         class="accordion-button collapsed"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#faqTwo"
+                        data-bs-target="#collapseTwo"
                         aria-expanded="false"
-                        aria-controls="faqTwo"
+                        aria-controls="collapseTwo"
                     >
 
-                        Where can I see the available services?
+                        Where can I see the services?
 
                     </button>
 
@@ -1231,9 +1457,9 @@
 
 
                 <div
-                    id="faqTwo"
+                    id="collapseTwo"
                     class="accordion-collapse collapse"
-                    aria-labelledby="faqTwoHeading"
+                    aria-labelledby="headingTwo"
                     data-bs-parent="#faqAccordion"
                 >
 
@@ -1243,12 +1469,12 @@
                         <a href="services.html">
                             Services
                         </a>
-                        page to browse the available
-                        catalogues and platforms.
+                        page to view the available services.
 
                     </div>
 
                 </div>
+
 
             </div>
 
@@ -1256,18 +1482,19 @@
 
             <div class="accordion-item">
 
+
                 <h2
                     class="accordion-header"
-                    id="faqThreeHeading"
+                    id="headingThree"
                 >
 
                     <button
                         class="accordion-button collapsed"
                         type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target="#faqThree"
+                        data-bs-target="#collapseThree"
                         aria-expanded="false"
-                        aria-controls="faqThree"
+                        aria-controls="collapseThree"
                     >
 
                         Do I need an account to place an order?
@@ -1278,64 +1505,21 @@
 
 
                 <div
-                    id="faqThree"
+                    id="collapseThree"
                     class="accordion-collapse collapse"
-                    aria-labelledby="faqThreeHeading"
+                    aria-labelledby="headingThree"
                     data-bs-parent="#faqAccordion"
                 >
 
                     <div class="accordion-body">
 
-                        Yes. You need to be logged into your
-                        account before placing an order.
+                        Yes. You need to be logged into
+                        your account before placing an order.
 
                     </div>
 
                 </div>
 
-            </div>
-
-
-
-            <div class="accordion-item">
-
-                <h2
-                    class="accordion-header"
-                    id="faqFourHeading"
-                >
-
-                    <button
-                        class="accordion-button collapsed"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#faqFour"
-                        aria-expanded="false"
-                        aria-controls="faqFour"
-                    >
-
-                        Can I manage my previous orders?
-
-                    </button>
-
-                </h2>
-
-
-                <div
-                    id="faqFour"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="faqFourHeading"
-                    data-bs-parent="#faqAccordion"
-                >
-
-                    <div class="accordion-body">
-
-                        Yes. Your account dashboard provides
-                        access to your account information and
-                        order-related features.
-
-                    </div>
-
-                </div>
 
             </div>
 
@@ -1348,13 +1532,14 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      CTA
-========================================================= -->
+===================================================== -->
 
 <section class="section-padding cta-section">
 
     <div class="container text-center">
+
 
         <h2 class="fw-bold mb-3">
 
@@ -1365,15 +1550,15 @@
 
         <p class="lead mb-4">
 
-            Create your free account and get started with
-            HKDMservices today.
+            Create your free account and get started
+            with HKDMservices today.
 
         </p>
 
 
         <a
-            href="#"
-            class="btn btn-light btn-lg px-5 register-btn"
+            href="register.html"
+            class="btn btn-light btn-lg px-5"
         >
 
             <i class="bi bi-person-plus-fill me-2"></i>
@@ -1382,15 +1567,16 @@
 
         </a>
 
+
     </div>
 
 </section>
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      CONTACT
-========================================================= -->
+===================================================== -->
 
 <section
     class="section-padding"
@@ -1399,20 +1585,26 @@
 
     <div class="container">
 
+
         <div class="text-center">
 
+
             <h2 class="section-title">
+
                 Contact HKDMservices
+
             </h2>
+
 
             <p class="section-subtitle">
 
-                Need help or have a question? Reach out
-                through your preferred support channel.
+                Need assistance? Contact our support team.
 
             </p>
 
+
         </div>
+
 
 
         <div class="row justify-content-center g-4">
@@ -1420,7 +1612,9 @@
 
             <div class="col-12 col-md-4">
 
+
                 <div class="feature-card text-center">
+
 
                     <div class="feature-icon mx-auto">
 
@@ -1428,16 +1622,19 @@
 
                     </div>
 
+
                     <h5>
                         WhatsApp
                     </h5>
 
+
                     <p class="text-muted">
 
-                        Contact our support team through
-                        WhatsApp.
+                        Contact us through WhatsApp
+                        for assistance.
 
                     </p>
+
 
                 </div>
 
@@ -1447,7 +1644,9 @@
 
             <div class="col-12 col-md-4">
 
+
                 <div class="feature-card text-center">
+
 
                     <div class="feature-icon mx-auto">
 
@@ -1455,16 +1654,18 @@
 
                     </div>
 
+
                     <h5>
                         Email
                     </h5>
 
+
                     <p class="text-muted">
 
-                        Send us a message whenever you need
-                        assistance.
+                        Send us a message for support.
 
                     </p>
+
 
                 </div>
 
@@ -1474,17 +1675,21 @@
 
             <div class="col-12 col-md-4">
 
+
                 <div class="feature-card text-center">
+
 
                     <div class="feature-icon mx-auto">
 
-                        <i class="bi bi-life-preserver"></i>
+                        <i class="bi bi-headset"></i>
 
                     </div>
 
+
                     <h5>
-                        Support
+                        Customer Support
                     </h5>
+
 
                     <p class="text-muted">
 
@@ -1492,6 +1697,7 @@
                         HKDMservices experience.
 
                     </p>
+
 
                 </div>
 
@@ -1506,18 +1712,20 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      FOOTER
-========================================================= -->
+===================================================== -->
 
 <footer class="bg-dark text-white py-5">
 
     <div class="container">
 
+
         <div class="row g-4">
 
 
             <div class="col-12 col-md-5">
+
 
                 <h5 class="fw-bold">
 
@@ -1527,11 +1735,13 @@
 
                 </h5>
 
+
                 <p class="text-secondary">
 
                     Your trusted digital growth partner.
 
                 </p>
+
 
             </div>
 
@@ -1539,11 +1749,14 @@
 
             <div class="col-6 col-md-3">
 
+
                 <h6 class="fw-bold">
                     Quick Links
                 </h6>
 
+
                 <div class="d-flex flex-column gap-2">
+
 
                     <a
                         href="index.html"
@@ -1552,6 +1765,7 @@
                         Home
                     </a>
 
+
                     <a
                         href="services.html"
                         class="footer-link"
@@ -1559,12 +1773,22 @@
                         Services
                     </a>
 
+
                     <a
                         href="about.html"
                         class="footer-link"
                     >
                         About
                     </a>
+
+
+                    <a
+                        href="terms-policy.html"
+                        class="footer-link"
+                    >
+                        Terms & Policy
+                    </a>
+
 
                 </div>
 
@@ -1574,32 +1798,30 @@
 
             <div class="col-6 col-md-4">
 
+
                 <h6 class="fw-bold">
                     Account
                 </h6>
 
+
                 <div class="d-flex flex-column gap-2">
 
+
                     <a
-                        href="#"
-                        class="footer-link login-btn"
+                        href="login.html"
+                        class="footer-link"
                     >
                         Login
                     </a>
 
+
                     <a
-                        href="#"
-                        class="footer-link register-btn"
+                        href="register.html"
+                        class="footer-link"
                     >
                         Create Account
                     </a>
 
-                    <a
-                        href="#faq"
-                        class="footer-link"
-                    >
-                        FAQ
-                    </a>
 
                 </div>
 
@@ -1614,13 +1836,17 @@
 
         <div class="text-center">
 
+
             <small class="text-secondary">
 
-                © 2026 HKDMservices. All rights reserved.
+                © 2026 HKDMservices.
+                All rights reserved.
 
             </small>
 
+
         </div>
+
 
     </div>
 
@@ -1628,177 +1854,13 @@
 
 
 
-<!-- =========================================================
-     BOOTSTRAP
-========================================================= -->
+<!-- =====================================================
+     BOOTSTRAP JAVASCRIPT
+===================================================== -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
 ></script>
-
-
-
-<!-- =========================================================
-     HKDMSERVICES AUTH SCRIPT
-========================================================= -->
-
-<script type="module">
-
-    import createKindeClient
-        from "https://cdn.jsdelivr.net/npm/@kinde/js-sdk/+esm";
-
-
-    let kinde = null;
-
-
-    async function initializeKinde() {
-
-        try {
-
-            kinde =
-                await createKindeClient({
-
-                    client_id:
-                        "7c2b45233e3d45dbbb2342714b993c50",
-
-                    domain:
-                        "https://hkdmservices.kinde.com",
-
-                    redirect_uri:
-                        window.location.origin
-
-                });
-
-
-            setupAuthenticationButtons();
-
-
-        } catch (error) {
-
-            console.error(
-                "Kinde initialization failed:",
-                error
-            );
-
-        }
-
-    }
-
-
-
-    function setupAuthenticationButtons() {
-
-
-        /*
-        ==========================================
-        LOGIN BUTTONS
-        ==========================================
-        */
-
-        document
-            .querySelectorAll(".login-btn")
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    async event => {
-
-                        event.preventDefault();
-
-
-                        if (!kinde) {
-
-                            console.error(
-                                "Kinde is not initialized."
-                            );
-
-                            return;
-
-                        }
-
-
-                        try {
-
-                            await kinde.login();
-
-                        } catch (error) {
-
-                            console.error(
-                                "Login error:",
-                                error
-                            );
-
-                        }
-
-                    }
-                );
-
-            });
-
-
-
-        /*
-        ==========================================
-        REGISTER / GET STARTED BUTTONS
-        ==========================================
-        */
-
-        document
-            .querySelectorAll(".register-btn")
-            .forEach(button => {
-
-                button.addEventListener(
-                    "click",
-                    async event => {
-
-                        event.preventDefault();
-
-
-                        if (!kinde) {
-
-                            console.error(
-                                "Kinde is not initialized."
-                            );
-
-                            return;
-
-                        }
-
-
-                        try {
-
-                            await kinde.register();
-
-                        } catch (error) {
-
-                            console.error(
-                                "Registration error:",
-                                error
-                            );
-
-                        }
-
-                    }
-                );
-
-            });
-
-    }
-
-
-
-    /*
-    ==========================================
-    START KINDE
-    ==========================================
-    */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeKinde
-    );
-
-</script>
 
 
 </body>
