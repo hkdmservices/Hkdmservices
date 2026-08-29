@@ -17,16 +17,19 @@
         content="HKDMservices - Your trusted digital growth partner for social media and digital marketing services."
     >
 
+    <!-- Bootstrap -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+    <!-- Bootstrap Icons -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
         rel="stylesheet"
     >
 
+    <!-- Main CSS -->
     <link
         rel="stylesheet"
         href="style.css"
@@ -41,11 +44,14 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            transition:
+                background-color 0.3s ease,
+                color 0.3s ease;
         }
 
-        /* =========================
+        /* =====================================================
            NAVBAR
-        ========================= */
+        ===================================================== */
 
         .main-navbar {
             background: #111;
@@ -55,9 +61,45 @@
             margin-right: 7px;
         }
 
-        /* =========================
+        /* =====================================================
+           THEME BUTTON
+        ===================================================== */
+
+        .theme-toggle {
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,0.25);
+
+            background: rgba(255,255,255,0.08);
+
+            color: #fff;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.18);
+
+            transform: rotate(15deg);
+        }
+
+        /* =====================================================
            HERO
-        ========================= */
+        ===================================================== */
 
         .hero {
             min-height: 720px;
@@ -160,9 +202,9 @@
             margin-top: 32px;
         }
 
-        /* =========================
+        /* =====================================================
            GENERAL SECTIONS
-        ========================= */
+        ===================================================== */
 
         .section-padding {
             padding: 90px 0;
@@ -182,9 +224,9 @@
             line-height: 1.7;
         }
 
-        /* =========================
+        /* =====================================================
            CARDS
-        ========================= */
+        ===================================================== */
 
         .feature-card {
             height: 100%;
@@ -199,7 +241,9 @@
 
             transition:
                 transform 0.2s ease,
-                box-shadow 0.2s ease;
+                box-shadow 0.2s ease,
+                background-color 0.3s ease,
+                border-color 0.3s ease;
         }
 
         .feature-card:hover {
@@ -229,9 +273,9 @@
             margin-bottom: 20px;
         }
 
-        /* =========================
+        /* =====================================================
            PLATFORM CARDS
-        ========================= */
+        ===================================================== */
 
         .platform-card {
             height: 100%;
@@ -248,7 +292,9 @@
 
             transition:
                 transform 0.2s ease,
-                box-shadow 0.2s ease;
+                box-shadow 0.2s ease,
+                background-color 0.3s ease,
+                border-color 0.3s ease;
         }
 
         .platform-card:hover {
@@ -266,9 +312,9 @@
             margin-bottom: 15px;
         }
 
-        /* =========================
+        /* =====================================================
            STEPS
-        ========================= */
+        ===================================================== */
 
         .step-number {
             width: 55px;
@@ -292,9 +338,9 @@
             font-weight: 800;
         }
 
-        /* =========================
+        /* =====================================================
            CTA
-        ========================= */
+        ===================================================== */
 
         .cta-section {
             background: #198754;
@@ -302,9 +348,9 @@
             color: #fff;
         }
 
-        /* =========================
+        /* =====================================================
            FOOTER
-        ========================= */
+        ===================================================== */
 
         .footer-link {
             color: #adb5bd;
@@ -316,9 +362,93 @@
             color: #fff;
         }
 
-        /* =========================
+        /* =====================================================
+           DARK MODE
+        ===================================================== */
+
+        html[data-theme="dark"] body {
+            background: #101418;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .main-navbar {
+            background: #080a0c;
+        }
+
+        html[data-theme="dark"] .section-subtitle {
+            color: #adb5bd;
+        }
+
+        html[data-theme="dark"] .feature-card,
+        html[data-theme="dark"] .platform-card {
+            background: #181d22;
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .feature-card .text-muted,
+        html[data-theme="dark"] .platform-card .text-muted {
+            color: #adb5bd !important;
+        }
+
+        html[data-theme="dark"] .feature-icon {
+            background: #143d28;
+            color: #75e6a5;
+        }
+
+        html[data-theme="dark"] .bg-light {
+            background: #151a1f !important;
+        }
+
+        html[data-theme="dark"] .text-muted {
+            color: #adb5bd !important;
+        }
+
+        html[data-theme="dark"] .accordion-item {
+            background: #181d22;
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .accordion-button {
+            background: #181d22;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .accordion-button:not(.collapsed) {
+            background: #1d3327;
+            color: #75e6a5;
+        }
+
+        html[data-theme="dark"] .accordion-button::after {
+            filter: invert(1);
+        }
+
+        html[data-theme="dark"] .accordion-body {
+            color: #dee2e6;
+        }
+
+        html[data-theme="dark"] .accordion-body a {
+            color: #75e6a5;
+        }
+
+        html[data-theme="dark"] .btn-outline-success {
+            color: #75e6a5;
+            border-color: #75e6a5;
+        }
+
+        html[data-theme="dark"] .btn-outline-success:hover {
+            background: #198754;
+            color: #fff;
+        }
+
+        html[data-theme="dark"] footer {
+            background: #080a0c !important;
+        }
+
+        /* =====================================================
            MOBILE
-        ========================= */
+        ===================================================== */
 
         @media (max-width: 768px) {
 
@@ -436,6 +566,28 @@
                     >
                         Contact
                     </a>
+
+                </li>
+
+
+                <!-- THEME TOGGLE -->
+
+                <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+
+                    <button
+                        type="button"
+                        id="themeToggle"
+                        class="theme-toggle"
+                        aria-label="Toggle dark mode"
+                        title="Toggle dark mode"
+                    >
+
+                        <i
+                            id="themeIcon"
+                            class="bi bi-moon-stars-fill"
+                        ></i>
+
+                    </button>
 
                 </li>
 
@@ -736,25 +888,17 @@
 
                 <div class="platform-card">
 
-
                     <div class="platform-icon">
-
                         <i class="bi bi-instagram"></i>
-
                     </div>
-
 
                     <h5>
                         Instagram
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Growth & Engagement
-
                     </p>
-
 
                 </div>
 
@@ -766,25 +910,17 @@
 
                 <div class="platform-card">
 
-
                     <div class="platform-icon">
-
                         <i class="bi bi-tiktok"></i>
-
                     </div>
-
 
                     <h5>
                         TikTok
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Growth & Engagement
-
                     </p>
-
 
                 </div>
 
@@ -796,25 +932,17 @@
 
                 <div class="platform-card">
 
-
                     <div class="platform-icon">
-
                         <i class="bi bi-youtube"></i>
-
                     </div>
-
 
                     <h5>
                         YouTube
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Video & Channel Growth
-
                     </p>
-
 
                 </div>
 
@@ -826,25 +954,17 @@
 
                 <div class="platform-card">
 
-
                     <div class="platform-icon">
-
                         <i class="bi bi-facebook"></i>
-
                     </div>
-
 
                     <h5>
                         Facebook
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Page & Content Growth
-
                     </p>
-
 
                 </div>
 
@@ -857,7 +977,6 @@
 
         <div class="text-center mt-5">
 
-
             <a
                 href="services.html"
                 class="btn btn-success btn-lg"
@@ -868,7 +987,6 @@
                 <i class="bi bi-arrow-right ms-2"></i>
 
             </a>
-
 
         </div>
 
@@ -886,21 +1004,15 @@
 
     <div class="container">
 
-
         <div class="text-center">
 
             <h2 class="section-title">
-
                 Why Choose HKDMservices?
-
             </h2>
 
-
             <p class="section-subtitle">
-
                 Everything is designed to make managing
                 your digital growth easier.
-
             </p>
 
         </div>
@@ -914,26 +1026,18 @@
 
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-grid-1x2-fill"></i>
-
                     </div>
-
 
                     <h5>
                         Wide Selection
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Browse services across multiple
                         platforms.
-
                     </p>
-
 
                 </div>
 
@@ -945,26 +1049,18 @@
 
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-wallet2"></i>
-
                     </div>
-
 
                     <h5>
                         Wallet System
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Manage your account balance and
                         use it for your orders.
-
                     </p>
-
 
                 </div>
 
@@ -976,25 +1072,17 @@
 
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-clock-history"></i>
-
                     </div>
-
 
                     <h5>
                         Order History
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Keep track of your previous orders.
-
                     </p>
-
 
                 </div>
 
@@ -1006,25 +1094,17 @@
 
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-person-check-fill"></i>
-
                     </div>
-
 
                     <h5>
                         Account Management
                     </h5>
 
-
                     <p class="text-muted mb-0">
-
                         Manage your account from one place.
-
                     </p>
-
 
                 </div>
 
@@ -1047,20 +1127,14 @@
 
     <div class="container">
 
-
         <div class="text-center">
 
             <h2 class="section-title">
-
                 How It Works
-
             </h2>
 
-
             <p class="section-subtitle">
-
                 Getting started with HKDMservices is easy.
-
             </p>
 
         </div>
@@ -1072,49 +1146,37 @@
 
             <div class="col-12 col-md-4 text-center">
 
-
                 <div class="step-number">
                     1
                 </div>
-
 
                 <h5>
                     Create an Account
                 </h5>
 
-
                 <p class="text-muted">
-
                     Register for your free HKDMservices
                     account.
-
                 </p>
-
 
             </div>
 
 
 
             <div class="col-12 col-md-4 text-center">
-
 
                 <div class="step-number">
                     2
                 </div>
 
-
                 <h5>
                     Choose a Service
                 </h5>
 
-
                 <p class="text-muted">
-
                     Browse the available services and
                     select what you need.
-
                 </p>
-
 
             </div>
 
@@ -1122,24 +1184,18 @@
 
             <div class="col-12 col-md-4 text-center">
 
-
                 <div class="step-number">
                     3
                 </div>
-
 
                 <h5>
                     Place Your Order
                 </h5>
 
-
                 <p class="text-muted">
-
                     Enter your target information and
                     place your order.
-
                 </p>
-
 
             </div>
 
@@ -1163,45 +1219,31 @@
 
     <div class="container">
 
-
         <div class="row align-items-center g-5">
 
 
             <div class="col-12 col-lg-6">
 
-
                 <span class="text-success fw-bold">
-
                     ABOUT HKDMSERVICES
-
                 </span>
 
-
                 <h2 class="section-title mt-2">
-
                     Your Digital Growth Starts Here
-
                 </h2>
 
-
                 <p class="text-muted">
-
                     HKDMservices is built to provide a simple
                     platform for accessing digital marketing
                     and social media services.
-
                 </p>
 
-
                 <p class="text-muted">
-
                     Whether you are a creator, business owner,
                     marketer or brand, HKDMservices gives you
                     access to tools and services designed to
                     support your digital growth goals.
-
                 </p>
-
 
                 <a
                     href="about.html"
@@ -1214,42 +1256,31 @@
 
                 </a>
 
-
             </div>
 
 
 
             <div class="col-12 col-lg-6">
 
-
                 <div class="feature-card">
-
 
                     <div class="row g-4">
 
 
                         <div class="col-6">
 
-
                             <div class="feature-icon">
-
                                 <i class="bi bi-phone"></i>
-
                             </div>
-
 
                             <h6>
                                 Mobile Friendly
                             </h6>
 
-
                             <p class="small text-muted">
-
                                 Designed for mobile,
                                 tablet and desktop.
-
                             </p>
-
 
                         </div>
 
@@ -1257,26 +1288,18 @@
 
                         <div class="col-6">
 
-
                             <div class="feature-icon">
-
                                 <i class="bi bi-speedometer2"></i>
-
                             </div>
-
 
                             <h6>
                                 Easy Dashboard
                             </h6>
 
-
                             <p class="small text-muted">
-
                                 Manage your account
                                 conveniently.
-
                             </p>
-
 
                         </div>
 
@@ -1284,26 +1307,18 @@
 
                         <div class="col-6">
 
-
                             <div class="feature-icon">
-
                                 <i class="bi bi-cart-check"></i>
-
                             </div>
-
 
                             <h6>
                                 Easy Ordering
                             </h6>
 
-
                             <p class="small text-muted">
-
                                 Place orders through a
                                 simple process.
-
                             </p>
-
 
                         </div>
 
@@ -1311,25 +1326,17 @@
 
                         <div class="col-6">
 
-
                             <div class="feature-icon">
-
                                 <i class="bi bi-headset"></i>
-
                             </div>
-
 
                             <h6>
                                 Support
                             </h6>
 
-
                             <p class="small text-muted">
-
                                 Get help when you need it.
-
                             </p>
-
 
                         </div>
 
@@ -1360,20 +1367,14 @@
 
     <div class="container">
 
-
         <div class="text-center">
 
             <h2 class="section-title">
-
                 Frequently Asked Questions
-
             </h2>
 
-
             <p class="section-subtitle">
-
                 Here are answers to some common questions.
-
             </p>
 
         </div>
@@ -1387,7 +1388,6 @@
 
 
             <div class="accordion-item">
-
 
                 <h2
                     class="accordion-header"
@@ -1427,13 +1427,11 @@
 
                 </div>
 
-
             </div>
 
 
 
             <div class="accordion-item">
-
 
                 <h2
                     class="accordion-header"
@@ -1466,22 +1464,22 @@
                     <div class="accordion-body">
 
                         Visit the
+
                         <a href="services.html">
                             Services
                         </a>
+
                         page to view the available services.
 
                     </div>
 
                 </div>
 
-
             </div>
 
 
 
             <div class="accordion-item">
-
 
                 <h2
                     class="accordion-header"
@@ -1520,7 +1518,6 @@
 
                 </div>
 
-
             </div>
 
 
@@ -1540,21 +1537,14 @@
 
     <div class="container text-center">
 
-
         <h2 class="fw-bold mb-3">
-
             Ready to Grow Your Digital Presence?
-
         </h2>
 
-
         <p class="lead mb-4">
-
             Create your free account and get started
             with HKDMservices today.
-
         </p>
-
 
         <a
             href="register.html"
@@ -1566,7 +1556,6 @@
             Create Free Account
 
         </a>
-
 
     </div>
 
@@ -1585,23 +1574,15 @@
 
     <div class="container">
 
-
         <div class="text-center">
 
-
             <h2 class="section-title">
-
                 Contact HKDMservices
-
             </h2>
 
-
             <p class="section-subtitle">
-
                 Need assistance? Contact our support team.
-
             </p>
-
 
         </div>
 
@@ -1612,29 +1593,20 @@
 
             <div class="col-12 col-md-4">
 
-
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-whatsapp"></i>
-
                     </div>
-
 
                     <h5>
                         WhatsApp
                     </h5>
 
-
                     <p class="text-muted">
-
                         Contact us through WhatsApp
                         for assistance.
-
                     </p>
-
 
                 </div>
 
@@ -1644,28 +1616,19 @@
 
             <div class="col-12 col-md-4">
 
-
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-envelope"></i>
-
                     </div>
-
 
                     <h5>
                         Email
                     </h5>
 
-
                     <p class="text-muted">
-
                         Send us a message for support.
-
                     </p>
-
 
                 </div>
 
@@ -1675,29 +1638,20 @@
 
             <div class="col-12 col-md-4">
 
-
                 <div class="feature-card text-center">
 
-
                     <div class="feature-icon mx-auto">
-
                         <i class="bi bi-headset"></i>
-
                     </div>
-
 
                     <h5>
                         Customer Support
                     </h5>
 
-
                     <p class="text-muted">
-
                         We're here to help with your
                         HKDMservices experience.
-
                     </p>
-
 
                 </div>
 
@@ -1720,12 +1674,10 @@
 
     <div class="container">
 
-
         <div class="row g-4">
 
 
             <div class="col-12 col-md-5">
-
 
                 <h5 class="fw-bold">
 
@@ -1735,13 +1687,9 @@
 
                 </h5>
 
-
                 <p class="text-secondary">
-
                     Your trusted digital growth partner.
-
                 </p>
-
 
             </div>
 
@@ -1749,14 +1697,11 @@
 
             <div class="col-6 col-md-3">
 
-
                 <h6 class="fw-bold">
                     Quick Links
                 </h6>
 
-
                 <div class="d-flex flex-column gap-2">
-
 
                     <a
                         href="index.html"
@@ -1765,14 +1710,12 @@
                         Home
                     </a>
 
-
                     <a
                         href="services.html"
                         class="footer-link"
                     >
                         Services
                     </a>
-
 
                     <a
                         href="about.html"
@@ -1781,14 +1724,12 @@
                         About
                     </a>
 
-
                     <a
                         href="terms-policy.html"
                         class="footer-link"
                     >
                         Terms & Policy
                     </a>
-
 
                 </div>
 
@@ -1798,14 +1739,11 @@
 
             <div class="col-6 col-md-4">
 
-
                 <h6 class="fw-bold">
                     Account
                 </h6>
 
-
                 <div class="d-flex flex-column gap-2">
-
 
                     <a
                         href="login.html"
@@ -1814,14 +1752,12 @@
                         Login
                     </a>
 
-
                     <a
                         href="register.html"
                         class="footer-link"
                     >
                         Create Account
                     </a>
-
 
                 </div>
 
@@ -1836,14 +1772,12 @@
 
         <div class="text-center">
 
-
             <small class="text-secondary">
 
                 © 2026 HKDMservices.
                 All rights reserved.
 
             </small>
-
 
         </div>
 
@@ -1861,6 +1795,13 @@
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
 ></script>
+
+
+<!-- =====================================================
+     GLOBAL THEME
+===================================================== -->
+
+<script src="theme.js"></script>
 
 
 </body>
