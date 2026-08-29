@@ -563,3 +563,640 @@ footer p {
     background: #064e3b !important;
     color: #a7f3d0 !important;
 }
+
+/* =====================================================
+   HKDMSERVICES GLOBAL THEME SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   LIGHT THEME VARIABLES
+===================================================== */
+
+:root {
+
+    --hkdm-bg: #ffffff;
+
+    --hkdm-bg-secondary: #f8f9fa;
+
+    --hkdm-surface: #ffffff;
+
+    --hkdm-surface-secondary: #f1f3f5;
+
+    --hkdm-text: #212529;
+
+    --hkdm-text-secondary: #6c757d;
+
+    --hkdm-border: #dee2e6;
+
+    --hkdm-input-bg: #ffffff;
+
+    --hkdm-input-text: #212529;
+
+    --hkdm-input-border: #ced4da;
+
+    --hkdm-navbar: #212529;
+
+    --hkdm-shadow:
+        0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+    --hkdm-link: #198754;
+
+    --hkdm-muted: #6c757d;
+
+}
+
+
+/* =====================================================
+   DARK THEME VARIABLES
+===================================================== */
+
+html[data-theme="dark"] {
+
+    --hkdm-bg: #0f1115;
+
+    --hkdm-bg-secondary: #161a20;
+
+    --hkdm-surface: #1b2028;
+
+    --hkdm-surface-secondary: #242a33;
+
+    --hkdm-text: #f1f3f5;
+
+    --hkdm-text-secondary: #adb5bd;
+
+    --hkdm-border: #343a40;
+
+    --hkdm-input-bg: #171b21;
+
+    --hkdm-input-text: #f1f3f5;
+
+    --hkdm-input-border: #495057;
+
+    --hkdm-navbar: #090b0e;
+
+    --hkdm-shadow:
+        0 0.25rem 1rem rgba(0, 0, 0, 0.35);
+
+    --hkdm-link: #75e6a5;
+
+    --hkdm-muted: #adb5bd;
+
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+html,
+body {
+
+    background-color:
+        var(--hkdm-bg);
+
+    color:
+        var(--hkdm-text);
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
+
+}
+
+
+/* =====================================================
+   GENERAL TEXT
+===================================================== */
+
+html[data-theme="dark"] .text-muted {
+
+    color:
+        var(--hkdm-text-secondary) !important;
+
+}
+
+
+html[data-theme="dark"] .text-secondary {
+
+    color:
+        var(--hkdm-text-secondary) !important;
+
+}
+
+
+/* =====================================================
+   LINKS
+===================================================== */
+
+html[data-theme="dark"] a:not(.btn) {
+
+    color:
+        var(--hkdm-link);
+
+}
+
+
+/* =====================================================
+   SECTIONS
+===================================================== */
+
+html[data-theme="dark"] section {
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+html[data-theme="dark"] .bg-light {
+
+    background-color:
+        var(--hkdm-bg-secondary) !important;
+
+}
+
+
+html[data-theme="dark"] .bg-white {
+
+    background-color:
+        var(--hkdm-surface) !important;
+
+}
+
+
+/* =====================================================
+   CARDS
+===================================================== */
+
+html[data-theme="dark"] .card {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border) !important;
+
+    box-shadow:
+        var(--hkdm-shadow);
+
+}
+
+
+html[data-theme="dark"] .card-body {
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+/* =====================================================
+   CUSTOM FEATURE CARDS
+===================================================== */
+
+html[data-theme="dark"] .feature-card {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+html[data-theme="dark"] .platform-card {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+/* =====================================================
+   FORMS
+===================================================== */
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+
+    background-color:
+        var(--hkdm-input-bg);
+
+    color:
+        var(--hkdm-input-text);
+
+    border-color:
+        var(--hkdm-input-border);
+
+}
+
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+
+    background-color:
+        var(--hkdm-input-bg);
+
+    color:
+        var(--hkdm-input-text);
+
+}
+
+
+html[data-theme="dark"] .form-control::placeholder {
+
+    color:
+        #868e96;
+
+}
+
+
+/* =====================================================
+   FORM LABELS
+===================================================== */
+
+html[data-theme="dark"] .form-label {
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+html[data-theme="dark"] .form-text {
+
+    color:
+        var(--hkdm-text-secondary) !important;
+
+}
+
+
+/* =====================================================
+   SELECT OPTIONS
+===================================================== */
+
+html[data-theme="dark"] select option {
+
+    background-color:
+        var(--hkdm-input-bg);
+
+    color:
+        var(--hkdm-input-text);
+
+}
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+html[data-theme="dark"] .table {
+
+    --bs-table-bg:
+        transparent;
+
+    --bs-table-color:
+        var(--hkdm-text);
+
+    --bs-table-border-color:
+        var(--hkdm-border);
+
+}
+
+
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+
+    color:
+        var(--hkdm-text);
+
+    background-color:
+        var(--hkdm-surface-secondary);
+
+}
+
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+html[data-theme="dark"] .modal-content {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+/* =====================================================
+   ACCORDION
+===================================================== */
+
+html[data-theme="dark"] .accordion-item {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+html[data-theme="dark"] .accordion-button {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+html[data-theme="dark"] .accordion-button:not(.collapsed) {
+
+    background-color:
+        var(--hkdm-surface-secondary);
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+/* =====================================================
+   DROPDOWNS
+===================================================== */
+
+html[data-theme="dark"] .dropdown-menu {
+
+    background-color:
+        var(--hkdm-surface);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+html[data-theme="dark"] .dropdown-item {
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+html[data-theme="dark"] .dropdown-item:hover {
+
+    background-color:
+        var(--hkdm-surface-secondary);
+
+    color:
+        var(--hkdm-text);
+
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+html[data-theme="dark"] .navbar.bg-dark,
+html[data-theme="dark"] .navbar-dark {
+
+    background-color:
+        var(--hkdm-navbar) !important;
+
+}
+
+
+/* =====================================================
+   HR
+===================================================== */
+
+html[data-theme="dark"] hr {
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+/* =====================================================
+   ALERTS
+===================================================== */
+
+html[data-theme="dark"] .alert {
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+/* =====================================================
+   THEME TOGGLE
+===================================================== */
+
+.theme-toggle {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    min-width: 44px;
+
+    min-height: 40px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    transition:
+        all 0.2s ease;
+
+}
+
+
+/* Desktop text */
+
+.theme-toggle .theme-text {
+
+    display: inline;
+
+}
+
+
+/* Mobile icon-only mode */
+
+@media (max-width: 575px) {
+
+    .theme-toggle {
+
+        width: 42px;
+
+        min-width: 42px;
+
+        padding-left: 8px;
+
+        padding-right: 8px;
+
+    }
+
+    .theme-toggle .theme-text {
+
+        display: none;
+
+    }
+
+}
+
+
+/* =====================================================
+   SMOOTH TRANSITIONS
+===================================================== */
+
+body,
+.card,
+.feature-card,
+.platform-card,
+.form-control,
+.form-select,
+.table,
+.modal-content,
+.dropdown-menu,
+.accordion-item,
+.accordion-button,
+.bg-light {
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease;
+
+}
+
+
+/* =====================================================
+   DARK MODE - BOOTSTRAP BORDER UTILITIES
+===================================================== */
+
+html[data-theme="dark"] .border {
+
+    border-color:
+        var(--hkdm-border) !important;
+
+}
+
+
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end {
+
+    border-color:
+        var(--hkdm-border) !important;
+
+}
+
+
+/* =====================================================
+   DARK MODE - LIST GROUP
+===================================================== */
+
+html[data-theme="dark"] .list-group-item {
+
+    background-color:
+        var(--hkdm-surface);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-border);
+
+}
+
+
+/* =====================================================
+   DARK MODE - INPUT GROUP
+===================================================== */
+
+html[data-theme="dark"] .input-group-text {
+
+    background-color:
+        var(--hkdm-surface-secondary);
+
+    color:
+        var(--hkdm-text);
+
+    border-color:
+        var(--hkdm-input-border);
+
+}
+
+
+/* =====================================================
+   DARK MODE - CODE
+===================================================== */
+
+html[data-theme="dark"] code {
+
+    color:
+        #ffb86c;
+
+}
+
+
+/* =====================================================
+   DARK MODE - DISABLED INPUTS
+===================================================== */
+
+html[data-theme="dark"] .form-control:disabled,
+html[data-theme="dark"] .form-control[readonly],
+html[data-theme="dark"] .form-select:disabled {
+
+    background-color:
+        #252a31;
+
+    color:
+        #868e96;
+
+}
