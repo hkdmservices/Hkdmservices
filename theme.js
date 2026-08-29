@@ -1,59 +1,190 @@
-/* =====================================================
-   THEME MANAGER
-===================================================== */
+// =====================================================
+// HKDMservices - Global Day / Night Theme
+// =====================================================
 
-export function initTheme() {
-    // Inject theme styles dynamically if missing
-    if (!document.getElementById("hkdm-theme-styles")) {
-        const styleEl = document.createElement("style");
-        styleEl.id = "hkdm-theme-styles";
-        styleEl.innerHTML = `
-            body {
-                transition: background-color 0.3s ease, color 0.3s ease;
-            }
-            [data-bs-theme="light"] {
-                background-color: #f8f9fa;
-                color: #212529;
-            }
-            [data-bs-theme="dark"] {
-                background-color: #121212;
-                color: #f8f9fa;
-            }
-            [data-bs-theme="light"] .card {
-                background-color: #ffffff;
-                color: #212529;
-            }
-            [data-bs-theme="dark"] .card {
-                background-color: #1e1e1e;
-                color: #f8f9fa;
-            }
-        `;
-        document.head.appendChild(styleEl);
-    }
+(function () {
+    "use strict";
 
-    const themeToggleBtn = document.getElementById("themeToggle");
-    const themeIcon = document.getElementById("themeIcon");
+    const STORAGE_KEY = "hkdm-theme";
 
-    if (!themeToggleBtn || !themeIcon) return;
+    // ---------------------------------------------
+    // Get saved theme
+    // ---------------------------------------------
 
-    function setTheme(theme) {
-        document.documentElement.setAttribute("data-bs-theme", theme);
-        localStorage.setItem("hkdm_theme", theme);
-        
-        if (theme === "dark") {
-            themeIcon.className = "bi bi-sun-fill";
-        } else {
-            themeIcon.className = "bi bi-moon-fill";
+    function getSavedTheme() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved === "dark" || saved === "light") {
+            return saved;
         }
+
+        return "light";
     }
 
-    // Initialize theme from localStorage or default to dark
-    const savedTheme = localStorage.getItem("hkdm_theme") || "dark";
-    setTheme(savedTheme);
 
-    themeToggleBtn.addEventListener("click", () => {
-        const currentTheme = document.documentElement.getAttribute("data-bs-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        setTheme(newTheme);
-    });
-}
+    // ---------------------------------------------
+    // Apply theme
+    // ---------------------------------------------
+
+    function applyTheme(theme) {
+
+        document.documentElement.setAttribute(
+            "data-theme",
+            theme
+        );
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            theme
+        );
+
+        updateThemeButtons(theme);
+    }
+
+
+    // ---------------------------------------------
+    // Update all theme buttons
+    // ---------------------------------------------
+
+    function updateThemeButtons(theme) {
+
+        const buttons =
+            document.querySelectorAll(
+                ".theme-toggle"
+            );
+
+
+        buttons.forEach(button => {
+
+            const icon =
+                button.querySelector(
+                    ".theme-icon"
+                );
+
+            const text =
+                button.querySelector(
+                    ".theme-text"
+                );
+
+
+            if (theme === "dark") {
+
+                if (icon) {
+                    icon.className =
+                        "bi bi-sun-fill theme-icon";
+                }
+
+                if (text) {
+                    text.textContent =
+                        "Light Mode";
+                }
+
+                button.setAttribute(
+                    "aria-label",
+                    "Switch to light mode"
+                );
+
+                button.setAttribute(
+                    "title",
+                    "Switch to light mode"
+                );
+
+            } else {
+
+                if (icon) {
+                    icon.className =
+                        "bi bi-moon-stars-fill theme-icon";
+                }
+
+                if (text) {
+                    text.textContent =
+                        "Dark Mode";
+                }
+
+                button.setAttribute(
+                    "aria-label",
+                    "Switch to dark mode"
+                );
+
+                button.setAttribute(
+                    "title",
+                    "Switch to dark mode"
+                );
+            }
+
+        });
+    }
+
+
+    // ---------------------------------------------
+    // Toggle theme
+    // ---------------------------------------------
+
+    function toggleTheme() {
+
+        const current =
+            document.documentElement.getAttribute(
+                "data-theme"
+            ) || "light";
+
+
+        const next =
+            current === "dark"
+                ? "light"
+                : "dark";
+
+
+        applyTheme(next);
+    }
+
+
+    // ---------------------------------------------
+    // Initialize before page is fully loaded
+    // ---------------------------------------------
+
+    applyTheme(
+        getSavedTheme()
+    );
+
+
+    // ---------------------------------------------
+    // Setup buttons
+    // ---------------------------------------------
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            updateThemeButtons(
+                getSavedTheme()
+            );
+
+
+            document
+                .querySelectorAll(
+                    ".theme-toggle"
+                )
+                .forEach(button => {
+
+                    button.addEventListener(
+                        "click",
+                        toggleTheme
+                    );
+
+                });
+
+        }
+    );
+
+
+    // ---------------------------------------------
+    // Expose functions if needed
+    // ---------------------------------------------
+
+    window.HKDMTheme = {
+        applyTheme,
+        toggleTheme,
+        getSavedTheme
+    };
+
+})();
