@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="90" fill="#101418"/>
+  
+  <!-- Hexagon Brand Icon -->
+  <polygon points="256,70 412,160 412,352 256,442 100,352 100,160" fill="none" stroke="#198754" stroke-width="24" stroke-linejoin="round"/>
+  
+  <!-- Center Accent / Initial 'H' -->
+  <path d="M192 176v160M320 176v160M192 256h128" fill="none" stroke="#f1f3f5" stroke-width="24" stroke-linecap="round"/>
+</svg>
