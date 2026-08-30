@@ -3,8 +3,11 @@
   <rect width="512" height="512" rx="90" fill="#101418"/>
   
   <!-- Hexagon Brand Icon -->
-  <polygon points="256,70 412,160 412,352 256,442 100,352 100,160" fill="none" stroke="#198754" stroke-width="24" stroke-linejoin="round"/>
-  
-  <!-- Center Accent / Initial 'H' -->
-  <path d="M192 176v160M320 176v160M192 256h128" fill="none" stroke="#f1f3f5" stroke-width="24" stroke-linecap="round"/>
+  <g transform="translate(0, -35)">
+    <polygon points="256,120 380,192 380,336 256,408 132,336 132,192" fill="none" stroke="#198754" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M210 205v102M302 205v102M210 256h92" fill="none" stroke="#f1f3f5" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+  <!-- Brand Text -->
+  <text x="256" y="425" font-family="Poppins, Arial, sans-serif" font-size="42" font-weight="700" fill="#f1f3f5" text-anchor="middle">HKDMservices</text>
 </svg>
