@@ -1813,18 +1813,14 @@
   }
 </script>
 
-<!-- PWA Automatic Install Prompt Handler -->
+<!-- PWA Automatic Install Prompt Handler (Desktop & Android) -->
 <script>
   let deferredPrompt;
 
   window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
-    // Stash the event so it can be triggered later.
     deferredPrompt = e;
 
-    // Automatically trigger the prompt (Note: browsers may block this 
-    // if there hasn't been a prior user gesture on the page yet)
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => {
@@ -1837,6 +1833,41 @@
       });
     }
   });
+</script>
+
+<!-- iOS PWA Install Banner Script -->
+<div id="iosInstallBanner" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #111; color: #fff; padding: 15px 20px; z-index: 9999; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); border-top: 2px solid #198754; font-family: Arial, sans-serif;">
+    <div style="display: flex; align-items: center; justify-content: space-between; max-width: 600px; margin: 0 auto;">
+        <div style="font-size: 14px; line-height: 1.4;">
+            <strong>Install HKDMservices</strong><br>
+            Tap the <i class="bi bi-box-arrow-up" style="color: #75e6a5; font-size: 16px;"></i> Share button, then select <strong>"Add to Home Screen"</strong>.
+        </div>
+        <button onclick="closeIosBanner()" style="background: transparent; border: none; color: #adb5bd; font-size: 20px; cursor: pointer; padding: 0 0 0 15px;">&times;</button>
+    </div>
+</div>
+
+<script>
+  function detectIOS() {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  }
+
+  if (detectIOS() && !window.navigator.standalone) {
+    setTimeout(() => {
+      const banner = document.getElementById('iosInstallBanner');
+      if (banner && !localStorage.getItem('iosBannerClosed')) {
+        banner.style.display = 'block';
+      }
+    }, 1500);
+  }
+
+  function closeIosBanner() {
+    const banner = document.getElementById('iosInstallBanner');
+    if (banner) {
+      banner.style.display = 'none';
+      localStorage.setItem('iosBannerClosed', 'true');
+    }
+  }
 </script>
 
 </body>
