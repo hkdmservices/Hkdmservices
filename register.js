@@ -3,15 +3,19 @@ import { auth, database } from "./firebase.js";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
-  sendEmailVerification
+  sendEmailVerification,
+  signInWithPopup,
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import {
     ref,
+    get,
     set
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 const form = document.getElementById("registerForm");
 const message = document.getElementById("message");
+const googleRegisterBtn = document.getElementById("googleRegisterBtn");
 
 form.addEventListener("submit", async (e) => {
 
@@ -31,7 +35,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     try {
-        // Extract the referral parameter from the current URL
         const urlParams = new URLSearchParams(window.location.search);
         const referredBy = urlParams.get("ref") || null;
 
@@ -41,14 +44,12 @@ form.addEventListener("submit", async (e) => {
             password
         );
 
-        // Send the verification email to the newly created user
         await sendEmailVerification(userCredential.user);
 
         await updateProfile(userCredential.user, {
             displayName: fullName
         });
 
-        // Save the user record including the 'referredBy' field
         await set(
             ref(database, "users/" + userCredential.user.uid),
             {
@@ -74,3 +75,55 @@ form.addEventListener("submit", async (e) => {
     }
 
 });
+
+/*
+    ==========================================
+    GOOGLE SIGN UP HANDLER
+    ==========================================
+*/
+
+if (googleRegisterBtn) {
+    googleRegisterBtn.addEventListener("click", async () => {
+        message.classList.add("d-none");
+        googleRegisterBtn.disabled = true;
+
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            const userRef = ref(database, "users/" + user.uid);
+            const snapshot = await get(userRef);
+
+            if (!snapshot.exists()) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const referredBy = urlParams.get("ref") || null;
+
+                await set(userRef, {
+                    fullName: user.displayName || "Google User",
+                    email: user.email,
+                    wallet: 0,
+                    role: "customer",
+                    status: "active",
+                    referredBy: referredBy,
+                    createdAt: Date.now()
+                });
+            }
+
+            message.className = "alert alert-success mt-3";
+            message.textContent = "Google registration successful! Redirecting...";
+            message.classList.remove("d-none");
+
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 300);
+
+        } catch (error) {
+            console.error("GOOGLE REGISTER ERROR:", error);
+            message.className = "alert alert-danger mt-3";
+            message.textContent = error.message || "Failed to sign up with Google.";
+            message.classList.remove("d-none");
+            googleRegisterBtn.disabled = false;
+        }
+    });
+}
