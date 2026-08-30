@@ -58,7 +58,7 @@ html[data-theme="dark"] .card {
     color: #f1f3f5 !important;
 }
 
-html[data-theme="dark"] .form-control.bg-light {
+html[data-theme="dark"] .form-control {
     background-color: #151a1f !important;
     border-color: #30363d !important;
     color: #f1f3f5 !important;
@@ -201,211 +201,227 @@ html[data-theme="dark"] .text-muted {
 
 
                     <!-- =================================================
-                         FULL NAME
+                         PROFILE UPDATE FORM
                     ================================================= -->
 
-                    <div class="mb-4">
+                    <form id="profileForm">
 
-                        <label
-                            class="form-label text-muted"
-                        >
+                        <!-- FULL NAME -->
+                        <div class="mb-4">
 
-                            Full Name
-
-                        </label>
-
-
-                        <div
-                            class="form-control bg-light"
-                            id="profileName"
-                        >
-
-                            Loading...
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         EMAIL
-                    ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Email Address
-
-                        </label>
-
-
-                        <div
-                            class="form-control bg-light"
-                            id="profileEmail"
-                        >
-
-                            Loading...
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         EMAIL VERIFICATION
-                    ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Email Verification
-
-                        </label>
-
-
-                        <div
-                            id="emailVerification"
-                            class="mb-2"
-                        >
-
-                            Loading...
-
-                        </div>
-
-                        <!-- Verification button (hidden by default until status is checked) -->
-                        <button
-                            id="verifyEmailBtn"
-                            type="button"
-                            class="btn btn-sm btn-outline-success d-none"
-                        >
-                            <i class="bi bi-envelope-check"></i> Send Verification Link
-                        </button>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         WALLET BALANCE
-                    ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Wallet Balance
-
-                        </label>
-
-
-                        <div
-                            class="form-control bg-light fw-bold text-success"
-                            id="profileWallet"
-                        >
-
-                            ₦0.00
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         TOTAL ORDERS
-                    ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Total Orders
-
-                        </label>
-
-
-                        <div
-                            class="form-control bg-light fw-bold"
-                            id="profileOrders"
-                        >
-
-                            0
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         ACCOUNT STATUS
-                    ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Account Status
-
-                        </label>
-
-
-                        <div
-                            id="accountStatus"
-                        >
-
-                            <span
-                                class="badge bg-success"
+                            <label
+                                class="form-label text-muted"
+                                for="profileNameInput"
                             >
 
-                                Active
+                                Full Name
 
-                            </span>
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="profileNameInput"
+                                placeholder="Loading..."
+                                required
+                            >
 
                         </div>
 
-                    </div>
 
+
+                        <!-- EMAIL -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Email Address
+
+                            </label>
+
+
+                            <div
+                                class="form-control bg-light"
+                                id="profileEmail"
+                            >
+
+                                Loading...
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- EMAIL VERIFICATION -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Email Verification
+
+                            </label>
+
+
+                            <div
+                                id="emailVerification"
+                                class="mb-2"
+                            >
+
+                                Loading...
+
+                            </div>
+
+                            <button
+                                id="verifyEmailBtn"
+                                type="button"
+                                class="btn btn-sm btn-outline-success d-none"
+                            >
+                                <i class="bi bi-envelope-check"></i> Send Verification Link
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- WALLET BALANCE -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Wallet Balance
+
+                            </label>
+
+
+                            <div
+                                class="form-control bg-light fw-bold text-success"
+                                id="profileWallet"
+                            >
+
+                                ₦0.00
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- TOTAL ORDERS -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Total Orders
+
+                            </label>
+
+
+                            <div
+                                class="form-control bg-light fw-bold"
+                                id="profileOrders"
+                            >
+
+                                0
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- ACCOUNT STATUS -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Account Status
+
+                            </label>
+
+
+                            <div
+                                id="accountStatus"
+                            >
+
+                                <span
+                                    class="badge bg-success"
+                                >
+
+                                    Active
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- USER ID -->
+                        <div class="mb-4">
+
+                            <label
+                                class="form-label text-muted"
+                            >
+
+                                Account ID
+
+                            </label>
+
+
+                            <div
+                                class="form-control bg-light small text-break"
+                                id="profileUid"
+                            >
+
+                                Loading...
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- UPDATE SUBMIT BUTTON -->
+                        <div class="d-grid mb-3">
+                            <button
+                                type="submit"
+                                id="saveProfileBtn"
+                                class="btn btn-success"
+                            >
+                                <i class="bi bi-check-circle"></i> Update Profile
+                            </button>
+                        </div>
+
+                    </form>
 
 
                     <!-- =================================================
-                         USER ID
+                         SECURITY / PASSWORD RESET
                     ================================================= -->
-
-                    <div class="mb-4">
-
-                        <label
-                            class="form-label text-muted"
-                        >
-
-                            Account ID
-
-                        </label>
-
-
-                        <div
-                            class="form-control bg-light small text-break"
-                            id="profileUid"
-                        >
-
-                            Loading...
-
+                    <div class="border-top pt-4 mt-4">
+                        <h6 class="fw-bold mb-2">Security</h6>
+                        <p class="text-muted small mb-3">Need to change your password? We will send a secure password reset link to your email.</p>
+                        <div class="d-grid">
+                            <button
+                                id="resetPasswordBtn"
+                                type="button"
+                                class="btn btn-outline-warning"
+                            >
+                                <i class="bi bi-key"></i> Send Password Reset Email
+                            </button>
                         </div>
-
                     </div>
 
 
@@ -415,13 +431,13 @@ html[data-theme="dark"] .text-muted {
                     ================================================= -->
 
                     <div
-                        class="d-grid gap-2 mt-4"
+                        class="d-grid gap-2 mt-4 pt-3 border-top"
                     >
 
 
                         <a
                             href="dashboard.html"
-                            class="btn btn-success"
+                            class="btn btn-secondary"
                         >
 
                             <i class="bi bi-speedometer2"></i>
@@ -447,6 +463,13 @@ html[data-theme="dark"] .text-muted {
 
 
                     </div>
+
+
+                    <!-- MESSAGE ALERT CONTAINER -->
+                    <div
+                        id="profileMessage"
+                        class="alert mt-3 d-none"
+                    ></div>
 
 
                 </div>
