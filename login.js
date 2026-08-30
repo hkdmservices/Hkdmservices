@@ -1,8 +1,15 @@
-import { auth } from "./firebase.js";
+import { auth, database } from "./firebase.js";
 
 import {
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+    ref,
+    get,
+    set
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
 const form =
@@ -15,6 +22,9 @@ const submitButton =
     form.querySelector(
         'button[type="submit"]'
     );
+
+const googleLoginBtn =
+    document.getElementById("googleLoginBtn");
 
 
 /*
@@ -99,7 +109,7 @@ function getErrorMessage(error) {
         case "auth/operation-not-allowed":
 
             return (
-                "Email and password login is currently unavailable. Please contact support."
+                "Login is currently unavailable. Please contact support."
             );
 
 
@@ -113,7 +123,7 @@ function getErrorMessage(error) {
         default:
 
             return (
-                "Unable to log in right now. Please try again."
+                error.message || "Unable to log in right now. Please try again."
             );
 
     }
@@ -156,16 +166,6 @@ async function loginWithRetry(
 
             lastError = error;
 
-
-            /*
-                Only retry genuine network
-                failures.
-
-                Do NOT retry incorrect
-                passwords, disabled accounts,
-                invalid emails, etc.
-            */
-
             if (
                 error.code !==
                 "auth/network-request-failed"
@@ -175,12 +175,6 @@ async function loginWithRetry(
 
             }
 
-
-            /*
-                If this was the final attempt,
-                stop retrying.
-            */
-
             if (
                 attempt ===
                 maximumAttempts
@@ -189,17 +183,6 @@ async function loginWithRetry(
                 throw error;
 
             }
-
-
-            /*
-                Small delay before retrying.
-
-                Attempt 1:
-                wait 1 second
-
-                Attempt 2:
-                wait 2 seconds
-            */
 
             const delay =
                 attempt * 1000;
@@ -241,11 +224,6 @@ form.addEventListener(
 
         event.preventDefault();
 
-
-        /*
-            Prevent multiple submissions.
-        */
-
         if (
             submitButton.disabled
         ) {
@@ -254,23 +232,16 @@ form.addEventListener(
 
         }
 
-
         const email =
             document
                 .getElementById("email")
                 .value
                 .trim();
 
-
         const password =
             document
                 .getElementById("password")
                 .value;
-
-
-        /*
-            Basic validation.
-        */
 
         if (!email) {
 
@@ -282,7 +253,6 @@ form.addEventListener(
 
         }
 
-
         if (!password) {
 
             showMessage(
@@ -293,14 +263,8 @@ form.addEventListener(
 
         }
 
-
-        /*
-            Disable button while logging in.
-        */
-
         submitButton.disabled =
             true;
-
 
         submitButton.innerHTML =
             `
@@ -311,39 +275,21 @@ form.addEventListener(
             Signing in...
             `;
 
-
         message.classList.add(
             "d-none"
         );
 
-
         try {
-
-            /*
-                Firebase login with
-                network retry protection.
-            */
 
             await loginWithRetry(
                 email,
                 password
             );
 
-
-            /*
-                Successful login.
-            */
-
             showMessage(
                 "Login successful. Redirecting...",
                 "success"
             );
-
-
-            /*
-                Give Firebase a moment to
-                finish updating auth state.
-            */
 
             setTimeout(
                 () => {
@@ -355,7 +301,6 @@ form.addEventListener(
                 300
             );
 
-
         } catch (error) {
 
             console.error(
@@ -363,20 +308,13 @@ form.addEventListener(
                 error
             );
 
-
             showMessage(
                 getErrorMessage(error),
                 "danger"
             );
 
-
-            /*
-                Allow another attempt.
-            */
-
             submitButton.disabled =
                 false;
-
 
             submitButton.innerHTML =
                 "Login";
@@ -385,3 +323,54 @@ form.addEventListener(
 
     }
 );
+
+
+/*
+    ==========================================
+    GOOGLE SIGN IN HANDLER
+    ==========================================
+*/
+
+if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", async () => {
+        message.classList.add("d-none");
+        googleLoginBtn.disabled = true;
+
+        try {
+            const provider = new GoogleAuthProvider();
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            // Check if user profile already exists in Realtime Database
+            const userRef = ref(database, "users/" + user.uid);
+            const snapshot = await get(userRef);
+
+            if (!snapshot.exists()) {
+                // First time logging in with Google -> Create database record
+                const urlParams = new URLSearchParams(window.location.search);
+                const referredBy = urlParams.get("ref") || null;
+
+                await set(userRef, {
+                    fullName: user.displayName || "Google User",
+                    email: user.email,
+                    wallet: 0,
+                    role: "customer",
+                    status: "active",
+                    referredBy: referredBy,
+                    createdAt: Date.now()
+                });
+            }
+
+            showMessage("Google login successful! Redirecting...", "success");
+
+            setTimeout(() => {
+                window.location.href = "dashboard.html";
+            }, 300);
+
+        } catch (error) {
+            console.error("GOOGLE LOGIN ERROR:", error);
+            showMessage(getErrorMessage(error), "danger");
+            googleLoginBtn.disabled = false;
+        }
+    });
+}
