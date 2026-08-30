@@ -98,9 +98,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "tt_followers",
         platform: "TikTok",
         service: "Followers",
-        ratePer1000: 13000,
-        resellerRatePer1000: 9750,
-        vipRatePer1000: 11700,
+        ratePer1000: 70000,
+        resellerRatePer1000: 52500,
+        vipRatePer1000: 63000,
         minimumQuantity: 100
     },
 
@@ -108,9 +108,9 @@ const hkdmservicesOfficialServicePriceCatalogue = [
         id: "tt_likes",
         platform: "TikTok",
         service: "Likes",
-        ratePer1000: 3000,
-        resellerRatePer1000: 2250,
-        vipRatePer1000: 2700,
+        ratePer1000: 6750,
+        resellerRatePer1000: 5063,
+        vipRatePer1000: 6075,
         minimumQuantity: 100
     },
 
