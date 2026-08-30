@@ -10,6 +10,11 @@ content="width=device-width, initial-scale=1.0">
 
 <title>HKDMservices Admin Dashboard</title>
 
+<!-- =====================================================
+     GLOBAL THEME SCRIPT
+===================================================== -->
+<script src="theme.js"></script>
+
 <link
 href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
 rel="stylesheet">
@@ -89,7 +94,7 @@ body {
 
 /* =====================================================
    ACCOUNT TIER BADGES
-===================================================== */
+===================================================== -->
 
 .tier-badge {
     display: inline-flex;
@@ -118,6 +123,103 @@ body {
     color: #59359a;
 }
 
+/* =====================================================
+   DARK MODE OVERRIDES
+===================================================== -->
+html[data-theme="dark"] body {
+    background: #101418 !important;
+    color: #f1f3f5 !important;
+}
+
+html[data-theme="dark"] .admin-card {
+    background: #181d22 !important;
+    border-color: #30363d !important;
+    color: #f1f3f5 !important;
+}
+
+html[data-theme="dark"] .card {
+    background: #181d22 !important;
+    border-color: #30363d !important;
+    color: #f1f3f5 !important;
+}
+
+html[data-theme="dark"] .table {
+    color: #f1f3f5 !important;
+    border-color: #30363d !important;
+}
+
+html[data-theme="dark"] .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    color: #f1f3f5 !important;
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+    background-color: #151a1f !important;
+    border-color: #30363d !important;
+    color: #f1f3f5 !important;
+}
+
+html[data-theme="dark"] .text-muted {
+    color: #99a1ab !important;
+}
+
+html[data-theme="dark"] .bg-primary-subtle {
+    background-color: rgba(13, 110, 253, 0.2) !important;
+    color: #6ea8fe !important;
+}
+
+html[data-theme="dark"] .bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+    color: #75b798 !important;
+}
+
+html[data-theme="dark"] .bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    color: #ffda6a !important;
+}
+
+html[data-theme="dark"] .modal-content {
+    background-color: #181d22 !important;
+    color: #f1f3f5 !important;
+    border-color: #30363d !important;
+}
+
+html[data-theme="dark"] .tier-regular {
+    background: #21262d;
+    color: #8b949e;
+}
+
+html[data-theme="dark"] .tier-vip {
+    background: #3b2e1e;
+    color: #f0b751;
+}
+
+html[data-theme="dark"] .tier-reseller {
+    background: #2a203f;
+    color: #b392f0;
+}
+
+/* Theme Toggle Button Style */
+.theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.18);
+    transform: rotate(15deg);
+}
 </style>
 
 </head>
@@ -132,7 +234,7 @@ body {
 
 <nav class="navbar navbar-dark admin-navbar">
 
-<div class="container">
+<div class="container d-flex justify-content-between align-items-center">
 
 <a
 href="admin-dashboard.html"
@@ -154,6 +256,20 @@ class="text-white-50 small d-none d-md-inline">
 Checking...
 
 </span>
+
+<!-- THEME TOGGLE -->
+<button
+    type="button"
+    id="themeToggle"
+    class="theme-toggle"
+    aria-label="Toggle dark mode"
+    title="Toggle dark mode"
+>
+    <i
+        id="themeIcon"
+        class="bi bi-moon-stars-fill"
+    ></i>
+</button>
 
 
 <button
