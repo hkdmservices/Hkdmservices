@@ -6,7 +6,9 @@ import {
 import {
     onAuthStateChanged,
     signOut,
-    sendEmailVerification
+    sendEmailVerification,
+    updateProfile,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -14,7 +16,8 @@ import {
     query,
     orderByChild,
     equalTo,
-    get
+    get,
+    update
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
@@ -22,8 +25,11 @@ import {
    ELEMENTS
 ========================================================= */
 
-const profileName =
-    document.getElementById("profileName");
+const profileForm =
+    document.getElementById("profileForm");
+
+const profileNameInput =
+    document.getElementById("profileNameInput");
 
 const profileEmail =
     document.getElementById("profileEmail");
@@ -45,6 +51,15 @@ const accountStatus =
 
 const profileUid =
     document.getElementById("profileUid");
+
+const saveProfileBtn =
+    document.getElementById("saveProfileBtn");
+
+const resetPasswordBtn =
+    document.getElementById("resetPasswordBtn");
+
+const profileMessage =
+    document.getElementById("profileMessage");
 
 const logoutBtn =
     document.getElementById("logout");
@@ -74,192 +89,76 @@ function formatNaira(amount) {
 
 async function loadUserData(user) {
 
-    /*
-        Basic Firebase Authentication information
-    */
-
-    if (profileName) {
-
-        profileName.textContent =
-            user.displayName ||
-            "User";
-
-    }
-
-
     if (profileEmail) {
-
-        profileEmail.textContent =
-            user.email ||
-            "Not available";
-
+        profileEmail.textContent = user.email || "Not available";
     }
-
 
     if (profileUid) {
-
-        profileUid.textContent =
-            user.uid ||
-            "Not available";
-
+        profileUid.textContent = user.uid || "Not available";
     }
-
 
     /*
         EMAIL VERIFICATION & BUTTON CONTROLS
     */
 
     if (emailVerification) {
-
         if (user.emailVerified) {
-
             emailVerification.innerHTML = `
-
                 <span class="badge bg-success">
-
                     <i class="bi bi-check-circle"></i>
-
                     Verified
-
                 </span>
-
             `;
-
             if (verifyEmailBtn) {
                 verifyEmailBtn.classList.add("d-none");
             }
-
         } else {
-
             emailVerification.innerHTML = `
-
                 <span class="badge bg-warning text-dark">
-
                     <i class="bi bi-exclamation-circle"></i>
-
                     Not Verified
-
                 </span>
-
             `;
-
             if (verifyEmailBtn) {
                 verifyEmailBtn.classList.remove("d-none");
             }
-
         }
-
     }
-
-
-    /*
-        ACCOUNT STATUS
-    */
-
-    if (accountStatus) {
-
-        accountStatus.innerHTML = `
-
-            <span class="badge bg-success">
-
-                <i class="bi bi-check-circle"></i>
-
-                Active
-
-            </span>
-
-        `;
-
-    }
-
 
     /*
         LOAD USER DATABASE RECORD
     */
 
     try {
-
-        const userRef =
-            ref(
-                database,
-                "users/" + user.uid
-            );
-
-
-        const userSnapshot =
-            await get(userRef);
-
+        const userRef = ref(database, "users/" + user.uid);
+        const userSnapshot = await get(userRef);
 
         if (!userSnapshot.exists()) {
-
-            console.warn(
-                "USER DATA NOT FOUND"
-            );
-
-            if (profileWallet) {
-
-                profileWallet.textContent =
-                    "₦0.00";
-
+            console.warn("USER DATA NOT FOUND");
+            if (profileNameInput) {
+                profileNameInput.value = user.displayName || "";
             }
-
+            if (profileWallet) {
+                profileWallet.textContent = "₦0.00";
+            }
             return;
-
         }
 
+        const userData = userSnapshot.val();
 
-        const userData =
-            userSnapshot.val();
-
-
-        /*
-            FULL NAME
-        */
-
-        if (profileName) {
-
-            profileName.textContent =
-                userData.fullName ||
-                user.displayName ||
-                "User";
-
+        if (profileNameInput) {
+            profileNameInput.value = userData.fullName || user.displayName || "";
         }
-
-
-        /*
-            WALLET BALANCE
-        */
 
         if (profileWallet) {
-
-            profileWallet.textContent =
-                formatNaira(
-                    userData.wallet
-                );
-
+            profileWallet.textContent = formatNaira(userData.wallet);
         }
-
 
     } catch (error) {
-
-        console.error(
-            "PROFILE USER DATA ERROR:",
-            error
-        );
-
-
-        /*
-            Only wallet is affected
-            if user data fails.
-        */
-
+        console.error("PROFILE USER DATA ERROR:", error);
         if (profileWallet) {
-
-            profileWallet.textContent =
-                "Unable to load";
-
+            profileWallet.textContent = "Unable to load";
         }
-
     }
 
 }
@@ -272,103 +171,36 @@ async function loadUserData(user) {
 async function loadUserOrders(user) {
 
     try {
-
-        /*
-            IMPORTANT:
-
-            Only query orders belonging
-            to the authenticated user.
-
-            This matches our Firebase
-            security rules.
-        */
-
         const ordersQuery =
             query(
-                ref(
-                    database,
-                    "orders"
-                ),
+                ref(database, "orders"),
                 orderByChild("uid"),
                 equalTo(user.uid)
             );
 
+        const ordersSnapshot = await get(ordersQuery);
 
-        const ordersSnapshot =
-            await get(
-                ordersQuery
-            );
-
-
-        /*
-            NO ORDERS
-        */
-
-        if (
-            !ordersSnapshot.exists()
-        ) {
-
+        if (!ordersSnapshot.exists()) {
             if (profileOrders) {
-
-                profileOrders.textContent =
-                    "0";
-
+                profileOrders.textContent = "0";
             }
-
             return;
-
         }
 
-
-        const orders =
-            ordersSnapshot.val();
-
-
-        /*
-            Count returned user orders.
-        */
-
-        const userOrders =
-            Object.values(
-                orders
-            ).filter(
-                order =>
-                    order &&
-                    String(order.uid) ===
-                    String(user.uid)
-            );
-
-
-        if (profileOrders) {
-
-            profileOrders.textContent =
-                String(
-                    userOrders.length
-                );
-
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "PROFILE ORDERS ERROR:",
-            error
+        const orders = ordersSnapshot.val();
+        const userOrders = Object.values(orders).filter(
+            order => order && String(order.uid) === String(user.uid)
         );
 
-
-        /*
-            Only order count is affected
-            if the order request fails.
-        */
-
         if (profileOrders) {
-
-            profileOrders.textContent =
-                "Unable to load";
-
+            profileOrders.textContent = String(userOrders.length);
         }
 
+    } catch (error) {
+        console.error("PROFILE ORDERS ERROR:", error);
+        if (profileOrders) {
+            profileOrders.textContent = "Unable to load";
+        }
     }
 
 }
@@ -379,66 +211,81 @@ async function loadUserOrders(user) {
 ========================================================= */
 
 async function loadProfile(user) {
-
-    /*
-        Run profile data and orders
-        independently.
-
-        This prevents an order-loading
-        error from replacing the wallet
-        information with "Unable to load".
-    */
-
     await Promise.allSettled([
-
-        loadUserData(
-            user
-        ),
-
-        loadUserOrders(
-            user
-        )
-
+        loadUserData(user),
+        loadUserOrders(user)
     ]);
-
 }
 
 
 /* =========================================================
-   AUTHENTICATION
+   AUTHENTICATION STATE LISTENER
 ========================================================= */
 
 onAuthStateChanged(
     auth,
     async (user) => {
-
-        /*
-            USER NOT LOGGED IN
-        */
-
         if (!user) {
-
-            window.location.href =
-                "login.html";
-
+            window.location.href = "login.html";
             return;
-
         }
-
-
-        /*
-            USER IS AUTHENTICATED
-
-            Only now do we load
-            Firebase user data.
-        */
-
-        await loadProfile(
-            user
-        );
-
+        await loadProfile(user);
     }
 );
+
+
+/* =========================================================
+   HANDLE PROFILE FORM SUBMISSION (NAME UPDATE)
+========================================================= */
+
+if (profileForm) {
+    profileForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const newName = profileNameInput.value.trim();
+        if (!newName) {
+            profileMessage.className = "alert alert-danger mt-3";
+            profileMessage.textContent = "Full name cannot be empty.";
+            profileMessage.classList.remove("d-none");
+            return;
+        }
+
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Updating...
+        `;
+        profileMessage.classList.add("d-none");
+
+        try {
+            // Update Firebase Auth profile displayName
+            await updateProfile(user, {
+                displayName: newName
+            });
+
+            // Update Firebase Realtime Database record
+            const userRef = ref(database, "users/" + user.uid);
+            await update(userRef, {
+                fullName: newName
+            });
+
+            profileMessage.className = "alert alert-success mt-3";
+            profileMessage.textContent = "Profile updated successfully!";
+            profileMessage.classList.remove("d-none");
+
+        } catch (error) {
+            console.error("PROFILE UPDATE ERROR:", error);
+            profileMessage.className = "alert alert-danger mt-3";
+            profileMessage.textContent = error.message || "Failed to update profile.";
+            profileMessage.classList.remove("d-none");
+        } finally {
+            saveProfileBtn.disabled = false;
+            saveProfileBtn.innerHTML = `<i class="bi bi-check-circle"></i> Update Profile`;
+        }
+    });
+}
 
 
 /* =========================================================
@@ -446,39 +293,58 @@ onAuthStateChanged(
 ========================================================= */
 
 if (verifyEmailBtn) {
-
     verifyEmailBtn.addEventListener(
         "click",
         async () => {
-
             const user = auth.currentUser;
-
             if (!user) return;
 
             try {
-
                 verifyEmailBtn.disabled = true;
                 verifyEmailBtn.textContent = "Sending...";
 
                 await sendEmailVerification(user);
-
                 alert("Verification link sent successfully! Please check your inbox and spam folders.");
-
             } catch (error) {
-
                 console.error("VERIFICATION EMAIL ERROR:", error);
                 alert("Failed to send verification email: " + error.message);
-
             } finally {
-
                 verifyEmailBtn.disabled = false;
                 verifyEmailBtn.innerHTML = '<i class="bi bi-envelope-check"></i> Send Verification Link';
-
             }
-
         }
     );
+}
 
+
+/* =========================================================
+   SEND PASSWORD RESET EMAIL HANDLER
+========================================================= */
+
+if (resetPasswordBtn) {
+    resetPasswordBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user || !user.email) return;
+
+        try {
+            resetPasswordBtn.disabled = true;
+            resetPasswordBtn.textContent = "Sending...";
+
+            await sendPasswordResetEmail(auth, user.email);
+
+            profileMessage.className = "alert alert-success mt-3";
+            profileMessage.textContent = "Password reset email sent! Check your inbox for further instructions.";
+            profileMessage.classList.remove("d-none");
+        } catch (error) {
+            console.error("PASSWORD RESET ERROR:", error);
+            profileMessage.className = "alert alert-danger mt-3";
+            profileMessage.textContent = error.message || "Failed to send password reset email.";
+            profileMessage.classList.remove("d-none");
+        } finally {
+            resetPasswordBtn.disabled = false;
+            resetPasswordBtn.innerHTML = `<i class="bi bi-key"></i> Send Password Reset Email`;
+        }
+    });
 }
 
 
@@ -487,32 +353,15 @@ if (verifyEmailBtn) {
 ========================================================= */
 
 if (logoutBtn) {
-
     logoutBtn.addEventListener(
         "click",
         async () => {
-
             try {
-
-                await signOut(
-                    auth
-                );
-
-
-                window.location.href =
-                    "login.html";
-
-
+                await signOut(auth);
+                window.location.href = "login.html";
             } catch (error) {
-
-                console.error(
-                    "LOGOUT ERROR:",
-                    error
-                );
-
+                console.error("LOGOUT ERROR:", error);
             }
-
         }
     );
-
 }
