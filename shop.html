@@ -56,7 +56,7 @@
                 <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
                 <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
                 <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-                <li class="nav-item ms-lg-2 mt-2 mt-lg-0"><a class="btn btn-outline-light" href="login.html">Login</a></li>
+                <li class="nav-item ms-lg-2 mt-2 mt-lg-0" id="authNavBtn"><a class="btn btn-outline-light" href="login.html">Login</a></li>
             </ul>
         </div>
     </div>
@@ -94,6 +94,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -107,12 +108,24 @@
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const database = getDatabase(app);
+
+  // Maintain UI Navbar state based on Auth session instead of logging out
+  onAuthStateChanged(auth, (user) => {
+    const authNavBtn = document.getElementById('authNavBtn');
+    if (user) {
+      authNavBtn.innerHTML = `<a class="btn btn-outline-light" href="dashboard.html">Dashboard</a>`;
+    } else {
+      authNavBtn.innerHTML = `<a class="btn btn-outline-light" href="login.html">Login</a>`;
+    }
+  });
 
   async function loadShopAccounts() {
     const container = document.getElementById('shopAccountsContainer');
     try {
-      const snapshot = await get(ref(database, 'shop_accounts'));
+      // Pointing to 'accounts' matching your Firebase rules which require auth or are structured there
+      const snapshot = await get(ref(database, 'accounts'));
       const data = snapshot.val();
 
       if (!data) {
@@ -145,7 +158,7 @@
       });
     } catch (err) {
       console.error('Failed to load accounts from Firebase:', err);
-      container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please verify your Firebase settings.</p></div>';
+      container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please check your database rules for the accounts node.</p></div>';
     }
   }
 
