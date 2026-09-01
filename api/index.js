@@ -4,7 +4,7 @@ import { db } from "./firebase-admin.js";
 const app = express();
 app.use(express.json());
 
-// 1. ADD ACCOUNT (Handles accountAge, credentials, username, and password safely)
+// 1. ADD ACCOUNT (Strictly maps accountAge and credentials separately)
 app.post("/api/add-account", async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -17,7 +17,6 @@ app.post("/api/add-account", async (req, res) => {
       followers, 
       price, 
       accountAge, 
-      age,
       credentials, 
       username,
       password,
@@ -29,7 +28,6 @@ app.post("/api/add-account", async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required fields (platform or price).' });
     }
 
-    // Resolve credentials if passed together or as separate fields
     let finalCredentials = credentials;
     if (!finalCredentials && (username || password)) {
       finalCredentials = `${username || ''}:${password || ''}`;
@@ -39,13 +37,13 @@ app.post("/api/add-account", async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing login credentials.' });
     }
 
-    const finalAccountAge = accountAge || age || 'N/A';
+    const finalAccountAge = accountAge || 'N/A';
 
     const newAccountRef = db.ref('accounts').push();
     await newAccountRef.set({
       platform,
       niche: niche || 'General',
-      followers: followers || 0,
+      followers: Number(followers) || 0,
       price: Number(price),
       accountAge: finalAccountAge,
       credentials: finalCredentials,
@@ -75,7 +73,38 @@ app.get("/api/get-accounts", async (req, res) => {
   }
 });
 
-// 3. BUY ACCOUNT WALLET
+// 3. GET ALL ACCOUNTS (For Admin Inventory including sold items)
+app.get("/api/admin/get-accounts", async (req, res) => {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
+  }
+
+  try {
+    const snapshot = await db.ref('accounts').once('value');
+    const accounts = snapshot.val() || {};
+    
+    return res.status(200).json({ success: true, accounts });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 4. DELETE ACCOUNT (For Admin Management)
+app.delete("/api/admin/delete-account/:id", async (req, res) => {
+  if (req.method !== 'DELETE') {
+    return res.status(405).json({ success: false, message: 'Method not allowed' });
+  }
+
+  try {
+    const accountId = req.params.id;
+    await db.ref(`accounts/${accountId}`).remove();
+    return res.status(200).json({ success: true, message: 'Account deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 5. BUY ACCOUNT WALLET
 app.post("/api/buy-account-wallet", async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
@@ -106,7 +135,7 @@ app.post("/api/buy-account-wallet", async (req, res) => {
     if (currentBalance < price) {
       return res.status(400).json({ 
         success: false, 
-        message: `Insufficient wallet balance. You need ₦${price.toLocaleString()} but have ₦${currentBalance.toLocaleString()}. Please fund your wallet first.` 
+        message: `Insufficient wallet balance. You need ₦${price.toLocaleString()} but have ₦${currentBalance.toLocaleString()}.` 
       });
     }
 
@@ -127,7 +156,6 @@ app.post("/api/buy-account-wallet", async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Wallet purchase error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });
