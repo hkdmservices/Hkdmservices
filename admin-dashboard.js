@@ -2976,15 +2976,6 @@ async function loadAdminAccounts() {
 
 
                         <td>
-                            <code>
-                                ${escapeHtml(
-                                    credentials
-                                )}
-                            </code>
-                        </td>
-
-
-                        <td>
                             <span class="badge bg-info text-dark">
                                 ${escapeHtml(
                                     formatAccountAge(
@@ -2992,6 +2983,15 @@ async function loadAdminAccounts() {
                                     )
                                 )}
                             </span>
+                        </td>
+
+
+                        <td>
+                            <code>
+                                ${escapeHtml(
+                                    credentials
+                                )}
+                            </code>
                         </td>
 
 
