@@ -495,7 +495,7 @@
 
         <a
             class="navbar-brand fw-bold"
-            href="index.html"
+            href="dashboard.html"
         >
 
             <span class="brand-icon">⬢</span>
@@ -532,7 +532,7 @@
 
                     <a
                         class="nav-link active"
-                        href="index.html"
+                        href="dashboard.html"
                     >
                         Home
                     </a>
@@ -1710,7 +1710,7 @@
                 <div class="d-flex flex-column gap-2">
 
                     <a
-                        href="index.html"
+                        href="dashboard.html"
                         class="footer-link"
                     >
                         Home
@@ -1868,6 +1868,18 @@
       localStorage.setItem('iosBannerClosed', 'true');
     }
   }
+</script>
+
+<!-- Firebase Session Auto-Forward to Dashboard -->
+<script type="module">
+  import { auth } from "./firebase.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          window.location.replace("dashboard.html");
+      }
+  });
 </script>
 
 </body>
