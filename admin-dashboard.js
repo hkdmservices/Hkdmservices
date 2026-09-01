@@ -153,6 +153,40 @@ const serviceMax =
 const serviceStatus =
     document.getElementById("serviceStatus");
 
+/* =========================================================
+   ACCOUNTS MARKETPLACE ELEMENTS
+========================================================= */
+
+const adminAddAccountForm =
+    document.getElementById("adminAddAccountForm");
+
+const adminPlatform =
+    document.getElementById("adminPlatform");
+
+const adminNiche =
+    document.getElementById("adminNiche");
+
+const adminFollowers =
+    document.getElementById("adminFollowers");
+
+const adminPrice =
+    document.getElementById("adminPrice");
+
+const adminCredentials =
+    document.getElementById("adminCredentials");
+
+const adminAccountMsg =
+    document.getElementById("adminAccountMsg");
+
+const adminAccountsTableBody =
+    document.getElementById("adminAccountsTableBody");
+
+const adminAccountsMessage =
+    document.getElementById("adminAccountsMessage");
+
+const refreshAccounts =
+    document.getElementById("refreshAccounts");
+
 
 /* =========================================================
    GLOBAL DATA
@@ -165,6 +199,7 @@ let ordersData = {};
 let transactionsData = {};
 let servicesData = {};
 let vouchersData = {};
+let accountsData = {};
 
 
 /* =========================================================
@@ -408,7 +443,8 @@ function statusBadge(status) {
 
     else if (
         safeStatus === "completed" ||
-        safeStatus === "success"
+        safeStatus === "success" ||
+        safeStatus === "available"
     ) {
 
         badgeClass =
@@ -429,7 +465,8 @@ function statusBadge(status) {
 
 
     else if (
-        safeStatus === "refunded"
+        safeStatus === "refunded" ||
+        safeStatus === "sold"
     ) {
 
         badgeClass =
@@ -646,7 +683,8 @@ document
 
                         navButton.classList
                             .remove(
-                                "btn-primary"
+                                "btn-primary",
+                                "btn-success"
                             );
 
                         navButton.classList
@@ -715,6 +753,15 @@ document
                 ) {
 
                     loadVouchers();
+
+                }
+
+                if (
+                    sectionId ===
+                    "accountsSection"
+                ) {
+
+                    loadAdminAccounts();
 
                 }
 
@@ -868,19 +915,6 @@ async function loadUsers() {
                 ).toLowerCase() !==
                 "inactive";
 
-
-            /*
-             * IMPORTANT:
-             * Column order now matches
-             * admin-dashboard.html:
-             *
-             * Name
-             * Email
-             * Wallet
-             * Tier
-             * Orders
-             * Status
-             */
 
             html += `
                 <tr>
@@ -1405,13 +1439,6 @@ async function refundOrder(
     }
 
 
-    /*
-     * Prevent double refunds.
-     *
-     * Once refund information exists,
-     * this order must not be refunded again.
-     */
-
     if (
         order.refundedAt ||
         order.refundTransactionId ||
@@ -1518,10 +1545,6 @@ async function refundOrder(
         Date.now();
 
 
-    /*
-     * Update the customer wallet.
-     */
-
     await update(
         userRef,
         {
@@ -1535,10 +1558,6 @@ async function refundOrder(
         }
     );
 
-
-    /*
-     * Create refund transaction.
-     */
 
     await set(
         refundTransactionRef,
@@ -1578,13 +1597,6 @@ async function refundOrder(
         }
     );
 
-
-    /*
-     * Mark the order as refunded.
-     *
-     * refundTransactionId and refundedAt
-     * make the refund idempotent.
-     */
 
     await update(
         ref(
@@ -1692,11 +1704,6 @@ async function updateOrderStatus(
             );
 
 
-        /*
-         * If admin selects REFUNDED,
-         * process the refund first.
-         */
-
         if (
             status === "refunded"
         ) {
@@ -1725,14 +1732,6 @@ async function updateOrderStatus(
 
         else {
 
-            /*
-             * Normal manual status update.
-             *
-             * No API.
-             * No external provider.
-             * No automatic fulfillment.
-             */
-
             await update(
                 ref(
                     database,
@@ -1751,10 +1750,6 @@ async function updateOrderStatus(
 
         }
 
-
-        /*
-         * Update local memory.
-         */
 
         if (
             ordersData &&
@@ -2753,6 +2748,494 @@ async function loadVouchers() {
 
 
 /* =========================================================
+   LOAD ADMIN ACCOUNTS MARKETPLACE
+========================================================= */
+
+async function loadAdminAccounts() {
+
+    if (adminAccountsMessage) {
+
+        adminAccountsMessage.textContent =
+            "Loading accounts inventory...";
+
+    }
+
+
+    if (adminAccountsTableBody) {
+
+        adminAccountsTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted">Loading...</td>
+            </tr>
+        `;
+
+    }
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "accounts"
+                )
+            );
+
+
+        accountsData =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
+
+
+        const accounts =
+            Object.entries(
+                accountsData
+            );
+
+
+        if (accounts.length === 0) {
+
+            if (adminAccountsTableBody) {
+
+                adminAccountsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No accounts in inventory.</td>
+                    </tr>
+                `;
+
+            }
+
+
+            if (adminAccountsMessage) {
+
+                adminAccountsMessage.textContent =
+                    "No accounts found.";
+
+            }
+
+            return;
+
+        }
+
+
+        if (adminAccountsMessage) {
+
+            adminAccountsMessage.textContent =
+                `${accounts.length} account(s) found.`;
+
+        }
+
+
+        let html = "";
+
+
+        accounts.sort(
+            ([, a], [, b]) => {
+
+                return Number(
+                    b?.createdAt ||
+                    0
+                ) -
+                Number(
+                    a?.createdAt ||
+                    0
+                );
+
+            }
+        );
+
+
+        accounts.forEach(
+            ([id, account]) => {
+
+                const platform =
+                    account?.platform ||
+                    "—";
+
+
+                const niche =
+                    account?.niche ||
+                    "—";
+
+
+                const followers =
+                    Number(
+                        account?.followers ||
+                        0
+                    );
+
+
+                const price =
+                    Number(
+                        account?.price ||
+                        0
+                    );
+
+
+                const credentials =
+                    account?.credentials ||
+                    "—";
+
+
+                const status =
+                    account?.status ||
+                    "available";
+
+
+                html += `
+                    <tr>
+
+                        <td>
+                            <strong>
+                                ${escapeHtml(
+                                    platform
+                                )}
+                            </strong>
+                        </td>
+
+
+                        <td>
+                            ${escapeHtml(
+                                niche
+                            )}
+                        </td>
+
+
+                        <td>
+                            ${followers.toLocaleString(
+                                "en-NG"
+                            )}
+                        </td>
+
+
+                        <td>
+                            <strong>
+                                ${formatNaira(
+                                    price
+                                )}
+                            </strong>
+                        </td>
+
+
+                        <td>
+                            <code>
+                                ${escapeHtml(
+                                    credentials
+                                )}
+                            </code>
+                        </td>
+
+
+                        <td>
+                            ${statusBadge(
+                                status
+                            )}
+                        </td>
+
+
+                        <td>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger action-btn"
+                                data-action="delete-account"
+                                data-id="${escapeHtml(
+                                    id
+                                )}"
+                            >
+                                <i class="bi bi-trash"></i>
+                                Delete
+                            </button>
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        );
+
+
+        if (adminAccountsTableBody) {
+
+            adminAccountsTableBody.innerHTML =
+                html;
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "LOAD ACCOUNTS ERROR:",
+            error
+        );
+
+
+        if (adminAccountsMessage) {
+
+            adminAccountsMessage.textContent =
+                "Unable to load accounts inventory.";
+
+        }
+
+
+        if (adminAccountsTableBody) {
+
+            adminAccountsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center text-danger">Unable to load accounts.</td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   ADD ACCOUNT FORM HANDLER
+========================================================= */
+
+if (adminAddAccountForm) {
+
+    adminAddAccountForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            if (
+                !adminPlatform ||
+                !adminNiche ||
+                !adminFollowers ||
+                !adminPrice ||
+                !adminCredentials
+            ) {
+
+                return;
+
+            }
+
+
+            const platform =
+                adminPlatform.value.trim();
+
+
+            const niche =
+                adminNiche.value.trim();
+
+
+            const followers =
+                Number(
+                    adminFollowers.value
+                );
+
+
+            const price =
+                Number(
+                    adminPrice.value
+                );
+
+
+            const credentials =
+                adminCredentials.value.trim();
+
+
+            if (
+                !platform ||
+                !niche ||
+                !credentials
+            ) {
+
+                alert(
+                    "Please fill out all fields correctly."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                if (adminAccountMsg) {
+
+                    adminAccountMsg.innerHTML = `
+                        <div class="alert alert-info mb-0">
+                            Publishing account...
+                        </div>
+                    `;
+
+                }
+
+
+                const newAccountRef =
+                    push(
+                        ref(
+                            database,
+                            "accounts"
+                        )
+                    );
+
+
+                const accountData = {
+
+                    platform,
+
+                    niche,
+
+                    followers,
+
+                    price,
+
+                    credentials,
+
+                    status:
+                        "available",
+
+                    createdAt:
+                        Date.now()
+
+                };
+
+
+                await set(
+                    newAccountRef,
+                    accountData
+                );
+
+
+                if (adminAccountMsg) {
+
+                    adminAccountMsg.innerHTML = `
+                        <div class="alert alert-success mb-0">
+                            Account published to marketplace successfully!
+                        </div>
+                    `;
+
+                }
+
+
+                adminAddAccountForm.reset();
+
+                await loadAdminAccounts();
+
+
+            } catch (error) {
+
+                console.error(
+                    "ADD ACCOUNT ERROR:",
+                    error
+                );
+
+
+                if (adminAccountMsg) {
+
+                    adminAccountMsg.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            ${escapeHtml(
+                                error?.message ||
+                                "Unable to publish account."
+                            )}
+                        </div>
+                    `;
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT MARKETPLACE ACTIONS (DELETE)
+========================================================= */
+
+if (adminAccountsTableBody) {
+
+    adminAccountsTableBody.addEventListener(
+        "click",
+        async event => {
+
+            const button =
+                event.target.closest(
+                    "button[data-action]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            const action =
+                button.dataset.action;
+
+
+            const id =
+                button.dataset.id;
+
+
+            if (
+                action ===
+                    "delete-account" &&
+                id
+            ) {
+
+                if (
+                    !confirm(
+                        "Are you sure you want to delete this account from the inventory?"
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    await remove(
+                        ref(
+                            database,
+                            "accounts/" +
+                            id
+                        )
+                    );
+
+
+                    await loadAdminAccounts();
+
+                } catch (error) {
+
+                    console.error(
+                        "DELETE ACCOUNT ERROR:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to delete account."
+                    );
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
    VOUCHER ACTIONS
 ========================================================= */
 
@@ -3544,6 +4027,16 @@ if (refreshVouchers) {
 }
 
 
+if (refreshAccounts) {
+
+    refreshAccounts.addEventListener(
+        "click",
+        loadAdminAccounts
+    );
+
+}
+
+
 /* =========================================================
    AUTHENTICATION
 ========================================================= */
@@ -3611,11 +4104,6 @@ onAuthStateChanged(
 
             showAdminContent();
 
-
-            /*
-             * Load orders first because
-             * users display their order count.
-             */
 
             await loadOrders();
 
