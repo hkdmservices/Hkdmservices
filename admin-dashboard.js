@@ -277,6 +277,56 @@ function formatShortDate(timestamp) {
 
 
 /* =========================================================
+   FORMAT ACCOUNT AGE
+========================================================= */
+
+function formatAccountAge(timestamp) {
+
+    if (!timestamp) {
+        return "—";
+    }
+
+    const created =
+        new Date(Number(timestamp));
+
+    const now =
+        new Date();
+
+    if (Number.isNaN(created.getTime())) {
+        return "—";
+    }
+
+    const diffTime =
+        Math.abs(now - created);
+
+    const diffDays =
+        Math.floor(
+            diffTime /
+            (1000 * 60 * 60 * 24)
+        );
+
+    if (diffDays === 0) {
+        return "Created today";
+    } else if (diffDays === 1) {
+        return "1 day old";
+    } else if (diffDays < 30) {
+        return `${diffDays} days old`;
+    } else if (diffDays < 365) {
+        const months =
+            Math.floor(diffDays / 30);
+        return months === 1
+            ? "1 month old"
+            : `${months} months old`;
+    } else {
+        const years =
+            (diffDays / 365).toFixed(1);
+        return `${years} years old`;
+    }
+
+}
+
+
+/* =========================================================
    ESCAPE HTML
 ========================================================= */
 
@@ -2765,7 +2815,7 @@ async function loadAdminAccounts() {
 
         adminAccountsTableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted">Loading...</td>
+                <td colspan="8" class="text-center text-muted">Loading...</td>
             </tr>
         `;
 
@@ -2801,7 +2851,7 @@ async function loadAdminAccounts() {
 
                 adminAccountsTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No accounts in inventory.</td>
+                        <td colspan="8" class="text-center text-muted">No accounts in inventory.</td>
                     </tr>
                 `;
 
@@ -2884,6 +2934,12 @@ async function loadAdminAccounts() {
                     "available";
 
 
+                const accountAge =
+                    account?.createdAt ||
+                    account?.timestamp ||
+                    0;
+
+
                 html += `
                     <tr>
 
@@ -2925,6 +2981,17 @@ async function loadAdminAccounts() {
                                     credentials
                                 )}
                             </code>
+                        </td>
+
+
+                        <td>
+                            <span class="badge bg-info text-dark">
+                                ${escapeHtml(
+                                    formatAccountAge(
+                                        accountAge
+                                    )
+                                )}
+                            </span>
                         </td>
 
 
@@ -2984,7 +3051,7 @@ async function loadAdminAccounts() {
 
             adminAccountsTableBody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center text-danger">Unable to load accounts.</td>
+                    <td colspan="8" class="text-center text-danger">Unable to load accounts.</td>
                 </tr>
             `;
 
