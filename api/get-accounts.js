@@ -1,4 +1,4 @@
-import { db } from './firebase-admin.js'; // or require depending on your setup
+import { db } from './firebase-admin.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
