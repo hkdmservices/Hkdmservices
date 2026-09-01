@@ -235,7 +235,7 @@ html[data-theme="dark"] .form-select:focus {
         aria-hidden="true"
     ></div>
     <h1 class="mb-4">
-        <span id="dashboardHeadingText">User Dashboard</span>,
+        <span id="dashboardHeadingText">Welcome</span>,
         <span id="userName">
             User
         </span>
@@ -288,6 +288,7 @@ html[data-theme="dark"] .form-select:focus {
     </div>
 
     <div class="row g-4 mb-4">
+        <!-- Wallet Balance Card with Total Spent positioned directly underneath -->
         <div class="col-12 col-md-6">
             <div class="card p-4 shadow h-100">
                 <i
@@ -299,9 +300,12 @@ html[data-theme="dark"] .form-select:focus {
                 <h2 id="walletBalance">
                     ₦0.00
                 </h2>
-                <p class="mb-0">
+                <p class="mb-3">
                     Available balance
                 </p>
+                <div class="border-top pt-3 mt-auto">
+                    <span class="text-secondary small">Total Spent: <strong id="totalSpent" class="text-dark">₦0.00</strong></span>
+                </div>
             </div>
         </div>
         <div class="col-12 col-md-6">
@@ -674,11 +678,9 @@ document.addEventListener("DOMContentLoaded", function () {
     firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
             try {
-                // Fetch user role from database path if stored there, or check specific admin email/claim
                 const userSnapshot = await firebase.database().ref('users/' + user.uid).once('value');
                 const userData = userSnapshot.val();
                 
-                // Adjust conditions based on how your admin accounts are flagged in Firebase
                 const isAdmin = userData && (userData.role === 'admin' || userData.isAdmin === true);
 
                 if (isAdmin) {
@@ -689,8 +691,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     if (adminProductRow) adminProductRow.style.display = "none";
                     if (navBrandText) navBrandText.textContent = "HKDMservices";
-                    if (dashboardHeadingText) dashboardHeadingText.textContent = "User Dashboard";
-                    if (pageTitle) pageTitle.textContent = "User Dashboard - HKDMservices";
+                    if (dashboardHeadingText) dashboardHeadingText.textContent = "Welcome";
+                    if (pageTitle) pageTitle.textContent = "Dashboard - HKDMservices";
                 }
             } catch (err) {
                 console.error("Error verifying user role:", err);
