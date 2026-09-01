@@ -10,9 +10,6 @@ content="width=device-width, initial-scale=1.0">
 
 <title>HKDMservices Admin Dashboard</title>
 
-<!-- =====================================================
-     GLOBAL THEME SCRIPT
-===================================================== -->
 <script src="theme.js"></script>
 
 <link
@@ -94,7 +91,7 @@ body {
 
 /* =====================================================
    ACCOUNT TIER BADGES
-===================================================== -->
+===================================================== */
 
 .tier-badge {
     display: inline-flex;
@@ -125,7 +122,7 @@ body {
 
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418 !important;
     color: #f1f3f5 !important;
@@ -228,10 +225,6 @@ html[data-theme="dark"] .tier-reseller {
 <body>
 
 
-<!-- =====================================================
-     NAVBAR
-===================================================== -->
-
 <nav class="navbar navbar-dark admin-navbar">
 
 <div class="container d-flex justify-content-between align-items-center">
@@ -257,7 +250,6 @@ Checking...
 
 </span>
 
-<!-- THEME TOGGLE -->
 <button
     type="button"
     id="themeToggle"
@@ -290,10 +282,6 @@ Logout
 </nav>
 
 
-
-<!-- =====================================================
-     LOADING
-===================================================== -->
 
 <div
 id="adminLoading"
@@ -331,10 +319,6 @@ Please wait.
 </div>
 
 
-
-<!-- =====================================================
-     ACCESS DENIED
-===================================================== -->
 
 <div
 id="accessDenied"
@@ -379,19 +363,11 @@ Return to Dashboard
 
 
 
-<!-- =====================================================
-     ADMIN CONTENT
-===================================================== -->
-
 <main
 id="adminContent"
 class="container py-5">
 
 
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
 
 <div
 class="d-flex
@@ -429,10 +405,6 @@ Administrator
 </div>
 
 
-
-<!-- =====================================================
-     STATISTICS
-===================================================== -->
 
 <div class="row g-4 mb-4">
 
@@ -603,10 +575,6 @@ text-success">
 
 
 
-<!-- =====================================================
-     MANAGEMENT NAVIGATION
-===================================================== -->
-
 <div class="card shadow-sm admin-card mb-4">
 
 <div class="card-body">
@@ -690,10 +658,6 @@ Accounts
 </div>
 
 
-
-<!-- =====================================================
-     USERS
-===================================================== -->
 
 <section
 id="usersSection"
@@ -795,10 +759,6 @@ Loading...
 </section>
 
 
-
-<!-- =====================================================
-     ORDERS
-===================================================== -->
 
 <section
 id="ordersSection"
@@ -905,10 +865,6 @@ Loading...
 
 
 
-<!-- =====================================================
-     TRANSACTIONS
-===================================================== -->
-
 <section
 id="transactionsSection"
 class="management-section">
@@ -1011,10 +967,6 @@ Loading...
 </section>
 
 
-
-<!-- =====================================================
-     SERVICES
-===================================================== -->
 
 <section
 id="servicesSection"
@@ -1120,10 +1072,6 @@ No services yet.
 </section>
 
 
-
-<!-- =====================================================
-     VOUCHERS
-===================================================== -->
 
 <section
 id="vouchersSection"
@@ -1325,10 +1273,6 @@ Loading...
 
 
 
-<!-- =====================================================
-     ACCOUNTS MARKETPLACE MANAGEMENT SECTION
-===================================================== -->
-
 <section
 id="accountsSection"
 class="management-section">
@@ -1360,13 +1304,18 @@ class="management-section">
 <input type="number" class="form-control" id="adminFollowers" placeholder="10000" required>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-4">
 <label for="adminPrice" class="form-label">Price (₦)</label>
 <input type="number" class="form-control" id="adminPrice" placeholder="5000" required>
 </div>
 
-<div class="col-md-6">
-<label for="adminCredentials" class="form-label">Login Credentials (Username:Password)</label>
+<div class="col-md-4">
+<label for="adminAccountAge" class="form-label">Account Age</label>
+<input type="text" class="form-control" id="adminAccountAge" placeholder="e.g. 2 Years" required>
+</div>
+
+<div class="col-md-4">
+<label for="adminCredentials" class="form-label">Login Credentials</label>
 <input type="text" class="form-control" id="adminCredentials" placeholder="user@gmail.com:pass123" required>
 </div>
 
@@ -1417,6 +1366,7 @@ class="management-section">
 <th>Niche</th>
 <th>Followers</th>
 <th>Price</th>
+<th>Account Age</th>
 <th>Credentials</th>
 <th>Status</th>
 <th>Action</th>
@@ -1427,7 +1377,7 @@ class="management-section">
 <tbody id="adminAccountsTableBody">
 
 <tr>
-<td colspan="7" class="text-center text-muted">Loading...</td>
+<td colspan="8" class="text-center text-muted">Loading...</td>
 </tr>
 
 </tbody>
@@ -1443,10 +1393,6 @@ class="management-section">
 </section>
 
 
-
-<!-- =====================================================
-     ADMIN STATUS
-===================================================== -->
 
 <div class="card shadow-sm admin-card mt-4">
 
@@ -1478,10 +1424,6 @@ Admin authentication verified.
 </main>
 
 
-
-<!-- =====================================================
-     ADD / EDIT SERVICE MODAL
-===================================================== -->
 
 <div
 class="modal fade"
@@ -1688,19 +1630,11 @@ Save Service
 
 
 
-<!-- =====================================================
-     BOOTSTRAP JS
-===================================================== -->
-
 <script
 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
 </script>
 
 
-
-<!-- =====================================================
-     ADMIN JAVASCRIPT
-===================================================== -->
 
 <script
 type="module"
