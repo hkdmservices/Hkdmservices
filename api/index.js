@@ -4,18 +4,42 @@ import { db } from "./firebase-admin.js";
 const app = express();
 app.use(express.json());
 
-// 1. ADD ACCOUNT
+// 1. ADD ACCOUNT (Handles accountAge, credentials, username, and password safely)
 app.post("/api/add-account", async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
   try {
-    const { platform, niche, followers, price, credentials, status, createdAt } = req.body;
+    const { 
+      platform, 
+      niche, 
+      followers, 
+      price, 
+      accountAge, 
+      age,
+      credentials, 
+      username,
+      password,
+      status, 
+      createdAt 
+    } = req.body;
 
-    if (!platform || !price || !credentials) {
-      return res.status(400).json({ success: false, message: 'Missing required fields.' });
+    if (!platform || !price) {
+      return res.status(400).json({ success: false, message: 'Missing required fields (platform or price).' });
     }
+
+    // Resolve credentials if passed together or as separate fields
+    let finalCredentials = credentials;
+    if (!finalCredentials && (username || password)) {
+      finalCredentials = `${username || ''}:${password || ''}`;
+    }
+
+    if (!finalCredentials) {
+      return res.status(400).json({ success: false, message: 'Missing login credentials.' });
+    }
+
+    const finalAccountAge = accountAge || age || 'N/A';
 
     const newAccountRef = db.ref('accounts').push();
     await newAccountRef.set({
@@ -23,9 +47,10 @@ app.post("/api/add-account", async (req, res) => {
       niche: niche || 'General',
       followers: followers || 0,
       price: Number(price),
-      credentials,
+      accountAge: finalAccountAge,
+      credentials: finalCredentials,
       status: status || 'available',
-      createdAt
+      createdAt: createdAt || new Date().toISOString()
     });
 
     return res.status(200).json({ success: true, accountId: newAccountRef.key });
