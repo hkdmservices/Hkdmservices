@@ -70,7 +70,7 @@
     </div>
 </header>
 
-<!-- MARKETPLACE CONTENT (DYNAMIC CONTAINER) -->
+<!-- MARKETPLACE CONTENT -->
 <section class="section-padding">
     <div class="container">
         <div class="row g-4" id="shopAccountsContainer">
@@ -89,64 +89,74 @@
     </div>
 </footer>
 
-<!-- SCRIPTS -->
+<!-- SCRIPTS & FIREBASE -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- FIREBASE SDKs (Compat) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-async function loadShopAccounts() {
+  // PASTE YOUR FIREBASE CONFIG VALUES HERE
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const database = firebase.database();
+
+  async function loadShopAccounts() {
     const container = document.getElementById('shopAccountsContainer');
     try {
-        // Ensures database connection utilizes whatever initialization context is active
-        if (!firebase.apps.length) {
-            console.warn("Waiting for Firebase initialization...");
-        }
+      const snapshot = await database.ref('shop_accounts').once('value');
+      const data = snapshot.val();
 
-        const snapshot = await firebase.database().ref('shop_accounts').once('value');
-        const data = snapshot.val();
+      if (!data) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No social accounts available right now.</h4><p>Check back later or add accounts via your admin panel.</p></div>';
+        return;
+      }
 
-        if (!data) {
-            container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No social accounts available right now.</h4><p>Check back later or add accounts via your admin panel.</p></div>';
-            return;
-        }
+      const accounts = Object.values(data);
+      container.innerHTML = '';
 
-        const accounts = Object.values(data);
-        container.innerHTML = ''; // Clear loading spinner
-
-        accounts.forEach(account => {
-            const cardHTML = `
-                <div class="col-12 col-md-4">
-                    <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge bg-success">${account.platform || 'Social'}</span>
-                                <span class="fw-bold text-success fs-5">₦${Number(account.price || 0).toLocaleString()}</span>
-                            </div>
-                            <h5 class="fw-bold">${account.title || 'Social Media Account'}</h5>
-                            <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
+      accounts.forEach(account => {
+        const cardHTML = `
+            <div class="col-12 col-md-4">
+                <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-success">${account.platform || 'Social'}</span>
+                            <span class="fw-bold text-success fs-5">₦${Number(account.price || 0).toLocaleString()}</span>
                         </div>
-                        <button onclick="buyAccount('${account.id || ''}')" class="btn btn-outline-success w-100 mt-3">
-                            <i class="bi bi-cart-plus me-2"></i>Buy Now
-                        </button>
+                        <h5 class="fw-bold">${account.title || 'Social Media Account'}</h5>
+                        <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
                     </div>
+                    <button onclick="buyAccount('${account.id || ''}')" class="btn btn-outline-success w-100 mt-3">
+                        <i class="bi bi-cart-plus me-2"></i>Buy Now
+                    </button>
                 </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
+            </div>
+        `;
+        container.innerHTML += cardHTML;
+      });
     } catch (err) {
-        console.error('Failed to load accounts from Firebase:', err);
-        container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please check your connection.</p></div>';
+      console.error('Failed to load accounts from Firebase:', err);
+      container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please verify your Firebase settings.</p></div>';
     }
-}
+  }
 
-function buyAccount(accountId) {
+  function buyAccount(accountId) {
     alert('Proceeding to checkout for account ID: ' + accountId);
-}
+  }
 
-document.addEventListener('DOMContentLoaded', loadShopAccounts);
+  document.addEventListener('DOMContentLoaded', loadShopAccounts);
 </script>
 
 </body>
