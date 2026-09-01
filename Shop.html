@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Account Marketplace - HKDMservices</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 30px; background: #f4f7f6; }
+    h1 { text-align: center; color: #333; margin-bottom: 30px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .card h3 { margin-top: 0; color: #111; text-transform: uppercase; }
+    .price { font-size: 20px; font-weight: bold; color: #27ae60; margin: 10px 0; }
+    input[type="email"] { width: 100%; padding: 10px; margin: 10px 0 15px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background: #25D366; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    button:hover { background: #1ebe57; }
+    .loading { text-align: center; font-size: 18px; color: #666; grid-column: 1 / -1; }
+  </style>
+</head>
+<body>
+
+  <h1>Social Media Account Marketplace</h1>
+  <div id="account-grid" class="grid">
+    <p class="loading">Loading accounts...</p>
+  </div>
+
+  <script>
+    async function fetchAccounts() {
+      try {
+        const response = await fetch('/api/get-accounts');
+        const data = await response.json();
+        
+        const grid = document.getElementById('account-grid');
+        if (!data.success || Object.keys(data.accounts).length === 0) {
+          grid.innerHTML = '<p class="loading">No accounts available right now. Check back later!</p>';
+          return;
+        }
+
+        grid.innerHTML = '';
+        for (const [id, acc] of Object.entries(data.accounts)) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${acc.platform}</h3>
+            <p><strong>Niche:</strong> ${acc.niche}</p>
+            <p><strong>Followers:</strong> ${Number(acc.followers).toLocaleString()}</p>
+            <div class="price">₦${Number(acc.price).toLocaleString()}</div>
+            <label for="email-${id}">Enter your email for receipt/reference:</label>
+            <input type="email" id="email-${id}" placeholder="yourname@gmail.com" required>
+            <button onclick="initiatePurchase('${id}', ${acc.price})">Buy with Wallet Balance</button>
+          `;
+          grid.appendChild(card);
+        }
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+        document.getElementById('account-grid').innerHTML = '<p class="loading">Failed to load accounts.</p>';
+      }
+    }
+
+    async function initiatePurchase(accountId, amount) {
+      const emailInput = document.getElementById(`email-${accountId}`);
+      const email = emailInput.value.trim();
+
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address first.');
+        emailInput.focus();
+        return;
+      }
+
+      if (!confirm(`Deduct ₦${Number(amount).toLocaleString()} from your wallet to purchase this account?`)) {
+        return;
+      }
+
+      try {
+        // Assuming userId is stored in localStorage or retrieved from session
+        const userId = localStorage.getItem('userId') || 'guest';
+
+        const response = await fetch('/api/buy-account-wallet', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-user-id': userId
+          },
+          body: JSON.stringify({ accountId, email })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          window.location.href = `success.html?reference=${data.reference}&platform=${encodeURIComponent(data.platform)}`;
+        } else {
+          alert(data.message || 'Could not complete purchase.');
+        }
+      } catch (error) {
+        console.error('Purchase error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    }
+
+    fetchAccounts();
+  </script>
+</body>
+</html>
