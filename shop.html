@@ -134,10 +134,12 @@
       container.innerHTML = '';
 
       Object.entries(data).forEach(([key, account]) => {
-        // Skip accounts that have already been sold
         if (account.status === "sold") return;
 
         const accountId = account.id || key;
+        const followers = account.followers || account.followerCount || "N/A";
+        const accountAge = account.age || account.accountAge || "N/A";
+
         const cardHTML = `
             <div class="col-12 col-md-4">
                 <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
@@ -148,6 +150,11 @@
                         </div>
                         <h5 class="fw-bold">${account.title || 'Social Media Account'}</h5>
                         <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
+                        
+                        <div class="d-flex justify-content-between border-top pt-2 mt-3 text-secondary small">
+                            <span><i class="bi bi-people me-1"></i> Followers: <strong>${followers}</strong></span>
+                            <span><i class="bi bi-calendar-check me-1"></i> Age: <strong>${accountAge}</strong></span>
+                        </div>
                     </div>
                     <button onclick="buyAccount('${accountId}')" class="btn btn-outline-success w-100 mt-3">
                         <i class="bi bi-cart-plus me-2"></i>Buy Now
