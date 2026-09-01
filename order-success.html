@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success | HKDMservices</title>
+    <script src="theme.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .main-navbar { background: #111; }
+        .section-padding { padding: 70px 0; }
+        .success-card {
+            padding: 30px;
+            border: 1px solid #e9ecef;
+            border-radius: 18px;
+            background: #fff;
+        }
+        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
+        html[data-theme="dark"] .main-navbar { background: #080a0c; }
+        html[data-theme="dark"] .success-card { background: #181d22; border-color: #30363d; color: #f1f3f5; }
+        html[data-theme="dark"] .text-muted { color: #adb5bd !important; }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="dashboard.html"><span class="me-1">⬢</span> HKDMservices</a>
+    </div>
+</nav>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="success-card shadow-sm text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success display-1"></i>
+                    </div>
+                    <h2 class="fw-bold mb-2">Order Successful!</h2>
+                    <p class="text-muted mb-4">Your payment has been processed and your account details are ready.</p>
+
+                    <div id="orderDetailsLoading">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="text-muted mt-2">Loading your order details...</p>
+                    </div>
+
+                    <div id="orderDetailsContent" class="text-start d-none">
+                        <div class="border rounded p-3 mb-3 bg-light text-dark" id="orderDetailsBox">
+                            <!-- Injected order info -->
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="dashboard.html" class="btn btn-success">Go to Dashboard</a>
+                        <a href="shop.html" class="btn btn-outline-secondary">Back to Shop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const database = getDatabase(app);
+
+  async function fetchOrderDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    const loadingEl = document.getElementById('orderDetailsLoading');
+    const contentEl = document.getElementById('orderDetailsContent');
+    const boxEl = document.getElementById('orderDetailsBox');
+
+    if (!orderId) {
+      loadingEl.innerHTML = '<p class="text-danger">No order ID found in URL.</p>';
+      return;
+    }
+
+    try {
+      const orderSnap = await get(ref(database, `orders/${orderId}`));
+      if (!orderSnap.exists()) {
+        loadingEl.innerHTML = '<p class="text-danger">Order record not found.</p>';
+        return;
+      }
+
+      const order = orderSnap.val();
+      loadingEl.classList.add('d-none');
+      contentEl.classList.remove('d-none');
+
+      boxEl.innerHTML = `
+          <p class="mb-1"><strong>Order ID:</strong> ${order.id}</p>
+          <p class="mb-1"><strong>Item:</strong> ${order.title}</p>
+          <p class="mb-1"><strong>Price Paid:</strong> ₦${Number(order.price || 0).toLocaleString()}</p>
+          <hr>
+          <p class="mb-0"><strong>Account Credentials:</strong><br><span class="text-primary font-monospace">${order.credentials}</span></p>
+      `;
+    } catch (err) {
+      console.error("Failed to load order:", err);
+      loadingEl.innerHTML = '<p class="text-danger">Failed to retrieve order details.</p>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchOrderDetails);
+</script>
+
+</body>
+</html>
