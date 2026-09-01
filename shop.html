@@ -94,7 +94,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getDatabase, ref, get, update, set, ref as dbRef } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+  import { getDatabase, ref, get, update, ref as dbRef } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -217,18 +217,13 @@
       const newTotalSpent = Number(userData.totalSpent || 0) + accountPrice;
       const orderId = "ord_" + Date.now();
 
-      // Perform individual node updates to comply with Firebase security rules
-      await update(userRef, {
-        wallet: newBalance,
-        totalSpent: newTotalSpent
-      });
-
-      await update(accountRef, {
-        status: "sold",
-        buyerUid: currentUser.uid
-      });
-
-      await set(dbRef(database, `orders/${orderId}`), {
+      const updates = {};
+      updates[`users/${currentUser.uid}/wallet`] = newBalance;
+      updates[`users/${currentUser.uid}/totalSpent`] = newTotalSpent;
+      updates[`accounts/${accountId}/status`] = "sold";
+      updates[`accounts/${accountId}/buyerUid`] = currentUser.uid;
+      
+      updates[`orders/${orderId}`] = {
         id: orderId,
         uid: currentUser.uid,
         accountId: accountId,
@@ -236,7 +231,9 @@
         price: accountPrice,
         credentials: accountData.credentials || ("Username: " + (accountData.username || "N/A") + " | Password: " + (accountData.password || "N/A")),
         timestamp: Date.now()
-      });
+      };
+
+      await update(dbRef(database), updates);
 
       alert("Purchase successful! Redirecting to your order details...");
       window.location.href = `order-success.html?orderId=${orderId}`;
