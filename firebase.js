@@ -9,7 +9,8 @@ import {
 import {
     getAuth,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    indexedDBLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -56,22 +57,21 @@ const app =
 
 
 // ============================================================
-// Initialize Authentication
+// Initialize Authentication & Persistence
 // ============================================================
 
 const auth =
     getAuth(app);
 
-
-// ============================================================
-// Authentication Persistence
-// ============================================================
-
-const authPersistence =
-    setPersistence(
-        auth,
-        browserLocalPersistence
-    );
+// Explicitly handle and apply persistence safely for mobile/iOS Safari
+setPersistence(auth, browserLocalPersistence)
+    .catch((error) => {
+        console.warn("Local persistence failed, falling back to IndexedDB:", error);
+        return setPersistence(auth, indexedDBLocalPersistence);
+    })
+    .catch((err) => {
+        console.error("All persistence mechanisms failed:", err);
+    });
 
 
 // ============================================================
@@ -89,6 +89,5 @@ const database =
 export {
     app,
     auth,
-    database,
-    authPersistence
+    database
 };
