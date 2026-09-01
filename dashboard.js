@@ -275,6 +275,19 @@ async function loadUserInformation(user) {
         }
 
 
+        const totalSpentEl =
+            document.getElementById("totalSpent");
+
+        if (totalSpentEl) {
+
+            totalSpentEl.textContent =
+                formatNaira(
+                    data.totalSpent || 0
+                );
+
+        }
+
+
     } catch (error) {
 
         console.error(
