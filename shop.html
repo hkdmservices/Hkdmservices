@@ -2,65 +2,27 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace | HKDMservices</title>
-
-    <meta
-        name="description"
-        content="Browse and purchase verified social media accounts on HKDMservices."
-    >
-
+    <meta name="description" content="Browse and purchase verified social media accounts on HKDMservices.">
+    
     <!-- Global Theme Script -->
     <script src="theme.js"></script>
 
     <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Main CSS -->
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .main-navbar {
-            background: #111;
-        }
-
-        .brand-icon {
-            margin-right: 7px;
-        }
-
-        .section-padding {
-            padding: 70px 0;
-        }
-
+        html { scroll-behavior: smooth; }
+        body { margin: 0; font-family: Arial, sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        .main-navbar { background: #111; }
+        .brand-icon { margin-right: 7px; }
+        .section-padding { padding: 70px 0; }
         .feature-card {
             height: 100%;
             padding: 25px;
@@ -69,83 +31,38 @@
             background: #fff;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-        }
-
-        html[data-theme="dark"] body {
-            background: #101418;
-            color: #f1f3f5;
-        }
-
-        html[data-theme="dark"] .main-navbar {
-            background: #080a0c;
-        }
-
-        html[data-theme="dark"] .feature-card {
-            background: #181d22;
-            border-color: #30363d;
-            color: #f1f3f5;
-        }
-
-        html[data-theme="dark"] .text-muted {
-            color: #adb5bd !important;
-        }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
+        html[data-theme="dark"] .main-navbar { background: #080a0c; }
+        html[data-theme="dark"] .feature-card { background: #181d22; border-color: #30363d; color: #f1f3f5; }
+        html[data-theme="dark"] .text-muted { color: #adb5bd !important; }
     </style>
-
 </head>
 
 <body>
 
-<!-- =====================================================
-     NAVBAR
-===================================================== -->
-
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
     <div class="container">
         <a class="navbar-brand fw-bold" href="index.html">
             <span class="brand-icon">⬢</span> HKDMservices
         </a>
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav ms-auto align-items-lg-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="services.html">Services</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="shop.html">Shop</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="about.html">About</a>
-                </li>
-                <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-                    <a class="btn btn-outline-light" href="login.html">Login</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
+                <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                <li class="nav-item ms-lg-2 mt-2 mt-lg-0"><a class="btn btn-outline-light" href="login.html">Login</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- =====================================================
-     SHOP HEADER
-===================================================== -->
-
+<!-- SHOP HEADER -->
 <header class="bg-success text-white py-5">
     <div class="container text-center">
         <h1 class="fw-bold">Social Accounts Marketplace</h1>
@@ -153,14 +70,10 @@
     </div>
 </header>
 
-<!-- =====================================================
-     MARKETPLACE CONTENT (DYNAMIC CONTAINER)
-===================================================== -->
-
+<!-- MARKETPLACE CONTENT -->
 <section class="section-padding">
     <div class="container">
         <div class="row g-4" id="shopAccountsContainer">
-            <!-- Dynamic items will load here automatically from the database -->
             <div class="col-12 text-center py-5">
                 <div class="spinner-border text-success" role="status"></div>
                 <p class="text-muted mt-2">Loading available accounts...</p>
@@ -169,66 +82,81 @@
     </div>
 </section>
 
-<!-- =====================================================
-     FOOTER
-===================================================== -->
-
+<!-- FOOTER -->
 <footer class="bg-dark text-white py-4">
     <div class="container text-center">
         <small class="text-secondary">© 2026 HKDMservices. All rights reserved.</small>
     </div>
 </footer>
 
-<!-- =====================================================
-     SCRIPTS
-===================================================== -->
+<!-- SCRIPTS & FIREBASE -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-async function loadShopAccounts() {
+  // PASTE YOUR FIREBASE CONFIG VALUES HERE
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const database = firebase.database();
+
+  async function loadShopAccounts() {
+    const container = document.getElementById('shopAccountsContainer');
     try {
-        const response = await fetch('/api/accounts');
-        const result = await response.json();
-        const container = document.getElementById('shopAccountsContainer');
+      const snapshot = await database.ref('shop_accounts').once('value');
+      const data = snapshot.val();
 
-        if (!result.success || !result.accounts.length) {
-            container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No social accounts available right now.</h4><p>Check back later or add accounts via your admin panel.</p></div>';
-            return;
-        }
+      if (!data) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No social accounts available right now.</h4><p>Check back later or add accounts via your admin panel.</p></div>';
+        return;
+      }
 
-        container.innerHTML = ''; // Clear loading spinner
+      const accounts = Object.values(data);
+      container.innerHTML = '';
 
-        result.accounts.forEach(account => {
-            const cardHTML = `
-                <div class="col-12 col-md-4">
-                    <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge bg-success">${account.platform}</span>
-                                <span class="fw-bold text-success fs-5">₦${Number(account.price).toLocaleString()}</span>
-                            </div>
-                            <h5 class="fw-bold">${account.title}</h5>
-                            <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
+      accounts.forEach(account => {
+        const cardHTML = `
+            <div class="col-12 col-md-4">
+                <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-success">${account.platform || 'Social'}</span>
+                            <span class="fw-bold text-success fs-5">₦${Number(account.price || 0).toLocaleString()}</span>
                         </div>
-                        <button onclick="buyAccount('${account.id}')" class="btn btn-outline-success w-100 mt-3">
-                            <i class="bi bi-cart-plus me-2"></i>Buy Now
-                        </button>
+                        <h5 class="fw-bold">${account.title || 'Social Media Account'}</h5>
+                        <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
                     </div>
+                    <button onclick="buyAccount('${account.id || ''}')" class="btn btn-outline-success w-100 mt-3">
+                        <i class="bi bi-cart-plus me-2"></i>Buy Now
+                    </button>
                 </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
+            </div>
+        `;
+        container.innerHTML += cardHTML;
+      });
     } catch (err) {
-        console.error('Failed to load accounts:', err);
-        document.getElementById('shopAccountsContainer').innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please check your connection or server status.</p></div>';
+      console.error('Failed to load accounts from Firebase:', err);
+      container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please verify your Firebase settings.</p></div>';
     }
-}
+  }
 
-function buyAccount(accountId) {
+  function buyAccount(accountId) {
     alert('Proceeding to checkout for account ID: ' + accountId);
-}
+  }
 
-document.addEventListener('DOMContentLoaded', loadShopAccounts);
+  document.addEventListener('DOMContentLoaded', loadShopAccounts);
 </script>
 
 </body>
