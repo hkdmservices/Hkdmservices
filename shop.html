@@ -205,7 +205,7 @@
       }
 
       const userData = userSnap.val() || {};
-      const userBalance = Number(userData.balance || 0);
+      const userBalance = Number(userData.wallet !== undefined ? userData.wallet : (userData.balance || 0));
       const accountPrice = Number(accountData.price || 0);
 
       if (userBalance < accountPrice) {
@@ -218,7 +218,7 @@
       const orderId = "ord_" + Date.now();
 
       const updates = {};
-      updates[`users/${currentUser.uid}/balance`] = newBalance;
+      updates[`users/${currentUser.uid}/wallet`] = newBalance;
       updates[`users/${currentUser.uid}/totalSpent`] = newTotalSpent;
       updates[`accounts/${accountId}/status`] = "sold";
       updates[`accounts/${accountId}/buyerUid`] = currentUser.uid;
