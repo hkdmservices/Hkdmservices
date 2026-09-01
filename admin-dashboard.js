@@ -4176,6 +4176,8 @@ onAuthStateChanged(
 
             await loadUsers();
 
+            await loadAdminAccounts();
+
 
         } catch (error) {
 
