@@ -138,16 +138,22 @@
         const accountId = account.id || key;
         const followers = account.followers || account.followerCount || "N/A";
         const accountAge = account.age || account.accountAge || "N/A";
+        const platform = account.platform || 'Social';
+        const baseTitle = account.title || 'Social Media Account';
+        
+        const displayTitle = baseTitle.toLowerCase().includes(platform.toLowerCase()) 
+          ? baseTitle 
+          : `${platform} - ${baseTitle}`;
 
         const cardHTML = `
             <div class="col-12 col-md-4">
                 <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="badge bg-success">${account.platform || 'Social'}</span>
+                            <span class="badge bg-success">${platform}</span>
                             <span class="fw-bold text-success fs-5">₦${Number(account.price || 0).toLocaleString()}</span>
                         </div>
-                        <h5 class="fw-bold">${account.title || 'Social Media Account'}</h5>
+                        <h5 class="fw-bold">${displayTitle}</h5>
                         <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
                         
                         <div class="d-flex justify-content-between border-top pt-2 mt-3 text-secondary small">
@@ -216,8 +222,10 @@
       const newBalance = userBalance - accountPrice;
       const newTotalSpent = Number(userData.totalSpent || 0) + accountPrice;
       const orderId = "ord_" + Date.now();
+      const platform = accountData.platform || 'Social';
+      const baseTitle = accountData.title || 'Social Media Account';
+      const orderTitle = baseTitle.toLowerCase().includes(platform.toLowerCase()) ? baseTitle : `${platform} - ${baseTitle}`;
 
-      // Perform individual node updates to comply with Firebase security rules
       await update(userRef, {
         wallet: newBalance,
         totalSpent: newTotalSpent
@@ -232,7 +240,7 @@
         id: orderId,
         uid: currentUser.uid,
         accountId: accountId,
-        title: accountData.title || "Social Media Account",
+        title: orderTitle,
         price: accountPrice,
         credentials: accountData.credentials || ("Username: " + (accountData.username || "N/A") + " | Password: " + (accountData.password || "N/A")),
         timestamp: Date.now()
