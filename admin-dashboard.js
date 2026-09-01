@@ -175,6 +175,9 @@ const adminPrice =
 const adminCredentials =
     document.getElementById("adminCredentials");
 
+const adminAccountAge =
+    document.getElementById("adminAccountAge");
+
 const adminAccountMsg =
     document.getElementById("adminAccountMsg");
 
@@ -272,56 +275,6 @@ function formatShortDate(timestamp) {
             day: "numeric"
         }
     );
-
-}
-
-
-/* =========================================================
-   FORMAT ACCOUNT AGE
-========================================================= */
-
-function formatAccountAge(timestamp) {
-
-    if (!timestamp) {
-        return "—";
-    }
-
-    const created =
-        new Date(Number(timestamp));
-
-    const now =
-        new Date();
-
-    if (Number.isNaN(created.getTime())) {
-        return "—";
-    }
-
-    const diffTime =
-        Math.abs(now - created);
-
-    const diffDays =
-        Math.floor(
-            diffTime /
-            (1000 * 60 * 60 * 24)
-        );
-
-    if (diffDays === 0) {
-        return "Created today";
-    } else if (diffDays === 1) {
-        return "1 day old";
-    } else if (diffDays < 30) {
-        return `${diffDays} days old`;
-    } else if (diffDays < 365) {
-        const months =
-            Math.floor(diffDays / 30);
-        return months === 1
-            ? "1 month old"
-            : `${months} months old`;
-    } else {
-        const years =
-            (diffDays / 365).toFixed(1);
-        return `${years} years old`;
-    }
 
 }
 
@@ -2934,10 +2887,9 @@ async function loadAdminAccounts() {
                     "available";
 
 
-                const accountAge =
-                    account?.createdAt ||
-                    account?.timestamp ||
-                    0;
+                const displayAge =
+                    account?.accountAge ||
+                    "—";
 
 
                 html += `
@@ -2978,9 +2930,7 @@ async function loadAdminAccounts() {
                         <td>
                             <span class="badge bg-info text-dark">
                                 ${escapeHtml(
-                                    formatAccountAge(
-                                        accountAge
-                                    )
+                                    displayAge
                                 )}
                             </span>
                         </td>
@@ -3080,7 +3030,8 @@ if (adminAddAccountForm) {
                 !adminNiche ||
                 !adminFollowers ||
                 !adminPrice ||
-                !adminCredentials
+                !adminCredentials ||
+                !adminAccountAge
             ) {
 
                 return;
@@ -3112,10 +3063,15 @@ if (adminAddAccountForm) {
                 adminCredentials.value.trim();
 
 
+            const accountAge =
+                adminAccountAge.value.trim();
+
+
             if (
                 !platform ||
                 !niche ||
-                !credentials
+                !credentials ||
+                !accountAge
             ) {
 
                 alert(
@@ -3160,6 +3116,8 @@ if (adminAddAccountForm) {
                     price,
 
                     credentials,
+
+                    accountAge,
 
                     status:
                         "available",
