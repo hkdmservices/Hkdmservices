@@ -23,7 +23,7 @@
 <style>
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418;
     color: #f1f3f5;
@@ -676,11 +676,11 @@ document.addEventListener("DOMContentLoaded", function () {
             try {
                 // Ensures your admin database reference uses your existing firebase app
                 if (!firebase.apps.length) {
-                    // Fallback configuration initializer if needed
                     console.warn("Firebase app not detected automatically. Ensure initialization is handled in dashboard.js");
                 }
                 
-                const dbRef = firebase.database().ref('shop_accounts').push();
+                // Updated database reference to 'accounts' to match shop.html fetch logic
+                const dbRef = firebase.database().ref('accounts').push();
                 await dbRef.set({
                     id: dbRef.key,
                     platform,
