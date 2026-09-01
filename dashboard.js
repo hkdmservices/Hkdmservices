@@ -5,7 +5,9 @@ import {
 
 import {
     onAuthStateChanged,
-    signOut
+    signOut,
+    setPersistence,
+    browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 import {
@@ -14,6 +16,15 @@ import {
     push,
     set
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+// =========================================================
+//   SESSION PERSISTENCE FIX
+// =========================================================
+
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Persistence error:", error);
+});
 
 
 
