@@ -1,46 +1,97 @@
 import express from "express";
 import { admin, db } from "./firebase-admin.js";
+
 const app = express();
+
 app.use(express.json());
-/* =========================================================
-   HELPER: VERIFY FIREBASE AUTH TOKEN
-========================================================= */
-async function authenticateUser(req) {
-    const authHeader =
+
+
+/* =====================================================
+   AUTHENTICATION HELPER
+===================================================== */
+
+async function getAuthenticatedUser(req) {
+
+    const authorization =
         req.headers.authorization || "";
+
     if (
-        !authHeader.startsWith("Bearer ")
+        !authorization.startsWith("Bearer ")
     ) {
         throw new Error(
             "AUTHENTICATION_REQUIRED"
         );
     }
+
     const idToken =
-        authHeader.substring(7).trim();
+        authorization.substring(
+            7
+        ).trim();
+
     if (!idToken) {
         throw new Error(
             "AUTHENTICATION_REQUIRED"
         );
     }
-    const decodedToken =
-        await admin
-            .auth()
-            .verifyIdToken(idToken);
-    return decodedToken;
+
+    return await admin
+        .auth()
+        .verifyIdToken(idToken);
 }
-/* =========================================================
-   1. ADD ACCOUNT
-   =========================================================
-   Used by your admin/dashboard.
-   Stores marketplace inventory at:
-       accounts/{accountId}
-   IMPORTANT:
-   Credentials are stored privately in Firebase.
-========================================================= */
+
+
+/* =====================================================
+   ADMIN AUTHENTICATION
+===================================================== */
+
+async function requireAdmin(req) {
+
+    const decodedUser =
+        await getAuthenticatedUser(req);
+
+    const userSnapshot =
+        await db
+            .ref(
+                `users/${decodedUser.uid}`
+            )
+            .once("value");
+
+    const userData =
+        userSnapshot.val() || {};
+
+    const isAdmin =
+        userData.role === "admin" ||
+        userData.isAdmin === true;
+
+    if (!isAdmin) {
+
+        throw new Error(
+            "ADMIN_REQUIRED"
+        );
+
+    }
+
+    return {
+        decodedUser,
+        userData
+    };
+
+}
+
+
+/* =====================================================
+   1. ADD SOCIAL ACCOUNT
+   ADMIN ONLY
+===================================================== */
+
 app.post(
     "/api/add-account",
     async (req, res) => {
+
         try {
+
+            await requireAdmin(req);
+
             const {
                 platform,
                 niche,
@@ -50,279 +101,1235 @@ app.post(
                 credentials,
                 username,
                 password,
-                status
+                description,
+                title
             } = req.body;
+
+
             if (
                 !platform ||
                 price === undefined ||
-                price === null
+                price === null ||
+                Number(price) <= 0
             ) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        "Missing required fields."
+                        "Missing required fields: platform and valid price."
                 });
+
             }
-            const numericPrice =
-                Number(price);
-            if (
-                !Number.isFinite(
-                    numericPrice
-                ) ||
-                numericPrice <= 0
-            ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid account price."
-                });
-            }
+
+
             let finalCredentials =
                 credentials;
+
+
             if (
                 !finalCredentials &&
-                (username || password)
+                (
+                    username ||
+                    password
+                )
             ) {
+
                 finalCredentials =
-                    `Username: ${username || "N/A"} | Password: ${password || "N/A"}`;
+                    `Username: ${username || ""} | Password: ${password || ""}`;
+
             }
+
+
             if (!finalCredentials) {
+
                 return res.status(400).json({
                     success: false,
                     message:
-                        "Missing login credentials."
+                        "Missing account credentials."
                 });
+
             }
+
+
             const newAccountRef =
                 db
                     .ref("accounts")
                     .push();
+
+
             const accountData = {
+
                 id:
                     newAccountRef.key,
+
                 platform:
                     String(platform),
+
+                title:
+                    title ||
+                    `${platform} Social Account`,
+
                 niche:
-                    niche || "General",
+                    niche ||
+                    "General",
+
                 followers:
                     Number(followers) || 0,
+
                 price:
-                    numericPrice,
+                    Number(price),
+
                 accountAge:
-                    accountAge || "N/A",
+                    accountAge ||
+                    "N/A",
+
                 credentials:
                     String(finalCredentials),
+
+                description:
+                    description ||
+                    "Verified social media account ready for immediate transfer.",
+
                 status:
-                    status || "available",
+                    "available",
+
                 createdAt:
                     Date.now()
+
             };
+
+
             await newAccountRef.set(
                 accountData
             );
+
+
             return res.status(200).json({
-                success: true,
+
+                success:
+                    true,
+
                 message:
-                    "Account successfully added to marketplace.",
+                    "Account listed successfully.",
+
                 accountId:
                     newAccountRef.key
+
             });
+
+
         } catch (error) {
+
             console.error(
                 "ADD ACCOUNT ERROR:",
                 error
             );
+
+
+            if (
+                error.message ===
+                "AUTHENTICATION_REQUIRED"
+            ) {
+
+                return res.status(401).json({
+                    success: false,
+                    message:
+                        "Authentication required."
+                });
+
+            }
+
+
+            if (
+                error.message ===
+                "ADMIN_REQUIRED"
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Administrator access required."
+                });
+
+            }
+
+
             return res.status(500).json({
-                success: false,
+
+                success:
+                    false,
+
                 message:
-                    "Unable to add account."
+                    "Unable to add account.",
+
+                error:
+                    error.message
+
             });
+
         }
+
     }
 );
-/* =========================================================
-   2. GET AVAILABLE MARKETPLACE ACCOUNTS
-   =========================================================
-   Customer endpoint.
-   NEVER returns credentials.
-========================================================= */
+
+
+/* =====================================================
+   2. GET PUBLIC MARKETPLACE ACCOUNTS
+=====================================================
+
+   IMPORTANT:
+
+   Credentials are NEVER returned here.
+
+   Accounts with missing status are treated as
+   available for compatibility with older records.
+===================================================== */
+
 app.get(
     "/api/get-accounts",
     async (req, res) => {
+
         try {
+
             const snapshot =
                 await db
                     .ref("accounts")
-                    .orderByChild("status")
-                    .equalTo("available")
                     .once("value");
+
+
             const data =
                 snapshot.val() || {};
+
+
             const accounts = {};
+
+
             Object.entries(data)
                 .forEach(
-                    ([id, account]) => {
+                    ([key, account]) => {
+
                         if (!account) {
                             return;
                         }
-                        accounts[id] = {
-                            id,
+
+
+                        const status =
+                            String(
+                                account.status ||
+                                "available"
+                            )
+                                .trim()
+                                .toLowerCase();
+
+
+                        if (
+                            status !==
+                            "available"
+                        ) {
+                            return;
+                        }
+
+
+                        const price =
+                            Number(
+                                account.price
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                price
+                            ) ||
+                            price <= 0
+                        ) {
+                            return;
+                        }
+
+
+                        /*
+                         * PUBLIC DATA ONLY.
+                         *
+                         * credentials,
+                         * username,
+                         * password,
+                         * buyerUid
+                         * and other sensitive fields
+                         * are deliberately excluded.
+                         */
+
+                        accounts[key] = {
+
+                            id:
+                                account.id ||
+                                key,
+
                             platform:
                                 account.platform ||
                                 "Social",
+
+                            title:
+                                account.title ||
+                                `${account.platform || "Social"} Account`,
+
                             niche:
                                 account.niche ||
                                 "General",
-                            title:
-                                account.title ||
-                                account.handle ||
-                                "Social Media Account",
+
                             followers:
                                 account.followers ||
                                 account.followerCount ||
                                 "N/A",
+
                             accountAge:
                                 account.accountAge ||
                                 account.age ||
                                 "N/A",
+
                             price:
-                                Number(
-                                    account.price || 0
-                                ),
+                                price,
+
                             description:
                                 account.description ||
                                 "Verified social media account ready for immediate transfer.",
+
                             status:
-                                "available",
-                            createdAt:
-                                account.createdAt ||
-                                null
+                                "available"
+
                         };
+
                     }
                 );
+
+
             return res.status(200).json({
-                success: true,
+
+                success:
+                    true,
+
                 accounts
+
             });
+
+
         } catch (error) {
+
             console.error(
                 "GET ACCOUNTS ERROR:",
                 error
             );
+
+
             return res.status(500).json({
-                success: false,
+
+                success:
+                    false,
+
                 message:
-                    "Unable to load marketplace listings."
+                    "Unable to load marketplace accounts."
+
             });
+
         }
+
     }
 );
-/* =========================================================
-   3. ADMIN GET ALL ACCOUNTS
-========================================================= */
+
+
+/* =====================================================
+   3. GET ALL ACCOUNTS
+   ADMIN ONLY
+===================================================== */
+
 app.get(
     "/api/admin/get-accounts",
     async (req, res) => {
+
         try {
+
+            await requireAdmin(req);
+
+
             const snapshot =
                 await db
                     .ref("accounts")
                     .once("value");
+
+
             const accounts =
                 snapshot.val() || {};
+
+
             return res.status(200).json({
-                success: true,
+
+                success:
+                    true,
+
                 accounts
+
             });
+
+
         } catch (error) {
+
             console.error(
                 "ADMIN GET ACCOUNTS ERROR:",
                 error
             );
+
+
+            if (
+                error.message ===
+                "AUTHENTICATION_REQUIRED"
+            ) {
+
+                return res.status(401).json({
+                    success: false,
+                    message:
+                        "Authentication required."
+                });
+
+            }
+
+
+            if (
+                error.message ===
+                "ADMIN_REQUIRED"
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Administrator access required."
+                });
+
+            }
+
+
             return res.status(500).json({
-                success: false,
+
+                success:
+                    false,
+
                 message:
-                    "Unable to load account inventory."
+                    "Unable to load accounts."
+
             });
+
         }
+
     }
 );
-/* =========================================================
+
+
+/* =====================================================
    4. DELETE ACCOUNT
-========================================================= */
+   ADMIN ONLY
+===================================================== */
+
 app.delete(
     "/api/admin/delete-account/:id",
     async (req, res) => {
+
         try {
+
+            await requireAdmin(req);
+
+
             const accountId =
                 req.params.id;
+
+
             if (!accountId) {
+
                 return res.status(400).json({
-                    success: false,
+
+                    success:
+                        false,
+
                     message:
                         "Missing account ID."
+
                 });
+
             }
-            await db
-                .ref(
+
+
+            const accountRef =
+                db.ref(
                     `accounts/${accountId}`
-                )
-                .remove();
+                );
+
+
+            const snapshot =
+                await accountRef.once(
+                    "value"
+                );
+
+
+            if (
+                !snapshot.exists()
+            ) {
+
+                return res.status(404).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Account not found."
+
+                });
+
+            }
+
+
+            await accountRef.remove();
+
+
             return res.status(200).json({
-                success: true,
+
+                success:
+                    true,
+
                 message:
                     "Account deleted successfully."
+
             });
+
+
         } catch (error) {
+
             console.error(
                 "DELETE ACCOUNT ERROR:",
                 error
             );
+
+
+            if (
+                error.message ===
+                "AUTHENTICATION_REQUIRED"
+            ) {
+
+                return res.status(401).json({
+                    success: false,
+                    message:
+                        "Authentication required."
+                });
+
+            }
+
+
+            if (
+                error.message ===
+                "ADMIN_REQUIRED"
+            ) {
+
+                return res.status(403).json({
+                    success: false,
+                    message:
+                        "Administrator access required."
+                });
+
+            }
+
+
             return res.status(500).json({
-                success: false,
+
+                success:
+                    false,
+
                 message:
                     "Unable to delete account."
+
             });
+
         }
+
     }
 );
-/* =========================================================
-   5. GET MY SOCIAL ACCOUNT PURCHASE HISTORY
-=========================================================
-   IMPORTANT:
-   The browser cannot specify another user's UID.
-   UID comes from the verified Firebase ID token.
-========================================================= */
+
+
+/* =====================================================
+   5. BUY SOCIAL ACCOUNT WITH WALLET
+=====================================================
+
+   Browser sends ONLY:
+
+       accountId
+
+   Authentication comes from:
+
+       Authorization: Bearer FIREBASE_ID_TOKEN
+
+   Server determines:
+
+       user
+       wallet balance
+       account price
+       credentials
+       order information
+
+===================================================== */
+
+app.post(
+    "/api/buy-account-wallet",
+    async (req, res) => {
+
+        let reservedAccountId =
+            null;
+
+        let buyerUid =
+            null;
+
+        let chargedAmount =
+            0;
+
+        try {
+
+            const decodedUser =
+                await getAuthenticatedUser(req);
+
+
+            buyerUid =
+                decodedUser.uid;
+
+
+            const {
+                accountId
+            } = req.body;
+
+
+            if (!accountId) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Missing account ID."
+
+                });
+
+            }
+
+
+            const accountRef =
+                db.ref(
+                    `accounts/${accountId}`
+                );
+
+
+            /*
+             * Reserve the account atomically.
+             *
+             * This prevents two customers from
+             * purchasing the same account at once.
+             */
+
+            const accountTransaction =
+                await accountRef.transaction(
+                    currentAccount => {
+
+                        if (
+                            !currentAccount
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const status =
+                            String(
+                                currentAccount.status ||
+                                "available"
+                            )
+                                .trim()
+                                .toLowerCase();
+
+
+                        if (
+                            status !==
+                            "available"
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const price =
+                            Number(
+                                currentAccount.price
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                price
+                            ) ||
+                            price <= 0
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        return {
+
+                            ...currentAccount,
+
+                            status:
+                                "processing",
+
+                            processingBy:
+                                buyerUid,
+
+                            processingAt:
+                                Date.now()
+
+                        };
+
+                    }
+                );
+
+
+            if (
+                !accountTransaction.committed
+            ) {
+
+                return res.status(409).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "This account is no longer available."
+
+                });
+
+            }
+
+
+            const accountData =
+                accountTransaction
+                    .snapshot
+                    .val();
+
+
+            reservedAccountId =
+                accountId;
+
+
+            chargedAmount =
+                Number(
+                    accountData.price
+                );
+
+
+            if (
+                !Number.isFinite(
+                    chargedAmount
+                ) ||
+                chargedAmount <= 0
+            ) {
+
+                throw new Error(
+                    "INVALID_ACCOUNT_PRICE"
+                );
+
+            }
+
+
+            /* =================================================
+               WALLET TRANSACTION
+            ================================================= */
+
+            const userRef =
+                db.ref(
+                    `users/${buyerUid}`
+                );
+
+
+            const walletTransaction =
+                await userRef.transaction(
+                    currentUserData => {
+
+                        if (
+                            !currentUserData
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const currentBalance =
+                            Number(
+                                currentUserData.wallet ||
+                                currentUserData.balance ||
+                                0
+                            );
+
+
+                        if (
+                            !Number.isFinite(
+                                currentBalance
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        if (
+                            currentBalance <
+                            chargedAmount
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        const updatedUser = {
+
+                            ...currentUserData,
+
+                            wallet:
+                                Number(
+                                    (
+                                        currentBalance -
+                                        chargedAmount
+                                    ).toFixed(2)
+                                )
+
+                        };
+
+
+                        updatedUser.totalSpent =
+                            Number(
+                                (
+                                    Number(
+                                        currentUserData.totalSpent ||
+                                        0
+                                    ) +
+                                    chargedAmount
+                                ).toFixed(2)
+                            );
+
+
+                        return updatedUser;
+
+                    }
+                );
+
+
+            if (
+                !walletTransaction.committed
+            ) {
+
+                /*
+                 * Release the account reservation.
+                 */
+
+                await accountRef.update({
+
+                    status:
+                        "available",
+
+                    processingBy:
+                        null,
+
+                    processingAt:
+                        null
+
+                });
+
+
+                reservedAccountId =
+                    null;
+
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        `Insufficient wallet balance. You need ₦${chargedAmount.toLocaleString()} to purchase this account.`
+
+                });
+
+            }
+
+
+            /* =================================================
+               CREATE ORDER
+            ================================================= */
+
+            const orderRef =
+                db
+                    .ref("orders")
+                    .push();
+
+
+            const orderId =
+                orderRef.key;
+
+
+            const platform =
+                accountData.platform ||
+                "Social";
+
+
+            const baseTitle =
+                accountData.title ||
+                `${platform} Social Account`;
+
+
+            const displayTitle =
+                String(
+                    baseTitle
+                )
+                    .toLowerCase()
+                    .includes(
+                        String(platform)
+                            .toLowerCase()
+                    )
+                        ? baseTitle
+                        : `${platform} - ${baseTitle}`;
+
+
+            const orderData = {
+
+                orderId,
+
+                orderType:
+                    "social_account",
+
+                uid:
+                    buyerUid,
+
+                accountId,
+
+                accountTitle:
+                    displayTitle,
+
+                platform,
+
+                niche:
+                    accountData.niche ||
+                    "General",
+
+                followers:
+                    accountData.followers ||
+                    accountData.followerCount ||
+                    "N/A",
+
+                accountAge:
+                    accountData.accountAge ||
+                    accountData.age ||
+                    "N/A",
+
+                accountDescription:
+                    accountData.description ||
+                    "Verified social media account.",
+
+                amount:
+                    chargedAmount,
+
+                price:
+                    chargedAmount,
+
+                status:
+                    "completed",
+
+                paymentMethod:
+                    "wallet",
+
+                credentials:
+                    accountData.credentials ||
+                    (
+                        "Username: " +
+                        (
+                            accountData.username ||
+                            "N/A"
+                        ) +
+                        " | Password: " +
+                        (
+                            accountData.password ||
+                            "N/A"
+                        )
+                    ),
+
+                createdAt:
+                    Date.now(),
+
+                email:
+                    decodedUser.email ||
+                    accountData.email ||
+                    "N/A"
+
+            };
+
+
+            await orderRef.set(
+                orderData
+            );
+
+
+            /* =================================================
+               MARK ACCOUNT AS SOLD
+            ================================================= */
+
+            await accountRef.update({
+
+                status:
+                    "sold",
+
+                buyerUid:
+                    buyerUid,
+
+                soldAt:
+                    Date.now(),
+
+                orderId:
+                    orderId,
+
+                reference:
+                    `WLK-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+
+                processingBy:
+                    null,
+
+                processingAt:
+                    null
+
+            });
+
+
+            reservedAccountId =
+                null;
+
+
+            /* =================================================
+               SUCCESS
+            ================================================= */
+
+            return res.status(200).json({
+
+                success:
+                    true,
+
+                message:
+                    "Account purchased successfully.",
+
+                orderId,
+
+                reference:
+                    orderData.reference ||
+                    `WLK-${Date.now()}`,
+
+                platform,
+
+                amount:
+                    chargedAmount
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "BUY ACCOUNT ERROR:",
+                error
+            );
+
+
+            /*
+             * If something failed after the account was
+             * reserved but before it was sold, release it.
+             */
+
+            if (
+                reservedAccountId
+            ) {
+
+                try {
+
+                    await db
+                        .ref(
+                            `accounts/${reservedAccountId}`
+                        )
+                        .update({
+
+                            status:
+                                "available",
+
+                            processingBy:
+                                null,
+
+                            processingAt:
+                                null
+
+                        });
+
+                } catch (
+                    releaseError
+                ) {
+
+                    console.error(
+                        "ACCOUNT RELEASE ERROR:",
+                        releaseError
+                    );
+
+                }
+
+            }
+
+
+            if (
+                error.message ===
+                "AUTHENTICATION_REQUIRED"
+            ) {
+
+                return res.status(401).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Authentication required. Please log in again."
+
+                });
+
+            }
+
+
+            if (
+                error.message ===
+                "INVALID_ACCOUNT_PRICE"
+            ) {
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "This account has an invalid price."
+
+                });
+
+            }
+
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "Unable to complete the purchase. Your wallet was not charged by this request."
+
+            });
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   6. MY SOCIAL ACCOUNT PURCHASE HISTORY
+===================================================== */
+
 app.get(
     "/api/my-social-orders",
     async (req, res) => {
+
         try {
+
             const decodedUser =
-                await authenticateUser(req);
+                await getAuthenticatedUser(req);
+
+
             const uid =
                 decodedUser.uid;
+
+
             const snapshot =
                 await db
                     .ref("orders")
                     .orderByChild("uid")
                     .equalTo(uid)
                     .once("value");
+
+
             const data =
                 snapshot.val() || {};
-            const orders =
-                Object.entries(data)
-                    .map(
-                        ([firebaseKey, order]) => ({
+
+
+            const orders = [];
+
+
+            Object.entries(data)
+                .forEach(
+                    ([key, order]) => {
+
+                        if (!order) {
+                            return;
+                        }
+
+
+                        /*
+                         * Only social-account purchases
+                         * belong on shop.html.
+                         */
+
+                        const isSocialOrder =
+                            order.orderType ===
+                                "social_account"
+                            ||
+                            !!order.accountId;
+
+
+                        if (
+                            !isSocialOrder
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        orders.push({
+
                             ...order,
-                            firebaseKey,
+
+                            id:
+                                order.id ||
+                                key,
+
                             orderId:
                                 order.orderId ||
-                                order.id ||
-                                firebaseKey
-                        })
-                    );
+                                key
+
+                        });
+
+                    }
+                );
+
+
             orders.sort(
-                (a, b) =>
+                (
+                    a,
+                    b
+                ) =>
                     Number(
                         b.createdAt ||
                         b.timestamp ||
@@ -334,561 +1341,84 @@ app.get(
                         0
                     )
             );
+
+
             return res.status(200).json({
-                success: true,
+
+                success:
+                    true,
+
                 orders
+
             });
+
+
         } catch (error) {
+
             console.error(
                 "MY SOCIAL ORDERS ERROR:",
                 error
             );
+
+
             if (
                 error.message ===
                 "AUTHENTICATION_REQUIRED"
             ) {
+
                 return res.status(401).json({
-                    success: false,
+
+                    success:
+                        false,
+
                     message:
-                        "Authentication required. Please log in."
+                        "Authentication required. Please log in again."
+
                 });
+
             }
+
+
             return res.status(500).json({
-                success: false,
+
+                success:
+                    false,
+
                 message:
                     "Unable to load your purchase history."
+
             });
+
         }
+
     }
 );
-/* =========================================================
-   6. BUY SOCIAL ACCOUNT WITH WALLET
-=========================================================
-   SECURITY:
-   Client sends ONLY:
-       accountId
-   Server determines:
-       authenticated UID
-       email
-       real account price
-       wallet balance
-       credentials
-       order information
-========================================================= */
-app.post(
-    "/api/buy-account-wallet",
+
+
+/* =====================================================
+   7. HEALTH CHECK
+===================================================== */
+
+app.get(
+    "/api/health",
     async (req, res) => {
-        try {
-            /* ---------------------------------------------
-               VERIFY USER
-            --------------------------------------------- */
-            const decodedUser =
-                await authenticateUser(req);
-            const uid =
-                decodedUser.uid;
-            const email =
-                decodedUser.email ||
-                "N/A";
-            /* ---------------------------------------------
-               GET ACCOUNT ID
-            --------------------------------------------- */
-            const {
-                accountId
-            } = req.body;
-            if (!accountId) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Missing account ID."
-                });
-            }
-            /* ---------------------------------------------
-               ACCOUNT REFERENCE
-            --------------------------------------------- */
-            const accountRef =
-                db.ref(
-                    `accounts/${accountId}`
-                );
-            const accountSnapshot =
-                await accountRef.once(
-                    "value"
-                );
-            const accountData =
-                accountSnapshot.val();
-            if (!accountData) {
-                return res.status(404).json({
-                    success: false,
-                    message:
-                        "This account no longer exists."
-                });
-            }
-            /* ---------------------------------------------
-               CHECK ACCOUNT AVAILABILITY
-            --------------------------------------------- */
-            const accountStatus =
-                String(
-                    accountData.status ||
-                    "available"
-                )
-                    .trim()
-                    .toLowerCase();
-            if (
-                accountStatus !==
-                "available"
-            ) {
-                return res.status(409).json({
-                    success: false,
-                    message:
-                        "This account is no longer available."
-                });
-            }
-            /* ---------------------------------------------
-               SERVER-CONTROLLED PRICE
-            --------------------------------------------- */
-            const price =
-                Number(
-                    accountData.price
-                );
-            if (
-                !Number.isFinite(price) ||
-                price <= 0
-            ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "This account has an invalid price."
-                });
-            }
-            /* ---------------------------------------------
-               USER REFERENCE
-            --------------------------------------------- */
-            const userRef =
-                db.ref(
-                    `users/${uid}`
-                );
-            const userSnapshot =
-                await userRef.once(
-                    "value"
-                );
-            const userData =
-                userSnapshot.val() || {};
-            const currentBalance =
-                Number(
-                    userData.wallet || 0
-                );
-            if (
-                !Number.isFinite(
-                    currentBalance
-                )
-            ) {
-                return res.status(500).json({
-                    success: false,
-                    message:
-                        "Unable to read wallet balance."
-                });
-            }
-            /* ---------------------------------------------
-               CHECK WALLET
-            --------------------------------------------- */
-            if (
-                currentBalance <
-                price
-            ) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        `Insufficient wallet balance. You need ₦${price.toLocaleString("en-NG")} but have ₦${currentBalance.toLocaleString("en-NG")}.`
-                });
-            }
-            /* ---------------------------------------------
-               CREATE REFERENCE
-            --------------------------------------------- */
-            const reference =
-                `ACC-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-            const orderRef =
-                db
-                    .ref("orders")
-                    .push();
-            const orderId =
-                orderRef.key;
-            /* ---------------------------------------------
-               ACCOUNT TITLE
-            --------------------------------------------- */
-            const platform =
-                accountData.platform ||
-                "Social";
-            const baseTitle =
-                accountData.title ||
-                accountData.handle ||
-                "Social Media Account";
-            const titleText =
-                String(baseTitle);
-            const platformText =
-                String(platform);
-            const accountTitle =
-                titleText
-                    .toLowerCase()
-                    .includes(
-                        platformText.toLowerCase()
-                    )
-                    ? titleText
-                    : `${platformText} - ${titleText}`;
-            /* ---------------------------------------------
-               STEP 1:
-               ATOMICALLY MARK ACCOUNT SOLD
-            --------------------------------------------- */
-            const accountTransaction =
-                await accountRef.transaction(
-                    currentAccount => {
-                        if (
-                            !currentAccount
-                        ) {
-                            return;
-                        }
-                        const status =
-                            String(
-                                currentAccount.status ||
-                                "available"
-                            )
-                                .trim()
-                                .toLowerCase();
-                        if (
-                            status !==
-                            "available"
-                        ) {
-                            return;
-                        }
-                        return {
-                            ...currentAccount,
-                            status:
-                                "sold",
-                            buyerUid:
-                                uid,
-                            buyerEmail:
-                                email,
-                            soldAt:
-                                Date.now(),
-                            reference
-                        };
-                    }
-                );
-            if (
-                !accountTransaction.committed
-            ) {
-                return res.status(409).json({
-                    success: false,
-                    message:
-                        "This account has just been purchased by another customer."
-                });
-            }
-            /* ---------------------------------------------
-               STEP 2:
-               ATOMICALLY DEDUCT WALLET
-            --------------------------------------------- */
-            const walletTransaction =
-                await userRef.transaction(
-                    currentUser => {
-                        if (
-                            !currentUser
-                        ) {
-                            return;
-                        }
-                        const balance =
-                            Number(
-                                currentUser.wallet || 0
-                            );
-                        if (
-                            !Number.isFinite(
-                                balance
-                            ) ||
-                            balance < price
-                        ) {
-                            return;
-                        }
-                        const updatedUser = {
-                            ...currentUser,
-                            wallet:
-                                Number(
-                                    (
-                                        balance -
-                                        price
-                                    ).toFixed(2)
-                                ),
-                            totalSpent:
-                                Number(
-                                    currentUser.totalSpent ||
-                                    0
-                                ) +
-                                price
-                        };
-                        return updatedUser;
-                    }
-                );
-            if (
-                !walletTransaction.committed
-            ) {
-                /* -----------------------------------------
-                   WALLET FAILED
-                   Release the account again.
-                ----------------------------------------- */
-                await accountRef.transaction(
-                    currentAccount => {
-                        if (
-                            !currentAccount
-                        ) {
-                            return;
-                        }
-                        if (
-                            currentAccount.reference ===
-                            reference &&
-                            currentAccount.buyerUid ===
-                            uid &&
-                            currentAccount.status ===
-                            "sold"
-                        ) {
-                            const restored =
-                                {
-                                    ...currentAccount
-                                };
-                            delete restored.buyerUid;
-                            delete restored.buyerEmail;
-                            delete restored.soldAt;
-                            delete restored.reference;
-                            restored.status =
-                                "available";
-                            return restored;
-                        }
-                        return;
-                    }
-                );
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Insufficient wallet balance. Your account was not charged."
-                });
-            }
-            /* ---------------------------------------------
-               CREATE ORDER
-            --------------------------------------------- */
-            const orderData = {
-                orderId,
-                id:
-                    orderId,
-                uid,
-                accountId,
-                accountTitle,
-                title:
-                    accountTitle,
-                platform,
-                followers:
-                    accountData.followers ||
-                    accountData.followerCount ||
-                    "N/A",
-                accountAge:
-                    accountData.accountAge ||
-                    accountData.age ||
-                    "N/A",
-                accountDescription:
-                    accountData.description ||
-                    "Social media account purchased from HKDMservices.",
-                description:
-                    accountData.description ||
-                    "Social media account purchased from HKDMservices.",
-                amount:
-                    price,
-                price,
-                credentials:
-                    accountData.credentials ||
-                    `Username: ${accountData.username || "N/A"} | Password: ${accountData.password || "N/A"}`,
-                status:
-                    "completed",
-                paymentMethod:
-                    "wallet",
-                reference,
-                createdAt:
-                    Date.now(),
-                timestamp:
-                    Date.now(),
-                email
-            };
-            try {
-                await orderRef.set(
-                    orderData
-                );
-            } catch (orderError) {
-                console.error(
-                    "SOCIAL ORDER SAVE ERROR:",
-                    orderError
-                );
-                /* -----------------------------------------
-                   REFUND WALLET
-                ----------------------------------------- */
-                await userRef.transaction(
-                    currentUser => {
-                        if (
-                            !currentUser
-                        ) {
-                            return;
-                        }
-                        const balance =
-                            Number(
-                                currentUser.wallet || 0
-                            );
-                        const totalSpent =
-                            Number(
-                                currentUser.totalSpent ||
-                                0
-                            );
-                        return {
-                            ...currentUser,
-                            wallet:
-                                Number(
-                                    (
-                                        balance +
-                                        price
-                                    ).toFixed(2)
-                                ),
-                            totalSpent:
-                                Math.max(
-                                    0,
-                                    totalSpent -
-                                    price
-                                )
-                        };
-                    }
-                );
-                /* -----------------------------------------
-                   RELEASE ACCOUNT
-                ----------------------------------------- */
-                await accountRef.transaction(
-                    currentAccount => {
-                        if (
-                            !currentAccount
-                        ) {
-                            return;
-                        }
-                        if (
-                            currentAccount.reference ===
-                            reference
-                        ) {
-                            const restored =
-                                {
-                                    ...currentAccount
-                                };
-                            delete restored.buyerUid;
-                            delete restored.buyerEmail;
-                            delete restored.soldAt;
-                            delete restored.reference;
-                            restored.status =
-                                "available";
-                            return restored;
-                        }
-                        return;
-                    }
-                );
-                return res.status(500).json({
-                    success: false,
-                    message:
-                        "Purchase could not be completed. Your wallet was refunded."
-                });
-            }
-            /* ---------------------------------------------
-               SAVE TRANSACTION RECORD
-            --------------------------------------------- */
-            try {
-                const transactionRef =
-                    db
-                        .ref("transactions")
-                        .push();
-                await transactionRef.set({
-                    uid,
-                    orderId,
-                    type:
-                        "social_account_purchase",
-                    amount:
-                        price,
-                    status:
-                        "success",
-                    paymentMethod:
-                        "wallet",
-                    description:
-                        `Social Account Purchase - ${accountTitle}`,
-                    reference,
-                    createdAt:
-                        Date.now(),
-                    email
-                });
-            } catch (transactionError) {
-                /*
-                 * Do not cancel the completed purchase here.
-                 *
-                 * The order and wallet transaction already
-                 * succeeded. We log the transaction error
-                 * for investigation.
-                 */
-                console.error(
-                    "SOCIAL TRANSACTION RECORD ERROR:",
-                    transactionError
-                );
-            }
-            /* ---------------------------------------------
-               SUCCESS
-            --------------------------------------------- */
-            return res.status(200).json({
-                success: true,
-                message:
-                    "Social account purchased successfully.",
-                orderId,
-                reference,
-                platform,
-                accountTitle,
-                amount:
-                    price
-            });
-        } catch (error) {
-            console.error(
-                "BUY ACCOUNT ERROR:",
-                error
-            );
-            if (
-                error.message ===
-                "AUTHENTICATION_REQUIRED"
-            ) {
-                return res.status(401).json({
-                    success: false,
-                    message:
-                        "Authentication required. Please log in."
-                });
-            }
-            if (
-                error.code ===
-                "auth/id-token-expired"
-            ) {
-                return res.status(401).json({
-                    success: false,
-                    message:
-                        "Your login session has expired. Please log in again."
-                });
-            }
-            if (
-                error.code ===
-                "auth/argument-error"
-            ) {
-                return res.status(401).json({
-                    success: false,
-                    message:
-                        "Invalid authentication token. Please log in again."
-                });
-            }
-            return res.status(500).json({
-                success: false,
-                message:
-                    "Unable to complete social account purchase."
-            });
-        }
+
+        return res.status(200).json({
+
+            success:
+                true,
+
+            message:
+                "HKDMservices API is running."
+
+        });
+
     }
 );
-/* =========================================================
+
+
+/* =====================================================
    EXPORT
-========================================================= */
+===================================================== */
+
 export default app;
