@@ -4,259 +4,1170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Marketplace | HKDMservices</title>
-    <meta name="description" content="Browse and purchase verified social media accounts on HKDMservices.">
-    
+
+    <meta
+        name="description"
+        content="Browse and purchase verified social media accounts on HKDMservices."
+    >
+
     <!-- Global Theme Script -->
     <script src="theme.js"></script>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
     <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
     <!-- Main CSS -->
     <link rel="stylesheet" href="style.css">
 
     <style>
-        html { scroll-behavior: smooth; }
-        body { margin: 0; font-family: Arial, sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
-        .main-navbar { background: #111; }
-        .brand-icon { margin-right: 7px; }
-        .section-padding { padding: 70px 0; }
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .main-navbar {
+            background: #111;
+        }
+
+        .brand-icon {
+            margin-right: 7px;
+        }
+
+        .section-padding {
+            padding: 70px 0;
+        }
+
         .feature-card {
             height: 100%;
             padding: 25px;
             border: 1px solid #e9ecef;
             border-radius: 18px;
             background: #fff;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
-        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
-        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
-        html[data-theme="dark"] .main-navbar { background: #080a0c; }
-        html[data-theme="dark"] .feature-card { background: #181d22; border-color: #30363d; color: #f1f3f5; }
-        html[data-theme="dark"] .text-muted { color: #adb5bd !important; }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+
+        html[data-theme="dark"] body {
+            background: #101418;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .main-navbar {
+            background: #080a0c;
+        }
+
+        html[data-theme="dark"] .feature-card {
+            background: #181d22;
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .text-muted {
+            color: #adb5bd !important;
+        }
     </style>
 </head>
 
+
 <body>
 
-<!-- NAVBAR -->
+
+<!-- =========================================================
+     NAVBAR
+========================================================= -->
+
 <nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
+
     <div class="container">
-        <a class="navbar-brand fw-bold" href="dashboard.html">
-            <span class="brand-icon">⬢</span> HKDMservices
+
+        <a
+            class="navbar-brand fw-bold"
+            href="dashboard.html"
+        >
+            <span class="brand-icon">⬢</span>
+            HKDMservices
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+        >
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-                <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
-                <li class="nav-item"><a class="nav-link active" href="shop.html">Shop</a></li>
-                <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
-                <li class="nav-item ms-lg-2 mt-2 mt-lg-0" id="authNavBtn"><a class="btn btn-outline-light" href="login.html">Login</a></li>
+
+
+        <div
+            class="collapse navbar-collapse"
+            id="mainNavbar"
+        >
+
+            <ul
+                class="navbar-nav ms-auto align-items-lg-center"
+            >
+
+                <li class="nav-item">
+                    <a
+                        class="nav-link"
+                        href="services.html"
+                    >
+                        Services
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a
+                        class="nav-link active"
+                        href="shop.html"
+                    >
+                        Shop
+                    </a>
+                </li>
+
+
+                <li class="nav-item">
+                    <a
+                        class="nav-link"
+                        href="about.html"
+                    >
+                        About
+                    </a>
+                </li>
+
+
+                <li
+                    class="nav-item ms-lg-2 mt-2 mt-lg-0"
+                    id="authNavBtn"
+                >
+
+                    <a
+                        class="btn btn-outline-light"
+                        href="login.html"
+                    >
+                        Login
+                    </a>
+
+                </li>
+
             </ul>
+
         </div>
+
     </div>
+
 </nav>
 
-<!-- SHOP HEADER -->
+
+
+<!-- =========================================================
+     SHOP HEADER
+========================================================= -->
+
 <header class="bg-success text-white py-5">
+
     <div class="container text-center">
-        <h1 class="fw-bold">Social Accounts Marketplace</h1>
-        <p class="lead mb-0">Browse and secure verified social media handles instantly.</p>
+
+        <h1 class="fw-bold">
+            Social Accounts Marketplace
+        </h1>
+
+        <p class="lead mb-0">
+            Browse and secure verified social media handles instantly.
+        </p>
+
     </div>
+
 </header>
 
-<!-- MARKETPLACE CONTENT -->
+
+
+<!-- =========================================================
+     MARKETPLACE
+========================================================= -->
+
 <section class="section-padding">
+
     <div class="container">
-        <div class="row g-4" id="shopAccountsContainer">
+
+        <div
+            class="row g-4"
+            id="shopAccountsContainer"
+        >
+
             <div class="col-12 text-center py-5">
-                <div class="spinner-border text-success" role="status"></div>
-                <p class="text-muted mt-2">Loading available accounts...</p>
+
+                <div
+                    class="spinner-border text-success"
+                    role="status"
+                ></div>
+
+                <p class="text-muted mt-2">
+                    Loading available accounts...
+                </p>
+
             </div>
+
         </div>
+
     </div>
+
 </section>
 
-<!-- FOOTER -->
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
 <footer class="bg-dark text-white py-4">
+
     <div class="container text-center">
-        <small class="text-secondary">© 2026 HKDMservices. All rights reserved.</small>
+
+        <small class="text-secondary">
+            © 2026 HKDMservices. All rights reserved.
+        </small>
+
     </div>
+
 </footer>
 
-<!-- SCRIPTS & FIREBASE (Modular SDK via type="module") -->
+
+
+<!-- =========================================================
+     BOOTSTRAP
+========================================================= -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
+
+
+<!-- =========================================================
+     FIREBASE
+========================================================= -->
+
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getDatabase, ref, get, update, set, ref as dbRef } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
-    authDomain: "hkdmservices-7d59f.firebaseapp.com",
-    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
-    projectId: "hkdmservices-7d59f",
-    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
-    messagingSenderId: "839538334772",
-    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
-  };
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
 
-  onAuthStateChanged(auth, (user) => {
-    const authNavBtn = document.getElementById('authNavBtn');
-    if (user) {
-      authNavBtn.innerHTML = `<a class="btn btn-outline-light" href="dashboard.html">Dashboard</a>`;
-    } else {
-      authNavBtn.innerHTML = `<a class="btn btn-outline-light" href="login.html">Login</a>`;
-    }
-  });
+    import {
+        getAuth,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-  async function loadShopAccounts() {
-    const container = document.getElementById('shopAccountsContainer');
-    try {
-      const snapshot = await get(ref(database, 'accounts'));
-      const data = snapshot.val();
 
-      if (!data) {
-        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No social accounts available right now.</h4><p>Check back later or add accounts via your admin panel.</p></div>';
-        return;
-      }
+    import {
+        getDatabase,
+        ref,
+        get,
+        update,
+        set,
+        push
+    } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-      container.innerHTML = '';
 
-      Object.entries(data).forEach(([key, account]) => {
-        if (account.status === "sold") return;
 
-        const accountId = account.id || key;
-        const followers = account.followers || account.followerCount || "N/A";
-        const accountAge = account.age || account.accountAge || "N/A";
-        const platform = account.platform || 'Social';
-        const baseTitle = account.title || 'Social Media Account';
-        
-        const displayTitle = baseTitle.toLowerCase().includes(platform.toLowerCase()) 
-          ? baseTitle 
-          : `${platform} - ${baseTitle}`;
+    /* =========================================================
+       FIREBASE CONFIGURATION
+    ========================================================= */
 
-        const cardHTML = `
-            <div class="col-12 col-md-4">
-                <div class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="badge bg-success">${platform}</span>
-                            <span class="fw-bold text-success fs-5">₦${Number(account.price || 0).toLocaleString()}</span>
-                        </div>
-                        <h5 class="fw-bold">${displayTitle}</h5>
-                        <p class="text-muted small">${account.description || 'Verified social media account ready for immediate transfer.'}</p>
-                        
-                        <div class="d-flex justify-content-between border-top pt-2 mt-3 text-secondary small">
-                            <span><i class="bi bi-people me-1"></i> Followers: <strong>${followers}</strong></span>
-                            <span><i class="bi bi-calendar-check me-1"></i> Age: <strong>${accountAge}</strong></span>
-                        </div>
+    const firebaseConfig = {
+
+        apiKey:
+            "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+
+        authDomain:
+            "hkdmservices-7d59f.firebaseapp.com",
+
+        databaseURL:
+            "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+
+        projectId:
+            "hkdmservices-7d59f",
+
+        storageBucket:
+            "hkdmservices-7d59f.firebasestorage.app",
+
+        messagingSenderId:
+            "839538334772",
+
+        appId:
+            "1:839538334772:web:7d8785f87363b6e5d8fe61"
+    };
+
+
+
+    /* =========================================================
+       INITIALIZE FIREBASE
+    ========================================================= */
+
+    const app =
+        initializeApp(firebaseConfig);
+
+    const auth =
+        getAuth(app);
+
+    const database =
+        getDatabase(app);
+
+
+
+    /* =========================================================
+       AUTH NAVIGATION
+    ========================================================= */
+
+    onAuthStateChanged(
+        auth,
+        (user) => {
+
+            const authNavBtn =
+                document.getElementById(
+                    "authNavBtn"
+                );
+
+            if (!authNavBtn) {
+                return;
+            }
+
+
+            if (user) {
+
+                authNavBtn.innerHTML = `
+
+                    <a
+                        class="btn btn-outline-light"
+                        href="dashboard.html"
+                    >
+                        Dashboard
+                    </a>
+
+                `;
+
+            } else {
+
+                authNavBtn.innerHTML = `
+
+                    <a
+                        class="btn btn-outline-light"
+                        href="login.html"
+                    >
+                        Login
+                    </a>
+
+                `;
+
+            }
+
+        }
+    );
+
+
+
+    /* =========================================================
+       LOAD SHOP ACCOUNTS
+    ========================================================= */
+
+    async function loadShopAccounts() {
+
+        const container =
+            document.getElementById(
+                "shopAccountsContainer"
+            );
+
+
+        try {
+
+            const snapshot =
+                await get(
+                    ref(
+                        database,
+                        "accounts"
+                    )
+                );
+
+
+            const data =
+                snapshot.val();
+
+
+            if (!data) {
+
+                container.innerHTML = `
+
+                    <div
+                        class="col-12 text-center text-muted py-5"
+                    >
+
+                        <h4>
+                            No social accounts available right now.
+                        </h4>
+
+                        <p>
+                            Check back later or add accounts
+                            via your admin panel.
+                        </p>
+
                     </div>
-                    <button onclick="buyAccount('${accountId}')" class="btn btn-outline-success w-100 mt-3">
-                        <i class="bi bi-cart-plus me-2"></i>Buy Now
-                    </button>
+
+                `;
+
+                return;
+            }
+
+
+            container.innerHTML = "";
+
+
+            Object.entries(data).forEach(
+                ([key, account]) => {
+
+                    if (!account) {
+                        return;
+                    }
+
+
+                    /* Do not show sold accounts */
+
+                    if (
+                        String(account.status || "")
+                            .toLowerCase() === "sold"
+                    ) {
+                        return;
+                    }
+
+
+                    const accountId =
+                        account.id || key;
+
+
+                    const followers =
+                        account.followers ||
+                        account.followerCount ||
+                        "N/A";
+
+
+                    const accountAge =
+                        account.age ||
+                        account.accountAge ||
+                        "N/A";
+
+
+                    const platform =
+                        account.platform ||
+                        "Social";
+
+
+                    const baseTitle =
+                        account.title ||
+                        "Social Media Account";
+
+
+                    const displayTitle =
+                        baseTitle
+                            .toLowerCase()
+                            .includes(
+                                platform.toLowerCase()
+                            )
+                            ? baseTitle
+                            : `${platform} - ${baseTitle}`;
+
+
+                    const price =
+                        Number(
+                            account.price || 0
+                        );
+
+
+                    const cardHTML = `
+
+                        <div class="col-12 col-md-4">
+
+                            <div
+                                class="feature-card shadow-sm h-100 d-flex flex-column justify-content-between"
+                            >
+
+                                <div>
+
+                                    <div
+                                        class="d-flex justify-content-between align-items-center mb-3"
+                                    >
+
+                                        <span
+                                            class="badge bg-success"
+                                        >
+                                            ${platform}
+                                        </span>
+
+
+                                        <span
+                                            class="fw-bold text-success fs-5"
+                                        >
+                                            ₦${price.toLocaleString()}
+                                        </span>
+
+                                    </div>
+
+
+                                    <h5 class="fw-bold">
+                                        ${displayTitle}
+                                    </h5>
+
+
+                                    <p class="text-muted small">
+                                        ${
+                                            account.description ||
+                                            "Verified social media account ready for immediate transfer."
+                                        }
+                                    </p>
+
+
+                                    <div
+                                        class="d-flex justify-content-between border-top pt-2 mt-3 text-secondary small"
+                                    >
+
+                                        <span>
+
+                                            <i
+                                                class="bi bi-people me-1"
+                                            ></i>
+
+                                            Followers:
+
+                                            <strong>
+                                                ${followers}
+                                            </strong>
+
+                                        </span>
+
+
+                                        <span>
+
+                                            <i
+                                                class="bi bi-calendar-check me-1"
+                                            ></i>
+
+                                            Age:
+
+                                            <strong>
+                                                ${accountAge}
+                                            </strong>
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    onclick="buyAccount('${accountId}')"
+                                    class="btn btn-outline-success w-100 mt-3"
+                                >
+
+                                    <i
+                                        class="bi bi-cart-plus me-2"
+                                    ></i>
+
+                                    Buy Now
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+                    container.innerHTML +=
+                        cardHTML;
+
+                }
+            );
+
+
+            if (
+                container.innerHTML.trim() === ""
+            ) {
+
+                container.innerHTML = `
+
+                    <div
+                        class="col-12 text-center text-muted py-5"
+                    >
+
+                        <h4>
+                            All accounts have been sold out.
+                        </h4>
+
+                        <p>
+                            Check back later for new inventory.
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+
+        } catch (err) {
+
+            console.error(
+                "Failed to load accounts:",
+                err
+            );
+
+
+            container.innerHTML = `
+
+                <div
+                    class="col-12 text-center text-danger"
+                >
+
+                    <p>
+                        Failed to load listings.
+                        Please verify your connection.
+                    </p>
+
                 </div>
-            </div>
-        `;
-        container.innerHTML += cardHTML;
-      });
 
-      if (container.innerHTML === '') {
-        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>All accounts have been sold out.</h4><p>Check back later for new inventory.</p></div>';
-      }
-    } catch (err) {
-      console.error('Failed to load accounts from Firebase:', err);
-      container.innerHTML = '<div class="col-12 text-center text-danger"><p>Failed to load listings. Please verify your connection.</p></div>';
-    }
-  }
+            `;
 
-  window.buyAccount = async function(accountId) {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      alert("Please log in to purchase social accounts.");
-      window.location.href = "login.html";
-      return;
+        }
+
     }
 
-    if (!confirm("Are you sure you want to purchase this account? Funds will be deducted from your wallet instantly.")) {
-      return;
-    }
 
-    try {
-      const userRef = dbRef(database, `users/${currentUser.uid}`);
-      const accountRef = dbRef(database, `accounts/${accountId}`);
-      
-      const [userSnap, accountSnap] = await Promise.all([get(userRef), get(accountRef)]);
-      
-      if (!accountSnap.exists()) {
-        alert("This account is no longer available.");
-        loadShopAccounts();
-        return;
-      }
 
-      const accountData = accountSnap.val();
-      if (accountData.status === "sold") {
-        alert("This account has already been sold.");
-        loadShopAccounts();
-        return;
-      }
+    /* =========================================================
+       BUY SOCIAL ACCOUNT
+       
+       THIS IS THE FIXED PART.
 
-      const userData = userSnap.val() || {};
-      const userBalance = Number(userData.wallet !== undefined ? userData.wallet : (userData.balance || 0));
-      const accountPrice = Number(accountData.price || 0);
+       It now creates:
 
-      if (userBalance < accountPrice) {
-        alert("Insufficient wallet balance. Please fund your wallet to complete this purchase.");
-        return;
-      }
+       1. Wallet deduction
+       2. Sold account
+       3. Standard order
+       4. Transaction
+       5. Account credentials inside order
+    ========================================================= */
 
-      const newBalance = userBalance - accountPrice;
-      const newTotalSpent = Number(userData.totalSpent || 0) + accountPrice;
-      const orderId = "ord_" + Date.now();
-      const platform = accountData.platform || 'Social';
-      const baseTitle = accountData.title || 'Social Media Account';
-      const orderTitle = baseTitle.toLowerCase().includes(platform.toLowerCase()) ? baseTitle : `${platform} - ${baseTitle}`;
+    window.buyAccount =
+        async function(accountId) {
 
-      await update(userRef, {
-        wallet: newBalance,
-        totalSpent: newTotalSpent
-      });
+            const currentUser =
+                auth.currentUser;
 
-      await update(accountRef, {
-        status: "sold",
-        buyerUid: currentUser.uid
-      });
 
-      await set(dbRef(database, `orders/${orderId}`), {
-        id: orderId,
-        uid: currentUser.uid,
-        accountId: accountId,
-        title: orderTitle,
-        price: accountPrice,
-        credentials: accountData.credentials || ("Username: " + (accountData.username || "N/A") + " | Password: " + (accountData.password || "N/A")),
-        timestamp: Date.now()
-      });
+            /* -------------------------------------------------
+               LOGIN CHECK
+            ------------------------------------------------- */
 
-      alert("Purchase successful! Redirecting to your order details...");
-      window.location.href = `order-success.html?orderId=${orderId}`;
+            if (!currentUser) {
 
-    } catch (err) {
-      console.error("Checkout failed:", err);
-      alert("An error occurred during checkout. Please try again.");
-    }
-  }
+                alert(
+                    "Please log in to purchase social accounts."
+                );
 
-  document.addEventListener('DOMContentLoaded', loadShopAccounts);
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               CONFIRM PURCHASE
+            ------------------------------------------------- */
+
+            const confirmed =
+                confirm(
+                    "Are you sure you want to purchase this account? Funds will be deducted from your wallet instantly."
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            try {
+
+                /* -------------------------------------------------
+                   DATABASE REFERENCES
+                ------------------------------------------------- */
+
+                const userRef =
+                    ref(
+                        database,
+                        `users/${currentUser.uid}`
+                    );
+
+
+                const accountRef =
+                    ref(
+                        database,
+                        `accounts/${accountId}`
+                    );
+
+
+                /* -------------------------------------------------
+                   READ USER AND ACCOUNT
+                ------------------------------------------------- */
+
+                const [
+                    userSnap,
+                    accountSnap
+                ] = await Promise.all([
+
+                    get(userRef),
+
+                    get(accountRef)
+
+                ]);
+
+
+                /* -------------------------------------------------
+                   ACCOUNT EXISTS CHECK
+                ------------------------------------------------- */
+
+                if (!accountSnap.exists()) {
+
+                    alert(
+                        "This account is no longer available."
+                    );
+
+                    await loadShopAccounts();
+
+                    return;
+                }
+
+
+                const accountData =
+                    accountSnap.val();
+
+
+                /* -------------------------------------------------
+                   SOLD CHECK
+                ------------------------------------------------- */
+
+                if (
+                    String(
+                        accountData.status || ""
+                    ).toLowerCase() === "sold"
+                ) {
+
+                    alert(
+                        "This account has already been sold."
+                    );
+
+                    await loadShopAccounts();
+
+                    return;
+                }
+
+
+                /* -------------------------------------------------
+                   USER DATA
+                ------------------------------------------------- */
+
+                const userData =
+                    userSnap.val() || {};
+
+
+                /* -------------------------------------------------
+                   WALLET BALANCE
+                ------------------------------------------------- */
+
+                const userBalance =
+                    Number(
+                        userData.wallet !== undefined
+                            ? userData.wallet
+                            : (
+                                userData.balance || 0
+                            )
+                    );
+
+
+                /* -------------------------------------------------
+                   ACCOUNT PRICE
+                ------------------------------------------------- */
+
+                const accountPrice =
+                    Number(
+                        accountData.price || 0
+                    );
+
+
+                if (
+                    !Number.isFinite(
+                        accountPrice
+                    ) ||
+                    accountPrice <= 0
+                ) {
+
+                    alert(
+                        "This account has an invalid price."
+                    );
+
+                    return;
+                }
+
+
+                /* -------------------------------------------------
+                   BALANCE CHECK
+                ------------------------------------------------- */
+
+                if (
+                    userBalance <
+                    accountPrice
+                ) {
+
+                    alert(
+                        "Insufficient wallet balance. Please fund your wallet to complete this purchase."
+                    );
+
+                    return;
+                }
+
+
+                /* -------------------------------------------------
+                   ORDER ID
+                   
+                   Firebase generates a unique key.
+                ------------------------------------------------- */
+
+                const ordersRef =
+                    ref(
+                        database,
+                        "orders"
+                    );
+
+
+                const newOrderRef =
+                    push(
+                        ordersRef
+                    );
+
+
+                const orderId =
+                    newOrderRef.key;
+
+
+                if (!orderId) {
+
+                    throw new Error(
+                        "Unable to create order ID."
+                    );
+
+                }
+
+
+                /* -------------------------------------------------
+                   ORDER INFORMATION
+                ------------------------------------------------- */
+
+                const platform =
+                    accountData.platform ||
+                    "Social";
+
+
+                const baseTitle =
+                    accountData.title ||
+                    "Social Media Account";
+
+
+                const orderTitle =
+                    baseTitle
+                        .toLowerCase()
+                        .includes(
+                            platform.toLowerCase()
+                        )
+                        ? baseTitle
+                        : `${platform} - ${baseTitle}`;
+
+
+                const credentials =
+                    accountData.credentials ||
+                    (
+                        "Username: " +
+                        (
+                            accountData.username ||
+                            "N/A"
+                        ) +
+                        " | Password: " +
+                        (
+                            accountData.password ||
+                            "N/A"
+                        )
+                    );
+
+
+                const now =
+                    Date.now();
+
+
+                const newBalance =
+                    Number(
+                        (
+                            userBalance -
+                            accountPrice
+                        ).toFixed(2)
+                    );
+
+
+                const newTotalSpent =
+                    Number(
+                        (
+                            Number(
+                                userData.totalSpent || 0
+                            ) +
+                            accountPrice
+                        ).toFixed(2)
+                    );
+
+
+                /* -------------------------------------------------
+                   1. UPDATE USER WALLET
+                ------------------------------------------------- */
+
+                await update(
+                    userRef,
+                    {
+
+                        wallet:
+                            newBalance,
+
+                        totalSpent:
+                            newTotalSpent
+
+                    }
+                );
+
+
+                /* -------------------------------------------------
+                   2. MARK ACCOUNT AS SOLD
+                ------------------------------------------------- */
+
+                await update(
+                    accountRef,
+                    {
+
+                        status:
+                            "sold",
+
+                        buyerUid:
+                            currentUser.uid,
+
+                        soldAt:
+                            now
+
+                    }
+                );
+
+
+                /* -------------------------------------------------
+                   3. CREATE STANDARD ORDER
+                ------------------------------------------------- */
+
+                await set(
+                    newOrderRef,
+                    {
+
+                        orderId:
+                            orderId,
+
+                        uid:
+                            currentUser.uid,
+
+                        catalogue:
+                            "Social Accounts",
+
+                        platform:
+                            platform,
+
+                        serviceId:
+                            accountId,
+
+                        service:
+                            orderTitle,
+
+                        link:
+                            "",
+
+                        quantity:
+                            1,
+
+                        amount:
+                            accountPrice,
+
+                        status:
+                            "completed",
+
+                        paymentMethod:
+                            "wallet",
+
+                        createdAt:
+                            now,
+
+                        email:
+                            userData.email ||
+                            currentUser.email ||
+                            "N/A",
+
+
+                        /* -----------------------------------------
+                           SOCIAL ACCOUNT DETAILS
+                        ----------------------------------------- */
+
+                        accountId:
+                            accountId,
+
+                        accountTitle:
+                            orderTitle,
+
+                        credentials:
+                            credentials,
+
+                        accountDescription:
+                            accountData.description ||
+                            "",
+
+                        followers:
+                            accountData.followers ||
+                            accountData.followerCount ||
+                            0,
+
+                        accountAge:
+                            accountData.age ||
+                            accountData.accountAge ||
+                            "N/A"
+
+                    }
+                );
+
+
+                /* -------------------------------------------------
+                   4. CREATE TRANSACTION RECORD
+                ------------------------------------------------- */
+
+                const transactionsRef =
+                    ref(
+                        database,
+                        "transactions"
+                    );
+
+
+                const newTransactionRef =
+                    push(
+                        transactionsRef
+                    );
+
+
+                await set(
+                    newTransactionRef,
+                    {
+
+                        uid:
+                            currentUser.uid,
+
+                        orderId:
+                            orderId,
+
+                        type:
+                            "order",
+
+                        amount:
+                            accountPrice,
+
+                        status:
+                            "success",
+
+                        description:
+                            `Social Account Purchase - ${platform} - ${orderTitle}`,
+
+                        createdAt:
+                            now
+
+                    }
+                );
+
+
+                /* -------------------------------------------------
+                   5. SUCCESS
+                ------------------------------------------------- */
+
+                alert(
+                    "Purchase successful! Redirecting to your order details..."
+                );
+
+
+                window.location.href =
+                    `order-success.html?orderId=${encodeURIComponent(orderId)}`;
+
+
+            } catch (err) {
+
+                console.error(
+                    "Social account checkout failed:",
+                    err
+                );
+
+
+                alert(
+                    "An error occurred during checkout. Please try again."
+                );
+
+            }
+
+        };
+
+
+
+    /* =========================================================
+       LOAD SHOP
+    ========================================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        loadShopAccounts
+    );
+
 </script>
 
 </body>
+
 </html>
