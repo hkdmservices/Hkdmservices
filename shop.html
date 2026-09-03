@@ -413,13 +413,27 @@ import {
 
 
 const firebaseConfig = {
-    apiKey: process.env.VITE_FIREBASE_API_KEY,
-    authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-    databaseURL: process.env.VITE_FIREBASE_DATABASE_URL,
-    projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.VITE_FIREBASE_APP_ID
+
+    apiKey:
+        "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+
+    authDomain:
+        "hkdmservices-7d59f.firebaseapp.com",
+
+    databaseURL:
+        "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+
+    projectId:
+        "hkdmservices-7d59f",
+
+    storageBucket:
+        "hkdmservices-7d59f.firebasestorage.app",
+
+    messagingSenderId:
+        "839538334772",
+
+    appId:
+        "1:839538334772:web:7d8785f87363b6e5d8fe61"
 };
 
 
@@ -537,11 +551,6 @@ onAuthStateChanged(
                 user.uid
             );
 
-            // Load shop accounts only if user is logged in
-            if (document.getElementById("shopAccountsContainer")) {
-                await loadShopAccounts();
-            }
-
         } else {
 
             authNavBtn.innerHTML = `
@@ -556,18 +565,6 @@ onAuthStateChanged(
 
             showLoginRequired();
 
-            // Show login message in shop container
-            if (document.getElementById("shopAccountsContainer")) {
-                shopAccountsContainer.innerHTML = `
-                    <div class="col-12 text-center text-muted py-5">
-                        <i class="bi bi-person-lock text-success" style="font-size: 3rem;"></i>
-                        <h4 class="fw-bold mt-3">Please Login</h4>
-                        <p>You need to be logged in to view available accounts.</p>
-                        <a href="login.html" class="btn btn-success">Login</a>
-                    </div>
-                `;
-            }
-
         }
 
     }
@@ -577,19 +574,6 @@ onAuthStateChanged(
 async function loadShopAccounts() {
 
     try {
-
-        // Check if user is authenticated first
-        if (!auth.currentUser) {
-            shopAccountsContainer.innerHTML = `
-                <div class="col-12 text-center text-muted py-5">
-                    <i class="bi bi-person-lock text-success" style="font-size: 3rem;"></i>
-                    <h4 class="fw-bold mt-3">Please Login</h4>
-                    <p>You need to be logged in to view available accounts.</p>
-                    <a href="login.html" class="btn btn-success">Login</a>
-                </div>
-            `;
-            return;
-        }
 
         const snapshot =
             await get(
@@ -829,13 +813,10 @@ async function loadShopAccounts() {
 
             <div class="col-12 text-center text-danger">
 
-                <i class="bi bi-exclamation-triangle display-4"></i>
-                <p class="mt-3">
-                    Failed to load listings. Please refresh the page.
+                <p>
+                    Failed to load listings.
+                    Please verify your connection.
                 </p>
-                <button onclick="window.location.reload()" class="btn btn-outline-success">
-                    Refresh Page
-                </button>
 
             </div>
 
