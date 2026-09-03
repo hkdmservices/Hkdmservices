@@ -537,6 +537,11 @@ onAuthStateChanged(
                 user.uid
             );
 
+            // Load shop accounts only if user is logged in
+            if (document.getElementById("shopAccountsContainer")) {
+                await loadShopAccounts();
+            }
+
         } else {
 
             authNavBtn.innerHTML = `
@@ -551,6 +556,18 @@ onAuthStateChanged(
 
             showLoginRequired();
 
+            // Show login message in shop container
+            if (document.getElementById("shopAccountsContainer")) {
+                shopAccountsContainer.innerHTML = `
+                    <div class="col-12 text-center text-muted py-5">
+                        <i class="bi bi-person-lock text-success" style="font-size: 3rem;"></i>
+                        <h4 class="fw-bold mt-3">Please Login</h4>
+                        <p>You need to be logged in to view available accounts.</p>
+                        <a href="login.html" class="btn btn-success">Login</a>
+                    </div>
+                `;
+            }
+
         }
 
     }
@@ -560,6 +577,19 @@ onAuthStateChanged(
 async function loadShopAccounts() {
 
     try {
+
+        // Check if user is authenticated first
+        if (!auth.currentUser) {
+            shopAccountsContainer.innerHTML = `
+                <div class="col-12 text-center text-muted py-5">
+                    <i class="bi bi-person-lock text-success" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mt-3">Please Login</h4>
+                    <p>You need to be logged in to view available accounts.</p>
+                    <a href="login.html" class="btn btn-success">Login</a>
+                </div>
+            `;
+            return;
+        }
 
         const snapshot =
             await get(
@@ -799,10 +829,13 @@ async function loadShopAccounts() {
 
             <div class="col-12 text-center text-danger">
 
-                <p>
-                    Failed to load listings.
-                    Please verify your connection.
+                <i class="bi bi-exclamation-triangle display-4"></i>
+                <p class="mt-3">
+                    Failed to load listings. Please refresh the page.
                 </p>
+                <button onclick="window.location.reload()" class="btn btn-outline-success">
+                    Refresh Page
+                </button>
 
             </div>
 
