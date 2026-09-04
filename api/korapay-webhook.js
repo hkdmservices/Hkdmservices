@@ -646,3 +646,68 @@ export default async function handler(req, res) {
                 {
                     reference: reference,
                     amount: amount,
+                    status: 'Success',
+                    paymentMethod: 'Korapay'
+                }
+            );
+            console.log(`Payment receipt email sent to ${userEmail}`);
+        } catch (emailError) {
+            console.error('Payment receipt email error:', emailError);
+            // Don't fail the webhook if email fails
+        }
+
+
+        console.log(
+
+            "KORAPAY WEBHOOK: WALLET FUNDED",
+
+            {
+                reference,
+                uid,
+                amount,
+                newBalance
+            }
+
+        );
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Wallet funded successfully",
+
+            reference,
+
+            amount,
+
+            newBalance
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+
+            "KORAPAY WEBHOOK ERROR:",
+
+            error.response?.data ||
+            error.message ||
+            error
+
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Webhook processing failed"
+
+        });
+
+    }
+
+}
