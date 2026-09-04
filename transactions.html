@@ -266,9 +266,168 @@ class="alert mt-4 d-none">
 
 
 
-<script
-type="module"
-src="transactions.js">
+<!-- ============================================================
+     FIREBASE LOGIC (Added – Your Design is Untouched)
+============================================================ -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+const tbody = document.getElementById("transactionsBody");
+const messageDiv = document.getElementById("message");
+
+let currentUid = null;
+
+// ============================================================
+// 1. CHECK AUTH STATE
+// ============================================================
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUid = user.uid;
+    loadTransactions();
+});
+
+// ============================================================
+// 2. LOAD TRANSACTIONS
+// ============================================================
+function loadTransactions() {
+    if (!currentUid) return;
+
+    const transactionsRef = ref(database, "transactions");
+
+    onValue(transactionsRef, (snapshot) => {
+        const data = snapshot.val();
+        tbody.innerHTML = "";
+
+        if (!data) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-2">No transactions found.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Filter and sort transactions for this user
+        const userTransactions = Object.entries(data)
+            .filter(([key, tx]) => tx.uid === currentUid)
+            .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+        if (userTransactions.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-1"></i>
+                        <p class="mt-2">No transactions found.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        userTransactions.forEach(([key, tx]) => {
+            const row = document.createElement("tr");
+
+            // Date
+            const date = tx.createdAt ? new Date(tx.createdAt) : new Date();
+            const dateStr = date.toLocaleDateString("en-GB") + " " + date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+            // Type badge
+            let typeBadge = '';
+            switch (tx.type) {
+                case "wallet_funding":
+                    typeBadge = '<span class="badge bg-success"><i class="bi bi-wallet2"></i> Funding</span>';
+                    break;
+                case "order":
+                    typeBadge = '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> Order</span>';
+                    break;
+                case "voucher":
+                    typeBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-ticket"></i> Voucher</span>';
+                    break;
+                case "refund":
+                    typeBadge = '<span class="badge bg-info"><i class="bi bi-arrow-counterclockwise"></i> Refund</span>';
+                    break;
+                default:
+                    typeBadge = '<span class="badge bg-secondary">' + tx.type + '</span>';
+            }
+
+            // Amount
+            const amountClass = tx.type === "order" || tx.type === "withdrawal" ? "text-danger" : "text-success";
+            const amountSign = tx.type === "order" || tx.type === "withdrawal" ? "-" : "+";
+
+            // Status
+            let statusBadge = '';
+            if (tx.status === "success") {
+                statusBadge = '<span class="badge bg-success">Success</span>';
+            } else if (tx.status === "pending") {
+                statusBadge = '<span class="badge bg-warning text-dark">Pending</span>';
+            } else {
+                statusBadge = '<span class="badge bg-danger">Failed</span>';
+            }
+
+            row.innerHTML = `
+                <td><small>${dateStr}</small></td>
+                <td>${typeBadge}</td>
+                <td>${tx.description || "N/A"}</td>
+                <td class="${amountClass} fw-bold">${amountSign}₦${(tx.amount || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td>${statusBadge}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        console.log(`✅ Loaded ${userTransactions.length} transactions`);
+    }, (error) => {
+        console.error("Transactions error:", error);
+        showMessage("❌ Failed to load transactions: " + error.message, "danger");
+    });
+}
+
+// ============================================================
+// 3. HELPER: SHOW MESSAGE
+// ============================================================
+function showMessage(text, type) {
+    messageDiv.textContent = text;
+    messageDiv.className = "alert alert-" + type + " mt-4";
+    messageDiv.classList.remove("d-none");
+    setTimeout(() => {
+        messageDiv.classList.add("d-none");
+    }, 6000);
+}
+
+console.log("✅ Transactions page loaded with Firebase!");
 </script>
 
 
@@ -278,5 +437,4 @@ src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.j
 
 
 </body>
-
 </html>
