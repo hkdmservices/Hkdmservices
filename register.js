@@ -1,5 +1,4 @@
 import { auth, database } from "./firebase.js";
-
 import {
   createUserWithEmailAndPassword,
   updateProfile,
@@ -18,8 +17,8 @@ const message = document.getElementById("message");
 const googleRegisterBtn = document.getElementById("googleRegisterBtn");
 
 form.addEventListener("submit", async (e) => {
-
     e.preventDefault();
+    console.log("Register form submitted");
 
     const fullName = document.getElementById("fullName").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -38,50 +37,36 @@ form.addEventListener("submit", async (e) => {
         const urlParams = new URLSearchParams(window.location.search);
         const referredBy = urlParams.get("ref") || null;
 
-        const userCredential = await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+        console.log("Creating user...");
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log("User created:", userCredential.user.uid);
 
         await sendEmailVerification(userCredential.user);
+        await updateProfile(userCredential.user, { displayName: fullName });
 
-        await updateProfile(userCredential.user, {
-            displayName: fullName
+        console.log("Saving user to database...");
+        await set(ref(database, "users/" + userCredential.user.uid), {
+            fullName: fullName,
+            email: email,
+            wallet: 0,
+            role: "customer",
+            status: "active",
+            referredBy: referredBy,
+            createdAt: Date.now()
         });
 
-        await set(
-            ref(database, "users/" + userCredential.user.uid),
-            {
-                fullName: fullName,
-                email: email,
-                wallet: 0,
-                role: "customer",
-                status: "active",
-                referredBy: referredBy,
-                createdAt: Date.now()
-            }
-        );
-
+        console.log("User saved successfully!");
         alert("Account created successfully! Please check your email to verify your account.");
-
         window.location.href = "dashboard.html";
 
     } catch (error) {
-
+        console.error("Registration error:", error.code, error.message);
         message.textContent = error.message;
         message.classList.remove("d-none");
-
     }
-
 });
 
-/*
-    ==========================================
-    GOOGLE SIGN UP HANDLER
-    ==========================================
-*/
-
+// Google Sign-Up Handler
 if (googleRegisterBtn) {
     googleRegisterBtn.addEventListener("click", async () => {
         message.classList.add("d-none");
