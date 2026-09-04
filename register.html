@@ -201,7 +201,12 @@
     <script>
         console.log("🔍 Inline test: script tag works");
         alert("🔍 Inline test: script tag works");
-    </script>
+    </script><script>
+  document.getElementById("registerForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    alert("✅ Form submit event caught by inline listener!");
+  });
+</script>
 
     <!-- =====================================================
          REGISTER.JS AS ES MODULE
