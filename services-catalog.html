@@ -197,14 +197,13 @@ Loading services...
 
 
 <!-- ============================================================
-     FIREBASE LOGIC (Added – Your Design is Untouched)
+     FIREBASE AUTH ONLY (No service loading from Firebase)
 ============================================================ -->
 <script type="importmap">
 {
     "imports": {
         "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
-        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js"
     }
 }
 </script>
@@ -212,7 +211,6 @@ Loading services...
 <script type="module">
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
 
 // Firebase Config
 const firebaseConfig = {
@@ -227,9 +225,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const database = getDatabase(app);
-
-const servicesContainer = document.getElementById("servicesContainer");
 
 // ============================================================
 // 1. CHECK AUTH STATE
@@ -239,98 +234,100 @@ onAuthStateChanged(auth, (user) => {
         window.location.href = "login.html";
         return;
     }
-    loadServices();
+    console.log("✅ User authenticated, loading hardcoded services...");
+    loadHardcodedServices();
 });
 
 // ============================================================
-// 2. LOAD SERVICES
+// 2. LOAD HARDCODED SERVICES (from your existing files)
 // ============================================================
-function loadServices() {
-    const servicesRef = ref(database, "services");
-
-    onValue(servicesRef, (snapshot) => {
-        const data = snapshot.val();
-
-        if (!data) {
-            servicesContainer.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
-                    <p class="text-muted mt-2">No services available at the moment.</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Convert to array and filter active services
-        const servicesList = Object.entries(data)
-            .map(([key, service]) => ({ id: key, ...service }))
-            .filter(service => service.status !== "inactive");
-
-        if (servicesList.length === 0) {
-            servicesContainer.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
-                    <p class="text-muted mt-2">No active services available at the moment.</p>
-                </div>
-            `;
-            return;
-        }
-
-        // Build table
-        let tableHTML = `
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Platform</th>
-                        <th>Service</th>
-                        <th>Price / 1,000</th>
-                        <th>Min</th>
-                        <th>Max</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        servicesList.forEach((service) => {
-            tableHTML += `
-                <tr>
-                    <td><span class="badge bg-secondary">${service.platform || "N/A"}</span></td>
-                    <td>${service.service || service.name || "N/A"}</td>
-                    <td class="fw-bold">₦${(service.ratePer1000 || service.price || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td>${service.minimumQuantity || 100}</td>
-                    <td>${service.maximumQuantity || "N/A"}</td>
-                    <td>
-                        <a href="order.html?service=${service.id}" class="btn btn-success btn-sm">
-                            <i class="bi bi-cart-plus"></i> Order
-                        </a>
-                    </td>
-                </tr>
-            `;
+function loadHardcodedServices() {
+    const container = document.getElementById("servicesContainer");
+    
+    // Try to load from your existing modules
+    import('./services.js')
+        .then(module => {
+            const services = module.hkdmservicesOfficialServicePriceCatalogue || [];
+            displayServices(services, container, "General Services");
+        })
+        .catch(() => {
+            console.warn("services.js not found, trying nigeria-services.js...");
+            import('./nigeria-services.js')
+                .then(module => {
+                    const services = module.hkdmservicesNigeriaServicePriceCatalogue || [];
+                    displayServices(services, container, "Nigeria Services");
+                })
+                .catch(() => {
+                    console.warn("No service files found, showing fallback.");
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
+                            <p class="text-muted mt-2">No services available at the moment.</p>
+                        </div>
+                    `;
+                });
         });
-
-        tableHTML += `
-                </tbody>
-            </table>
-        `;
-
-        servicesContainer.innerHTML = tableHTML;
-        console.log(`✅ Loaded ${servicesList.length} services`);
-
-    }, (error) => {
-        console.error("Services error:", error);
-        servicesContainer.innerHTML = `
-            <div class="text-center py-5 text-danger">
-                <i class="bi bi-exclamation-triangle fs-1"></i>
-                <p class="mt-2">Failed to load services. Please try again.</p>
-            </div>
-        `;
-    });
 }
 
-console.log("✅ Services Catalog page loaded with Firebase!");
-</script>
+// ============================================================
+// 3. DISPLAY SERVICES
+// ============================================================
+function displayServices(services, container, title) {
+    if (!services || services.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
+                <p class="text-muted mt-2">No services available in ${title}.</p>
+            </div>
+        `;
+        return;
+    }
 
+    let tableHTML = `
+        <h5 class="mb-3">${title}</h5>
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Platform</th>
+                    <th>Service</th>
+                    <th>Price / 1,000</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    services.forEach((service) => {
+        const price = service.ratePer1000 || service.fixedPrice || 0;
+        tableHTML += `
+            <tr>
+                <td><span class="badge bg-secondary">${service.platform || "N/A"}</span></td>
+                <td>${service.service || service.name || "N/A"}</td>
+                <td class="fw-bold">₦${Number(price).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td>${service.minimumQuantity || service.min || 100}</td>
+                <td>${service.maximumQuantity || service.max || "N/A"}</td>
+                <td>
+                    <a href="order.html?service=${service.id}" class="btn btn-success btn-sm">
+                        <i class="bi bi-cart-plus"></i> Order
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `
+            </tbody>
+        </table>
+    `;
+
+    container.innerHTML = tableHTML;
+    console.log(`✅ Loaded ${services.length} services from ${title}`);
+}
+
+console.log("✅ Services Catalog page loaded with Firebase auth only!");
+</script>
 
 </body>
 </html>
