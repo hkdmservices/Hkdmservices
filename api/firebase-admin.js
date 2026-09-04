@@ -1,4 +1,9 @@
+// api/firebase-admin.js
 import admin from "firebase-admin";
+
+// Load environment variables
+import dotenv from 'dotenv';
+dotenv.config();
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -12,5 +17,6 @@ if (!admin.apps.length) {
 }
 
 const db = admin.database();
+const auth = admin.auth();
 
-export { admin, db };
+export { admin, db, auth };
