@@ -21,7 +21,7 @@
 <style>
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418;
     color: #f1f3f5;
@@ -158,8 +158,204 @@ Redeem Voucher
 </div>
 
 <script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js"></script>
+
+<!-- ============================================================
+     FIREBASE LOGIC (Added – Your Design is Untouched)
+============================================================ -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, get, update, push, set } from "firebase/database";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// DOM Elements
+const amountInput = document.getElementById("amount");
+const payButton = document.getElementById("payButton");
+const redeemBtn = document.getElementById("redeemVoucherBtn");
+const voucherInput = document.getElementById("voucherCodeInput");
+const messageDiv = document.getElementById("message");
+
+let currentUser = null;
+let currentUid = null;
+
+// ============================================================
+// 1. CHECK AUTH STATE
+// ============================================================
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUser = user;
+    currentUid = user.uid;
+    console.log("✅ Wallet page loaded. User:", currentUid);
+});
+
+// ============================================================
+// 2. FUND WALLET (Korapay)
+// ============================================================
+payButton.addEventListener("click", async () => {
+    const amount = Number(amountInput.value);
+
+    if (!amount || amount < 100) {
+        messageDiv.textContent = "❌ Please enter a valid amount (minimum ₦100).";
+        messageDiv.style.color = "red";
+        return;
+    }
+
+    if (!currentUid || !currentUser) {
+        messageDiv.textContent = "❌ Please log in again.";
+        messageDiv.style.color = "red";
+        return;
+    }
+
+    try {
+        messageDiv.textContent = "⏳ Initializing payment...";
+        messageDiv.style.color = "blue";
+
+        const response = await fetch("/api/create-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                amount: amount,
+                uid: currentUid,
+                name: currentUser.displayName || "HKDM Customer",
+                email: currentUser.email
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.checkout_url) {
+            messageDiv.textContent = "✅ Redirecting to payment...";
+            messageDiv.style.color = "green";
+            window.location.href = data.checkout_url;
+        } else {
+            throw new Error(data.message || "Payment initialization failed.");
+        }
+
+    } catch (error) {
+        console.error("Payment error:", error);
+        messageDiv.textContent = "❌ " + error.message;
+        messageDiv.style.color = "red";
+    }
+});
+
+// ============================================================
+// 3. REDEEM VOUCHER
+// ============================================================
+redeemBtn.addEventListener("click", async () => {
+    const code = voucherInput.value.trim().toUpperCase();
+
+    if (!code) {
+        messageDiv.textContent = "❌ Please enter a voucher code.";
+        messageDiv.style.color = "red";
+        return;
+    }
+
+    if (!currentUid) {
+        messageDiv.textContent = "❌ Please log in again.";
+        messageDiv.style.color = "red";
+        return;
+    }
+
+    try {
+        messageDiv.textContent = "⏳ Verifying voucher...";
+        messageDiv.style.color = "blue";
+
+        // Find voucher in database
+        const vouchersRef = ref(database, "vouchers");
+        const snapshot = await get(vouchersRef);
+        const vouchers = snapshot.val();
+
+        let found = false;
+        let voucherKey = null;
+        let voucherData = null;
+
+        if (vouchers) {
+            for (const [key, v] of Object.entries(vouchers)) {
+                if (v.code === code && v.status === "active") {
+                    found = true;
+                    voucherKey = key;
+                    voucherData = v;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            throw new Error("Voucher not found or already used.");
+        }
+
+        // Mark voucher as used
+        await update(ref(database, "vouchers/" + voucherKey), {
+            status: "used",
+            usedBy: currentUid,
+            usedAt: Date.now()
+        });
+
+        // Credit user wallet
+        const userRef = ref(database, "users/" + currentUid);
+        const userSnapshot = await get(userRef);
+        const userData = userSnapshot.val() || {};
+        const currentBalance = userData.wallet || 0;
+        const newBalance = currentBalance + voucherData.amount;
+
+        await update(userRef, {
+            wallet: newBalance
+        });
+
+        // Log transaction
+        const transactionRef = push(ref(database, "transactions"));
+        await set(transactionRef, {
+            uid: currentUid,
+            type: "voucher",
+            amount: voucherData.amount,
+            description: "Voucher redemption: " + code,
+            status: "success",
+            createdAt: Date.now()
+        });
+
+        messageDiv.textContent = "✅ Voucher redeemed! ₦" + voucherData.amount + " added to your wallet.";
+        messageDiv.style.color = "green";
+        voucherInput.value = "";
+
+    } catch (error) {
+        console.error("Voucher redemption error:", error);
+        messageDiv.textContent = "❌ " + error.message;
+        messageDiv.style.color = "red";
+    }
+});
+
+console.log("✅ Wallet page loaded with Firebase!");
+</script>
+
+<!-- Original wallet.js (kept for compatibility, but overridden by inline logic) -->
 <script type="module" src="wallet.js"></script>
 
 </body>
-
 </html>
