@@ -12,6 +12,8 @@ import {
     sendTelegramNotification
 } from "../telegram.js";
 
+import { sendOrderConfirmation } from './email.js';
+
 
 export default async function handler(req, res) {
 
@@ -1206,7 +1208,30 @@ export default async function handler(req, res) {
 
 
         // ====================================================
-        // 27. SUCCESS
+        // 27. SEND ORDER CONFIRMATION EMAIL
+        // ====================================================
+
+        try {
+            await sendOrderConfirmation(
+                userData.email || 'support@hkdmservices.xyz',
+                {
+                    orderId: orderId,
+                    service: selectedService.service,
+                    platform: selectedService.platform,
+                    quantity: numericQuantity,
+                    amount: total,
+                    status: 'Pending'
+                }
+            );
+            console.log(`Order confirmation email sent to ${userData.email}`);
+        } catch (emailError) {
+            console.error('Order confirmation email error:', emailError);
+            // Don't fail the order if email fails
+        }
+
+
+        // ====================================================
+        // 28. SUCCESS
         // ====================================================
 
         return res.status(200).json({
@@ -1250,7 +1275,7 @@ export default async function handler(req, res) {
 
 
     // ========================================================
-    // 28. GLOBAL ERROR
+    // 29. GLOBAL ERROR
     // ========================================================
 
     catch (error) {
