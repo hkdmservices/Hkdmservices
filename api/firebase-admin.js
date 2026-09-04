@@ -1,8 +1,8 @@
 // api/firebase-admin.js
 import admin from "firebase-admin";
+import dotenv from 'dotenv';
 
 // Load environment variables
-import dotenv from 'dotenv';
 dotenv.config();
 
 if (!admin.apps.length) {
