@@ -5,27 +5,48 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<title>Services Catalog | HKDMservices</title>
+<title>Services &amp; Catalog - HKDMservices</title>
+
 
 <!-- =====================================================
      GLOBAL THEME SCRIPT
 ===================================================== -->
 <script src="theme.js"></script>
 
-<link
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-rel="stylesheet">
+
+<!-- =====================================================
+     BOOTSTRAP CSS
+===================================================== -->
 
 <link
-href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-rel="stylesheet">
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+>
+
+
+<!-- =====================================================
+     BOOTSTRAP ICONS
+===================================================== -->
 
 <link
-href="style.css"
-rel="stylesheet">
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    rel="stylesheet"
+>
+
+
+<!-- =====================================================
+     HKDMservices CSS
+===================================================== -->
+
+<link
+    href="style.css"
+    rel="stylesheet"
+>
 
 <style>
 /* =====================================================
@@ -42,18 +63,26 @@ html[data-theme="dark"] .card {
     color: #f1f3f5 !important;
 }
 
-html[data-theme="dark"] .table {
-    color: #f1f3f5 !important;
-    border-color: #30363d !important;
+html[data-theme="dark"] .card.border-dark {
+    border-color: #495057 !important;
 }
 
-html[data-theme="dark"] .table-hover tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.04) !important;
+html[data-theme="dark"] .card.border-success {
+    border-color: #198754 !important;
+}
+
+html[data-theme="dark"] .alert-light {
+    background-color: #151a1f !important;
+    border-color: #30363d !important;
     color: #f1f3f5 !important;
 }
 
 html[data-theme="dark"] .text-muted {
     color: #99a1ab !important;
+}
+
+html[data-theme="dark"] .bi-globe2 {
+    color: #f1f3f5 !important;
 }
 
 /* Theme Toggle Button Style */
@@ -84,120 +113,367 @@ html[data-theme="dark"] .text-muted {
 <body>
 
 
-<!-- NAVBAR -->
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
 <nav class="navbar navbar-dark bg-dark">
 
-<div class="container d-flex justify-content-between align-items-center">
+    <div class="container d-flex justify-content-between align-items-center">
 
-<a
-class="navbar-brand fw-bold"
-href="dashboard.html"
->
+        <a
+            class="navbar-brand fw-bold"
+            href="dashboard.html"
+        >
 
-<span class="brand-icon">⬢</span>
+            <span class="brand-icon">
+                ⬢
+            </span>
 
-HKDMservices
+            HKDMservices
 
-</a>
+        </a>
 
 
-<div class="d-flex align-items-center gap-2">
-    <!-- THEME TOGGLE -->
-    <button
-        type="button"
-        id="themeToggle"
-        class="theme-toggle"
-        aria-label="Toggle dark mode"
-        title="Toggle dark mode"
-    >
-        <i
-            id="themeIcon"
-            class="bi bi-moon-stars-fill"
-        ></i>
-    </button>
+        <div class="d-flex align-items-center gap-2">
+            <!-- THEME TOGGLE -->
+            <button
+                type="button"
+                id="themeToggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+            >
+                <i
+                    id="themeIcon"
+                    class="bi bi-moon-stars-fill"
+                ></i>
+            </button>
 
-    <a
-    href="dashboard.html"
-    class="btn btn-outline-light btn-sm"
-    >
+            <a
+                href="dashboard.html"
+                class="btn btn-outline-light btn-sm"
+            >
 
-    <i class="bi bi-arrow-left"></i>
+                <i class="bi bi-arrow-left"></i>
 
-    Dashboard
+                Dashboard
 
-    </a>
-</div>
+            </a>
+        </div>
 
-</div>
+    </div>
 
 </nav>
 
 
 
-<!-- PAGE -->
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
 
 <section class="py-5">
 
-<div class="container">
+    <div class="container">
 
 
-<div class="text-center mb-5">
+        <!-- =================================================
+             PAGE HEADER
+        ================================================= -->
 
-<h1 class="fw-bold">
+        <div class="text-center mb-5">
 
-Services Catalog
+            <div class="mb-3">
 
-</h1>
+                <i
+                    class="bi bi-grid-3x3-gap-fill
+                    text-success"
+                    style="font-size: 3rem;"
+                ></i>
 
-<p class="text-muted">
-
-Browse all available social media marketing services.
-
-</p>
-
-</div>
-
-
-
-<div class="card shadow border-0">
-
-<div class="card-body p-4">
+            </div>
 
 
-<div
-id="servicesContainer"
-class="table-responsive"
->
-
-<div class="text-center text-muted py-5">
-
-<i class="bi bi-hourglass-split fs-2"></i>
-
-<p class="mt-2">
-
-Loading services...
-
-</p>
-
-</div>
-
-</div>
+            <h1 class="fw-bold">
+                Services &amp; Catalog
+            </h1>
 
 
-</div>
+            <p class="text-muted mb-0">
 
-</div>
+                Choose the service catalogue you want
+                to view.
+
+            </p>
+
+        </div>
 
 
-</div>
+
+        <!-- =================================================
+             CATALOGUE OPTIONS
+        ================================================= -->
+
+        <div class="row g-4 justify-content-center">
+
+
+            <!-- =================================================
+                 GENERAL SERVICES
+            ================================================= -->
+
+            <div class="col-12 col-md-6">
+
+                <div
+                    class="card
+                    shadow
+                    border-dark
+                    h-100"
+                >
+
+                    <div
+                        class="card-body
+                        p-4
+                        p-md-5
+                        text-center"
+                    >
+
+                        <div class="mb-4">
+
+                            <i
+                                class="bi bi-globe2"
+                                style="
+                                    font-size: 4rem;
+                                    color: #212529;
+                                "
+                            ></i>
+
+                        </div>
+
+
+                        <span
+                            class="badge
+                            bg-dark
+                            mb-3"
+                        >
+
+                            GENERAL
+
+                        </span>
+
+
+                        <h2 class="fw-bold mb-3">
+
+                            General Services
+
+                        </h2>
+
+
+                        <p class="text-muted mb-4">
+
+                            Browse the main HKDMservices
+                            catalogue and view the standard
+                            service pricing.
+
+                        </p>
+
+
+                        <div
+                            class="d-grid"
+                        >
+
+                            <a
+                                href="services.html"
+                                class="btn btn-dark btn-lg"
+                            >
+
+                                <i class="bi bi-grid"></i>
+
+                                View General Services
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 NIGERIA SERVICES
+            ================================================= -->
+
+            <div class="col-12 col-md-6">
+
+                <div
+                    class="card
+                    shadow
+                    border-success
+                    h-100"
+                >
+
+                    <div
+                        class="card-body
+                        p-4
+                        p-md-5
+                        text-center"
+                    >
+
+                        <div class="mb-4">
+
+                            <i
+                                class="bi bi-flag-fill
+                                text-success"
+                                style="
+                                    font-size: 4rem;
+                                "
+                            ></i>
+
+                        </div>
+
+
+                        <span
+                            class="badge
+                            bg-success
+                            mb-3"
+                        >
+
+                            NIGERIA
+
+                        </span>
+
+
+                        <h2 class="fw-bold mb-3">
+
+                            Nigeria Services
+
+                        </h2>
+
+
+                        <p class="text-muted mb-4">
+
+                            Browse services with Nigerian
+                            pricing and the Nigeria-specific
+                            service catalogue.
+
+                        </p>
+
+
+                        <div
+                            class="d-grid"
+                        >
+
+                            <a
+                                href="nigeria-services.html"
+                                class="btn btn-success btn-lg"
+                            >
+
+                                <i
+                                    class="bi bi-grid-3x3-gap"
+                                ></i>
+
+                                View Nigeria Services
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             INFORMATION
+        ================================================= -->
+
+        <div
+            class="row justify-content-center mt-5"
+        >
+
+            <div class="col-12 col-md-10 col-lg-8">
+
+                <div
+                    class="alert
+                    alert-light
+                    border
+                    text-center
+                    shadow-sm"
+                >
+
+                    <i
+                        class="bi bi-info-circle
+                        text-success"
+                    ></i>
+
+
+                    <strong>
+                        Choose your catalogue above.
+                    </strong>
+
+
+                    <div class="small text-muted mt-1">
+
+                        General Services and Nigeria Services
+                        are maintained as separate catalogues
+                        so you can easily access the correct
+                        pricing.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             BACK TO DASHBOARD
+        ================================================= -->
+
+        <div class="text-center mt-4">
+
+            <a
+                href="dashboard.html"
+                class="btn btn-outline-secondary"
+            >
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+
+    </div>
 
 </section>
 
 
 
+<!-- =====================================================
+     BOOTSTRAP JS
+===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+></script>
+
 <!-- ============================================================
-     FIREBASE AUTH ONLY (No service loading from Firebase)
+     FIREBASE AUTH (Added – Your Design is Untouched)
 ============================================================ -->
 <script type="importmap">
 {
@@ -227,106 +503,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // ============================================================
-// 1. CHECK AUTH STATE
+// CHECK AUTH STATE – Redirect if not logged in
 // ============================================================
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "login.html";
         return;
     }
-    console.log("✅ User authenticated, loading hardcoded services...");
-    loadHardcodedServices();
+    console.log("✅ User authenticated on Services Catalog page.");
 });
 
-// ============================================================
-// 2. LOAD HARDCODED SERVICES (from your existing files)
-// ============================================================
-function loadHardcodedServices() {
-    const container = document.getElementById("servicesContainer");
-    
-    // Try to load from your existing modules
-    import('./services.js')
-        .then(module => {
-            const services = module.hkdmservicesOfficialServicePriceCatalogue || [];
-            displayServices(services, container, "General Services");
-        })
-        .catch(() => {
-            console.warn("services.js not found, trying nigeria-services.js...");
-            import('./nigeria-services.js')
-                .then(module => {
-                    const services = module.hkdmservicesNigeriaServicePriceCatalogue || [];
-                    displayServices(services, container, "Nigeria Services");
-                })
-                .catch(() => {
-                    console.warn("No service files found, showing fallback.");
-                    container.innerHTML = `
-                        <div class="text-center py-5">
-                            <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
-                            <p class="text-muted mt-2">No services available at the moment.</p>
-                        </div>
-                    `;
-                });
-        });
-}
-
-// ============================================================
-// 3. DISPLAY SERVICES
-// ============================================================
-function displayServices(services, container, title) {
-    if (!services || services.length === 0) {
-        container.innerHTML = `
-            <div class="text-center py-5">
-                <i class="bi bi-grid-3x3-gap fs-1 text-muted"></i>
-                <p class="text-muted mt-2">No services available in ${title}.</p>
-            </div>
-        `;
-        return;
-    }
-
-    let tableHTML = `
-        <h5 class="mb-3">${title}</h5>
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th>Platform</th>
-                    <th>Service</th>
-                    <th>Price / 1,000</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    services.forEach((service) => {
-        const price = service.ratePer1000 || service.fixedPrice || 0;
-        tableHTML += `
-            <tr>
-                <td><span class="badge bg-secondary">${service.platform || "N/A"}</span></td>
-                <td>${service.service || service.name || "N/A"}</td>
-                <td class="fw-bold">₦${Number(price).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                <td>${service.minimumQuantity || service.min || 100}</td>
-                <td>${service.maximumQuantity || service.max || "N/A"}</td>
-                <td>
-                    <a href="order.html?service=${service.id}" class="btn btn-success btn-sm">
-                        <i class="bi bi-cart-plus"></i> Order
-                    </a>
-                </td>
-            </tr>
-        `;
-    });
-
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
-
-    container.innerHTML = tableHTML;
-    console.log(`✅ Loaded ${services.length} services from ${title}`);
-}
-
-console.log("✅ Services Catalog page loaded with Firebase auth only!");
+console.log("✅ Services Catalog page loaded with Firebase auth.");
 </script>
 
 </body>
