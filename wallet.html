@@ -237,7 +237,7 @@ payButton.addEventListener("click", async () => {
         messageDiv.textContent = "⏳ Initializing payment...";
         messageDiv.style.color = "blue";
 
-        const response = await fetch("https://hkdmservices.xyz/api/create-payment", {
+        const response = await fetch("/api/create-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
