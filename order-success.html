@@ -64,14 +64,24 @@
             </div>
         </div>
     </div>
-</main>
+</section>
+
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, get } from "firebase/database";
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
     authDomain: "hkdmservices-7d59f.firebaseapp.com",
     databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
@@ -79,13 +89,26 @@
     storageBucket: "hkdmservices-7d59f.firebasestorage.app",
     messagingSenderId: "839538334772",
     appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
-  };
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
 
-  async function fetchOrderDetails() {
+// ============================================================
+// CHECK AUTH STATE – Redirect if not logged in
+// ============================================================
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    console.log("✅ User authenticated on Order Success page.");
+    // Fetch order details only after auth is confirmed
+    fetchOrderDetails();
+});
+
+async function fetchOrderDetails() {
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId');
     const loadingEl = document.getElementById('orderDetailsLoading');
@@ -93,35 +116,34 @@
     const boxEl = document.getElementById('orderDetailsBox');
 
     if (!orderId) {
-      loadingEl.innerHTML = '<p class="text-danger">No order ID found in URL.</p>';
-      return;
+        loadingEl.innerHTML = '<p class="text-danger">No order ID found in URL.</p>';
+        return;
     }
 
     try {
-      const orderSnap = await get(ref(database, `orders/${orderId}`));
-      if (!orderSnap.exists()) {
-        loadingEl.innerHTML = '<p class="text-danger">Order record not found.</p>';
-        return;
-      }
+        const orderSnap = await get(ref(database, `orders/${orderId}`));
+        if (!orderSnap.exists()) {
+            loadingEl.innerHTML = '<p class="text-danger">Order record not found.</p>';
+            return;
+        }
 
-      const order = orderSnap.val();
-      loadingEl.classList.add('d-none');
-      contentEl.classList.remove('d-none');
+        const order = orderSnap.val();
+        loadingEl.classList.add('d-none');
+        contentEl.classList.remove('d-none');
 
-      boxEl.innerHTML = `
-          <p class="mb-1"><strong>Order ID:</strong> ${order.id}</p>
-          <p class="mb-1"><strong>Item:</strong> ${order.title}</p>
-          <p class="mb-1"><strong>Price Paid:</strong> ₦${Number(order.price || 0).toLocaleString()}</p>
-          <hr>
-          <p class="mb-0"><strong>Account Credentials:</strong><br><span class="text-primary font-monospace">${order.credentials}</span></p>
-      `;
+        boxEl.innerHTML = `
+            <p class="mb-1"><strong>Order ID:</strong> ${order.orderId || orderId}</p>
+            <p class="mb-1"><strong>Item:</strong> ${order.service || order.title || "N/A"}</p>
+            <p class="mb-1"><strong>Price Paid:</strong> ₦${Number(order.amount || order.price || 0).toLocaleString()}</p>
+            ${order.credentials ? `<hr><p class="mb-0"><strong>Account Credentials:</strong><br><span class="text-primary font-monospace">${order.credentials}</span></p>` : ''}
+        `;
     } catch (err) {
-      console.error("Failed to load order:", err);
-      loadingEl.innerHTML = '<p class="text-danger">Failed to retrieve order details.</p>';
+        console.error("Failed to load order:", err);
+        loadingEl.innerHTML = '<p class="text-danger">Failed to retrieve order details.</p>';
     }
-  }
+}
 
-  document.addEventListener('DOMContentLoaded', fetchOrderDetails);
+console.log("✅ Order Success page loaded with Firebase auth.");
 </script>
 
 </body>
