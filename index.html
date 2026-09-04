@@ -1858,4 +1858,57 @@
 {
     "imports": {
         "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
-        "firebase/auth": "
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js"
+    }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Show loading shield while checking auth state
+const shield = document.getElementById("pageShield");
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is logged in — redirect to dashboard
+        window.location.replace("dashboard.html");
+    } else {
+        // User is not logged in — hide shield and show the page
+        if (shield) shield.style.display = "none";
+        console.log("🔓 User not logged in. Showing landing page.");
+    }
+});
+
+console.log("✅ Index page loaded with Firebase auth.");
+</script>
+
+<!-- Loading Shield (hidden by default, shown by module script if needed) -->
+<div id="pageShield" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #101418; z-index: 999999; display: flex; align-items: center; justify-content: center;">
+    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
+</div>
+
+<!-- Original redirect script (kept for compatibility, but overridden by module logic) -->
+<script>
+  // This script is now overridden by the module script above.
+  // It is kept here to maintain compatibility with existing code.
+</script>
+
+</body>
+
+</html>
