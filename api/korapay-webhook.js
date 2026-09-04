@@ -2,6 +2,7 @@ import crypto from "crypto";
 import axios from "axios";
 
 import { db } from "./firebase-admin.js";
+import { sendPaymentReceipt } from './email.js';
 
 
 export default async function handler(req, res) {
@@ -634,57 +635,14 @@ export default async function handler(req, res) {
         }
 
 
-        console.log(
+        // ====================================================
+        // SEND PAYMENT RECEIPT EMAIL
+        // ====================================================
 
-            "KORAPAY WEBHOOK: WALLET FUNDED",
-
-            {
-                reference,
-                uid,
-                amount,
-                newBalance
-            }
-
-        );
-
-
-        return res.status(200).json({
-
-            success: true,
-
-            message:
-                "Wallet funded successfully",
-
-            reference,
-
-            amount,
-
-            newBalance
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-
-            "KORAPAY WEBHOOK ERROR:",
-
-            error.response?.data ||
-            error.message ||
-            error
-
-        );
-
-        return res.status(500).json({
-
-            success: false,
-
-            message:
-                "Webhook processing failed"
-
-        });
-
-    }
-
-}
+        try {
+            const userEmail = userData.email || 'support@hkdmservices.xyz';
+            await sendPaymentReceipt(
+                userEmail,
+                {
+                    reference: reference,
+                    amount: amount,
