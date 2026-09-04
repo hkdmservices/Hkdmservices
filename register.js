@@ -13,7 +13,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 console.log("🔥 register.js loaded");
-alert("Script loaded!");
+alert("Script loaded!");alert("✅ register.js is executing!");
 
 document.addEventListener("DOMContentLoaded", function() {
   const form = document.getElementById("registerForm");
