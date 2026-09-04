@@ -1634,14 +1634,110 @@ Save Service
 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
 </script>
 
+<!-- ============================================================
+     FIREBASE AUTH (Added – Your Design is Untouched)
+============================================================ -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
 
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { getDatabase, ref, get } from "firebase/database";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+const adminLoading = document.getElementById("adminLoading");
+const accessDenied = document.getElementById("accessDenied");
+const adminContent = document.getElementById("adminContent");
+const adminEmail = document.getElementById("adminEmail");
+const logoutBtn = document.getElementById("logout");
+const loadingMessage = document.getElementById("loadingMessage");
+
+// ============================================================
+// CHECK AUTH STATE & ADMIN PRIVILEGES
+// ============================================================
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Show user email
+    adminEmail.textContent = user.email || "Admin";
+
+    // Check if user has admin privileges
+    try {
+        const userRef = ref(database, "users/" + user.uid);
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+
+        const isAdmin = userData && (userData.role === "admin" || userData.isAdmin === true);
+
+        if (!isAdmin) {
+            // Show access denied
+            adminLoading.style.display = "none";
+            accessDenied.style.display = "block";
+            loadingMessage.textContent = "Access denied. You are not an administrator.";
+            return;
+        }
+
+        // Admin verified — show dashboard
+        adminLoading.style.display = "none";
+        adminContent.style.display = "block";
+        console.log("✅ Admin access verified for:", user.email);
+
+        // Your existing admin-dashboard.js will now load and render data
+        // The external script (admin-dashboard.js) will handle data loading
+
+    } catch (error) {
+        console.error("Admin verification error:", error);
+        adminLoading.style.display = "none";
+        accessDenied.style.display = "block";
+        loadingMessage.textContent = "Error verifying admin status. Please try again.";
+    }
+});
+
+// ============================================================
+// LOGOUT
+// ============================================================
+logoutBtn.addEventListener("click", async () => {
+    try {
+        await signOut(auth);
+        window.location.href = "login.html";
+    } catch (error) {
+        console.error("Logout error:", error);
+        alert("Logout failed: " + error.message);
+    }
+});
+
+console.log("✅ Admin Dashboard page loaded with Firebase auth.");
+</script>
 
 <script
 type="module"
 src="admin-dashboard.js">
 </script>
 
-
 </body>
-
 </html>
