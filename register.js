@@ -13,26 +13,28 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 console.log("🔥 register.js loaded");
-alert("Script loaded!");alert("✅ register.js is executing!");
+alert("✅ Script loaded! (from register.js)");
 
+// Wait for DOM to be fully ready
 document.addEventListener("DOMContentLoaded", function() {
+  alert("✅ DOMContentLoaded fired!");
+
   const form = document.getElementById("registerForm");
   const message = document.getElementById("message");
   const googleRegisterBtn = document.getElementById("googleRegisterBtn");
 
+  alert("✅ Form element: " + (form ? "FOUND" : "NOT FOUND"));
+
   if (!form) {
-    console.error("❌ registerForm not found!");
-    alert("❌ registerForm not found!");
+    alert("❌ registerForm not found! Check the form ID.");
     return;
   }
 
-  console.log("✅ registerForm found, attaching listener...");
   alert("✅ registerForm found, attaching listener...");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("Register form submitted");
-    alert("Form submitted!");
+    alert("✅ Form submitted! (from register.js listener)");
 
     const fullName = document.getElementById("fullName").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -56,20 +58,16 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const referredBy = urlParams.get("ref") || null;
-
-      console.log("Creating user...");
       alert("Creating user...");
-
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log("User created:", userCredential.user.uid);
       alert("User created successfully!");
 
       await sendEmailVerification(userCredential.user);
       await updateProfile(userCredential.user, { displayName: fullName });
 
-      console.log("Saving user to database...");
+      const urlParams = new URLSearchParams(window.location.search);
+      const referredBy = urlParams.get("ref") || null;
+
       await set(ref(database, "users/" + userCredential.user.uid), {
         fullName: fullName,
         email: email,
@@ -80,24 +78,21 @@ document.addEventListener("DOMContentLoaded", function() {
         createdAt: Date.now()
       });
 
-      console.log("User saved successfully!");
-      alert("Account created successfully! Please check your email to verify.");
+      alert("Account created successfully! Redirecting...");
       window.location.href = "dashboard.html";
 
     } catch (error) {
-      console.error("Registration error:", error.code, error.message);
+      alert("❌ Error: " + error.code + " - " + error.message);
       message.textContent = error.message;
       message.classList.remove("d-none");
-      alert("❌ Error: " + error.code + " - " + error.message);
     }
   });
 
   // Google Sign-Up Handler
   if (googleRegisterBtn) {
     googleRegisterBtn.addEventListener("click", async () => {
-      message.classList.add("d-none");
-      googleRegisterBtn.disabled = true;
       alert("Google Sign Up clicked!");
+      message.classList.add("d-none");
 
       try {
         const provider = new GoogleAuthProvider();
@@ -122,21 +117,13 @@ document.addEventListener("DOMContentLoaded", function() {
           });
         }
 
-        message.className = "alert alert-success mt-3";
-        message.textContent = "Google registration successful! Redirecting...";
-        message.classList.remove("d-none");
-
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 300);
+        alert("Google registration successful! Redirecting...");
+        window.location.href = "dashboard.html";
 
       } catch (error) {
-        console.error("GOOGLE REGISTER ERROR:", error);
-        message.className = "alert alert-danger mt-3";
-        message.textContent = error.message || "Failed to sign up with Google.";
-        message.classList.remove("d-none");
-        googleRegisterBtn.disabled = false;
         alert("❌ Google Error: " + error.message);
+        message.textContent = error.message;
+        message.classList.remove("d-none");
       }
     });
   }
