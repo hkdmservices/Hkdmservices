@@ -1851,25 +1851,11 @@
   }
 </script>
 
-<!-- Firebase Session Auto-Forward with Loading Shield -->
-<div id="pageShield" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #101418; z-index: 999999; display: flex; align-items: center; justify-content: center;">
-    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;"></div>
-</div>
-
-<script type="module">
-  import { auth } from "./firebase.js";
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          window.location.replace("dashboard.html");
-      } else {
-          const shield = document.getElementById("pageShield");
-          if (shield) shield.style.display = "none";
-      }
-  });
-</script>
-
-</body>
-
-</html>
+<!-- =====================================================
+     FIREBASE AUTH CHECK (Updated)
+===================================================== -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "
