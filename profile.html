@@ -46,7 +46,7 @@ rel="stylesheet">
 <style>
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418;
     color: #f1f3f5;
@@ -488,14 +488,206 @@ html[data-theme="dark"] .text-muted {
 
 
 <!-- =====================================================
-     PROFILE JAVASCRIPT
+     FIREBASE LOGIC (Added – Your Design is Untouched)
 ===================================================== -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
 
-<script
-    type="module"
-    src="profile.js"
-></script>
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged, updateProfile, sendPasswordResetEmail, sendEmailVerification, signOut } from "firebase/auth";
+import { getDatabase, ref, onValue, update } from "firebase/database";
 
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// DOM Elements
+const profileNameInput = document.getElementById("profileNameInput");
+const profileEmail = document.getElementById("profileEmail");
+const profileWallet = document.getElementById("profileWallet");
+const profileOrders = document.getElementById("profileOrders");
+const profileUid = document.getElementById("profileUid");
+const emailVerification = document.getElementById("emailVerification");
+const verifyEmailBtn = document.getElementById("verifyEmailBtn");
+const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+const profileMessage = document.getElementById("profileMessage");
+const logoutBtn = document.getElementById("logout");
+const profileForm = document.getElementById("profileForm");
+
+let currentUserData = null;
+let currentUser = null;
+
+// ============================================================
+// 1. CHECK AUTH STATE & LOAD USER DATA
+// ============================================================
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    currentUser = user;
+    const uid = user.uid;
+
+    // Display UID
+    profileUid.textContent = uid;
+    profileEmail.textContent = user.email || "No email";
+
+    // Load user data from database
+    const userRef = ref(database, "users/" + uid);
+
+    onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            currentUserData = data;
+
+            // Update profile fields
+            profileNameInput.value = data.fullName || user.displayName || "";
+            profileWallet.textContent = "₦" + (data.wallet || 0).toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Count orders
+            const ordersRef = ref(database, "orders");
+            onValue(ordersRef, (snap) => {
+                const orders = snap.val();
+                let count = 0;
+                if (orders) {
+                    Object.values(orders).forEach((order) => {
+                        if (order.uid === uid) count++;
+                    });
+                }
+                profileOrders.textContent = count;
+            });
+
+            // Email verification status
+            if (user.emailVerified) {
+                emailVerification.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>';
+                verifyEmailBtn.classList.add("d-none");
+            } else {
+                emailVerification.innerHTML = '<span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Not Verified</span>';
+                verifyEmailBtn.classList.remove("d-none");
+            }
+
+            console.log("✅ Profile data loaded:", data);
+        }
+    });
+});
+
+// ============================================================
+// 2. UPDATE PROFILE
+// ============================================================
+profileForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fullName = profileNameInput.value.trim();
+
+    if (!fullName) {
+        showMessage("Please enter your full name.", "danger");
+        return;
+    }
+
+    try {
+        // Update Firebase Auth profile
+        if (currentUser) {
+            await updateProfile(currentUser, { displayName: fullName });
+        }
+
+        // Update Realtime Database
+        if (currentUser) {
+            await update(ref(database, "users/" + currentUser.uid), {
+                fullName: fullName
+            });
+        }
+
+        showMessage("✅ Profile updated successfully!", "success");
+    } catch (error) {
+        console.error("Profile update error:", error);
+        showMessage("❌ Error updating profile: " + error.message, "danger");
+    }
+});
+
+// ============================================================
+// 3. SEND PASSWORD RESET
+// ============================================================
+resetPasswordBtn.addEventListener("click", async () => {
+    if (!currentUser || !currentUser.email) {
+        showMessage("No email address found.", "danger");
+        return;
+    }
+
+    try {
+        await sendPasswordResetEmail(auth, currentUser.email);
+        showMessage("✅ Password reset email sent! Check your inbox.", "success");
+    } catch (error) {
+        console.error("Password reset error:", error);
+        showMessage("❌ Error: " + error.message, "danger");
+    }
+});
+
+// ============================================================
+// 4. SEND EMAIL VERIFICATION
+// ============================================================
+verifyEmailBtn.addEventListener("click", async () => {
+    if (!currentUser) return;
+
+    try {
+        await sendEmailVerification(currentUser);
+        showMessage("✅ Verification email sent! Check your inbox.", "success");
+        verifyEmailBtn.classList.add("d-none");
+    } catch (error) {
+        console.error("Verification email error:", error);
+        showMessage("❌ Error: " + error.message, "danger");
+    }
+});
+
+// ============================================================
+// 5. LOGOUT
+// ============================================================
+logoutBtn.addEventListener("click", async () => {
+    try {
+        await signOut(auth);
+        window.location.href = "login.html";
+    } catch (error) {
+        console.error("Logout error:", error);
+        showMessage("❌ Logout failed: " + error.message, "danger");
+    }
+});
+
+// ============================================================
+// 6. HELPER: SHOW MESSAGE
+// ============================================================
+function showMessage(text, type) {
+    profileMessage.textContent = text;
+    profileMessage.className = "alert alert-" + type + " mt-3";
+    profileMessage.classList.remove("d-none");
+    setTimeout(() => {
+        profileMessage.classList.add("d-none");
+    }, 5000);
+}
+
+console.log("✅ Profile page loaded with Firebase!");
+</script>
 
 </body>
 
