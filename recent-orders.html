@@ -30,7 +30,7 @@ rel="stylesheet">
 <style>
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418;
     color: #f1f3f5;
@@ -196,12 +196,172 @@ Loading your orders...
 
 
 
-<script
-type="module"
-src="recent-orders.js"
-></script>
+<!-- ============================================================
+     FIREBASE LOGIC (Added – Your Design is Untouched)
+============================================================ -->
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+    }
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+const ordersContainer = document.getElementById("ordersContainer");
+
+let currentUid = null;
+
+// ============================================================
+// 1. CHECK AUTH STATE
+// ============================================================
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUid = user.uid;
+    loadOrders();
+});
+
+// ============================================================
+// 2. LOAD ORDERS
+// ============================================================
+function loadOrders() {
+    if (!currentUid) return;
+
+    const ordersRef = ref(database, "orders");
+
+    onValue(ordersRef, (snapshot) => {
+        const data = snapshot.val();
+
+        if (!data) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">You have no orders yet.</p>
+                    <a href="shop.html" class="btn btn-success mt-2">
+                        <i class="bi bi-shop"></i> Start Shopping
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        // Filter and sort orders for this user
+        const userOrders = Object.entries(data)
+            .filter(([key, order]) => order.uid === currentUid)
+            .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+        if (userOrders.length === 0) {
+            ordersContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-2">You have no orders yet.</p>
+                    <a href="shop.html" class="btn btn-success mt-2">
+                        <i class="bi bi-shop"></i> Start Shopping
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        // Build table
+        let tableHTML = `
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Service</th>
+                        <th>Platform</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        userOrders.forEach(([key, order]) => {
+            const date = order.createdAt ? new Date(order.createdAt) : new Date();
+            const dateStr = date.toLocaleDateString("en-GB") + " " + date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+
+            // Status badge
+            let statusBadge = '';
+            switch (order.status) {
+                case "completed":
+                    statusBadge = '<span class="badge bg-success">Completed</span>';
+                    break;
+                case "pending":
+                    statusBadge = '<span class="badge bg-warning text-dark">Pending</span>';
+                    break;
+                case "processing":
+                    statusBadge = '<span class="badge bg-info text-dark">Processing</span>';
+                    break;
+                case "cancelled":
+                    statusBadge = '<span class="badge bg-danger">Cancelled</span>';
+                    break;
+                default:
+                    statusBadge = '<span class="badge bg-secondary">' + order.status + '</span>';
+            }
+
+            tableHTML += `
+                <tr>
+                    <td><small class="text-muted">#${order.orderId || key.slice(0, 8)}</small></td>
+                    <td>${order.service || "N/A"}</td>
+                    <td>${order.platform || "N/A"}</td>
+                    <td>${order.quantity || 1}</td>
+                    <td class="fw-bold">₦${(order.amount || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${statusBadge}</td>
+                    <td><small class="text-muted">${dateStr}</small></td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+
+        ordersContainer.innerHTML = tableHTML;
+        console.log(`✅ Loaded ${userOrders.length} orders`);
+
+    }, (error) => {
+        console.error("Orders error:", error);
+        ordersContainer.innerHTML = `
+            <div class="text-center py-5 text-danger">
+                <i class="bi bi-exclamation-triangle fs-1"></i>
+                <p class="mt-2">Failed to load orders. Please try again.</p>
+            </div>
+        `;
+    });
+}
+
+console.log("✅ Recent Orders page loaded with Firebase!");
+</script>
 
 
 </body>
-
 </html>
