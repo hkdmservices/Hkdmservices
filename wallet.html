@@ -208,10 +208,11 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ============================================================
-// FUND WALLET - Token in body with number
+// FUND WALLET - Force amount to number
 // ============================================================
 payButton.addEventListener("click", async () => {
-    const amount = Number(amountInput.value); // ✅ Force number
+    // ✅ Force amount to be a number
+    const amount = Number(amountInput.value);
 
     if (!amount || amount < 100) {
         messageDiv.textContent = "❌ Please enter a valid amount (minimum ₦100).";
@@ -232,7 +233,7 @@ payButton.addEventListener("click", async () => {
         const token = await currentUser.getIdToken(true);
 
         const data = {
-            amount: amount, // ✅ Now it's a number
+            amount: Number(amount), // ✅ Explicitly convert to number
             uid: currentUid,
             name: currentUser.displayName || "HKDM Customer",
             email: currentUser.email,
