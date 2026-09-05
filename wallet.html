@@ -208,10 +208,9 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ============================================================
-// FUND WALLET - Force amount to number
+// FUND WALLET - Token in body with number
 // ============================================================
 payButton.addEventListener("click", async () => {
-    // ✅ Force amount to be a number
     const amount = Number(amountInput.value);
 
     if (!amount || amount < 100) {
@@ -233,14 +232,12 @@ payButton.addEventListener("click", async () => {
         const token = await currentUser.getIdToken(true);
 
         const data = {
-            amount: Number(amount), // ✅ Explicitly convert to number
+            amount: amount,
             uid: currentUid,
             name: currentUser.displayName || "HKDM Customer",
             email: currentUser.email,
             token: token
         };
-
-        console.log("📤 Sending data:", data);
 
         const response = await fetch("https://hkdmservices.xyz/api-php/create-payment.php", {
             method: "POST",
@@ -251,9 +248,9 @@ payButton.addEventListener("click", async () => {
         });
 
         const result = await response.json();
-        console.log("📥 Response:", result);
 
-        if (result.success && result.checkout_url) {
+        // Handle both Korapay response formats
+        if (result.checkout_url) {
             messageDiv.textContent = "✅ Redirecting to payment...";
             messageDiv.style.color = "green";
             window.location.href = result.checkout_url;
