@@ -208,7 +208,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ============================================================
-// FUND WALLET - Token sent in BOTH header and body
+// FUND WALLET - Token ONLY in body (no headers)
 // ============================================================
 payButton.addEventListener("click", async () => {
     const amount = Number(amountInput.value);
@@ -242,8 +242,7 @@ payButton.addEventListener("click", async () => {
         const response = await fetch("https://hkdmservices.xyz/api-php/create-payment.php", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
+                "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
         });
