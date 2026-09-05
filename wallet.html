@@ -237,9 +237,15 @@ payButton.addEventListener("click", async () => {
         messageDiv.textContent = "⏳ Initializing payment...";
         messageDiv.style.color = "blue";
 
+        // Get the Firebase ID token
+        const idToken = await currentUser.getIdToken(true);
+
         const response = await fetch("https://hkdmservices.xyz/api/create-payment", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${idToken}`
+            },
             body: JSON.stringify({
                 amount: amount,
                 uid: currentUid,
