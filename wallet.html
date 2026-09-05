@@ -160,7 +160,7 @@ Redeem Voucher
 <script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js"></script>
 
 <!-- ============================================================
-     FIREBASE LOGIC (Added – Your Design is Untouched)
+     FIREBASE LOGIC (Updated with correct PHP URL)
 ============================================================ -->
 <script type="importmap">
 {
@@ -216,7 +216,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // ============================================================
-// 2. FUND WALLET (Korapay)
+// 2. FUND WALLET (Korapay) - Using PHP API
 // ============================================================
 payButton.addEventListener("click", async () => {
     const amount = Number(amountInput.value);
@@ -237,10 +237,9 @@ payButton.addEventListener("click", async () => {
         messageDiv.textContent = "⏳ Initializing payment...";
         messageDiv.style.color = "blue";
 
-        // Get the Firebase ID token
         const idToken = await currentUser.getIdToken(true);
 
-        const response = await fetch("https://hkdmservices.xyz/api/create-payment", {
+        const response = await fetch("https://hkdmservices.xyz/api-php/create-payment.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -293,7 +292,6 @@ redeemBtn.addEventListener("click", async () => {
         messageDiv.textContent = "⏳ Verifying voucher...";
         messageDiv.style.color = "blue";
 
-        // Find voucher in database
         const vouchersRef = ref(database, "vouchers");
         const snapshot = await get(vouchersRef);
         const vouchers = snapshot.val();
@@ -317,14 +315,12 @@ redeemBtn.addEventListener("click", async () => {
             throw new Error("Voucher not found or already used.");
         }
 
-        // Mark voucher as used
         await update(ref(database, "vouchers/" + voucherKey), {
             status: "used",
             usedBy: currentUid,
             usedAt: Date.now()
         });
 
-        // Credit user wallet
         const userRef = ref(database, "users/" + currentUid);
         const userSnapshot = await get(userRef);
         const userData = userSnapshot.val() || {};
@@ -335,7 +331,6 @@ redeemBtn.addEventListener("click", async () => {
             wallet: newBalance
         });
 
-        // Log transaction
         const transactionRef = push(ref(database, "transactions"));
         await set(transactionRef, {
             uid: currentUid,
