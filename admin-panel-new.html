@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | HKDMservices</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #0d1117;
+            color: #f1f3f5;
+        }
+        .sidebar {
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .sidebar .nav-link {
+            color: #8b949e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+        .sidebar .nav-link.active {
+            background: #198754;
+            color: #fff;
+        }
+        .sidebar .nav-link i {
+            width: 20px;
+        }
+        .main-content {
+            padding: 20px 30px;
+        }
+        .stat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            margin: 0;
+        }
+        .table {
+            color: #f1f3f5;
+        }
+        .table thead th {
+            border-bottom-color: #30363d;
+        }
+        .table td, .table th {
+            border-color: #30363d;
+        }
+        .badge-status {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+        }
+        .btn-outline-light {
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+        .btn-outline-light:hover {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+        .modal-content {
+            background: #161b22;
+            color: #f1f3f5;
+            border-color: #30363d;
+        }
+        .modal-header {
+            border-bottom-color: #30363d;
+        }
+        .modal-footer {
+            border-top-color: #30363d;
+        }
+        .form-control {
+            background: #0d1117;
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+        .form-control:focus {
+            border-color: #198754;
+            box-shadow: none;
+            color: #f1f3f5;
+        }
+        .form-select {
+            background: #0d1117;
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+        .form-select:focus {
+            border-color: #198754;
+            box-shadow: none;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <div class="col-md-3 col-lg-2 px-0 sidebar">
+            <div class="d-flex align-items-center mb-4 mt-2 px-3">
+                <span class="navbar-brand fw-bold text-success">⬢ HKDM<span class="text-white">admin</span></span>
+            </div>
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="#" data-section="overview">
+                    <i class="bi bi-speedometer2"></i> Overview
+                </a>
+                <a class="nav-link" href="#" data-section="orders">
+                    <i class="bi bi-cart-check"></i> Orders
+                </a>
+                <a class="nav-link" href="#" data-section="users">
+                    <i class="bi bi-people"></i> Users
+                </a>
+                <a class="nav-link" href="#" data-section="services">
+                    <i class="bi bi-grid-3x3-gap"></i> Services
+                </a>
+                <a class="nav-link" href="#" data-section="transactions">
+                    <i class="bi bi-receipt"></i> Transactions
+                </a>
+                <hr class="border-secondary">
+                <a class="nav-link text-danger" href="#" id="adminLogout">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="col-md-9 col-lg-10 main-content">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 id="sectionTitle">📊 Overview</h1>
+                <div class="text-muted">
+                    <i class="bi bi-person-circle"></i> <span id="adminEmail">Admin</span>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- OVERVIEW SECTION               -->
+            <!-- ============================== -->
+            <div id="section-overview">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="text-muted">Total Orders</div>
+                            <h3 id="totalOrders">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="text-muted">Total Users</div>
+                            <h3 id="totalUsers">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="text-muted">Total Revenue</div>
+                            <h3 id="totalRevenue">₦0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="text-muted">Pending Orders</div>
+                            <h3 id="pendingOrders">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <h5>Recent Orders</h5>
+                    <div id="recentOrdersTable" class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminRecentOrders">
+                                <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- ORDERS SECTION                -->
+            <!-- ============================== -->
+            <div id="section-orders" style="display:none;">
+                <div class="stat-card">
+                    <h5>All Orders</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>User</th>
+                                    <th>Service</th>
+                                    <th>Platform</th>
+                                    <th>Quantity</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allOrdersTable">
+                                <tr><td colspan="9" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- USERS SECTION                 -->
+            <!-- ============================== -->
+            <div id="section-users" style="display:none;">
+                <div class="stat-card">
+                    <h5>All Users</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Wallet</th>
+                                    <th>Total Spent</th>
+                                    <th>Tier</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allUsersTable">
+                                <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- SERVICES SECTION              -->
+            <!-- ============================== -->
+            <div id="section-services" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Manage Services</h5>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                        <i class="bi bi-plus-circle"></i> Add Service
+                    </button>
+                </div>
+                <div class="stat-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Service</th>
+                                    <th>Platform</th>
+                                    <th>Rate (per 1000)</th>
+                                    <th>Min Qty</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allServicesTable">
+                                <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================== -->
+            <!-- TRANSACTIONS SECTION           -->
+            <!-- ============================== -->
+            <div id="section-transactions" style="display:none;">
+                <div class="stat-card">
+                    <h5>All Transactions</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allTransactionsTable">
+                                <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ============================== -->
+<!-- ADD SERVICE MODAL              -->
+<!-- ============================== -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Service</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addServiceForm">
+                    <div class="mb-3">
+                        <label class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="svcName" placeholder="e.g. Followers" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Platform</label>
+                        <input type="text" class="form-control" id="svcPlatform" placeholder="e.g. Instagram" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rate Per 1000 (₦)</label>
+                        <input type="number" class="form-control" id="svcRate" placeholder="e.g. 12000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Minimum Quantity</label>
+                        <input type="number" class="form-control" id="svcMinQty" placeholder="e.g. 100" value="100" required>
+                    </div>
+                    <div id="addServiceMsg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveServiceBtn">
+                    <i class="bi bi-save"></i> Save Service
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================== -->
+<!-- UPDATE ORDER STATUS MODAL     -->
+<!-- ============================== -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateStatusForm">
+                    <input type="hidden" id="statusOrderId">
+                    <div class="mb-3">
+                        <label class="form-label">New Status</label>
+                        <select class="form-select" id="newOrderStatus">
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div id="updateStatusMsg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="updateStatusBtn">
+                    <i class="bi bi-check-circle"></i> Update
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================== -->
+<!-- SCRIPTS                       -->
+<!-- ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+        authDomain: "hkdmservices-7d59f.firebaseapp.com",
+        databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+        projectId: "hkdmservices-7d59f",
+        storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+        messagingSenderId: "839538334772",
+        appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // ===================================================
+    // CHECK ADMIN ACCESS
+    // ===================================================
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+            window.location.href = 'admin-login-new.html';
+            return;
+        }
+
+        const userRef = database.ref('users/' + user.uid);
+        const snapshot = await userRef.once('value');
+        const userData = snapshot.val();
+
+        if (!userData || !(userData.role === 'admin' || userData.isAdmin === true)) {
+            await auth.signOut();
+            window.location.href = 'admin-login-new.html';
+            return;
+        }
+
+        document.getElementById('adminEmail').textContent = user.email;
+        loadDashboard();
+    });
+
+    // ===================================================
+    // LOGOUT
+    // ===================================================
+    document.getElementById('adminLogout').addEventListener('click', async () => {
+        await auth.signOut();
+        window.location.href = 'admin-login-new.html';
+    });
+
+    // ===================================================
+    // SECTION SWITCHING
+    // ===================================================
+    document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(link => {
+        link.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            const section = link.dataset.section;
+            document.querySelectorAll('[id^="section-"]').forEach(el => el.style.display = 'none');
+            document.getElementById('section-' + section).style.display = 'block';
+
+            const titles = {
+                overview: '📊 Overview',
+                orders: '📦 Orders',
+                users: '👥 Users',
+                services: '⚙️ Services',
+                transactions: '💳 Transactions'
+            };
+            document.getElementById('sectionTitle').textContent = titles[section] || 'Dashboard';
+
+            if (section === 'orders') loadAllOrders();
+            if (section === 'users') loadAllUsers();
+            if (section === 'services') loadAllServices();
+            if (section === 'transactions') loadAllTransactions();
+        });
+    });
+
+    // ===================================================
+    // DASHBOARD OVERVIEW
+    // ===================================================
+    function loadDashboard() {
+        const ordersRef = database.ref('orders');
+        ordersRef.once('value', (snapshot) => {
+            const data = snapshot.val();
+            let totalOrders = 0;
+            let totalRevenue = 0;
+            let pendingOrders = 0;
+            const ordersList = [];
+
+            if (data) {
+                Object.values(data).forEach(order => {
+                    totalOrders++;
+                    totalRevenue += Number(order.total || 0);
+                    if (order.status === 'pending') pendingOrders++;
+                    ordersList.push(order);
+                });
+            }
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('totalRevenue').textContent = '₦' + totalRevenue.toLocaleString();
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+
+            const sorted = ordersList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
+            const tbody = document.getElementById('adminRecentOrders');
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No orders found</td></tr>';
+            } else {
+                tbody.innerHTML = sorted.map(order => `
+                    <tr>
+                        <td><code>${(order.orderId || '').slice(0, 10)}</code></td>
+                        <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                        <td>${order.serviceName || 'N/A'}</td>
+                        <td>₦${(order.total || 0).toLocaleString()}</td>
+                        <td><span class="badge bg-${order.status === 'completed' ? 'success' : order.status === 'pending' ? 'warning' : order.status === 'processing' ? 'info' : 'danger'}">${order.status || 'N/A'}</span></td>
+                        <td>${order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</td>
+                    </tr>
+                `).join('');
+            }
+        });
+
+        database.ref('users').once('value', (snapshot) => {
+            const data = snapshot.val();
+            let count = 0;
+            if (data) count = Object.keys(data).length;
+            document.getElementById('totalUsers').textContent = count;
+        });
+    }
+
+    // ===================================================
+    // LOAD ALL ORDERS
+    // ===================================================
+    function loadAllOrders() {
+        const ordersRef = database.ref('orders');
+        ordersRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('allOrdersTable');
+
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No orders found</td></tr>';
+                return;
+            }
+
+            const orders = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+            tbody.innerHTML = orders.map(([key, order]) => `
+                <tr>
+                    <td><code>${(order.orderId || key).slice(0, 10)}</code></td>
+                    <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                    <td>${order.serviceName || 'N/A'}</td>
+                    <td>${order.platform || 'N/A'}</td>
+                    <td>${order.quantity || 0}</td>
+                    <td>₦${(order.total || 0).toLocaleString()}</td>
+                    <td>
+                        <span class="badge bg-${order.status === 'completed' ? 'success' : order.status === 'pending' ? 'warning' : order.status === 'processing' ? 'info' : 'danger'} status-badge">
+                            ${order.status || 'pending'}
+                        </span>
+                    </td>
+                    <td>${order.createdAt ? new Date(order.createdAt).toLocaleString() : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-light update-status-btn" 
+                            data-order-id="${order.orderId || key}" 
+                            data-current-status="${order.status || 'pending'}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.querySelectorAll('.update-status-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('statusOrderId').value = btn.dataset.orderId;
+                    document.getElementById('newOrderStatus').value = btn.dataset.currentStatus;
+                    const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+                    modal.show();
+                });
+            });
+        });
+    }
+
+    // ===================================================
+    // UPDATE ORDER STATUS
+    // ===================================================
+    document.getElementById('updateStatusBtn').addEventListener('click', async () => {
+        const orderId = document.getElementById('statusOrderId').value;
+        const newStatus = document.getElementById('newOrderStatus').value;
+        const msgDiv = document.getElementById('updateStatusMsg');
+
+        if (!orderId) return;
+
+        msgDiv.innerHTML = '<div class="alert alert-info">Updating...</div>';
+
+        try {
+            const ordersRef = database.ref('orders');
+            const snapshot = await ordersRef.once('value');
+            const data = snapshot.val();
+
+            let orderKey = null;
+            if (data) {
+                for (const [key, order] of Object.entries(data)) {
+                    if (order.orderId === orderId || key === orderId) {
+                        orderKey = key;
+                        break;
+                    }
+                }
+            }
+
+            if (!orderKey) {
+                throw new Error('Order not found');
+            }
+
+            await database.ref('orders/' + orderKey + '/status').set(newStatus);
+            msgDiv.innerHTML = '<div class="alert alert-success">Order status updated successfully!</div>';
+            setTimeout(() => {
+                msgDiv.innerHTML = '';
+                bootstrap.Modal.getInstance(document.getElementById('updateStatusModal')).hide();
+                loadAllOrders();
+            }, 1500);
+
+        } catch (error) {
+            console.error('Update status error:', error);
+            msgDiv.innerHTML = '<div class="alert alert-danger">Failed to update: ' + error.message + '</div>';
+        }
+    });
+
+    // ===================================================
+    // LOAD ALL USERS
+    // ===================================================
+    function loadAllUsers() {
+        const usersRef = database.ref('users');
+        usersRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('allUsersTable');
+
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>';
+                return;
+            }
+
+            const users = Object.entries(data);
+
+            tbody.innerHTML = users.map(([key, user]) => `
+                <tr>
+                    <td><code>${key.slice(0, 12)}...</code></td>
+                    <td>${user.fullName || 'N/A'}</td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>₦${(user.wallet || 0).toLocaleString()}</td>
+                    <td>₦${(user.totalSpent || 0).toLocaleString()}</td>
+                    <td><span class="badge bg-${user.tier === 'reseller' ? 'danger' : user.tier === 'vip' ? 'success' : 'secondary'}">${(user.tier || 'regular').toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-light" onclick="window.location.href='profile.html?uid=${key}'">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    // ===================================================
+    // LOAD ALL SERVICES
+    // ===================================================
+    function loadAllServices() {
+        const servicesRef = database.ref('services');
+        servicesRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('allServicesTable');
+
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No services found</td></tr>';
+                return;
+            }
+
+            const services = Object.entries(data);
+
+            tbody.innerHTML = services.map(([key, service]) => `
+                <tr>
+                    <td><code>${key.slice(0, 8)}</code></td>
+                    <td>${service.service || 'N/A'}</td>
+                    <td>${service.platform || 'N/A'}</td>
+                    <td>₦${(service.ratePer1000 || 0).toLocaleString()}</td>
+                    <td>${service.minimumQuantity || 100}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger delete-service-btn" data-service-key="${key}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.querySelectorAll('.delete-service-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (confirm('Delete this service?')) {
+                        await database.ref('services/' + btn.dataset.serviceKey).remove();
+                        loadAllServices();
+                    }
+                });
+            });
+        });
+    }
+
+    // ===================================================
+    // ADD SERVICE
+    // ===================================================
+    document.getElementById('saveServiceBtn').addEventListener('click', async () => {
+        const name = document.getElementById('svcName').value.trim();
+        const platform = document.getElementById('svcPlatform').value.trim();
+        const rate = parseFloat(document.getElementById('svcRate').value);
+        const minQty = parseInt(document.getElementById('svcMinQty').value) || 100;
+        const msgDiv = document.getElementById('addServiceMsg');
+
+        if (!name || !platform || !rate) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
+            return;
+        }
+
+        msgDiv.innerHTML = '<div class="alert alert-info">Adding service...</div>';
+
+        try {
+            const newRef = database.ref('services').push();
+            await newRef.set({
+                id: newRef.key,
+                service: name,
+                platform: platform,
+                ratePer1000: rate,
+                minimumQuantity: minQty,
+                createdAt: Date.now()
+            });
+
+            msgDiv.innerHTML = '<div class="alert alert-success">Service added successfully!</div>';
+            document.getElementById('addServiceForm').reset();
+            setTimeout(() => {
+                msgDiv.innerHTML = '';
+                bootstrap.Modal.getInstance(document.getElementById('addServiceModal')).hide();
+                loadAllServices();
+            }, 1500);
+
+        } catch (error) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">Failed to add service: ' + error.message + '</div>';
+        }
+    });
+
+    // ===================================================
+    // LOAD ALL TRANSACTIONS
+    // ===================================================
+    function loadAllTransactions() {
+        const transactionsRef = database.ref('transactions');
+        transactionsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('allTransactionsTable');
+
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>';
+                return;
+            }
+
+            const transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+            tbody.innerHTML = transactions.map(([key, tx]) => `
+                <tr>
+                    <td>${tx.uid ? tx.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                    <td><span class="badge bg-${tx.type === 'wallet_funding' ? 'success' : 'primary'}">${tx.type || 'N/A'}</span></td>
+                    <td>${tx.description || 'N/A'}</td>
+                    <td class="${tx.amount < 0 ? 'text-danger' : 'text-success'}">₦${(tx.amount || 0).toLocaleString()}</td>
+                    <td><span class="badge bg-success">${tx.status || 'success'}</span></td>
+                    <td>${tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}</td>
+                </tr>
+            `).join('');
+        });
+    }
+
+    // ===================================================
+    // AUTO-REFRESH (every 30 seconds)
+    // ===================================================
+    setInterval(() => {
+        const activeSection = document.querySelector('.sidebar .nav-link.active');
+        if (activeSection) {
+            const section = activeSection.dataset.section;
+            if (section === 'overview') loadDashboard();
+            if (section === 'orders') loadAllOrders();
+            if (section === 'users') loadAllUsers();
+            if (section === 'services') loadAllServices();
+            if (section === 'transactions') loadAllTransactions();
+        }
+    }, 30000);
+
+    console.log('✅ Admin dashboard loaded!');
+</script>
+</body>
+</html>
