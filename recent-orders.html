@@ -304,6 +304,7 @@ function loadOrders() {
                 <tbody>
         `;
 
+        // ✅ FIXED: Uses serviceName and total instead of service and amount
         userOrders.forEach(([key, order]) => {
             const date = order.createdAt ? new Date(order.createdAt) : new Date();
             const dateStr = date.toLocaleDateString("en-GB") + " " + date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -327,13 +328,16 @@ function loadOrders() {
                     statusBadge = '<span class="badge bg-secondary">' + order.status + '</span>';
             }
 
+            // Get the correct amount (use total if available, fallback to amount)
+            const amount = order.total || order.amount || 0;
+
             tableHTML += `
                 <tr>
                     <td><small class="text-muted">#${order.orderId || key.slice(0, 8)}</small></td>
-                    <td>${order.service || "N/A"}</td>
+                    <td><strong>${order.serviceName || "N/A"}</strong></td>
                     <td>${order.platform || "N/A"}</td>
                     <td>${order.quantity || 1}</td>
-                    <td class="fw-bold">₦${(order.amount || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="fw-bold">₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td>${statusBadge}</td>
                     <td><small class="text-muted">${dateStr}</small></td>
                 </tr>
