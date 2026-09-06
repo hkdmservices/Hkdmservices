@@ -93,9 +93,11 @@ html[data-theme="dark"] .form-control:focus {
 <!-- Fund Wallet Card -->
 <div class="card p-4 shadow mb-4">
 
+<!-- Wrapped inside a <form> tag to prevent mobile browser validation/pattern mismatches -->
+<form id="fundWalletForm" onsubmit="return false;">
 <div class="mb-3">
 
-<label class="form-label">
+<label class="form-label" for="amount">
 Amount (₦)
 </label>
 
@@ -103,17 +105,22 @@ Amount (₦)
 type="number"
 id="amount"
 class="form-control"
-placeholder="Enter amount">
+min="100"
+step="1"
+placeholder="Enter amount"
+required>
 
 </div>
 
 <button
+type="button"
 id="payButton"
 class="btn btn-success">
 
 Fund Wallet
 
 </button>
+</form>
 
 <div
 id="message"
@@ -146,6 +153,7 @@ placeholder="Enter voucher code (e.g. SKLVL22)">
 </div>
 
 <button
+type="button"
 id="redeemVoucherBtn"
 class="btn btn-primary w-100">
 
@@ -235,7 +243,7 @@ payButton.addEventListener("click", async () => {
             amount: amount,
             uid: currentUid,
             name: currentUser.displayName || "HKDM Customer",
-            email: currentUser.email,
+            email: currentUser.email || "",
             token: token
         };
 
@@ -313,7 +321,7 @@ redeemBtn.addEventListener("click", async () => {
         await update(ref(database, "vouchers/" + voucherKey), {
             status: "used",
             usedBy: currentUid,
-            usedAt: Date.now()
+            usedAt: Date.0 ? Date.now() : Date.now()
         });
 
         const userRef = ref(database, "users/" + currentUid);
