@@ -1326,6 +1326,10 @@ function showMessage(
     message.className =
         `alert alert-${type} mt-4`;
 
+    message.classList.remove(
+        "d-none"
+    );
+
 }
 
 
@@ -1376,7 +1380,7 @@ commentsInput.addEventListener(
 
 
 /* =====================================================
-   PLACE ORDER
+   PLACE ORDER - UPDATED TO SEND TOTAL, SERVICE NAME, PLATFORM
 ===================================================== */
 
 placeOrderButton.addEventListener(
@@ -1528,8 +1532,25 @@ placeOrderButton.addEventListener(
 
 
             /* =========================================
-               CREATE ORDER
+               ✅ UPDATED: CALCULATE TOTAL AND SEND ALL DATA
             ========================================= */
+
+            // Get the total from the display
+            const totalText = totalDisplay.textContent;
+            const totalAmount = parseFloat(totalText.replace('₦', '').replace(/,/g, '')) || 0;
+
+            const orderPayload = {
+                serviceId: service.id,
+                serviceName: service.service,
+                platform: service.platform || platform || 'General',
+                link: link,
+                quantity: quantity,
+                comments: comments,
+                catalogue: catalogue,
+                total: totalAmount
+            };
+
+            console.log('📦 Sending order:', orderPayload);
 
             const response =
                 await fetch(
@@ -1549,24 +1570,7 @@ placeOrderButton.addEventListener(
                         },
 
                         body:
-                            JSON.stringify({
-
-                                serviceId:
-                                    service.id,
-
-                                link:
-                                    link,
-
-                                quantity:
-                                    quantity,
-
-                                comments:
-                                    comments,
-
-                                catalogue:
-                                    catalogue
-
-                            })
+                            JSON.stringify(orderPayload)
 
                     }
                 );
@@ -1596,7 +1600,7 @@ placeOrderButton.addEventListener(
             ) {
 
                 showMessage(
-                    `Order placed successfully! Order ID: ${result.orderId}`,
+                    `✅ Order placed successfully! Order ID: ${result.orderId}`,
                     "success"
                 );
 
