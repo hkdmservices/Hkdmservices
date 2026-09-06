@@ -109,6 +109,16 @@
         const messageDiv = document.getElementById("message");
         let currentUid = null;
 
+        // ✅ FIXED: Format amount with single sign
+        function formatAmount(amount) {
+            const num = Number(amount) || 0;
+            const formatted = Math.abs(num).toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            return num < 0 ? `-₦${formatted}` : `+₦${formatted}`;
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "login.html";
@@ -154,10 +164,9 @@
                     const row = document.createElement("tr");
 
                     const date = tx.createdAt ? new Date(tx.createdAt) : new Date();
-                    const dateStr = date.toLocaleDateString("en-GB") + " " + 
+                    const dateStr = date.toLocaleDateString("en-GB") + " " +
                         date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
-                    // ✅ FIXED: Type badge with order_payment
                     let typeBadge = '';
                     switch (tx.type) {
                         case "wallet_funding":
@@ -177,12 +186,9 @@
                             typeBadge = '<span class="badge bg-secondary">' + tx.type + '</span>';
                     }
 
-                    // ✅ FIXED: Detect order_payment as spending
                     const isSpending = (tx.type === "order_payment" || tx.type === "order" || tx.type === "withdrawal");
                     const amountClass = isSpending ? "text-danger" : "text-success";
-                    const amountSign = isSpending ? "-" : "+";
 
-                    // ✅ FIXED: Status badge
                     let statusBadge = '';
                     if (tx.status === "success") {
                         statusBadge = '<span class="badge bg-success">Success</span>';
@@ -196,7 +202,7 @@
                         <td><small>${dateStr}</small></td>
                         <td>${typeBadge}</td>
                         <td>${tx.description || "N/A"}</td>
-                        <td class="${amountClass} fw-bold">${amountSign}₦${(tx.amount || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td class="${amountClass} fw-bold">${formatAmount(tx.amount)}</td>
                         <td>${statusBadge}</td>
                     `;
 
