@@ -2,1954 +2,535 @@
 <html lang="en">
 
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<title>Place Order | HKDMservices</title>
-
-<!-- =====================================================
-     GLOBAL THEME SCRIPT
-===================================================== -->
-<script src="theme.js"></script>
-
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
-
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"
-    rel="stylesheet"
->
-
-<link
-    href="style.css"
-    rel="stylesheet"
->
-
-<style>
-
-.comments-box {
-    min-height: 260px;
-    resize: vertical;
-    font-size: 15px;
-    line-height: 1.6;
-}
-
-.comment-counter {
-    font-weight: 600;
-}
-
-.comment-counter.valid {
-    color: #198754;
-}
-
-.comment-counter.invalid {
-    color: #dc3545;
-}
-
-.quantity-note {
-    font-size: 0.875rem;
-}
-
-/* =====================================================
-   DARK MODE OVERRIDES
-===================================================== */
-html[data-theme="dark"] body {
-    background: #101418;
-    color: #f1f3f5;
-}
-
-html[data-theme="dark"] .card {
-    background: #181d22 !important;
-    border-color: #30363d !important;
-    color: #f1f3f5 !important;
-}
-
-html[data-theme="dark"] .form-control,
-html[data-theme="dark"] .form-select {
-    background: #151a1f !important;
-    border-color: #30363d !important;
-    color: #f1f3f5 !important;
-}
-
-html[data-theme="dark"] .form-control:focus,
-html[data-theme="dark"] .form-select:focus {
-    background: #151a1f !important;
-    color: #f1f3f5 !important;
-    border-color: #198754 !important;
-}
-
-html[data-theme="dark"] .alert-success {
-    background-color: #0b2217 !important;
-    border-color: #14432a !important;
-    color: #75e6b3 !important;
-}
-
-html[data-theme="dark"] .alert-info {
-    background-color: #0a2029 !important;
-    border-color: #113847 !important;
-    color: #6edff6 !important;
-}
-
-html[data-theme="dark"] .text-muted {
-    color: #99a1ab !important;
-}
-
-/* Theme Toggle Button Style */
-.theme-toggle {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.theme-toggle:hover {
-    background: rgba(255,255,255,0.18);
-    transform: rotate(15deg);
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Order | HKDMservices</title>
+    <script src="theme.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .comments-box { min-height: 260px; resize: vertical; font-size: 15px; line-height: 1.6; }
+        .comment-counter { font-weight: 600; }
+        .comment-counter.valid { color: #198754; }
+        .comment-counter.invalid { color: #dc3545; }
+        .quantity-note { font-size: 0.875rem; }
+        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
+        html[data-theme="dark"] .card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
+        html[data-theme="dark"] .form-control, html[data-theme="dark"] .form-select { background: #151a1f !important; border-color: #30363d !important; color: #f1f3f5 !important; }
+        html[data-theme="dark"] .form-control:focus, html[data-theme="dark"] .form-select:focus { background: #151a1f !important; color: #f1f3f5 !important; border-color: #198754 !important; }
+        html[data-theme="dark"] .alert-success { background-color: #0b2217 !important; border-color: #14432a !important; color: #75e6b3 !important; }
+        html[data-theme="dark"] .alert-info { background-color: #0a2029 !important; border-color: #113847 !important; color: #6edff6 !important; }
+        html[data-theme="dark"] .text-muted { color: #99a1ab !important; }
+        .theme-toggle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
+        .theme-toggle:hover { background: rgba(255,255,255,0.18); transform: rotate(15deg); }
+    </style>
 </head>
-
 
 <body>
 
-
-<!-- =====================================================
-     NAVBAR
-===================================================== -->
-
-<nav class="navbar navbar-dark bg-dark">
-
-<div class="container d-flex justify-content-between align-items-center">
-
-<a
-    class="navbar-brand fw-bold"
-    href="dashboard.html"
->
-    <span class="brand-icon">⬢</span>
-    HKDMservices
-</a>
-
-<div class="d-flex align-items-center gap-2">
-    <!-- THEME TOGGLE -->
-    <button
-        type="button"
-        id="themeToggle"
-        class="theme-toggle"
-        aria-label="Toggle dark mode"
-        title="Toggle dark mode"
-    >
-        <i
-            id="themeIcon"
-            class="bi bi-moon-stars-fill"
-        ></i>
-    </button>
-
-    <a
-        href="services.html"
-        id="backServicesButton"
-        class="btn btn-outline-light"
-    >
-        <i class="bi bi-arrow-left"></i>
-        Services
-    </a>
-</div>
-
-</div>
-
-</nav>
-
-
-
-<!-- =====================================================
-     MAIN
-===================================================== -->
-
-<section class="py-5">
-
-<div class="container">
-
-
-<div class="text-center mb-5">
-
-<h1 class="fw-bold">
-    Place an Order
-</h1>
-
-<p
-    class="text-muted"
-    id="platformTitle"
->
-    Loading service...
-</p>
-
-</div>
-
-
-
-<div class="row justify-content-center">
-
-<div class="col-12 col-lg-7">
-
-<div class="card shadow border-0">
-
-<div class="card-body p-4">
-
-
-<!-- =================================================
-     SERVICE
-================================================= -->
-
-<div class="mb-4">
-
-<label
-    for="service"
-    class="form-label fw-bold"
->
-    Select Service
-</label>
-
-<select
-    id="service"
-    class="form-select"
->
-
-<option value="">
-    Loading services...
-</option>
-
-</select>
-
-</div>
-
-
-
-<!-- =================================================
-     PRICE
-================================================= -->
-
-<div
-    class="alert alert-success"
-    id="priceBox"
->
-
-<div class="d-flex justify-content-between">
-
-<span>
-    Rate
-</span>
-
-<strong id="rate">
-    ₦0.00
-</strong>
-
-</div>
-
-
-<div class="d-flex justify-content-between mt-2">
-
-<span>
-    Total
-</span>
-
-<strong id="totalPrice">
-    ₦0.00
-</strong>
-
-</div>
-
-</div>
-
-
-
-<!-- =================================================
-     TARGET LINK
-================================================= -->
-
-<div class="mb-4">
-
-<label
-    for="link"
-    class="form-label fw-bold"
->
-    Target Link
-</label>
-
-<input
-    type="url"
-    id="link"
-    class="form-control"
-    placeholder="https://..."
-    required
->
-
-<div class="form-text">
-    Enter the link to your profile, post, video,
-    channel, livestream or content.
-</div>
-
-</div>
-
-
-
-<!-- =================================================
-     QUANTITY
-================================================= -->
-
-<div
-    class="mb-4"
-    id="quantityContainer"
->
-
-<label
-    for="quantity"
-    class="form-label fw-bold"
->
-    Quantity
-</label>
-
-<input
-    type="number"
-    id="quantity"
-    class="form-control"
-    min="100"
-    step="1"
-    value="100"
->
-
-<div
-    class="form-text quantity-note"
-    id="quantityHelp"
->
-    Minimum quantity: 100
-</div>
-
-</div>
-
-
-
-<!-- =================================================
-     FIXED PACKAGE
-================================================= -->
-
-<div
-    class="alert alert-info d-none"
-    id="fixedPackageInfo"
->
-
-<i class="bi bi-box-seam me-1"></i>
-
-<strong>Fixed-price package:</strong>
-
-Quantity represents the number of packages.
-
-</div>
-
-
-
-<!-- =================================================
-     COMMENTS
-================================================= -->
-
-<div
-    class="mb-4 d-none"
-    id="commentsContainer"
->
-
-<label
-    for="comments"
-    class="form-label fw-bold"
->
-    Custom Comments
-</label>
-
-<textarea
-    id="comments"
-    class="form-control comments-box"
-    rows="10"
-    placeholder="Enter one comment per line..."
-></textarea>
-
-<div class="form-text mt-2">
-
-Enter one comment per line.
-
-<br>
-
-Each non-empty line counts as one comment.
-
-</div>
-
-<div
-    class="d-flex justify-content-between mt-2"
->
-
-<span
-    id="commentCounter"
-    class="comment-counter invalid"
->
-    Comments: 0 / 100
-</span>
-
-<span
-    id="commentStatus"
-    class="text-muted"
->
-    Minimum 100 comments
-</span>
-
-</div>
-
-</div>
-
-
-
-<!-- =================================================
-     ORDER BUTTON
-================================================= -->
-
-<div class="d-grid">
-
-<button
-    type="button"
-    id="placeOrder"
-    class="btn btn-success btn-lg"
->
-
-<i class="bi bi-cart-check"></i>
-
-Place Order
-
-</button>
-
-</div>
-
-
-
-<!-- =================================================
-     MESSAGE
-================================================= -->
-
-<div
-    id="message"
-    class="alert mt-4 d-none"
-></div>
-
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     INFORMATION
-===================================================== -->
-
-<div class="row justify-content-center mt-4">
-
-<div class="col-12 col-lg-7">
-
-<div class="card border-0 shadow-sm">
-
-<div class="card-body">
-
-<h5 class="fw-bold">
-
-<i class="bi bi-info-circle text-success"></i>
-
-Order Information
-
-</h5>
-
-<ul class="mb-0 text-muted">
-
-<li>
-Standard services require the minimum quantity
-shown for the selected service.
-</li>
-
-<li>
-Comment services require at least 100
-non-empty comments.
-</li>
-
-<li>
-For comment services, one non-empty line
-equals one comment.
-</li>
-
-<li>
-Prices are calculated automatically from
-the selected catalogue and account tier.
-</li>
-
-<li>
-Per-1,000 services are calculated according
-to the quantity entered.
-</li>
-
-<li>
-Fixed-price packages use their listed
-package price.
-</li>
-
-<li>
-Your wallet is charged only after the order
-passes server-side validation.
-</li>
-
-</ul>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-</div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ORDER JAVASCRIPT
-===================================================== -->
-
-<!-- ============================================================
-     FIREBASE AUTH + ORDER LOGIC (Inlined)
-============================================================ -->
-<script type="importmap">
-{
-    "imports": {
-        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
-        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
-    }
-}
-</script>
-
-<script type="module">
-
-import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, get } from "firebase/database";
-
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
-    authDomain: "hkdmservices-7d59f.firebaseapp.com",
-    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
-    projectId: "hkdmservices-7d59f",
-    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
-    messagingSenderId: "839538334772",
-    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const database = getDatabase(app);
-
-import {
-    hkdmservicesOfficialServicePriceCatalogue
-} from "./services.js";
-
-import {
-    hkdmservicesNigeriaServicePriceCatalogue
-} from "./nigeria-services-catalogue.js";
-
-
-
-/* =====================================================
-   ELEMENTS
-===================================================== */
-
-const serviceSelect =
-    document.getElementById("service");
-
-const platformTitle =
-    document.getElementById("platformTitle");
-
-const rateDisplay =
-    document.getElementById("rate");
-
-const totalDisplay =
-    document.getElementById("totalPrice");
-
-const quantityInput =
-    document.getElementById("quantity");
-
-const quantityContainer =
-    document.getElementById("quantityContainer");
-
-const quantityHelp =
-    document.getElementById("quantityHelp");
-
-const fixedPackageInfo =
-    document.getElementById("fixedPackageInfo");
-
-const commentsContainer =
-    document.getElementById("commentsContainer");
-
-const commentsInput =
-    document.getElementById("comments");
-
-const commentCounter =
-    document.getElementById("commentCounter");
-
-const commentStatus =
-    document.getElementById("commentStatus");
-
-const placeOrderButton =
-    document.getElementById("placeOrder");
-
-const message =
-    document.getElementById("message");
-
-const linkInput =
-    document.getElementById("link");
-
-const backServicesButton =
-    document.getElementById("backServicesButton");
-
-
-
-/* =====================================================
-   URL PARAMETERS
-===================================================== */
-
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-const platform =
-    params.get("platform");
-
-
-const requestedServiceId =
-    params.get("service");
-
-
-const requestedCatalogue =
-    String(
-        params.get("catalogue") || "general"
-    )
-    .toLowerCase()
-    .trim();
-
-
-
-/* =====================================================
-   CATALOGUE
-===================================================== */
-
-const catalogue =
-    requestedCatalogue === "nigeria"
-        ? "nigeria"
-        : "general";
-
-
-const currentServices =
-    catalogue === "nigeria"
-        ? hkdmservicesNigeriaServicePriceCatalogue
-        : hkdmservicesOfficialServicePriceCatalogue;
-
-
-
-/* =====================================================
-   CURRENT USER
-===================================================== */
-
-let currentUser = null;
-
-let currentTier = "regular";
-
-
-
-/* =====================================================
-   FORMAT NAIRA
-===================================================== */
-
-function formatNaira(amount) {
-
-    return new Intl.NumberFormat(
-        "en-NG",
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand fw-bold" href="dashboard.html">
+                <span class="brand-icon">⬢</span> HKDMservices
+            </a>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
+                </button>
+                <a href="services.html" id="backServicesButton" class="btn btn-outline-light">
+                    <i class="bi bi-arrow-left"></i> Services
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1 class="fw-bold">Place an Order</h1>
+                <p class="text-muted" id="platformTitle">Loading service...</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-7">
+                    <div class="card shadow border-0">
+                        <div class="card-body p-4">
+
+                            <!-- SERVICE -->
+                            <div class="mb-4">
+                                <label for="service" class="form-label fw-bold">Select Service</label>
+                                <select id="service" class="form-select">
+                                    <option value="">Loading services...</option>
+                                </select>
+                            </div>
+
+                            <!-- PRICE -->
+                            <div class="alert alert-success" id="priceBox">
+                                <div class="d-flex justify-content-between">
+                                    <span>Rate</span>
+                                    <strong id="rate">₦0.00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span>Total</span>
+                                    <strong id="totalPrice">₦0.00</strong>
+                                </div>
+                            </div>
+
+                            <!-- TARGET LINK -->
+                            <div class="mb-4">
+                                <label for="link" class="form-label fw-bold">Target Link</label>
+                                <input type="url" id="link" class="form-control" placeholder="https://..." required>
+                                <div class="form-text">Enter the link to your profile, post, video, channel, livestream or content.</div>
+                            </div>
+
+                            <!-- QUANTITY -->
+                            <div class="mb-4" id="quantityContainer">
+                                <label for="quantity" class="form-label fw-bold">Quantity</label>
+                                <input type="number" id="quantity" class="form-control" min="100" step="1" value="100">
+                                <div class="form-text quantity-note" id="quantityHelp">Minimum quantity: 100</div>
+                            </div>
+
+                            <!-- FIXED PACKAGE -->
+                            <div class="alert alert-info d-none" id="fixedPackageInfo">
+                                <i class="bi bi-box-seam me-1"></i>
+                                <strong>Fixed-price package:</strong> Quantity represents the number of packages.
+                            </div>
+
+                            <!-- COMMENTS -->
+                            <div class="mb-4 d-none" id="commentsContainer">
+                                <label for="comments" class="form-label fw-bold">Custom Comments</label>
+                                <textarea id="comments" class="form-control comments-box" rows="10" placeholder="Enter one comment per line..."></textarea>
+                                <div class="form-text mt-2">Enter one comment per line.<br>Each non-empty line counts as one comment.</div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <span id="commentCounter" class="comment-counter invalid">Comments: 0 / 100</span>
+                                    <span id="commentStatus" class="text-muted">Minimum 100 comments</span>
+                                </div>
+                            </div>
+
+                            <!-- ORDER BUTTON -->
+                            <div class="d-grid">
+                                <button type="button" id="placeOrder" class="btn btn-success btn-lg">
+                                    <i class="bi bi-cart-check"></i> Place Order
+                                </button>
+                            </div>
+
+                            <!-- MESSAGE -->
+                            <div id="message" class="alert mt-4 d-none"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div><!-- INFORMATION -->
+            <div class="row justify-content-center mt-4">
+                <div class="col-12 col-lg-7">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-bold"><i class="bi bi-info-circle text-success"></i> Order Information</h5>
+                            <ul class="mb-0 text-muted">
+                                <li>Standard services require the minimum quantity shown for the selected service.</li>
+                                <li>Comment services require at least 100 non-empty comments.</li>
+                                <li>For comment services, one non-empty line equals one comment.</li>
+                                <li>Prices are calculated automatically from the selected catalogue and account tier.</li>
+                                <li>Per-1,000 services are calculated according to the quantity entered.</li>
+                                <li>Fixed-price packages use their listed package price.</li>
+                                <li>Your wallet is charged only after the order passes server-side validation.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section><!-- ORDER JAVASCRIPT -->
+    <script type="importmap">
         {
-            style: "currency",
-            currency: "NGN",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
+                "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
+            }
         }
-    ).format(
-        Number(amount || 0)
-    );
+    </script>
 
-}
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, onAuthStateChanged } from "firebase/auth";
+        import { getDatabase, ref, get } from "firebase/database";
+        import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
+        import { hkdmservicesNigeriaServicePriceCatalogue } from "./nigeria-services-catalogue.js";
 
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+            authDomain: "hkdmservices-7d59f.firebaseapp.com",
+            databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+            projectId: "hkdmservices-7d59f",
+            storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+            messagingSenderId: "839538334772",
+            appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+        };
 
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
-/* =====================================================
-   GET USER TIER
-===================================================== */
+        // ELEMENTS
+        const serviceSelect = document.getElementById("service");
+        const platformTitle = document.getElementById("platformTitle");
+        const rateDisplay = document.getElementById("rate");
+        const totalDisplay = document.getElementById("totalPrice");
+        const quantityInput = document.getElementById("quantity");
+        const quantityContainer = document.getElementById("quantityContainer");
+        const quantityHelp = document.getElementById("quantityHelp");
+        const fixedPackageInfo = document.getElementById("fixedPackageInfo");
+        const commentsContainer = document.getElementById("commentsContainer");
+        const commentsInput = document.getElementById("comments");
+        const commentCounter = document.getElementById("commentCounter");
+        const commentStatus = document.getElementById("commentStatus");
+        const placeOrderButton = document.getElementById("placeOrder");
+        const message = document.getElementById("message");
+        const linkInput = document.getElementById("link");
+        const backServicesButton = document.getElementById("backServicesButton");
 
-async function loadUserTier(user) {
+        // URL PARAMETERS
+        const params = new URLSearchParams(window.location.search);
+        const platform = params.get("platform");
+        const requestedServiceId = params.get("service");
+        const requestedCatalogue = String(params.get("catalogue") || "general").toLowerCase().trim();
+        const catalogue = requestedCatalogue === "nigeria" ? "nigeria" : "general";
+        const currentServices = catalogue === "nigeria" ? hkdmservicesNigeriaServicePriceCatalogue : hkdmservicesOfficialServicePriceCatalogue;
 
-    try {
+        let currentUser = null;
+        let currentTier = "regular";// FORMAT NAIRA
+        function formatNaira(amount) {
+            return new Intl.NumberFormat("en-NG", {
+                style: "currency",
+                currency: "NGN",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(Number(amount || 0));
+        }
 
-        const userRef =
-            ref(
-                database,
-                `users/${user.uid}`
-            );
+        // GET USER TIER
+        async function loadUserTier(user) {
+            try {
+                const userRef = ref(database, `users/${user.uid}`);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    const userData = snapshot.val() || {};
+                    const tier = String(userData.tier || "regular").toLowerCase().trim();
+                    currentTier = (tier === "reseller" || tier === "vip") ? tier : "regular";
+                } else {
+                    currentTier = "regular";
+                }
+            } catch (error) {
+                console.error("ORDER TIER ERROR:", error);
+                currentTier = "regular";
+            }
+        }
 
+        function getSelectedService() {
+            return currentServices.find(service => String(service.id) === String(serviceSelect.value));
+        }
 
-        const snapshot =
-            await get(userRef);
+        function getServicePrice(service) {
+            if (!service) return 0;
+            if (service.fixedPrice !== undefined && service.fixedPrice !== null) {
+                if (currentTier === "reseller") return Number(service.resellerFixedPrice ?? service.fixedPrice);
+                if (currentTier === "vip") return Number(service.vipFixedPrice ?? service.fixedPrice);
+                return Number(service.fixedPrice);
+            }
+            if (currentTier === "reseller") return Number(service.resellerRatePer1000 ?? service.ratePer1000 ?? 0);
+            if (currentTier === "vip") return Number(service.vipRatePer1000 ?? service.ratePer1000 ?? 0);
+            return Number(service.ratePer1000 || 0);
+        }
 
+        function isCommentService(service) {
+            if (!service) return false;
+            return String(service.service || "").toLowerCase().includes("comment");
+        }
 
-        if (
-            snapshot.exists()
-        ) {
+        function getMinimumQuantity(service) {
+            if (!service) return 100;
+            const minimum = Number(service.minimumQuantity);
+            return Number.isFinite(minimum) && minimum > 0 ? minimum : 100;
+        }
 
-            const userData =
-                snapshot.val() || {};
+        function getComments() {
+            return commentsInput.value.split(/\r?\n/).map(c => c.trim()).filter(c => c.length > 0);
+        }
 
-
-            const tier =
-                String(
-                    userData.tier ||
-                    "regular"
-                )
-                .toLowerCase()
-                .trim();
-
-
-            if (
-                tier === "reseller" ||
-                tier === "vip"
-            ) {
-
-                currentTier =
-                    tier;
-
+        function updateCommentCounter() {
+            const count = getComments().length;
+            const minimum = 100;
+            commentCounter.textContent = `Comments: ${count} / ${minimum}`;
+            if (count >= minimum) {
+                commentCounter.classList.remove("invalid");
+                commentCounter.classList.add("valid");
+                commentStatus.textContent = "Minimum reached";
+                commentStatus.className = "text-success";
             } else {
-
-                currentTier =
-                    "regular";
-
+                commentCounter.classList.remove("valid");
+                commentCounter.classList.add("invalid");
+                const remaining = minimum - count;
+                commentStatus.textContent = `Need ${remaining} more comment${remaining === 1 ? "" : "s"}`;
+                commentStatus.className = "text-danger";
             }
-
-        } else {
-
-            currentTier =
-                "regular";
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "ORDER TIER ERROR:",
-            error
-        );
-
-        currentTier =
-            "regular";
-
-    }
-
-}
-
-
-
-/* =====================================================
-   GET SELECTED SERVICE
-===================================================== */
-
-function getSelectedService() {
-
-    return currentServices.find(
-        service =>
-            String(service.id) ===
-            String(serviceSelect.value)
-    );
-
-}
-
-
-
-/* =====================================================
-   GET PRICE FOR CURRENT TIER
-===================================================== */
-
-function getServicePrice(service) {
-
-    if (!service) {
-        return 0;
-    }
-
-
-    /* ================================================
-       FIXED PRICE
-    ================================================ */
-
-    if (
-        service.fixedPrice !== undefined &&
-        service.fixedPrice !== null
-    ) {
-
-        if (
-            currentTier === "reseller"
-        ) {
-
-            return Number(
-                service.resellerFixedPrice ??
-                service.fixedPrice
-            );
-
-        }
-
-
-        if (
-            currentTier === "vip"
-        ) {
-
-            return Number(
-                service.vipFixedPrice ??
-                service.fixedPrice
-            );
-
-        }
-
-
-        return Number(
-            service.fixedPrice
-        );
-
-    }
-
-
-
-    /* ================================================
-       NORMAL RATE
-    ================================================ */
-
-    if (
-        currentTier === "reseller"
-    ) {
-
-        return Number(
-            service.resellerRatePer1000 ??
-            service.ratePer1000 ??
-            0
-        );
-
-    }
-
-
-    if (
-        currentTier === "vip"
-    ) {
-
-        return Number(
-            service.vipRatePer1000 ??
-            service.ratePer1000 ??
-            0
-        );
-
-    }
-
-
-    return Number(
-        service.ratePer1000 ||
-        0
-    );
-
-}
-
-
-
-/* =====================================================
-   COMMENT SERVICE
-===================================================== */
-
-function isCommentService(service) {
-
-    if (!service) {
-        return false;
-    }
-
-
-    return String(
-        service.service || ""
-    )
-    .toLowerCase()
-    .includes("comment");
-
-}
-
-
-
-/* =====================================================
-   MINIMUM QUANTITY
-===================================================== */
-
-function getMinimumQuantity(service) {
-
-    if (!service) {
-        return 100;
-    }
-
-
-    const minimum =
-        Number(
-            service.minimumQuantity
-        );
-
-
-    return Number.isFinite(minimum) &&
-           minimum > 0
-        ? minimum
-        : 100;
-
-}
-
-
-
-/* =====================================================
-   COMMENTS
-===================================================== */
-
-function getComments() {
-
-    return commentsInput.value
-        .split(/\r?\n/)
-        .map(
-            comment =>
-                comment.trim()
-        )
-        .filter(
-            comment =>
-                comment.length > 0
-        );
-
-}
-
-
-
-/* =====================================================
-   COMMENT COUNTER
-===================================================== */
-
-function updateCommentCounter() {
-
-    const count =
-        getComments().length;
-
-
-    const minimum =
-        100;
-
-
-    commentCounter.textContent =
-        `Comments: ${count} / ${minimum}`;
-
-
-    if (
-        count >= minimum
-    ) {
-
-        commentCounter.classList.remove(
-            "invalid"
-        );
-
-        commentCounter.classList.add(
-            "valid"
-        );
-
-        commentStatus.textContent =
-            "Minimum reached";
-
-        commentStatus.className =
-            "text-success";
-
-    } else {
-
-        commentCounter.classList.remove(
-            "valid"
-        );
-
-        commentCounter.classList.add(
-            "invalid"
-        );
-
-        const remaining =
-            minimum - count;
-
-
-        commentStatus.textContent =
-            `Need ${remaining} more comment${
-                remaining === 1 ? "" : "s"
-            }`;
-
-        commentStatus.className =
-            "text-danger";
-
-    }
-
-}
-
-
-
-/* =====================================================
-   UPDATE SERVICE FIELDS
-===================================================== */
-
-function updateServiceFields() {
-
-    const service =
-        getSelectedService();
-
-
-    if (!service) {
-
-        quantityContainer.style.display =
-            "block";
-
-        fixedPackageInfo.classList.add(
-            "d-none"
-        );
-
-        commentsContainer.classList.add(
-            "d-none"
-        );
-
-        quantityInput.min =
-            "100";
-
-        quantityInput.value =
-            "100";
-
-        quantityHelp.textContent =
-            "Minimum quantity: 100";
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       COMMENTS
-    ================================================ */
-
-    if (
-        isCommentService(service)
-    ) {
-
-        quantityContainer.style.display =
-            "none";
-
-        fixedPackageInfo.classList.add(
-            "d-none"
-        );
-
-        commentsContainer.classList.remove(
-            "d-none"
-        );
-
-        updateCommentCounter();
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       FIXED PACKAGE
-    ================================================ */
-
-    if (
-        service.ratePer1000 === null
-    ) {
-
-        quantityContainer.style.display =
-            "block";
-
-        commentsContainer.classList.add(
-            "d-none"
-        );
-
-        fixedPackageInfo.classList.remove(
-            "d-none"
-        );
-
-
-        const minimum =
-            getMinimumQuantity(service);
-
-
-        quantityInput.min =
-            String(minimum);
-
-        quantityInput.step =
-            "1";
-
-
-        quantityInput.value =
-            String(
-                Math.max(
-                    Number(
-                        quantityInput.value
-                    ) || 1,
-                    minimum
-                )
-            );
-
-
-        quantityHelp.textContent =
-            `Minimum package quantity: ${minimum}`;
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       NORMAL SERVICE
-    ================================================ */
-
-    quantityContainer.style.display =
-        "block";
-
-    fixedPackageInfo.classList.add(
-        "d-none"
-    );
-
-    commentsContainer.classList.add(
-        "d-none"
-    );
-
-
-    const minimum =
-        getMinimumQuantity(service);
-
-
-    quantityInput.min =
-        String(minimum);
-
-    quantityInput.step =
-        "1";
-
-
-    if (
-        Number(
-            quantityInput.value
-        ) < minimum
-    ) {
-
-        quantityInput.value =
-            String(minimum);
-
-    }
-
-
-    quantityHelp.textContent =
-        `Minimum quantity: ${minimum}`;
-
-}
-
-
-
-/* =====================================================
-   CALCULATE TOTAL
-===================================================== */
-
-function calculateTotal() {
-
-    const service =
-        getSelectedService();
-
-
-    if (!service) {
-
-        rateDisplay.textContent =
-            formatNaira(0);
-
-        totalDisplay.textContent =
-            formatNaira(0);
-
-        return;
-
-    }
-
-
-    const price =
-        getServicePrice(service);
-
-
-
-    /* ================================================
-       COMMENTS
-    ================================================ */
-
-    if (
-        isCommentService(service)
-    ) {
-
-        const count =
-            getComments().length;
-
-
-        const total =
-            (
-                count / 1000
-            ) *
-            price;
-
-
-        rateDisplay.textContent =
-            formatNaira(price);
-
-
-        totalDisplay.textContent =
-            formatNaira(total);
-
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       FIXED PACKAGE
-    ================================================ */
-
-    if (
-        service.ratePer1000 === null
-    ) {
-
-        const quantity =
-            Number(
-                quantityInput.value
-            ) || 0;
-
-
-        const total =
-            quantity *
-            price;
-
-
-        rateDisplay.textContent =
-            formatNaira(price);
-
-
-        totalDisplay.textContent =
-            formatNaira(total);
-
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       NORMAL SERVICE
-    ================================================ */
-
-    const quantity =
-        Number(
-            quantityInput.value
-        ) || 0;
-
-
-    const total =
-        (
-            quantity / 1000
-        ) *
-        price;
-
-
-    rateDisplay.textContent =
-        formatNaira(price);
-
-
-    totalDisplay.textContent =
-        formatNaira(total);
-
-}
-
-
-
-/* =====================================================
-   MESSAGE
-===================================================== */
-
-function showMessage(
-    text,
-    type = "danger"
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        `alert alert-${type} mt-4`;
-
-    message.classList.remove(
-        "d-none"
-    );
-
-}
-
-
-
-/* =====================================================
-   SERVICE CHANGE
-===================================================== */
-
-serviceSelect.addEventListener(
-    "change",
-    () => {
-
-        updateServiceFields();
-
-        calculateTotal();
-
-    }
-);
-
-
-
-/* =====================================================
-   QUANTITY CHANGE
-===================================================== */
-
-quantityInput.addEventListener(
-    "input",
-    calculateTotal
-);
-
-
-
-/* =====================================================
-   COMMENTS CHANGE
-===================================================== */
-
-commentsInput.addEventListener(
-    "input",
-    () => {
-
-        updateCommentCounter();
-
-        calculateTotal();
-
-    }
-);
-
-
-
-/* =====================================================
-   PLACE ORDER - UPDATED TO SEND TOTAL, SERVICE NAME, PLATFORM
-===================================================== */
-
-placeOrderButton.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            if (!currentUser) {
-
-                showMessage(
-                    "Please log in before placing an order."
-                );
-
-                return;
-
-            }
-
-
-            const service =
-                getSelectedService();
-
-
+        }function updateServiceFields() {
+            const service = getSelectedService();
             if (!service) {
-
-                showMessage(
-                    "Please select a service."
-                );
-
+                quantityContainer.style.display = "block";
+                fixedPackageInfo.classList.add("d-none");
+                commentsContainer.classList.add("d-none");
+                quantityInput.min = "100";
+                quantityInput.value = "100";
+                quantityHelp.textContent = "Minimum quantity: 100";
                 return;
-
             }
-
-
-            const link =
-                linkInput.value.trim();
-
-
-            if (!link) {
-
-                showMessage(
-                    "Please enter your target link."
-                );
-
+            if (isCommentService(service)) {
+                quantityContainer.style.display = "none";
+                fixedPackageInfo.classList.add("d-none");
+                commentsContainer.classList.remove("d-none");
+                updateCommentCounter();
                 return;
-
             }
+            if (service.ratePer1000 === null) {
+                quantityContainer.style.display = "block";
+                commentsContainer.classList.add("d-none");
+                fixedPackageInfo.classList.remove("d-none");
+                const minimum = getMinimumQuantity(service);
+                quantityInput.min = String(minimum);
+                quantityInput.step = "1";
+                quantityInput.value = String(Math.max(Number(quantityInput.value) || 1, minimum));
+                quantityHelp.textContent = `Minimum package quantity: ${minimum}`;
+                return;
+            }
+            quantityContainer.style.display = "block";
+            fixedPackageInfo.classList.add("d-none");
+            commentsContainer.classList.add("d-none");
+            const minimum = getMinimumQuantity(service);
+            quantityInput.min = String(minimum);
+            quantityInput.step = "1";
+            if (Number(quantityInput.value) < minimum) quantityInput.value = String(minimum);
+            quantityHelp.textContent = `Minimum quantity: ${minimum}`;
+        }
 
+        function calculateTotal() {
+            const service = getSelectedService();
+            if (!service) {
+                rateDisplay.textContent = formatNaira(0);
+                totalDisplay.textContent = formatNaira(0);
+                return;
+            }
+            const price = getServicePrice(service);
+            if (isCommentService(service)) {
+                const count = getComments().length;
+                const total = (count / 1000) * price;
+                rateDisplay.textContent = formatNaira(price);
+                totalDisplay.textContent = formatNaira(total);
+                return;
+            }
+            if (service.ratePer1000 === null) {
+                const quantity = Number(quantityInput.value) || 0;
+                const total = quantity * price;
+                rateDisplay.textContent = formatNaira(price);
+                totalDisplay.textContent = formatNaira(total);
+                return;
+            }
+            const quantity = Number(quantityInput.value) || 0;
+            const total = (quantity / 1000) * price;
+            rateDisplay.textContent = formatNaira(price);
+            totalDisplay.textContent = formatNaira(total);
+        }
 
-            let quantity = 0;
+        function showMessage(text, type = "danger") {
+            message.textContent = text;
+            message.className = `alert alert-${type} mt-4`;
+            message.classList.remove("d-none");
+        }
 
-            let comments = [];
-
-
-
-            /* =========================================
-               COMMENTS
-            ========================================= */
-
-            if (
-                isCommentService(service)
-            ) {
-
-                comments =
-                    getComments();
-
-
-                quantity =
-                    comments.length;
-
-
-                if (
-                    quantity < 100
-                ) {
-
-                    showMessage(
-                        `You must provide at least 100 comments. You currently have ${quantity}.`,
-                        "warning"
-                    );
-
+        serviceSelect.addEventListener("change", () => {
+            updateServiceFields();
+            calculateTotal();
+        });
+        quantityInput.addEventListener("input", calculateTotal);
+        commentsInput.addEventListener("input", () => {
+            updateCommentCounter();
+            calculateTotal();
+        });// 🔥 PLACE ORDER - FIXED VERSION
+        placeOrderButton.addEventListener("click", async () => {
+            try {
+                if (!currentUser) {
+                    showMessage("Please log in before placing an order.");
                     return;
-
                 }
-
-            }
-
-
-
-            /* =========================================
-               NORMAL / FIXED SERVICE
-            ========================================= */
-
-            else {
-
-                quantity =
-                    Number(
-                        quantityInput.value
-                    );
-
-
-                const minimum =
-                    getMinimumQuantity(service);
-
-
-                if (
-                    !Number.isFinite(quantity) ||
-                    quantity < minimum
-                ) {
-
-                    showMessage(
-                        `Minimum quantity is ${minimum}.`
-                    );
-
+                const service = getSelectedService();
+                if (!service) {
+                    showMessage("Please select a service.");
                     return;
-
                 }
-
-            }
-
-
-
-            /* =========================================
-               DISABLE BUTTON
-            ========================================= */
-
-            placeOrderButton.disabled =
-                true;
-
-
-            placeOrderButton.innerHTML =
-                `
-                <span
-                    class="spinner-border spinner-border-sm me-2"
-                ></span>
-                Processing Order...
-                `;
-
-
-
-            /* =========================================
-               AUTH TOKEN
-            ========================================= */
-
-            const idToken =
-                await currentUser.getIdToken(
-                    true
-                );
-
-
-
-            /* =========================================
-               ✅ UPDATED: CALCULATE TOTAL AND SEND ALL DATA
-            ========================================= */
-
-            // Get the total from the display
-            const totalText = totalDisplay.textContent;
-            const totalAmount = parseFloat(totalText.replace('₦', '').replace(/,/g, '')) || 0;
-
-            const orderPayload = {
-                serviceId: service.id,
-                serviceName: service.service,
-                platform: service.platform || platform || 'General',
-                link: link,
-                quantity: quantity,
-                comments: comments,
-                catalogue: catalogue,
-                total: totalAmount
-            };
-
-            console.log('📦 Sending order:', orderPayload);
-
-            const response =
-                await fetch(
-                    "https://hkdmservices.xyz/api-php/create-order.php",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-
-                            "Content-Type":
-                                "application/json",
-
-                            "Authorization":
-                                `Bearer ${idToken}`
-
-                        },
-
-                        body:
-                            JSON.stringify(orderPayload)
-
+                const link = linkInput.value.trim();
+                if (!link) {
+                    showMessage("Please enter your target link.");
+                    return;
+                }
+                let quantity = 0;
+                let comments = [];
+                if (isCommentService(service)) {
+                    comments = getComments();
+                    quantity = comments.length;
+                    if (quantity < 100) {
+                        showMessage(`You must provide at least 100 comments. You currently have ${quantity}.`, "warning");
+                        return;
                     }
-                );
+                } else {
+                    quantity = Number(quantityInput.value);
+                    const minimum = getMinimumQuantity(service);
+                    if (!Number.isFinite(quantity) || quantity < minimum) {
+                        showMessage(`Minimum quantity is ${minimum}.`);
+                        return;
+                    }
+                }
 
+                // 🔥 CRITICAL FIX: Get the service name and platform
+                const serviceName = service.service || 'Unknown';
+                const platformName = service.platform || platform || 'General';
+                const totalText = totalDisplay.textContent;
+                const totalAmount = parseFloat(totalText.replace(/[₦,]/g, '')) || 0;
 
+                console.log('📦 Sending order with:', {
+                    serviceId: service.id,
+                    serviceName: serviceName,
+                    platform: platformName,
+                    total: totalAmount
+                });
 
-            const result =
-                await response.json();
+                placeOrderButton.disabled = true;
+                placeOrderButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Processing Order...`;
 
+                const idToken = await currentUser.getIdToken(true);
 
+                const orderPayload = {
+                    serviceId: service.id,
+                    serviceName: serviceName,
+                    platform: platformName,
+                    link: link,
+                    quantity: quantity,
+                    comments: comments,
+                    catalogue: catalogue,
+                    total: totalAmount
+                };
 
-            if (!response.ok) {
+                const response = await fetch("https://hkdmservices.xyz/api-php/create-order.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${idToken}`
+                    },
+                    body: JSON.stringify(orderPayload)
+                });
 
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
+                const result = await response.json();
 
-                return;
+                if (!response.ok) {
+                    showMessage(result.message || "Unable to place order.");
+                    return;
+                }
 
+                if (result.success) {
+                    showMessage(`✅ Order placed successfully! Order ID: ${result.orderId}`, "success");
+                    linkInput.value = "";
+                    commentsInput.value = "";
+                    quantityInput.value = String(getMinimumQuantity(service));
+                    updateServiceFields();
+                    calculateTotal();
+                } else {
+                    showMessage(result.message || "Unable to place order.");
+                }
+
+            } catch (error) {
+                console.error("ORDER ERROR:", error);
+                showMessage("Unable to connect to the order system. Please try again.");
+            } finally {
+                placeOrderButton.disabled = false;
+                placeOrderButton.innerHTML = `<i class="bi bi-cart-check"></i> Place Order`;
             }
-
-
-
-            if (
-                result.success
-            ) {
-
-                showMessage(
-                    `✅ Order placed successfully! Order ID: ${result.orderId}`,
-                    "success"
-                );
-
-
-                linkInput.value =
-                    "";
-
-
-                commentsInput.value =
-                    "";
-
-
-                quantityInput.value =
-                    String(
-                        getMinimumQuantity(
-                            service
-                        )
-                    );
-
-
+        });function loadServices() {
+            if (catalogue === "nigeria" && requestedServiceId) {
+                const selectedService = currentServices.find(service => String(service.id) === String(requestedServiceId));
+                if (!selectedService) {
+                    platformTitle.textContent = "Nigeria service not found.";
+                    serviceSelect.innerHTML = `<option value="">Service not found</option>`;
+                    placeOrderButton.disabled = true;
+                    return;
+                }
+                serviceSelect.innerHTML = "";
+                const option = document.createElement("option");
+                option.value = selectedService.id;
+                option.textContent = selectedService.service;
+                option.selected = true;
+                serviceSelect.appendChild(option);
+                platformTitle.textContent = `${selectedService.platform} — 🇳🇬 Nigeria`;
+                backServicesButton.href = "nigeria-services.html";
+                placeOrderButton.disabled = false;
                 updateServiceFields();
-
                 calculateTotal();
-
-            } else {
-
-                showMessage(
-                    result.message ||
-                    "Unable to place order."
-                );
-
+                return;
             }
-
-
-        } catch (error) {
-
-            console.error(
-                "ORDER ERROR:",
-                error
+            if (!platform) {
+                platformTitle.textContent = "No platform selected.";
+                serviceSelect.innerHTML = `<option value="">No platform selected</option>`;
+                placeOrderButton.disabled = true;
+                return;
+            }
+            platformTitle.textContent = `${platform} Services — General`;
+            backServicesButton.href = "services.html";
+            const platformServices = currentServices.filter(service =>
+                String(service.platform || "").toLowerCase().replace("(twitter)", "").trim() ===
+                String(platform).toLowerCase().replace("(twitter)", "").trim()
             );
-
-
-            showMessage(
-                "Unable to connect to the order system. Please try again."
-            );
-
-        } finally {
-
-            placeOrderButton.disabled =
-                false;
-
-
-            placeOrderButton.innerHTML =
-                `
-                <i class="bi bi-cart-check"></i>
-                Place Order
-                `;
-
+            if (platformServices.length === 0) {
+                serviceSelect.innerHTML = `<option value="">No services available</option>`;
+                placeOrderButton.disabled = true;
+                return;
+            }
+            serviceSelect.innerHTML = `<option value="">Select a service</option>`;
+            platformServices.forEach(service => {
+                const option = document.createElement("option");
+                option.value = service.id;
+                option.textContent = service.service;
+                serviceSelect.appendChild(option);
+            });
+            placeOrderButton.disabled = false;
         }
 
-    }
-);
-
-
-
-/* =====================================================
-   LOAD SERVICES
-===================================================== */
-
-function loadServices() {
-
-    /* ================================================
-       NIGERIA SERVICE DIRECT LOAD
-    ================================================ */
-
-    if (
-        catalogue === "nigeria" &&
-        requestedServiceId
-    ) {
-
-        const selectedService =
-            currentServices.find(
-                service =>
-                    String(service.id) ===
-                    String(requestedServiceId)
-            );
-
-
-        if (!selectedService) {
-
-            platformTitle.textContent =
-                "Nigeria service not found.";
-
-
-            serviceSelect.innerHTML =
-                `
-                <option value="">
-                    Service not found
-                </option>
-                `;
-
-
-            placeOrderButton.disabled =
-                true;
-
-
-            return;
-
-
-        }
-
-
-        serviceSelect.innerHTML =
-            "";
-
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            selectedService.id;
-
-
-        option.textContent =
-            selectedService.service;
-
-
-        option.selected =
-            true;
-
-
-        serviceSelect.appendChild(
-            option
-        );
-
-
-        platformTitle.textContent =
-            `${selectedService.platform} — 🇳🇬 Nigeria`;
-
-
-        backServicesButton.href =
-            "nigeria-services.html";
-
-
-        placeOrderButton.disabled =
-            false;
-
-
-        updateServiceFields();
-
-        calculateTotal();
-
-
-        return;
-
-    }
-
-
-
-    /* ================================================
-       GENERAL CATALOGUE
-    ================================================ */
-
-    if (!platform) {
-
-        platformTitle.textContent =
-            "No platform selected.";
-
-
-        serviceSelect.innerHTML =
-            `
-            <option value="">
-                No platform selected
-            </option>
-            `;
-
-
-        placeOrderButton.disabled =
-            true;
-
-
-        return;
-
-    }
-
-
-    platformTitle.textContent =
-        `${platform} Services — General`;
-
-
-    backServicesButton.href =
-        "services.html";
-
-
-    const platformServices =
-        currentServices.filter(
-            service =>
-                String(
-                    service.platform || ""
-                )
-                .toLowerCase()
-                .replace(
-                    "(twitter)",
-                    ""
-                )
-                .trim() ===
-                String(platform)
-                .toLowerCase()
-                .replace(
-                    "(twitter)",
-                    ""
-                )
-                .trim()
-        );
-
-
-    if (
-        platformServices.length === 0
-    ) {
-
-        serviceSelect.innerHTML =
-            `
-            <option value="">
-                No services available
-            </option>
-            `;
-
-
-        placeOrderButton.disabled =
-            true;
-
-
-        return;
-
-    }
-
-
-    serviceSelect.innerHTML =
-        `
-        <option value="">
-            Select a service
-        </option>
-        `;
-
-
-    platformServices.forEach(
-        service => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                service.id;
-
-
-            option.textContent =
-                service.service;
-
-
-            serviceSelect.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    placeOrderButton.disabled =
-        false;
-
-}
-
-
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
-
-async function initializeOrderPage() {
-
-    await new Promise(
-        resolve => {
-
-            const unsubscribe =
-                onAuthStateChanged(
-                    auth,
-                    async user => {
-
-                        unsubscribe();
-
-
-                        if (!user) {
-
-                            window.location.href =
-                                "login.html";
-
-                            return;
-
-                        }
-
-
-                        currentUser =
-                            user;
-
-
-                        await loadUserTier(
-                            user
-                        );
-
-
-                        loadServices();
-
-                        updateServiceFields();
-
-                        calculateTotal();
-
-                        resolve();
-
+        async function initializeOrderPage() {
+            await new Promise(resolve => {
+                const unsubscribe = onAuthStateChanged(auth, async user => {
+                    unsubscribe();
+                    if (!user) {
+                        window.location.href = "login.html";
+                        return;
                     }
-                );
-
+                    currentUser = user;
+                    await loadUserTier(user);
+                    loadServices();
+                    updateServiceFields();
+                    calculateTotal();
+                    resolve();
+                });
+            });
         }
-    );
 
-}
+        initializeOrderPage();
+        console.log("✅ Order page loaded with Firebase auth.");
+    </script>
 
-
-initializeOrderPage();
-
-console.log("✅ Order page loaded with Firebase auth.");
-
-</script>
-
-
-
-<!-- =====================================================
-     BOOTSTRAP JS
-===================================================== -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+    </script>
 
 </body>
 </html>
