@@ -540,6 +540,7 @@ async function loadRecentOrders(uid) {
                         <tbody>
         `;
 
+        // ✅ FIXED: Desktop table - uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
 
@@ -547,11 +548,11 @@ async function loadRecentOrders(uid) {
                 <tr>
                     <td><code>${shortOrderId}</code></td>
                     <td>
-                        <strong>${order.platform || "—"}</strong><br>
-                        <small class="text-muted">${order.service || "—"}</small>
+                        <strong>${order.serviceName || "—"}</strong><br>
+                        <small class="text-muted">${order.platform || "—"}</small>
                     </td>
                     <td>${Number(order.quantity || 0).toLocaleString("en-NG")}</td>
-                    <td><strong>${formatNaira(order.amount)}</strong></td>
+                    <td><strong>${formatNaira(order.total || order.amount || 0)}</strong></td>
                     <td>${statusBadge(order.status)}</td>
                     <td><small>${formatDate(order.createdAt)}</small></td>
                 </tr>
@@ -563,6 +564,7 @@ async function loadRecentOrders(uid) {
 
         let mobileHtml = `<div class="d-md-none">`;
 
+        // ✅ FIXED: Mobile cards - uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
 
@@ -578,8 +580,8 @@ async function loadRecentOrders(uid) {
                         </div>
                         <div class="mb-3">
                             <small class="text-muted">Service</small>
-                            <div class="fw-bold">${order.platform || "—"}</div>
-                            <div class="text-muted">${order.service || "—"}</div>
+                            <div class="fw-bold">${order.serviceName || "—"}</div>
+                            <div class="text-muted">${order.platform || "—"}</div>
                         </div>
                         <div class="mb-3">
                             <small class="text-muted">Quantity</small>
@@ -587,7 +589,7 @@ async function loadRecentOrders(uid) {
                         </div>
                         <div class="mb-3">
                             <small class="text-muted">Amount</small>
-                            <div class="fw-bold text-success">${formatNaira(order.amount)}</div>
+                            <div class="fw-bold text-success">${formatNaira(order.total || order.amount || 0)}</div>
                         </div>
                         <div>
                             <small class="text-muted">Date</small>
