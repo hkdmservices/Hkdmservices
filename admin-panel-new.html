@@ -124,10 +124,15 @@
             border-radius: 8px;
             padding: 8px 16px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         .refresh-btn:hover {
             background: #21262d;
             color: #f1f3f5;
+        }
+        .refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .toast-container {
             position: fixed;
@@ -172,6 +177,23 @@
         .action-btns .btn {
             font-size: 0.7rem;
             padding: 2px 10px;
+        }
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #30363d;
+            border-top-color: #198754;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            color: #8b949e;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -642,21 +664,56 @@
     });
 
     // ============================================
-    // LOGOUT
+    // LOGOUT - IMPROVED
     // ============================================
-    document.getElementById('adminLogout').addEventListener('click', async () => {
-        await auth.signOut();
-        window.location.href = 'admin-login.html';
+    document.getElementById('adminLogout').addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        try {
+            // Show loading state
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Logging out...';
+            this.style.pointerEvents = 'none';
+            
+            // Sign out from Firebase
+            await auth.signOut();
+            
+            // Clear any local storage data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            window.location.href = 'admin-login.html';
+            
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Force redirect even if error
+            window.location.href = 'admin-login.html';
+        }
     });
 
     // ============================================
-    // REFRESH BUTTON
+    // REFRESH DATA WITH LOADING INDICATOR
     // ============================================
-    document.getElementById('refreshData').addEventListener('click', () => {
-        const activeSection = document.querySelector('.sidebar .nav-link.active');
-        if (activeSection) {
-            const section = activeSection.dataset.section;
-            loadSection(section);
+    document.getElementById('refreshData').addEventListener('click', async function() {
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
+        btn.disabled = true;
+        
+        try {
+            const activeSection = document.querySelector('.sidebar .nav-link.active');
+            if (activeSection) {
+                const section = activeSection.dataset.section;
+                await loadSection(section);
+            }
+            showToast('✅ Data refreshed!', 'success');
+        } catch (error) {
+            console.error('Refresh error:', error);
+            showToast('❌ Failed to refresh data', 'error');
+        } finally {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
         }
     });
 
@@ -1130,7 +1187,7 @@
     });
 
     // ============================================
-    // SHOP - LOAD ALL PRODUCTS (FIXED)
+    // SHOP - LOAD ALL PRODUCTS
     // ============================================
     function loadAllProducts() {
         const productsRef = database.ref('shop');
