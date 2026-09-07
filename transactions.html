@@ -18,6 +18,7 @@
         html[data-theme="dark"] .text-muted { color: #99a1ab !important; }
         .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
         .theme-toggle:hover { background: rgba(255,255,255,0.18); transform: rotate(15deg); }
+        .badge-refund { background-color: #ffc107; color: #000; }
     </style>
 </head>
 
@@ -45,6 +46,9 @@
                     <h1 class="fw-bold mb-1">Transactions</h1>
                     <p class="text-muted mb-0">Your wallet and order transactions</p>
                 </div>
+                <button class="btn btn-sm btn-outline-success" id="refreshBtn">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
             </div>
 
             <div class="card shadow border-0">
@@ -107,29 +111,61 @@
 
         const tbody = document.getElementById("transactionsBody");
         const messageDiv = document.getElementById("message");
+        const refreshBtn = document.getElementById("refreshBtn");
         let currentUid = null;
 
-        // ✅ FIXED: Format amount with single sign
-        function formatAmount(amount) {
+        // Format amount with proper sign
+        function formatAmount(amount, type) {
             const num = Number(amount) || 0;
             const formatted = Math.abs(num).toLocaleString("en-NG", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
+            
+            // Refunds and funding show as positive (credit)
+            if (type === 'refund' || type === 'wallet_funding') {
+                return `+₦${formatted}`;
+            }
+            // Orders show as negative (debit)
+            if (type === 'order_payment' || type === 'order') {
+                return `-₦${formatted}`;
+            }
+            // Default: show as is
             return num < 0 ? `-₦${formatted}` : `+₦${formatted}`;
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-                return;
+        // Get badge class for type
+        function getTypeBadge(type) {
+            switch (type) {
+                case "wallet_funding":
+                    return '<span class="badge bg-success"><i class="bi bi-wallet2"></i> Funding</span>';
+                case "order_payment":
+                case "order":
+                    return '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> Order</span>';
+                case "refund":
+                    return '<span class="badge bg-warning text-dark"><i class="bi bi-arrow-counterclockwise"></i> Refund</span>';
+                case "voucher":
+                    return '<span class="badge bg-info text-dark"><i class="bi bi-ticket"></i> Voucher</span>';
+                default:
+                    return '<span class="badge bg-secondary">' + type + '</span>';
             }
-            currentUid = user.uid;
-            loadTransactions();
-        });
+        }
 
+        // Get amount class
+        function getAmountClass(type) {
+            if (type === 'refund' || type === 'wallet_funding') {
+                return 'text-success';
+            }
+            if (type === 'order_payment' || type === 'order') {
+                return 'text-danger';
+            }
+            return '';
+        }
+
+        // Load transactions
         function loadTransactions() {
             if (!currentUid) return;
+            
             const transactionsRef = ref(database, "transactions");
 
             onValue(transactionsRef, (snapshot) => {
@@ -167,27 +203,9 @@
                     const dateStr = date.toLocaleDateString("en-GB") + " " +
                         date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
-                    let typeBadge = '';
-                    switch (tx.type) {
-                        case "wallet_funding":
-                            typeBadge = '<span class="badge bg-success"><i class="bi bi-wallet2"></i> Funding</span>';
-                            break;
-                        case "order_payment":
-                        case "order":
-                            typeBadge = '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> Order</span>';
-                            break;
-                        case "voucher":
-                            typeBadge = '<span class="badge bg-warning text-dark"><i class="bi bi-ticket"></i> Voucher</span>';
-                            break;
-                        case "refund":
-                            typeBadge = '<span class="badge bg-info"><i class="bi bi-arrow-counterclockwise"></i> Refund</span>';
-                            break;
-                        default:
-                            typeBadge = '<span class="badge bg-secondary">' + tx.type + '</span>';
-                    }
-
-                    const isSpending = (tx.type === "order_payment" || tx.type === "order" || tx.type === "withdrawal");
-                    const amountClass = isSpending ? "text-danger" : "text-success";
+                    const typeBadge = getTypeBadge(tx.type);
+                    const amountClass = getAmountClass(tx.type);
+                    const displayAmount = formatAmount(tx.amount, tx.type);
 
                     let statusBadge = '';
                     if (tx.status === "success") {
@@ -202,7 +220,7 @@
                         <td><small>${dateStr}</small></td>
                         <td>${typeBadge}</td>
                         <td>${tx.description || "N/A"}</td>
-                        <td class="${amountClass} fw-bold">${formatAmount(tx.amount)}</td>
+                        <td class="${amountClass} fw-bold">${displayAmount}</td>
                         <td>${statusBadge}</td>
                     `;
 
@@ -210,6 +228,7 @@
                 });
 
                 console.log(`✅ Loaded ${userTransactions.length} transactions`);
+
             }, (error) => {
                 console.error("Transactions error:", error);
                 showMessage("❌ Failed to load transactions: " + error.message, "danger");
@@ -224,6 +243,24 @@
                 messageDiv.classList.add("d-none");
             }, 6000);
         }
+
+        // Auth check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            currentUid = user.uid;
+            loadTransactions();
+        });
+
+        // Refresh button
+        refreshBtn.addEventListener('click', () => {
+            if (currentUid) {
+                loadTransactions();
+                showMessage('🔄 Refreshing transactions...', 'info');
+            }
+        });
 
         console.log("✅ Transactions page loaded with Firebase!");
     </script>
