@@ -173,6 +173,29 @@
             font-size: 0.7rem;
             padding: 2px 10px;
         }
+        /* Debug log styles */
+        #debugLog {
+            background: #0d1117;
+            color: #58a6ff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #30363d;
+        }
+        #debugLog .error {
+            color: #f85149;
+        }
+        #debugLog .success {
+            color: #3fb950;
+        }
+        #debugLog .warning {
+            color: #d29922;
+        }
     </style>
 </head>
 <body>
@@ -847,7 +870,7 @@
     });
 
     // ============================================
-    // CONFIRM CANCEL & REFUND - FIXED VERSION
+    // CONFIRM CANCEL & REFUND - VISUAL DEBUG VERSION
     // ============================================
     document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
         const orderKey = this.dataset.orderKey;
@@ -860,14 +883,38 @@
             return;
         }
 
-        msgDiv.innerHTML = '<div class="alert alert-info">⏳ Processing cancellation & refund...</div>';
+        // Clear previous messages and create debug log
+        msgDiv.innerHTML = '';
+        
+        // Create debug log element
+        const debugLog = document.createElement('div');
+        debugLog.id = 'debugLog';
+        debugLog.innerHTML = '⏳ Starting refund process...\n';
+        msgDiv.appendChild(debugLog);
+
+        function addDebug(message, type = 'info') {
+            const colors = {
+                'info': '#58a6ff',
+                'success': '#3fb950',
+                'error': '#f85149',
+                'warning': '#d29922'
+            };
+            const color = colors[type] || '#58a6ff';
+            debugLog.innerHTML += `<span style="color: ${color};">${message}</span>\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
         try {
+            addDebug('🔍 STEP 1: Getting order data...', 'info');
+            
             // 1️⃣ Get the order data
             const orderSnapshot = await database.ref('orders/' + orderKey).once('value');
             const orderData = orderSnapshot.val();
+
+            addDebug('📦 Order found: ' + (orderData ? '✅' : '❌'), orderData ? 'success' : 'error');
 
             if (!orderData) {
                 throw new Error('Order not found');
@@ -880,32 +927,50 @@
             const uid = orderData.uid;
             const amount = Number(orderData.total || 0);
 
+            addDebug('👤 UID: ' + uid, 'info');
+            addDebug('💰 Amount: ₦' + amount, 'info');
+
             if (!uid || amount <= 0) {
                 throw new Error('Invalid order data for refund');
             }
+
+            addDebug('🔍 STEP 2: Getting user data...', 'info');
 
             // 2️⃣ Get user data
             const userSnapshot = await database.ref('users/' + uid).once('value');
             const userData = userSnapshot.val();
 
+            addDebug('👤 User found: ' + (userData ? '✅' : '❌'), userData ? 'success' : 'error');
+
             if (!userData) {
                 throw new Error('User not found');
             }
 
+            addDebug('🔍 STEP 3: Updating wallet...', 'info');
+            addDebug('💰 Current wallet: ₦' + (userData.wallet || 0), 'info');
+
             // 3️⃣ Add refund to wallet
             const currentWallet = Number(userData.wallet || 0);
             const newWallet = currentWallet + amount;
+            addDebug('💰 New wallet: ₦' + newWallet, 'success');
             await database.ref('users/' + uid + '/wallet').set(newWallet);
+            addDebug('✅ Wallet updated!', 'success');
 
+            addDebug('🔍 STEP 4: Updating total spent...', 'info');
             // 4️⃣ Update total spent (decrease by refund amount)
             const currentTotalSpent = Number(userData.totalSpent || 0);
             const newTotalSpent = Math.max(0, currentTotalSpent - amount);
+            addDebug('📊 Total spent: ₦' + currentTotalSpent + ' → ₦' + newTotalSpent, 'info');
             await database.ref('users/' + uid + '/totalSpent').set(newTotalSpent);
+            addDebug('✅ Total spent updated!', 'success');
 
+            addDebug('🔍 STEP 5: Updating order status...', 'info');
             // 5️⃣ Update order status to refunded
             await database.ref('orders/' + orderKey + '/status').set('refunded');
+            addDebug('✅ Order status updated to refunded!', 'success');
 
-            // ✅ 6️⃣ CREATE REFUND TRANSACTION (THIS WAS MISSING!)
+            addDebug('🔍 STEP 6: Creating refund transaction...', 'info');
+            // 6️⃣ Create refund transaction
             const transactionId = 'REF-' + Date.now();
             const transactionData = {
                 uid: uid,
@@ -917,21 +982,25 @@
                 createdAt: Date.now(),
                 processedBy: currentUser ? currentUser.email : 'admin'
             };
+            addDebug('📝 Transaction ID: ' + transactionId, 'info');
             await database.ref('transactions/' + transactionId).set(transactionData);
+            addDebug('✅ Transaction created!', 'success');
 
             // ✅ Success!
-            msgDiv.innerHTML = `<div class="alert alert-success">✅ Refund successful! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
+            addDebug('🎉 REFUND COMPLETE!', 'success');
+            msgDiv.innerHTML += `<div class="alert alert-success mt-2">✅ Refund successful! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
             showToast(`✅ Refunded ₦${amount.toLocaleString()} for order ${orderId}`, 'success');
 
             setTimeout(() => {
                 bootstrap.Modal.getInstance(document.getElementById('confirmCancelModal')).hide();
                 loadAllOrders();
                 loadDashboard();
-            }, 2000);
+            }, 3000);
 
         } catch (error) {
-            console.error('Cancel/Refund error:', error);
-            msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed: ${error.message}</div>`;
+            console.error('❌ Cancel/Refund error:', error);
+            addDebug('❌ ERROR: ' + error.message, 'error');
+            msgDiv.innerHTML += `<div class="alert alert-danger mt-2">❌ Failed: ${error.message}</div>`;
         } finally {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
@@ -1091,7 +1160,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with Cancel + Refund feature!');
+    console.log('✅ Admin dashboard loaded with visual debug!');
 </script>
 </body>
 </html>
