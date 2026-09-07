@@ -86,6 +86,31 @@ html[data-theme="dark"] .form-select:focus {
     background: rgba(255,255,255,0.18);
     transform: rotate(15deg);
 }
+
+/* Refresh button */
+.refresh-balance-btn {
+    background: transparent;
+    border: 1px solid #198754;
+    color: #198754;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    padding: 0;
+}
+.refresh-balance-btn:hover {
+    background: #198754;
+    color: #fff;
+}
+.refresh-balance-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 </style>
 </head>
 <body>
@@ -291,12 +316,20 @@ html[data-theme="dark"] .form-select:focus {
         <!-- Wallet Balance Card with Total Spent positioned directly underneath -->
         <div class="col-12 col-md-6">
             <div class="card p-4 shadow h-100">
-                <i
-                    class="bi bi-wallet2 fs-1 text-success"
-                ></i>
-                <h4 class="mt-3">
-                    Wallet Balance
-                </h4>
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <i class="bi bi-wallet2 fs-1 text-success"></i>
+                        <h4 class="mt-3">
+                            Wallet Balance
+                            <button class="refresh-balance-btn ms-2" id="refreshBalanceBtn" title="Refresh balance">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </h4>
+                    </div>
+                    <span id="walletUpdateIndicator" class="text-success" style="font-size:12px; opacity:0; transition: opacity 0.5s;">
+                        <i class="bi bi-check-circle-fill"></i> Updated
+                    </span>
+                </div>
                 <h2 id="walletBalance">
                     ₦0.00
                 </h2>
@@ -665,7 +698,7 @@ html[data-theme="dark"] .form-select:focus {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-    FIREBASE LOGIC (ADDED — YOUR DESIGN IS UNTOUCHED)
+    FIREBASE LOGIC (UPDATED WITH REAL-TIME WALLET REFRESH)
 ============================================================ -->
 <script>
 // ============================================================
@@ -690,6 +723,65 @@ const auth = firebase.auth();
 const database = firebase.database();
 
 // ============================================================
+// FORMAT NAIRA HELPER
+// ============================================================
+function formatNaira(amount) {
+    return "₦" + Number(amount || 0).toLocaleString("en-NG", { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+    });
+}
+
+// ============================================================
+// REFRESH WALLET FUNCTION (Manual refresh)
+// ============================================================
+function refreshWallet() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const refreshBtn = document.getElementById('refreshBalanceBtn');
+    const indicator = document.getElementById('walletUpdateIndicator');
+    
+    // Show loading state
+    refreshBtn.disabled = true;
+    refreshBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    
+    const userRef = database.ref("users/" + user.uid);
+    userRef.once("value")
+        .then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // Update wallet balance
+                const wallet = data.wallet || 0;
+                document.getElementById("walletBalance").textContent = formatNaira(wallet);
+                
+                // Update total spent
+                const totalSpent = data.totalSpent || 0;
+                document.getElementById("totalSpent").textContent = formatNaira(totalSpent);
+                
+                // Update modal wallet
+                const modalWallet = document.getElementById("modalWalletBalance");
+                if (modalWallet) {
+                    modalWallet.textContent = formatNaira(wallet);
+                }
+                
+                // Show success indicator
+                indicator.style.opacity = '1';
+                setTimeout(() => {
+                    indicator.style.opacity = '0';
+                }, 3000);
+            }
+        })
+        .catch((error) => {
+            console.error("Refresh error:", error);
+        })
+        .finally(() => {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+        });
+}
+
+// ============================================================
 // CHECK AUTH STATE & LOAD USER DATA
 // ============================================================
 auth.onAuthStateChanged((user) => {
@@ -703,19 +795,24 @@ auth.onAuthStateChanged((user) => {
     const uid = user.uid;
     const userRef = database.ref("users/" + uid);
 
+    // ✅ REAL-TIME LISTENER for wallet and total spent
     userRef.on("value", (snapshot) => {
         const data = snapshot.val();
 
         if (data) {
             // Update Wallet Balance
             const wallet = data.wallet || 0;
-            document.getElementById("walletBalance").textContent = 
-                "₦" + wallet.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("walletBalance").textContent = formatNaira(wallet);
 
             // Update Total Spent
             const totalSpent = data.totalSpent || 0;
-            document.getElementById("totalSpent").textContent = 
-                "₦" + totalSpent.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("totalSpent").textContent = formatNaira(totalSpent);
+
+            // Update Modal Wallet Balance (for reseller modal)
+            const modalWallet = document.getElementById("modalWalletBalance");
+            if (modalWallet) {
+                modalWallet.textContent = formatNaira(wallet);
+            }
 
             // Update User Name
             const fullName = data.fullName || user.displayName || "User";
@@ -729,12 +826,6 @@ auth.onAuthStateChanged((user) => {
                 tierBadge.className = "badge bg-" + (tier === "reseller" ? "success" : tier === "vip" ? "warning" : "secondary");
             }
 
-            // Update Modal Wallet Balance (for reseller modal)
-            const modalWallet = document.getElementById("modalWalletBalance");
-            if (modalWallet) {
-                modalWallet.textContent = "₦" + wallet.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-
             // Update Referral Link
             const refLinkInput = document.getElementById("referralLinkInput");
             if (refLinkInput) {
@@ -746,8 +837,7 @@ auth.onAuthStateChanged((user) => {
             const totalReferrals = data.totalReferrals || 0;
             const totalEarnings = data.totalReferralEarnings || 0;
             document.getElementById("totalReferrals").textContent = totalReferrals;
-            document.getElementById("totalEarnings").textContent = 
-                "₦" + totalEarnings.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById("totalEarnings").textContent = formatNaira(totalEarnings);
 
         } else {
             console.log("No user data found for UID:", uid);
@@ -770,6 +860,19 @@ auth.onAuthStateChanged((user) => {
         }
         document.getElementById("ordersCount").textContent = count;
     });
+});
+
+// ============================================================
+// REFRESH BUTTON EVENT LISTENER
+// ============================================================
+document.addEventListener("DOMContentLoaded", function() {
+    const refreshBtn = document.getElementById("refreshBalanceBtn");
+    if (refreshBtn) {
+        refreshBtn.addEventListener("click", refreshWallet);
+    }
+    
+    // Expose refreshWallet to global scope for inline onclick
+    window.refreshWallet = refreshWallet;
 });
 
 // ============================================================
@@ -796,7 +899,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-console.log("✅ Dashboard loaded with Firebase logic!");
+console.log("✅ Dashboard loaded with real-time wallet updates!");
 </script>
 
 <script>
