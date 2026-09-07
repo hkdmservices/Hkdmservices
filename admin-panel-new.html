@@ -910,4 +910,32 @@
                 return;
             }
 
-            const transactions = Object.entries(data).sort((a, b)
+            const transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+            tbody.innerHTML = transactions.map(([key, tx]) => {
+                const typeColors = {
+                    'wallet_funding': 'success',
+                    'order_payment': 'primary',
+                    'refund': 'warning'
+                };
+                const color = typeColors[tx.type] || 'secondary';
+                const isCredit = tx.type === 'wallet_funding' || tx.type === 'refund';
+                
+                return `
+                    <tr>
+                        <td>${tx.uid ? tx.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                        <td><span class="badge bg-${color}">${tx.type || 'N/A'}</span></td>
+                        <td>${tx.description || 'N/A'}</td>
+                        <td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td>
+                        <td><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></td>
+                        <td>${formatDate(tx.createdAt)}</td>
+                    </tr>
+                `;
+            }).join('');
+        });
+    }
+
+    console.log('✅ Admin dashboard loaded with refund feature!');
+</script>
+</body>
+</html>
