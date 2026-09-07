@@ -133,6 +133,7 @@
         .toast-success { border-left: 4px solid #198754; }
         .toast-error { border-left: 4px solid #f85149; }
         .toast-info { border-left: 4px solid #58a6ff; }
+        .toast-warning { border-left: 4px solid #d29922; }
     </style>
 </head>
 <body>
@@ -496,45 +497,75 @@
             };
             await set(ref(database, 'transactions/' + transactionId), transactionData);
 
-            // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL
-            const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: currentUser.email,
-                    platform: product.platform,
-                    title: product.title,
-                    login: product.login || 'N/A',
-                    password: product.password || 'N/A',
-                    notes: product.notes || ''
-                })
-            });
+            // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL (with error handling)
+            try {
+                const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        platform: product.platform || 'N/A',
+                        title: product.title || 'N/A',
+                        login: product.login || 'N/A',
+                        password: product.password || 'N/A',
+                        notes: product.notes || ''
+                    })
+                });
 
-            const emailResult = await emailResponse.json();
+                const emailResult = await emailResponse.json();
 
-            // 6️⃣ Show success with email confirmation
-            msgDiv.innerHTML = `
-                <div class="alert alert-success">✅ Purchase successful!</div>
-                <div class="alert alert-info">
-                    <i class="bi bi-envelope"></i> 
-                    <strong>Credentials sent to:</strong> ${currentUser.email}<br>
-                    <small class="text-muted">Please check your inbox (and spam folder).</small>
-                </div>
-                <div class="alert alert-warning mt-2">
-                    <i class="bi bi-shield-lock"></i> 
-                    For security, change the password immediately after login.
-                </div>
-            `;
-            showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
+                if (emailResult.success) {
+                    msgDiv.innerHTML = `
+                        <div class="alert alert-success">✅ Purchase successful!</div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-envelope"></i> 
+                            <strong>Credentials sent to:</strong> ${currentUser.email}<br>
+                            <small class="text-muted">Please check your inbox (and spam folder).</small>
+                        </div>
+                        <div class="alert alert-warning mt-2">
+                            <i class="bi bi-shield-lock"></i> 
+                            For security, change the password immediately after login.
+                        </div>
+                    `;
+                    showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
+                } else {
+                    // Email failed but purchase is complete
+                    msgDiv.innerHTML = `
+                        <div class="alert alert-success">✅ Purchase successful!</div>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-envelope"></i> 
+                            <strong>Note:</strong> We couldn't send the email to ${currentUser.email}.<br>
+                            <small>Please contact support to receive your credentials.</small>
+                            <br><br>
+                            <strong>Order ID:</strong> ${orderId}
+                        </div>
+                    `;
+                    showToast(`⚠️ Purchase complete but email failed`, 'warning');
+                }
+            } catch (emailError) {
+                // Email fetch failed
+                console.error('Email error:', emailError);
+                msgDiv.innerHTML = `
+                    <div class="alert alert-success">✅ Purchase successful!</div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-envelope"></i> 
+                        <strong>Note:</strong> We couldn't send the email to ${currentUser.email}.<br>
+                        <small>Please contact support to receive your credentials.</small>
+                        <br><br>
+                        <strong>Order ID:</strong> ${orderId}
+                    </div>
+                `;
+                showToast(`⚠️ Purchase complete but email failed`, 'warning');
+            }
 
             // Delete credentials from shop after sending (for security)
             await set(ref(database, 'shop/' + product.key + '/login'), null);
             await set(ref(database, 'shop/' + product.key + '/password'), null);
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
 
             // Reload products after delay
             setTimeout(() => {
