@@ -178,7 +178,6 @@
             font-size: 0.7rem;
             padding: 2px 10px;
         }
-        /* Loading spinner */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -194,6 +193,11 @@
         .loading-text {
             color: #8b949e;
             font-size: 0.9rem;
+        }
+        /* Analytics extra */
+        .analytics-highlight {
+            border-left: 4px solid #198754;
+            padding-left: 12px;
         }
     </style>
 </head>
@@ -222,6 +226,9 @@
                 </a>
                 <a class="nav-link" href="#" data-section="shop">
                     <i class="bi bi-shop"></i> Shop
+                </a>
+                <a class="nav-link" href="#" data-section="analytics">
+                    <i class="bi bi-graph-up"></i> Analytics
                 </a>
                 <a class="nav-link" href="#" data-section="transactions">
                     <i class="bi bi-receipt"></i> Transactions
@@ -304,8 +311,6 @@
             <div id="section-orders" style="display:none;">
                 <div class="stat-card">
                     <h5>All Orders</h5>
-                    
-                    <!-- Status Filter -->
                     <div class="status-filter">
                         <button class="btn btn-outline-secondary active-filter" data-filter="all">All</button>
                         <button class="btn btn-outline-secondary" data-filter="pending">Pending</button>
@@ -421,6 +426,69 @@
                 </div>
             </div>
 
+            <!-- ANALYTICS SECTION -->
+            <div id="section-analytics" style="display:none;">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card analytics-highlight">
+                            <div class="text-muted">Today's Revenue</div>
+                            <h3 id="todayRevenue">₦0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card analytics-highlight">
+                            <div class="text-muted">This Week</div>
+                            <h3 id="weekRevenue">₦0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card analytics-highlight">
+                            <div class="text-muted">This Month</div>
+                            <h3 id="monthRevenue">₦0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card analytics-highlight">
+                            <div class="text-muted">Total Revenue</div>
+                            <h3 id="totalRevenueAnalytics">₦0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Revenue by Service</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr><th>Service</th><th>Orders</th><th>Revenue</th></tr>
+                                    </thead>
+                                    <tbody id="serviceRevenueTable">
+                                        <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <h5>Revenue by Platform</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr><th>Platform</th><th>Orders</th><th>Revenue</th></tr>
+                                    </thead>
+                                    <tbody id="platformRevenueTable">
+                                        <tr><td colspan="3" class="text-center text-muted">Loading...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- TRANSACTIONS SECTION -->
             <div id="section-transactions" style="display:none;">
                 <div class="stat-card">
@@ -486,7 +554,7 @@
     </div>
 </div>
 
-<!-- ADD PRODUCT MODAL (UPDATED WITH LOGIN + PASSWORD) -->
+<!-- ADD PRODUCT MODAL -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -520,7 +588,6 @@
                         <label class="form-label">Description / Details</label>
                         <textarea class="form-control" id="prodDescription" rows="2" placeholder="Describe the account metrics, niche, or delivery terms..." required></textarea>
                     </div>
-                    <!-- ✅ NEW FIELDS: Login + Password -->
                     <div class="mb-3">
                         <label class="form-label">Login Email / Username</label>
                         <input type="text" class="form-control" id="prodLogin" placeholder="account@email.com or username" required>
@@ -677,20 +744,17 @@
     });
 
     // ============================================
-    // LOGOUT - IMPROVED
+    // LOGOUT
     // ============================================
     document.getElementById('adminLogout').addEventListener('click', async function(e) {
         e.preventDefault();
-        
         try {
             this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Logging out...';
             this.style.pointerEvents = 'none';
-            
             await auth.signOut();
             localStorage.clear();
             sessionStorage.clear();
             window.location.href = 'admin-login.html';
-            
         } catch (error) {
             console.error('Logout error:', error);
             window.location.href = 'admin-login.html';
@@ -703,10 +767,8 @@
     document.getElementById('refreshData').addEventListener('click', async function() {
         const btn = this;
         const originalHtml = btn.innerHTML;
-        
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Loading...';
         btn.disabled = true;
-        
         try {
             const activeSection = document.querySelector('.sidebar .nav-link.active');
             if (activeSection) {
@@ -741,6 +803,7 @@
                 users: '👥 Users',
                 services: '⚙️ Services',
                 shop: '🛒 Shop Management',
+                analytics: '📈 Analytics',
                 transactions: '💳 Transactions'
             };
             document.getElementById('sectionTitle').textContent = titles[section] || 'Dashboard';
@@ -755,6 +818,7 @@
         if (section === 'users') loadAllUsers();
         if (section === 'services') loadAllServices();
         if (section === 'shop') loadAllProducts();
+        if (section === 'analytics') loadAnalytics();
         if (section === 'transactions') loadAllTransactions();
     }
 
@@ -1254,16 +1318,16 @@
     }
 
     // ============================================
-    // ADD PRODUCT (UPDATED WITH LOGIN + PASSWORD)
+    // ADD PRODUCT
     // ============================================
     document.getElementById('saveProductBtn').addEventListener('click', async function() {
         const platform = document.getElementById('prodPlatform').value;
         const title = document.getElementById('prodTitle').value.trim();
         const price = parseFloat(document.getElementById('prodPrice').value);
         const description = document.getElementById('prodDescription').value.trim();
-        const login = document.getElementById('prodLogin').value.trim();      // ✅ NEW
-        const password = document.getElementById('prodPassword').value.trim(); // ✅ NEW
-        const notes = document.getElementById('prodNotes').value.trim();      // ✅ NEW
+        const login = document.getElementById('prodLogin').value.trim();
+        const password = document.getElementById('prodPassword').value.trim();
+        const notes = document.getElementById('prodNotes').value.trim();
         const status = document.getElementById('prodStatus').value;
         const msgDiv = document.getElementById('addProductMsg');
 
@@ -1282,9 +1346,9 @@
                 title: title,
                 price: price,
                 description: description,
-                login: login,        // ✅ NEW
-                password: password,  // ✅ NEW
-                notes: notes,        // ✅ NEW
+                login: login,
+                password: password,
+                notes: notes,
                 status: status || 'available',
                 createdAt: Date.now()
             });
@@ -1302,6 +1366,83 @@
             msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
         }
     });
+
+    // ============================================
+    // ANALYTICS
+    // ============================================
+    function loadAnalytics() {
+        const ordersRef = database.ref('orders');
+        ordersRef.once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) {
+                document.getElementById('todayRevenue').textContent = '₦0';
+                document.getElementById('weekRevenue').textContent = '₦0';
+                document.getElementById('monthRevenue').textContent = '₦0';
+                document.getElementById('totalRevenueAnalytics').textContent = '₦0';
+                document.getElementById('serviceRevenueTable').innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                document.getElementById('platformRevenueTable').innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                return;
+            }
+
+            const orders = Object.values(data);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let todayRev = 0, weekRev = 0, monthRev = 0, totalRev = 0;
+            let serviceRevenue = {};
+            let platformRevenue = {};
+
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay() + 1);
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            orders.forEach(order => {
+                if (order.status === 'refunded' || order.status === 'cancelled') return;
+                const amount = Number(order.total || order.price || 0);
+                const createdAt = Number(order.createdAt || 0);
+                totalRev += amount;
+
+                const serviceName = order.serviceName || order.service || 'Other';
+                serviceRevenue[serviceName] = (serviceRevenue[serviceName] || 0) + amount;
+
+                const platform = order.platform || 'Other';
+                platformRevenue[platform] = (platformRevenue[platform] || 0) + amount;
+
+                if (createdAt >= today.getTime()) todayRev += amount;
+                if (createdAt >= startOfWeek.getTime()) weekRev += amount;
+                if (createdAt >= startOfMonth.getTime()) monthRev += amount;
+            });
+
+            document.getElementById('todayRevenue').textContent = formatNaira(todayRev);
+            document.getElementById('weekRevenue').textContent = formatNaira(weekRev);
+            document.getElementById('monthRevenue').textContent = formatNaira(monthRev);
+            document.getElementById('totalRevenueAnalytics').textContent = formatNaira(totalRev);
+
+            // Service table
+            const serviceTbody = document.getElementById('serviceRevenueTable');
+            const serviceEntries = Object.entries(serviceRevenue).sort((a, b) => b[1] - a[1]);
+            if (serviceEntries.length === 0) {
+                serviceTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+            } else {
+                serviceTbody.innerHTML = serviceEntries.map(([name, rev]) => {
+                    const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name).length;
+                    return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
+                }).join('');
+            }
+
+            // Platform table
+            const platformTbody = document.getElementById('platformRevenueTable');
+            const platformEntries = Object.entries(platformRevenue).sort((a, b) => b[1] - a[1]);
+            if (platformEntries.length === 0) {
+                platformTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+            } else {
+                platformTbody.innerHTML = platformEntries.map(([name, rev]) => {
+                    const count = orders.filter(o => (o.platform || 'Other') === name).length;
+                    return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
+                }).join('');
+            }
+        });
+    }
 
     // ============================================
     // ALL TRANSACTIONS
@@ -1342,7 +1483,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with product credentials!');
+    console.log('✅ Admin dashboard loaded with Analytics!');
 </script>
 </body>
 </html>
