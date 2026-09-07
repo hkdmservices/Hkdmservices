@@ -461,6 +461,7 @@ if (
 
 /* =========================================================
    LOAD ORDERS (INDEX-QUERY FIX)
+   ✅ FIXED: Uses serviceName instead of service
 ========================================================= */
 
 async function loadRecentOrders(uid) {
@@ -540,7 +541,7 @@ async function loadRecentOrders(uid) {
                         <tbody>
         `;
 
-        // ✅ FIXED: Desktop table - uses serviceName instead of service
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
 
@@ -564,7 +565,7 @@ async function loadRecentOrders(uid) {
 
         let mobileHtml = `<div class="d-md-none">`;
 
-        // ✅ FIXED: Mobile cards - uses serviceName instead of service
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
 
