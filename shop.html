@@ -437,84 +437,117 @@
     }
 
     // ============================================
-    // CONFIRM PURCHASE
-    // ============================================
-    document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
-        const product = selectedProduct;
-        if (!product) return;
+// CONFIRM PURCHASE - SEND CREDENTIALS VIA EMAIL
+// ============================================
+document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
+    const product = selectedProduct;
+    if (!product) return;
 
-        const msgDiv = document.getElementById('purchaseMsg');
-        const btn = this;
+    const msgDiv = document.getElementById('purchaseMsg');
+    const btn = this;
 
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
-        try {
-            // Check if user has enough balance
-            if (userWallet < product.price) {
-                msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
-                return;
-            }
-
-            // 1️⃣ Deduct wallet
-            const newWallet = userWallet - product.price;
-            await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
-            userWallet = newWallet;
-            walletBalanceEl.textContent = formatNaira(userWallet);
-
-            // 2️⃣ Update product status to sold
-            await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
-
-            // 3️⃣ Create order
-            const orderId = 'SHOP-' + Date.now();
-            const orderData = {
-                uid: currentUser.uid,
-                orderId: orderId,
-                type: 'shop_purchase',
-                platform: product.platform,
-                title: product.title,
-                price: product.price,
-                description: product.description,
-                status: 'completed',
-                createdAt: Date.now()
-            };
-            await set(ref(database, 'orders/' + orderId), orderData);
-
-            // 4️⃣ Create transaction
-            const transactionId = 'TXN-' + Date.now();
-            const transactionData = {
-                uid: currentUser.uid,
-                orderId: orderId,
-                type: 'order_payment',
-                amount: -product.price,
-                status: 'success',
-                description: 'Purchase: ' + product.title,
-                createdAt: Date.now()
-            };
-            await set(ref(database, 'transactions/' + transactionId), transactionData);
-
-            // ✅ Success!
-            msgDiv.innerHTML = `<div class="alert alert-success">✅ Purchase successful! You bought "${product.title}" for ${formatNaira(product.price)}.</div>`;
-            showToast(`✅ Purchased ${product.title}`, 'success');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
-
-            // Reload products after delay
-            setTimeout(() => {
-                bootstrap.Modal.getInstance(document.getElementById('confirmPurchaseModal')).hide();
-                loadProducts();
-            }, 2000);
-
-        } catch (error) {
-            console.error('Purchase error:', error);
-            msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed to complete purchase: ${error.message}</div>`;
+    try {
+        // Check if user has enough balance
+        if (userWallet < product.price) {
+            msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
+            return;
         }
-    });
+
+        // 1️⃣ Deduct wallet
+        const newWallet = userWallet - product.price;
+        await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
+        userWallet = newWallet;
+        walletBalanceEl.textContent = formatNaira(userWallet);
+
+        // 2️⃣ Update product status to sold
+        await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
+
+        // 3️⃣ Create order
+        const orderId = 'SHOP-' + Date.now();
+        const orderData = {
+            uid: currentUser.uid,
+            orderId: orderId,
+            type: 'shop_purchase',
+            platform: product.platform,
+            title: product.title,
+            price: product.price,
+            description: product.description,
+            status: 'completed',
+            createdAt: Date.now()
+        };
+        await set(ref(database, 'orders/' + orderId), orderData);
+
+        // 4️⃣ Create transaction
+        const transactionId = 'TXN-' + Date.now();
+        const transactionData = {
+            uid: currentUser.uid,
+            orderId: orderId,
+            type: 'order_payment',
+            amount: -product.price,
+            status: 'success',
+            description: 'Purchase: ' + product.title,
+            createdAt: Date.now()
+        };
+        await set(ref(database, 'transactions/' + transactionId), transactionData);
+
+        // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL (instead of storing)
+        const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: currentUser.email,
+                platform: product.platform,
+                title: product.title,
+                login: product.login,
+                password: product.password,
+                notes: product.notes || ''
+            })
+        });
+
+        const emailResult = await emailResponse.json();
+
+        // 6️⃣ Show success with email confirmation
+        msgDiv.innerHTML = `
+            <div class="alert alert-success">✅ Purchase successful!</div>
+            <div class="alert alert-info">
+                <i class="bi bi-envelope"></i> 
+                <strong>Credentials sent to:</strong> ${currentUser.email}<br>
+                <small class="text-muted">Please check your inbox (and spam folder).</small>
+            </div>
+            <div class="alert alert-warning mt-2">
+                <i class="bi bi-shield-lock"></i> 
+                For security, change the password immediately after login.
+            </div>
+        `;
+        showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
+
+        // Delete product credentials from shop after sending
+        await set(ref(database, 'shop/' + product.key + '/login'), null);
+        await set(ref(database, 'shop/' + product.key + '/password'), null);
+
+        // Reload products after delay
+        setTimeout(() => {
+            bootstrap.Modal.getInstance(document.getElementById('confirmPurchaseModal')).hide();
+            loadProducts();
+        }, 3000);
+
+    } catch (error) {
+        console.error('Purchase error:', error);
+        msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed to complete purchase: ${error.message}</div>`;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
+    }
+});
 
     // ============================================
     // WALLET LISTENER (Real-time updates)
