@@ -198,6 +198,9 @@
                 <a class="nav-link" href="#" data-section="services">
                     <i class="bi bi-grid-3x3-gap"></i> Services
                 </a>
+                <a class="nav-link" href="#" data-section="shop">
+                    <i class="bi bi-shop"></i> Shop
+                </a>
                 <a class="nav-link" href="#" data-section="transactions">
                     <i class="bi bi-receipt"></i> Transactions
                 </a>
@@ -367,6 +370,35 @@
                 </div>
             </div>
 
+            <!-- SHOP SECTION -->
+            <div id="section-shop" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5>Manage Shop Products</h5>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        <i class="bi bi-plus-circle"></i> Add Product
+                    </button>
+                </div>
+                <div class="stat-card">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Platform</th>
+                                    <th>Title</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allProductsTable">
+                                <tr><td colspan="6" class="text-center text-muted">Loading products...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- TRANSACTIONS SECTION -->
             <div id="section-transactions" style="display:none;">
                 <div class="stat-card">
@@ -427,6 +459,59 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="saveServiceBtn">Save Service</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="mb-3">
+                        <label class="form-label">Platform</label>
+                        <select class="form-select" id="prodPlatform" required>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Twitter/X">Twitter/X</option>
+                            <option value="Snapchat">Snapchat</option>
+                            <option value="Telegram">Telegram</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account Title / Handle</label>
+                        <input type="text" class="form-control" id="prodTitle" placeholder="e.g. 50k Active TikTok Account" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price (₦)</label>
+                        <input type="number" class="form-control" id="prodPrice" placeholder="e.g. 25000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description / Details</label>
+                        <textarea class="form-control" id="prodDescription" rows="2" placeholder="Describe the account metrics, niche, or delivery terms..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="prodStatus">
+                            <option value="available">Available</option>
+                            <option value="sold">Sold</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div id="addProductMsg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveProductBtn">Save Product</button>
             </div>
         </div>
     </div>
@@ -592,6 +677,7 @@
                 orders: '📦 Orders',
                 users: '👥 Users',
                 services: '⚙️ Services',
+                shop: '🛒 Shop Management',
                 transactions: '💳 Transactions'
             };
             document.getElementById('sectionTitle').textContent = titles[section] || 'Dashboard';
@@ -605,6 +691,7 @@
         if (section === 'orders') loadAllOrders();
         if (section === 'users') loadAllUsers();
         if (section === 'services') loadAllServices();
+        if (section === 'shop') loadAllProducts();
         if (section === 'transactions') loadAllTransactions();
     }
 
@@ -730,7 +817,6 @@
 
             let orders = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
 
-            // Apply filter
             if (currentFilter !== 'all') {
                 orders = orders.filter(([key, order]) => order.status === currentFilter);
             }
@@ -786,7 +872,6 @@
                 `;
             }).join('');
 
-            // Attach update status events
             document.querySelectorAll('.update-status-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -798,7 +883,6 @@
                 });
             });
 
-            // Attach cancel/refund events
             document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -847,7 +931,7 @@
     });
 
     // ============================================
-    // ✅ CONFIRM CANCEL & REFUND - FIXED (type: 'refund')
+    // CONFIRM CANCEL & REFUND
     // ============================================
     document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
         const orderKey = this.dataset.orderKey;
@@ -865,7 +949,6 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
         try {
-            // 1️⃣ Get the order data
             const orderSnapshot = await database.ref('orders/' + orderKey).once('value');
             const orderData = orderSnapshot.val();
 
@@ -884,7 +967,6 @@
                 throw new Error('Invalid order data for refund');
             }
 
-            // 2️⃣ Get user data
             const userSnapshot = await database.ref('users/' + uid).once('value');
             const userData = userSnapshot.val();
 
@@ -892,25 +974,21 @@
                 throw new Error('User not found');
             }
 
-            // 3️⃣ Add refund to wallet
             const currentWallet = Number(userData.wallet || 0);
             const newWallet = currentWallet + amount;
             await database.ref('users/' + uid + '/wallet').set(newWallet);
 
-            // 4️⃣ Update total spent (decrease by refund amount)
             const currentTotalSpent = Number(userData.totalSpent || 0);
             const newTotalSpent = Math.max(0, currentTotalSpent - amount);
             await database.ref('users/' + uid + '/totalSpent').set(newTotalSpent);
 
-            // 5️⃣ Update order status to refunded
             await database.ref('orders/' + orderKey + '/status').set('refunded');
 
-            // ✅ 6️⃣ CREATE REFUND TRANSACTION - type is 'refund' (NOT 'refunded')
             const transactionId = 'REF-' + Date.now();
             const transactionData = {
                 uid: uid,
                 orderId: orderId,
-                type: 'refund',  // ✅ CORRECT - 'refund' not 'refunded'
+                type: 'refund',
                 amount: amount,
                 status: 'success',
                 description: 'Refund for order ' + orderId + ' (' + (orderData.serviceName || 'service') + ')',
@@ -919,7 +997,6 @@
             };
             await database.ref('transactions/' + transactionId).set(transactionData);
 
-            // ✅ Success!
             msgDiv.innerHTML = `<div class="alert alert-success">✅ Refund successful! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
             showToast(`✅ Refunded ₦${amount.toLocaleString()} for order ${orderId}`, 'success');
 
@@ -1053,6 +1130,111 @@
     });
 
     // ============================================
+    // SHOP - LOAD ALL PRODUCTS
+    // ============================================
+    function loadAllProducts() {
+        const productsRef = database.ref('shop');
+        productsRef.once('value', (snapshot) => {
+            const data = snapshot.val();
+            const tbody = document.getElementById('allProductsTable');
+
+            if (!data) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products found</td></tr>';
+                return;
+            }
+
+            const products = Object.entries(data);
+
+            tbody.innerHTML = products.map(([key, product]) => {
+                const statusColors = {
+                    'available': 'success',
+                    'sold': 'danger',
+                    'pending': 'warning'
+                };
+                const statusColor = statusColors[product.status] || 'secondary';
+                
+                return `
+                    <tr>
+                        <td><code>${key.slice(0, 8)}</code></td>
+                        <td><span class="badge bg-info">${product.platform || 'N/A'}</span></td>
+                        <td><strong>${product.title || 'N/A'}</strong></td>
+                        <td>${formatNaira(product.price)}</td>
+                        <td><span class="badge bg-${statusColor}">${product.status || 'available'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-light edit-product-btn" data-product-key="${key}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-product-btn" data-product-key="${key}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if (confirm('Delete this product?')) {
+                        await database.ref('shop/' + this.dataset.productKey).remove();
+                        loadAllProducts();
+                        showToast('🗑️ Product deleted', 'info');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.edit-product-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showToast('✏️ Edit feature coming soon!', 'info');
+                });
+            });
+        });
+    }
+
+    // ============================================
+    // ADD PRODUCT
+    // ============================================
+    document.getElementById('saveProductBtn').addEventListener('click', async function() {
+        const platform = document.getElementById('prodPlatform').value;
+        const title = document.getElementById('prodTitle').value.trim();
+        const price = parseFloat(document.getElementById('prodPrice').value);
+        const description = document.getElementById('prodDescription').value.trim();
+        const status = document.getElementById('prodStatus').value;
+        const msgDiv = document.getElementById('addProductMsg');
+
+        if (!platform || !title || !price || !description) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
+            return;
+        }
+
+        msgDiv.innerHTML = '<div class="alert alert-info">Adding product...</div>';
+
+        try {
+            const newRef = database.ref('shop').push();
+            await newRef.set({
+                id: newRef.key,
+                platform: platform,
+                title: title,
+                price: price,
+                description: description,
+                status: status || 'available',
+                createdAt: Date.now()
+            });
+
+            msgDiv.innerHTML = '<div class="alert alert-success">✅ Product added successfully!</div>';
+            showToast(`✅ Product "${title}" added`, 'success');
+            document.getElementById('addProductForm').reset();
+            setTimeout(() => {
+                msgDiv.innerHTML = '';
+                bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                loadAllProducts();
+            }, 1500);
+
+        } catch (error) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
+        }
+    });
+
+    // ============================================
     // ALL TRANSACTIONS
     // ============================================
     function loadAllTransactions() {
@@ -1091,7 +1273,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with working refund!');
+    console.log('✅ Admin dashboard loaded with Shop Management!');
 </script>
 </body>
 </html>
