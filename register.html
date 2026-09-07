@@ -87,7 +87,7 @@
                     <div class="text-center mt-4">
                         <p class="text-light mb-0">Already have an account? <a href="login.html" class="text-success text-decoration-none fw-bold">Login Here</a></p>
                     </div>
-                    <div id="message" class="alert alert-danger mt-3 d-none"></div>
+                    <div id="message" class="alert mt-3 d-none"></div>
                 </div>
             </div>
         </div>
@@ -110,10 +110,10 @@
 
     <script type="module">
         // ============================================================
-        // FIREBASE CONFIG (copied from config.js)
+        // FIREBASE CONFIG
         // ============================================================
         import { initializeApp } from "firebase/app";
-        import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
         import { getDatabase, ref, set, get } from "firebase/database";
 
         const firebaseConfig = {
@@ -131,7 +131,7 @@
         const database = getDatabase(app);
 
         // ============================================================
-        // REGISTRATION LOGIC
+        // REGISTRATION LOGIC (UPDATED: Custom Email via Resend)
         // ============================================================
         const form = document.getElementById("registerForm");
         const message = document.getElementById("message");
@@ -162,11 +162,15 @@
             }
 
             try {
+                // 1️⃣ Create user in Firebase Auth
                 const userCred = await createUserWithEmailAndPassword(auth, email, password);
-                await sendEmailVerification(userCred.user);
-                await updateProfile(userCred.user, { displayName: fullName });
+                const user = userCred.user;
+                
+                // 2️⃣ Update display name
+                await updateProfile(user, { displayName: fullName });
 
-                await set(ref(database, "users/" + userCred.user.uid), {
+                // 3️⃣ Save user data to Firebase Realtime Database
+                await set(ref(database, "users/" + user.uid), {
                     fullName: fullName,
                     email: email,
                     wallet: 0,
@@ -175,8 +179,25 @@
                     createdAt: Date.now()
                 });
 
+                // ✅ 4️⃣ Send CUSTOM branded verification email via Resend
+                try {
+                    const response = await fetch('https://hkdmservices.xyz/api-php/send-verification.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email,
+                            uid: user.uid
+                        })
+                    });
+                    const result = await response.json();
+                    console.log('Verification email:', result);
+                } catch (emailError) {
+                    console.error('Email error:', emailError);
+                    // Continue even if email fails
+                }
+
                 message.className = "alert alert-success mt-3";
-                message.textContent = "✅ Account created! Please verify your email.";
+                message.textContent = "✅ Account created! A verification email has been sent to your email address.";
                 message.classList.remove("d-none");
 
                 setTimeout(() => {
