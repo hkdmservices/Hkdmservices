@@ -847,7 +847,7 @@
     });
 
     // ============================================
-    // CONFIRM CANCEL & REFUND
+    // CONFIRM CANCEL & REFUND - FIXED VERSION
     // ============================================
     document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
         const orderKey = this.dataset.orderKey;
@@ -897,10 +897,15 @@
             const newWallet = currentWallet + amount;
             await database.ref('users/' + uid + '/wallet').set(newWallet);
 
-            // 4️⃣ Update order status to refunded
+            // 4️⃣ Update total spent (decrease by refund amount)
+            const currentTotalSpent = Number(userData.totalSpent || 0);
+            const newTotalSpent = Math.max(0, currentTotalSpent - amount);
+            await database.ref('users/' + uid + '/totalSpent').set(newTotalSpent);
+
+            // 5️⃣ Update order status to refunded
             await database.ref('orders/' + orderKey + '/status').set('refunded');
 
-            // 5️⃣ Create refund transaction
+            // ✅ 6️⃣ CREATE REFUND TRANSACTION (THIS WAS MISSING!)
             const transactionId = 'REF-' + Date.now();
             const transactionData = {
                 uid: uid,
@@ -914,13 +919,8 @@
             };
             await database.ref('transactions/' + transactionId).set(transactionData);
 
-            // 6️⃣ Update total spent (decrease by refund amount)
-            const currentTotalSpent = Number(userData.totalSpent || 0);
-            const newTotalSpent = Math.max(0, currentTotalSpent - amount);
-            await database.ref('users/' + uid + '/totalSpent').set(newTotalSpent);
-
             // ✅ Success!
-            msgDiv.innerHTML = `<div class="alert alert-success">✅ Cancelled & Refunded! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
+            msgDiv.innerHTML = `<div class="alert alert-success">✅ Refund successful! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
             showToast(`✅ Refunded ₦${amount.toLocaleString()} for order ${orderId}`, 'success');
 
             setTimeout(() => {
