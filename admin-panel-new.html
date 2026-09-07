@@ -486,7 +486,7 @@
     </div>
 </div>
 
-<!-- ADD PRODUCT MODAL -->
+<!-- ADD PRODUCT MODAL (UPDATED WITH LOGIN + PASSWORD) -->
 <div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -519,6 +519,19 @@
                     <div class="mb-3">
                         <label class="form-label">Description / Details</label>
                         <textarea class="form-control" id="prodDescription" rows="2" placeholder="Describe the account metrics, niche, or delivery terms..." required></textarea>
+                    </div>
+                    <!-- ✅ NEW FIELDS: Login + Password -->
+                    <div class="mb-3">
+                        <label class="form-label">Login Email / Username</label>
+                        <input type="text" class="form-control" id="prodLogin" placeholder="account@email.com or username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="text" class="form-control" id="prodPassword" placeholder="Enter account password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes (Optional)</label>
+                        <textarea class="form-control" id="prodNotes" rows="2" placeholder="2FA codes, recovery email, etc."></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -670,29 +683,22 @@
         e.preventDefault();
         
         try {
-            // Show loading state
             this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Logging out...';
             this.style.pointerEvents = 'none';
             
-            // Sign out from Firebase
             await auth.signOut();
-            
-            // Clear any local storage data
             localStorage.clear();
             sessionStorage.clear();
-            
-            // Redirect to login page
             window.location.href = 'admin-login.html';
             
         } catch (error) {
             console.error('Logout error:', error);
-            // Force redirect even if error
             window.location.href = 'admin-login.html';
         }
     });
 
     // ============================================
-    // REFRESH DATA WITH LOADING INDICATOR
+    // REFRESH DATA
     // ============================================
     document.getElementById('refreshData').addEventListener('click', async function() {
         const btn = this;
@@ -1248,17 +1254,20 @@
     }
 
     // ============================================
-    // ADD PRODUCT
+    // ADD PRODUCT (UPDATED WITH LOGIN + PASSWORD)
     // ============================================
     document.getElementById('saveProductBtn').addEventListener('click', async function() {
         const platform = document.getElementById('prodPlatform').value;
         const title = document.getElementById('prodTitle').value.trim();
         const price = parseFloat(document.getElementById('prodPrice').value);
         const description = document.getElementById('prodDescription').value.trim();
+        const login = document.getElementById('prodLogin').value.trim();      // ✅ NEW
+        const password = document.getElementById('prodPassword').value.trim(); // ✅ NEW
+        const notes = document.getElementById('prodNotes').value.trim();      // ✅ NEW
         const status = document.getElementById('prodStatus').value;
         const msgDiv = document.getElementById('addProductMsg');
 
-        if (!platform || !title || !price || !description) {
+        if (!platform || !title || !price || !description || !login || !password) {
             msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
             return;
         }
@@ -1273,6 +1282,9 @@
                 title: title,
                 price: price,
                 description: description,
+                login: login,        // ✅ NEW
+                password: password,  // ✅ NEW
+                notes: notes,        // ✅ NEW
                 status: status || 'available',
                 createdAt: Date.now()
             });
@@ -1330,7 +1342,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with Shop Management!');
+    console.log('✅ Admin dashboard loaded with product credentials!');
 </script>
 </body>
 </html>
