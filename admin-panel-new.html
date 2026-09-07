@@ -905,12 +905,12 @@
             // 5️⃣ Update order status to refunded
             await database.ref('orders/' + orderKey + '/status').set('refunded');
 
-            // ✅ 6️⃣ CREATE REFUND TRANSACTION - type is 'refund'
+            // ✅ 6️⃣ CREATE REFUND TRANSACTION - type is 'refund' (NOT 'refunded')
             const transactionId = 'REF-' + Date.now();
             const transactionData = {
                 uid: uid,
                 orderId: orderId,
-                type: 'refund',  // ✅ CORRECT - NOT 'refunded'
+                type: 'refund',  // ✅ CORRECT - 'refund' not 'refunded'
                 amount: amount,
                 status: 'success',
                 description: 'Refund for order ' + orderId + ' (' + (orderData.serviceName || 'service') + ')',
