@@ -847,7 +847,7 @@
     });
 
     // ============================================
-    // ✅ CONFIRM CANCEL & REFUND - WORKING VERSION
+    // ✅ CONFIRM CANCEL & REFUND - FIXED (type: 'refund')
     // ============================================
     document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
         const orderKey = this.dataset.orderKey;
@@ -905,12 +905,12 @@
             // 5️⃣ Update order status to refunded
             await database.ref('orders/' + orderKey + '/status').set('refunded');
 
-            // ✅ 6️⃣ CREATE REFUND TRANSACTION
+            // ✅ 6️⃣ CREATE REFUND TRANSACTION - type is 'refund'
             const transactionId = 'REF-' + Date.now();
             const transactionData = {
                 uid: uid,
                 orderId: orderId,
-                type: 'refund',
+                type: 'refund',  // ✅ CORRECT - NOT 'refunded'
                 amount: amount,
                 status: 'success',
                 description: 'Refund for order ' + orderId + ' (' + (orderData.serviceName || 'service') + ')',
