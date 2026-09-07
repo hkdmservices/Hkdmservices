@@ -114,7 +114,7 @@
         let currentUid = null;
         let transactionsListener = null;
 
-        // ✅ FIXED: Format amount with proper sign
+        // Format amount with proper sign
         function formatAmount(amount, type) {
             const num = Number(amount) || 0;
             const formatted = Math.abs(num).toLocaleString("en-NG", {
@@ -122,8 +122,8 @@
                 maximumFractionDigits: 2
             });
             
-            // Refunds and funding show as positive (credit)
-            if (type === 'refund' || type === 'wallet_funding') {
+            // ✅ Refunds and funding show as positive (credit)
+            if (type === 'refund' || type === 'refunded' || type === 'wallet_funding') {
                 return `+₦${formatted}`;
             }
             // Orders show as negative (debit)
@@ -134,7 +134,7 @@
             return num < 0 ? `-₦${formatted}` : `+₦${formatted}`;
         }
 
-        // ✅ FIXED: Get badge class for type (includes refund)
+        // Get badge class for type - ✅ FIXED: includes refund and refunded
         function getTypeBadge(type) {
             switch (type) {
                 case "wallet_funding":
@@ -143,6 +143,7 @@
                 case "order":
                     return '<span class="badge bg-primary"><i class="bi bi-cart-check"></i> Order</span>';
                 case "refund":
+                case "refunded":
                     return '<span class="badge bg-warning text-dark"><i class="bi bi-arrow-counterclockwise"></i> Refund</span>';
                 case "voucher":
                     return '<span class="badge bg-info text-dark"><i class="bi bi-ticket"></i> Voucher</span>';
@@ -151,9 +152,9 @@
             }
         }
 
-        // ✅ FIXED: Get amount class
+        // Get amount class - ✅ FIXED: includes refund and refunded
         function getAmountClass(type) {
-            if (type === 'refund' || type === 'wallet_funding') {
+            if (type === 'refund' || type === 'refunded' || type === 'wallet_funding') {
                 return 'text-success';
             }
             if (type === 'order_payment' || type === 'order') {
@@ -166,7 +167,6 @@
         function loadTransactions() {
             if (!currentUid) return;
             
-            // Remove existing listener if any
             if (transactionsListener) {
                 transactionsListener();
                 transactionsListener = null;
@@ -188,7 +188,6 @@
                     return;
                 }
 
-                // Filter transactions for this user
                 const userTransactions = Object.entries(data)
                     .filter(([key, tx]) => tx.uid === currentUid)
                     .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
