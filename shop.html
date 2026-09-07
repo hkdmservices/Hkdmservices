@@ -69,10 +69,6 @@
             padding: 3px 10px;
             border-radius: 20px;
         }
-        .product-card .btn-buy:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
         .filter-section {
             display: flex;
             gap: 8px;
@@ -225,6 +221,10 @@
                         <span class="text-muted">Your Balance:</span>
                         <span id="purchaseBalance" class="text-success">-</span>
                     </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Credentials Sent To:</span>
+                        <span id="purchaseEmail" class="text-info">-</span>
+                    </div>
                 </div>
                 <div id="purchaseMsg"></div>
             </div>
@@ -254,7 +254,7 @@
 <script type="module">
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
-    import { getDatabase, ref, onValue, get, set, push } from "firebase/database";
+    import { getDatabase, ref, onValue, get, set } from "firebase/database";
 
     // Firebase Config
     const firebaseConfig = {
@@ -428,6 +428,7 @@
         document.getElementById('purchaseTitle').textContent = product.title || 'N/A';
         document.getElementById('purchasePrice').textContent = formatNaira(product.price);
         document.getElementById('purchaseBalance').textContent = formatNaira(userWallet);
+        document.getElementById('purchaseEmail').textContent = currentUser.email || 'N/A';
         document.getElementById('purchaseMsg').innerHTML = '';
         document.getElementById('confirmPurchaseBtn').disabled = false;
         document.getElementById('confirmPurchaseBtn').innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
@@ -437,117 +438,117 @@
     }
 
     // ============================================
-// CONFIRM PURCHASE - SEND CREDENTIALS VIA EMAIL
-// ============================================
-document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
-    const product = selectedProduct;
-    if (!product) return;
+    // CONFIRM PURCHASE - SEND CREDENTIALS VIA EMAIL
+    // ============================================
+    document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
+        const product = selectedProduct;
+        if (!product) return;
 
-    const msgDiv = document.getElementById('purchaseMsg');
-    const btn = this;
+        const msgDiv = document.getElementById('purchaseMsg');
+        const btn = this;
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
-    try {
-        // Check if user has enough balance
-        if (userWallet < product.price) {
-            msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
-            return;
-        }
+        try {
+            // Check if user has enough balance
+            if (userWallet < product.price) {
+                msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
+                return;
+            }
 
-        // 1️⃣ Deduct wallet
-        const newWallet = userWallet - product.price;
-        await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
-        userWallet = newWallet;
-        walletBalanceEl.textContent = formatNaira(userWallet);
+            // 1️⃣ Deduct wallet
+            const newWallet = userWallet - product.price;
+            await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
+            userWallet = newWallet;
+            walletBalanceEl.textContent = formatNaira(userWallet);
 
-        // 2️⃣ Update product status to sold
-        await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
+            // 2️⃣ Update product status to sold
+            await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
 
-        // 3️⃣ Create order
-        const orderId = 'SHOP-' + Date.now();
-        const orderData = {
-            uid: currentUser.uid,
-            orderId: orderId,
-            type: 'shop_purchase',
-            platform: product.platform,
-            title: product.title,
-            price: product.price,
-            description: product.description,
-            status: 'completed',
-            createdAt: Date.now()
-        };
-        await set(ref(database, 'orders/' + orderId), orderData);
-
-        // 4️⃣ Create transaction
-        const transactionId = 'TXN-' + Date.now();
-        const transactionData = {
-            uid: currentUser.uid,
-            orderId: orderId,
-            type: 'order_payment',
-            amount: -product.price,
-            status: 'success',
-            description: 'Purchase: ' + product.title,
-            createdAt: Date.now()
-        };
-        await set(ref(database, 'transactions/' + transactionId), transactionData);
-
-        // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL (instead of storing)
-        const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: currentUser.email,
+            // 3️⃣ Create order
+            const orderId = 'SHOP-' + Date.now();
+            const orderData = {
+                uid: currentUser.uid,
+                orderId: orderId,
+                type: 'shop_purchase',
                 platform: product.platform,
                 title: product.title,
-                login: product.login,
-                password: product.password,
-                notes: product.notes || ''
-            })
-        });
+                price: product.price,
+                description: product.description,
+                status: 'completed',
+                createdAt: Date.now()
+            };
+            await set(ref(database, 'orders/' + orderId), orderData);
 
-        const emailResult = await emailResponse.json();
+            // 4️⃣ Create transaction
+            const transactionId = 'TXN-' + Date.now();
+            const transactionData = {
+                uid: currentUser.uid,
+                orderId: orderId,
+                type: 'order_payment',
+                amount: -product.price,
+                status: 'success',
+                description: 'Purchase: ' + product.title,
+                createdAt: Date.now()
+            };
+            await set(ref(database, 'transactions/' + transactionId), transactionData);
 
-        // 6️⃣ Show success with email confirmation
-        msgDiv.innerHTML = `
-            <div class="alert alert-success">✅ Purchase successful!</div>
-            <div class="alert alert-info">
-                <i class="bi bi-envelope"></i> 
-                <strong>Credentials sent to:</strong> ${currentUser.email}<br>
-                <small class="text-muted">Please check your inbox (and spam folder).</small>
-            </div>
-            <div class="alert alert-warning mt-2">
-                <i class="bi bi-shield-lock"></i> 
-                For security, change the password immediately after login.
-            </div>
-        `;
-        showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
-        
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
+            // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL
+            const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: currentUser.email,
+                    platform: product.platform,
+                    title: product.title,
+                    login: product.login || 'N/A',
+                    password: product.password || 'N/A',
+                    notes: product.notes || ''
+                })
+            });
 
-        // Delete product credentials from shop after sending
-        await set(ref(database, 'shop/' + product.key + '/login'), null);
-        await set(ref(database, 'shop/' + product.key + '/password'), null);
+            const emailResult = await emailResponse.json();
 
-        // Reload products after delay
-        setTimeout(() => {
-            bootstrap.Modal.getInstance(document.getElementById('confirmPurchaseModal')).hide();
-            loadProducts();
-        }, 3000);
+            // 6️⃣ Show success with email confirmation
+            msgDiv.innerHTML = `
+                <div class="alert alert-success">✅ Purchase successful!</div>
+                <div class="alert alert-info">
+                    <i class="bi bi-envelope"></i> 
+                    <strong>Credentials sent to:</strong> ${currentUser.email}<br>
+                    <small class="text-muted">Please check your inbox (and spam folder).</small>
+                </div>
+                <div class="alert alert-warning mt-2">
+                    <i class="bi bi-shield-lock"></i> 
+                    For security, change the password immediately after login.
+                </div>
+            `;
+            showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
 
-    } catch (error) {
-        console.error('Purchase error:', error);
-        msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed to complete purchase: ${error.message}</div>`;
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
-    }
-});
+            // Delete credentials from shop after sending (for security)
+            await set(ref(database, 'shop/' + product.key + '/login'), null);
+            await set(ref(database, 'shop/' + product.key + '/password'), null);
+
+            // Reload products after delay
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('confirmPurchaseModal')).hide();
+                loadProducts();
+            }, 3000);
+
+        } catch (error) {
+            console.error('Purchase error:', error);
+            msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed to complete purchase: ${error.message}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
+        }
+    });
 
     // ============================================
     // WALLET LISTENER (Real-time updates)
@@ -563,7 +564,7 @@ document.getElementById('confirmPurchaseBtn').addEventListener('click', async fu
         });
     }
 
-    console.log('✅ Shop page loaded!');
+    console.log('✅ Shop page loaded with email delivery!');
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
