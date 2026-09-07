@@ -114,7 +114,7 @@
         let currentUid = null;
         let transactionsListener = null;
 
-        // Format amount with proper sign
+        // ✅ FIXED: Format amount with proper sign
         function formatAmount(amount, type) {
             const num = Number(amount) || 0;
             const formatted = Math.abs(num).toLocaleString("en-NG", {
@@ -134,7 +134,7 @@
             return num < 0 ? `-₦${formatted}` : `+₦${formatted}`;
         }
 
-        // Get badge class for type
+        // ✅ FIXED: Get badge class for type (includes refund)
         function getTypeBadge(type) {
             switch (type) {
                 case "wallet_funding":
@@ -151,7 +151,7 @@
             }
         }
 
-        // Get amount class
+        // ✅ FIXED: Get amount class
         function getAmountClass(type) {
             if (type === 'refund' || type === 'wallet_funding') {
                 return 'text-success';
@@ -264,7 +264,6 @@
         // Refresh button
         refreshBtn.addEventListener('click', () => {
             if (currentUid) {
-                // Reload transactions
                 if (transactionsListener) {
                     transactionsListener();
                     transactionsListener = null;
