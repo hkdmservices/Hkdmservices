@@ -18,7 +18,6 @@
         html[data-theme="dark"] .text-muted { color: #99a1ab !important; }
         .theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
         .theme-toggle:hover { background: rgba(255,255,255,0.18); transform: rotate(15deg); }
-        .badge-refund { background-color: #ffc107; color: #000; }
     </style>
 </head>
 
@@ -113,6 +112,7 @@
         const messageDiv = document.getElementById("message");
         const refreshBtn = document.getElementById("refreshBtn");
         let currentUid = null;
+        let transactionsListener = null;
 
         // Format amount with proper sign
         function formatAmount(amount, type) {
@@ -166,9 +166,15 @@
         function loadTransactions() {
             if (!currentUid) return;
             
+            // Remove existing listener if any
+            if (transactionsListener) {
+                transactionsListener();
+                transactionsListener = null;
+            }
+
             const transactionsRef = ref(database, "transactions");
 
-            onValue(transactionsRef, (snapshot) => {
+            transactionsListener = onValue(transactionsRef, (snapshot) => {
                 const data = snapshot.val();
                 tbody.innerHTML = "";
 
@@ -182,6 +188,7 @@
                     return;
                 }
 
+                // Filter transactions for this user
                 const userTransactions = Object.entries(data)
                     .filter(([key, tx]) => tx.uid === currentUid)
                     .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
@@ -257,6 +264,11 @@
         // Refresh button
         refreshBtn.addEventListener('click', () => {
             if (currentUid) {
+                // Reload transactions
+                if (transactionsListener) {
+                    transactionsListener();
+                    transactionsListener = null;
+                }
                 loadTransactions();
                 showMessage('🔄 Refreshing transactions...', 'info');
             }
