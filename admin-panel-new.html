@@ -326,6 +326,62 @@
             height: 16px;
             cursor: pointer;
         }
+
+        /* Service & Shop Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-item .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #198754;
+        }
+        .stat-item .number.text-warning {
+            color: #d29922;
+        }
+        .stat-item .number.text-danger {
+            color: #f85149;
+        }
+        .stat-item .number.text-info {
+            color: #58a6ff;
+        }
+        .stat-item .label {
+            font-size: 0.7rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Service Details */
+        .service-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #30363d;
+        }
+        .service-detail-row:last-child {
+            border-bottom: none;
+        }
+        .service-detail-label {
+            color: #8b949e;
+            font-weight: 500;
+        }
+        .service-detail-value {
+            color: #f1f3f5;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
     </style>
 </head>
 <body>
@@ -436,12 +492,9 @@
                     </div>
                 </div>
 
-                <!-- ============================================ -->
-                <!-- ORDERS SECTION - ENHANCED                    -->
-                <!-- ============================================ -->
+                <!-- ORDERS SECTION -->
                 <div id="section-orders" style="display:none;">
                     <div class="stat-card">
-                        <!-- Order Stats -->
                         <div class="order-stats-grid" id="orderStatsGrid">
                             <div class="order-stat-item">
                                 <div class="number" id="statTotalOrders">0</div>
@@ -487,7 +540,6 @@
                             <button class="btn btn-outline-secondary" data-filter="failed" data-target="orders">Failed</button>
                         </div>
 
-                        <!-- Bulk Actions -->
                         <div class="bulk-actions-bar">
                             <div class="d-flex align-items-center gap-2">
                                 <input type="checkbox" class="order-select-all" id="selectAllOrders" title="Select all orders">
@@ -575,15 +627,38 @@
                     </div>
                 </div>
 
-                <!-- SERVICES SECTION -->
+                <!-- ============================================ -->
+                <!-- SERVICES SECTION - ENHANCED                 -->
+                <!-- ============================================ -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
+                        <!-- Service Stats -->
+                        <div class="stats-grid" id="serviceStatsGrid">
+                            <div class="stat-item">
+                                <div class="number" id="statTotalServices">0</div>
+                                <div class="label">Total Services</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number" id="statTotalPlatforms">0</div>
+                                <div class="label">Platforms</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-info" id="statUniquePlatforms">0</div>
+                                <div class="label">Unique Platforms</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-success" id="statHighestRate">₦0</div>
+                                <div class="label">Highest Rate</div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                             <h5>Manage Services</h5>
                             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
                                 <i class="bi bi-plus-circle"></i> Add Service
                             </button>
                         </div>
+
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -593,7 +668,7 @@
                                         <th>Platform</th>
                                         <th>Rate (per 1000)</th>
                                         <th>Min Qty</th>
-                                        <th>Action</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="allServicesTable">
@@ -606,9 +681,31 @@
                     </div>
                 </div>
 
-                <!-- SHOP SECTION -->
+                <!-- ============================================ -->
+                <!-- SHOP SECTION - ENHANCED                     -->
+                <!-- ============================================ -->
                 <div id="section-shop" style="display:none;">
                     <div class="stat-card">
+                        <!-- Shop Stats -->
+                        <div class="stats-grid" id="shopStatsGrid">
+                            <div class="stat-item">
+                                <div class="number" id="statTotalProducts">0</div>
+                                <div class="label">Total Products</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-success" id="statAvailableProducts">0</div>
+                                <div class="label">Available</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-danger" id="statSoldProducts">0</div>
+                                <div class="label">Sold</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-warning" id="statPendingProducts">0</div>
+                                <div class="label">Pending</div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                             <h5>Manage Shop Products</h5>
                             <div class="search-wrapper">
@@ -618,6 +715,7 @@
                                 </button>
                             </div>
                         </div>
+
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -627,7 +725,7 @@
                                         <th>Title</th>
                                         <th>Price</th>
                                         <th>Status</th>
-                                        <th>Action</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="allProductsTable">
@@ -948,6 +1046,48 @@
         </div>
     </div>
 
+    <!-- SERVICE DETAILS MODAL -->
+    <div class="modal fade" id="serviceDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-grid-3x3-gap text-success"></i> Service Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="serviceDetailsBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2">Loading service details...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHOP DETAILS MODAL -->
+    <div class="modal fade" id="shopDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-box-seam text-success"></i> Shop Product Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="shopDetailsBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2">Loading product details...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -1198,15 +1338,15 @@
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No orders found</td></tr>';
                 } else {
                     tbody.innerHTML = sorted.map(order => `
-                        <tr>
-                            <td><code class="id-code">${(order.orderId || '').slice(0, 12)}</code></td>
-                            <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
-                            <td>${order.serviceName || 'N/A'}</td>
-                            <td>${formatNaira(order.total)}</td>
-                            <td>${statusBadge(order.status)}</td>
-                            <td>${formatDate(order.createdAt)}</td>
-                        </tr>
-                    `).join('');
+                            <tr>
+                                <td><code class="id-code">${(order.orderId || '').slice(0, 12)}</code></td>
+                                <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                                <td>${order.serviceName || 'N/A'}</td>
+                                <td>${formatNaira(order.total)}</td>
+                                <td>${statusBadge(order.status)}</td>
+                                <td>${formatDate(order.createdAt)}</td>
+                            </tr>
+                        `).join('');
                 }
             });
 
@@ -1224,7 +1364,7 @@
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove(
-                'active-filter'));
+                    'active-filter'));
                 btn.classList.add('active-filter');
                 currentOrderFilter = btn.dataset.filter;
                 loadAllOrders();
@@ -1232,7 +1372,7 @@
         });
 
         // ============================================
-        // ALL ORDERS - ENHANCED WITH BULK ACTIONS
+        // ALL ORDERS
         // ============================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
@@ -1250,12 +1390,10 @@
 
                 let orders = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
 
-                // Apply filter
                 if (currentOrderFilter !== 'all') {
                     orders = orders.filter(([key, order]) => order.status === currentOrderFilter);
                 }
 
-                // Apply search
                 if (searchTerm) {
                     orders = orders.filter(([key, order]) => {
                         const orderId = (order.orderId || key).toLowerCase();
@@ -1263,20 +1401,18 @@
                         const platform = (order.platform || '').toLowerCase();
                         const uid = (order.uid || '').toLowerCase();
                         return orderId.includes(searchTerm) || service.includes(searchTerm) || platform.includes(
-                        searchTerm) || uid.includes(searchTerm);
+                            searchTerm) || uid.includes(searchTerm);
                     });
                 }
 
-                // Update stats
                 updateOrderStats(data);
 
                 if (orders.length === 0) {
                     tbody.innerHTML =
-                    `<tr><td colspan="10" class="text-center text-muted">No ${currentOrderFilter} orders found</td></tr>`;
+                        `<tr><td colspan="10" class="text-center text-muted">No ${currentOrderFilter} orders found</td></tr>`;
                     return;
                 }
 
-                // Clear selected orders
                 selectedOrders.clear();
                 document.getElementById('selectedOrdersCount').textContent = '0 selected';
 
@@ -1287,33 +1423,33 @@
                     const displayStatus = order.status || 'pending';
 
                     let actionButtons = `
-                        <button class="btn btn-sm btn-outline-light view-order-btn" 
-                            data-order-key="${key}"
-                            data-order-id="${orderId}"
-                            title="View order details">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-light update-status-btn" 
-                            data-order-key="${key}"
-                            data-order-id="${orderId}"
-                            data-current-status="${displayStatus}"
-                            title="Update status">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    `;
+                            <button class="btn btn-sm btn-outline-light view-order-btn" 
+                                data-order-key="${key}"
+                                data-order-id="${orderId}"
+                                title="View order details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-light update-status-btn" 
+                                data-order-key="${key}"
+                                data-order-id="${orderId}"
+                                data-current-status="${displayStatus}"
+                                title="Update status">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        `;
 
                     if (isRefundable && (displayStatus === 'pending' || displayStatus === 'processing')) {
                         actionButtons += `
-                            <button class="btn btn-sm btn-refund cancel-refund-btn" 
-                                data-order-key="${key}"
-                                data-order-id="${orderId}"
-                                data-service="${order.serviceName || 'N/A'}"
-                                data-amount="${order.total || 0}"
-                                data-uid="${order.uid || ''}"
-                                title="Cancel and refund">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
-                        `;
+                                <button class="btn btn-sm btn-refund cancel-refund-btn" 
+                                    data-order-key="${key}"
+                                    data-order-id="${orderId}"
+                                    data-service="${order.serviceName || 'N/A'}"
+                                    data-amount="${order.total || 0}"
+                                    data-uid="${order.uid || ''}"
+                                    title="Cancel and refund">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            `;
                     }
 
                     if (displayStatus === 'refunded' || displayStatus === 'cancelled' || displayStatus === 'failed') {
@@ -1321,30 +1457,28 @@
                     }
 
                     return `
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="order-checkbox" data-order-key="${key}" 
-                                    ${selectedOrders.has(key) ? 'checked' : ''}>
-                            </td>
-                            <td><code class="id-code">${orderId}</code></td>
-                            <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
-                            <td>${order.serviceName || 'N/A'}</td>
-                            <td>${order.platform || 'N/A'}</td>
-                            <td>${order.quantity || 0}</td>
-                            <td>${formatNaira(order.total)}</td>
-                            <td>${statusBadge(displayStatus)}</td>
-                            <td>${formatDate(order.createdAt)}</td>
-                            <td><div class="action-btns">${actionButtons}</div></td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="order-checkbox" data-order-key="${key}" 
+                                        ${selectedOrders.has(key) ? 'checked' : ''}>
+                                </td>
+                                <td><code class="id-code">${orderId}</code></td>
+                                <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                                <td>${order.serviceName || 'N/A'}</td>
+                                <td>${order.platform || 'N/A'}</td>
+                                <td>${order.quantity || 0}</td>
+                                <td>${formatNaira(order.total)}</td>
+                                <td>${statusBadge(displayStatus)}</td>
+                                <td>${formatDate(order.createdAt)}</td>
+                                <td><div class="action-btns">${actionButtons}</div></td>
+                            </tr>
+                        `;
                 }).join('');
 
                 // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
-                        const orderKey = btn.dataset.orderKey;
-                        const orderId = btn.dataset.orderId;
-                        viewOrderDetails(orderKey, orderId);
+                        viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
@@ -1379,7 +1513,7 @@
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
                         document.getElementById('cancelServiceDisplay').textContent = btn.dataset.service;
                         document.getElementById('cancelAmountDisplay').textContent = formatNaira(btn.dataset
-                        .amount);
+                            .amount);
                         document.getElementById('cancelUserDisplay').textContent = btn.dataset.uid.slice(0,
                             10) + '...';
                         document.getElementById('confirmCancelBtn').dataset.orderKey = btn.dataset.orderKey;
@@ -1577,11 +1711,11 @@
         function viewOrderDetails(orderKey, orderId) {
             const modalBody = document.getElementById('orderDetailsBody');
             modalBody.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="spinner-border text-success" role="status"></div>
-                    <p class="mt-2">Loading order details...</p>
-                </div>
-            `;
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2">Loading order details...</p>
+                    </div>
+                `;
 
             const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
             modal.show();
@@ -1592,94 +1726,93 @@
 
                 if (!order) {
                     modalBody.innerHTML = `
-                        <div class="alert alert-danger">Order not found</div>
-                    `;
+                            <div class="alert alert-danger">Order not found</div>
+                        `;
                     return;
                 }
 
-                // Get user data
                 const userRef = database.ref('users/' + order.uid);
                 userRef.once('value', (userSnapshot) => {
                     const userData = userSnapshot.val() || {};
 
                     const details = `
-                        <div class="mb-3">
-                            <h6 class="text-success">Order Information</h6>
-                            <div class="detail-row">
-                                <span class="detail-label">Order ID</span>
-                                <span class="detail-value"><code>${orderId}</code></span>
+                            <div class="mb-3">
+                                <h6 class="text-success">Order Information</h6>
+                                <div class="detail-row">
+                                    <span class="detail-label">Order ID</span>
+                                    <span class="detail-value"><code>${orderId}</code></span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Status</span>
+                                    <span class="detail-value">${statusBadge(order.status)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Date</span>
+                                    <span class="detail-value">${formatDate(order.createdAt)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Catalogue</span>
+                                    <span class="detail-value">${order.catalogue || 'General'}</span>
+                                </div>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Status</span>
-                                <span class="detail-value">${statusBadge(order.status)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Date</span>
-                                <span class="detail-value">${formatDate(order.createdAt)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Catalogue</span>
-                                <span class="detail-value">${order.catalogue || 'General'}</span>
-                            </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <h6 class="text-success">Service Details</h6>
-                            <div class="detail-row">
-                                <span class="detail-label">Service</span>
-                                <span class="detail-value">${order.serviceName || 'N/A'}</span>
+                            <div class="mb-3">
+                                <h6 class="text-success">Service Details</h6>
+                                <div class="detail-row">
+                                    <span class="detail-label">Service</span>
+                                    <span class="detail-value">${order.serviceName || 'N/A'}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Platform</span>
+                                    <span class="detail-value">${order.platform || 'N/A'}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Quantity</span>
+                                    <span class="detail-value">${order.quantity || 0}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Amount</span>
+                                    <span class="detail-value fw-bold text-success">${formatNaira(order.total)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Target Link</span>
+                                    <span class="detail-value"><code style="font-size:0.7rem;">${order.link || 'N/A'}</code></span>
+                                </div>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Platform</span>
-                                <span class="detail-value">${order.platform || 'N/A'}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Quantity</span>
-                                <span class="detail-value">${order.quantity || 0}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Total Amount</span>
-                                <span class="detail-value fw-bold text-success">${formatNaira(order.total)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Target Link</span>
-                                <span class="detail-value"><code style="font-size:0.7rem;">${order.link || 'N/A'}</code></span>
-                            </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <h6 class="text-success">Customer Information</h6>
-                            <div class="detail-row">
-                                <span class="detail-label">User UID</span>
-                                <span class="detail-value"><code style="font-size:0.7rem;">${order.uid || 'N/A'}</code></span>
+                            <div class="mb-3">
+                                <h6 class="text-success">Customer Information</h6>
+                                <div class="detail-row">
+                                    <span class="detail-label">User UID</span>
+                                    <span class="detail-value"><code style="font-size:0.7rem;">${order.uid || 'N/A'}</code></span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Name</span>
+                                    <span class="detail-value">${userData.fullName || 'N/A'}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Email</span>
+                                    <span class="detail-value">${userData.email || 'N/A'}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Wallet Balance</span>
+                                    <span class="detail-value">${formatNaira(userData.wallet)}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Total Spent</span>
+                                    <span class="detail-value">${formatNaira(userData.totalSpent)}</span>
+                                </div>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Name</span>
-                                <span class="detail-value">${userData.fullName || 'N/A'}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Email</span>
-                                <span class="detail-value">${userData.email || 'N/A'}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Wallet Balance</span>
-                                <span class="detail-value">${formatNaira(userData.wallet)}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Total Spent</span>
-                                <span class="detail-value">${formatNaira(userData.totalSpent)}</span>
-                            </div>
-                        </div>
 
-                        ${order.comments ? `
-                        <div class="mb-3">
-                            <h6 class="text-success">Custom Comments</h6>
-                            <div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">
-                                ${order.comments.map(c => `<span class="badge bg-secondary m-1">${c}</span>`).join('')}
+                            ${order.comments ? `
+                            <div class="mb-3">
+                                <h6 class="text-success">Custom Comments</h6>
+                                <div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">
+                                    ${order.comments.map(c => `<span class="badge bg-secondary m-1">${c}</span>`).join('')}
+                                </div>
                             </div>
-                        </div>
-                        ` : ''}
-                    `;
+                            ` : ''}
+                        `;
 
                     modalBody.innerHTML = details;
                 });
@@ -1754,7 +1887,8 @@
                     }
                 }
 
-                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
+                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`,
+                'success');
                 selectedOrders.clear();
                 loadAllOrders();
                 loadDashboard();
@@ -1793,7 +1927,7 @@
                     const email = (user.email || '').toLowerCase();
                     const uid = key.toLowerCase();
                     const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || uid.includes(
-                    searchTerm);
+                        searchTerm);
                     const userTier = (user.tier || 'regular').toLowerCase();
                     const matchesTier = tierFilter === 'all' || userTier === tierFilter;
                     const userStatus = user.status || 'active';
@@ -1803,7 +1937,7 @@
 
                 if (filtered.length === 0) {
                     tbody.innerHTML =
-                    '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
+                        '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
                     return;
                 }
 
@@ -1817,33 +1951,33 @@
                     const tierColor = tierColors[user.tier] || 'secondary';
 
                     return `
-                        <tr class="${isSuspended ? 'text-muted' : ''}">
-                            <td><code class="uid-code">${key}</code></td>
-                            <td>${user.fullName || 'N/A'}</td>
-                            <td>${user.email || 'N/A'}</td>
-                            <td>${formatNaira(user.wallet)}</td>
-                            <td>${formatNaira(user.totalSpent)}</td>
-                            <td><span class="badge bg-${tierColor}">${(user.tier || 'regular').toUpperCase()}</span></td>
-                            <td>
-                                <span class="badge bg-${isSuspended ? 'danger' : 'success'}">
-                                    ${isSuspended ? 'Suspended' : 'Active'}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1 flex-wrap user-actions">
-                                    <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}">
-                                        <i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                            <tr class="${isSuspended ? 'text-muted' : ''}">
+                                <td><code class="uid-code">${key}</code></td>
+                                <td>${user.fullName || 'N/A'}</td>
+                                <td>${user.email || 'N/A'}</td>
+                                <td>${formatNaira(user.wallet)}</td>
+                                <td>${formatNaira(user.totalSpent)}</td>
+                                <td><span class="badge bg-${tierColor}">${(user.tier || 'regular').toUpperCase()}</span></td>
+                                <td>
+                                    <span class="badge bg-${isSuspended ? 'danger' : 'success'}">
+                                        ${isSuspended ? 'Suspended' : 'Active'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap user-actions">
+                                        <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}">
+                                            <i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
                 }).join('');
 
                 // Attach edit events
@@ -1967,7 +2101,7 @@
         });
 
         // ============================================
-        // ALL SERVICES
+        // SERVICES - ENHANCED
         // ============================================
         function loadAllServices() {
             const servicesRef = database.ref('services');
@@ -1977,26 +2111,47 @@
 
                 if (!data) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No services found</td></tr>';
+                    updateServiceStats({});
                     return;
                 }
 
                 const services = Object.entries(data);
+                updateServiceStats(data);
 
-                tbody.innerHTML = services.map(([key, service]) => `
-                        <tr>
-                            <td><code class="id-code">${key}</code></td>
-                            <td>${service.service || 'N/A'}</td>
-                            <td>${service.platform || 'N/A'}</td>
-                            <td>${formatNaira(service.ratePer1000)}</td>
-                            <td>${service.minimumQuantity || 100}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger delete-service-btn" data-service-key="${key}">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                tbody.innerHTML = services.map(([key, service]) => {
+                    return `
+                            <tr>
+                                <td><code class="id-code">${key}</code></td>
+                                <td><strong>${service.service || 'N/A'}</strong></td>
+                                <td><span class="badge bg-info">${service.platform || 'N/A'}</span></td>
+                                <td>${formatNaira(service.ratePer1000)}</td>
+                                <td>${service.minimumQuantity || 100}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-light view-service-btn" 
+                                            data-service-key="${key}"
+                                            title="View service details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-service-btn" 
+                                            data-service-key="${key}"
+                                            title="Delete service">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                }).join('');
 
+                // Attach view service events
+                document.querySelectorAll('.view-service-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        viewServiceDetails(btn.dataset.serviceKey);
+                    });
+                });
+
+                // Attach delete events
                 document.querySelectorAll('.delete-service-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         if (confirm('Delete this service?')) {
@@ -2006,6 +2161,93 @@
                         }
                     });
                 });
+            });
+        }
+
+        // ============================================
+        // UPDATE SERVICE STATS
+        // ============================================
+        function updateServiceStats(data) {
+            let total = 0;
+            let platforms = new Set();
+            let highestRate = 0;
+
+            if (data) {
+                Object.values(data).forEach(service => {
+                    total++;
+                    if (service.platform) {
+                        platforms.add(service.platform);
+                    }
+                    const rate = Number(service.ratePer1000) || 0;
+                    if (rate > highestRate) {
+                        highestRate = rate;
+                    }
+                });
+            }
+
+            document.getElementById('statTotalServices').textContent = total;
+            document.getElementById('statTotalPlatforms').textContent = platforms.size;
+            document.getElementById('statUniquePlatforms').textContent = platforms.size;
+            document.getElementById('statHighestRate').textContent = formatNaira(highestRate);
+        }
+
+        // ============================================
+        // VIEW SERVICE DETAILS
+        // ============================================
+        function viewServiceDetails(serviceKey) {
+            const modalBody = document.getElementById('serviceDetailsBody');
+            modalBody.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2">Loading service details...</p>
+                    </div>
+                `;
+
+            const modal = new bootstrap.Modal(document.getElementById('serviceDetailsModal'));
+            modal.show();
+
+            const servicesRef = database.ref('services/' + serviceKey);
+            servicesRef.once('value', (snapshot) => {
+                const service = snapshot.val();
+
+                if (!service) {
+                    modalBody.innerHTML = `
+                            <div class="alert alert-danger">Service not found</div>
+                        `;
+                    return;
+                }
+
+                const details = `
+                        <div class="mb-3">
+                            <h6 class="text-success">Service Information</h6>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Service Key</span>
+                                <span class="service-detail-value"><code>${serviceKey}</code></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Service Name</span>
+                                <span class="service-detail-value"><strong>${service.service || 'N/A'}</strong></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Platform</span>
+                                <span class="service-detail-value"><span class="badge bg-info">${service.platform || 'N/A'}</span></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Rate Per 1000</span>
+                                <span class="service-detail-value fw-bold text-success">${formatNaira(service.ratePer1000)}</span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Minimum Quantity</span>
+                                <span class="service-detail-value">${service.minimumQuantity || 100}</span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Created At</span>
+                                <span class="service-detail-value">${formatDate(service.createdAt)}</span>
+                            </div>
+                        </div>
+                    `;
+
+                modalBody.innerHTML = details;
             });
         }
 
@@ -2052,10 +2294,8 @@
         });
 
         // ============================================
-        // SHOP
+        // SHOP - ENHANCED
         // ============================================
-        let currentShopSearch = '';
-
         function loadAllProducts() {
             const productsRef = database.ref('shop');
             productsRef.once('value', (snapshot) => {
@@ -2064,11 +2304,14 @@
 
                 if (!data) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products found</td></tr>';
+                    updateShopStats({});
                     return;
                 }
 
                 const searchTerm = document.getElementById('shopSearch')?.value?.toLowerCase() || '';
                 let products = Object.entries(data);
+
+                updateShopStats(data);
 
                 if (searchTerm) {
                     products = products.filter(([key, product]) => {
@@ -2076,12 +2319,13 @@
                         const title = (product.title || '').toLowerCase();
                         const platform = (product.platform || '').toLowerCase();
                         return id.includes(searchTerm) || title.includes(searchTerm) || platform.includes(
-                        searchTerm);
+                            searchTerm);
                     });
                 }
 
                 if (products.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
+                    tbody.innerHTML =
+                        '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
                     return;
                 }
 
@@ -2101,16 +2345,34 @@
                                 <td>${formatNaira(product.price)}</td>
                                 <td><span class="badge bg-${statusColor}">${product.status || 'available'}</span></td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-light edit-product-btn" data-product-key="${key}">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-product-btn" data-product-key="${key}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-light view-shop-btn" 
+                                            data-product-key="${key}"
+                                            title="View product details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-light edit-product-btn" 
+                                            data-product-key="${key}"
+                                            title="Edit product">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-product-btn" 
+                                            data-product-key="${key}"
+                                            title="Delete product">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
                 }).join('');
+
+                // Attach view shop events
+                document.querySelectorAll('.view-shop-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        viewShopDetails(btn.dataset.productKey);
+                    });
+                });
 
                 document.querySelectorAll('.delete-product-btn').forEach(btn => {
                     btn.addEventListener('click', async function() {
@@ -2127,6 +2389,130 @@
                         showToast('✏️ Edit feature coming soon!', 'info');
                     });
                 });
+            });
+        }
+
+        // ============================================
+        // UPDATE SHOP STATS
+        // ============================================
+        function updateShopStats(data) {
+            let total = 0;
+            let available = 0;
+            let sold = 0;
+            let pending = 0;
+
+            if (data) {
+                Object.values(data).forEach(product => {
+                    total++;
+                    switch (product.status) {
+                        case 'available':
+                            available++;
+                            break;
+                        case 'sold':
+                            sold++;
+                            break;
+                        case 'pending':
+                            pending++;
+                            break;
+                    }
+                });
+            }
+
+            document.getElementById('statTotalProducts').textContent = total;
+            document.getElementById('statAvailableProducts').textContent = available;
+            document.getElementById('statSoldProducts').textContent = sold;
+            document.getElementById('statPendingProducts').textContent = pending;
+        }
+
+        // ============================================
+        // VIEW SHOP DETAILS
+        // ============================================
+        function viewShopDetails(productKey) {
+            const modalBody = document.getElementById('shopDetailsBody');
+            modalBody.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <p class="mt-2">Loading product details...</p>
+                    </div>
+                `;
+
+            const modal = new bootstrap.Modal(document.getElementById('shopDetailsModal'));
+            modal.show();
+
+            const productsRef = database.ref('shop/' + productKey);
+            productsRef.once('value', (snapshot) => {
+                const product = snapshot.val();
+
+                if (!product) {
+                    modalBody.innerHTML = `
+                            <div class="alert alert-danger">Product not found</div>
+                        `;
+                    return;
+                }
+
+                const statusColors = {
+                    'available': 'success',
+                    'sold': 'danger',
+                    'pending': 'warning'
+                };
+                const statusColor = statusColors[product.status] || 'secondary';
+
+                const details = `
+                        <div class="mb-3">
+                            <h6 class="text-success">Product Information</h6>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Product Key</span>
+                                <span class="service-detail-value"><code>${productKey}</code></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Platform</span>
+                                <span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Title / Handle</span>
+                                <span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Price</span>
+                                <span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Status</span>
+                                <span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Created At</span>
+                                <span class="service-detail-value">${formatDate(product.createdAt)}</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-success">Credentials</h6>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Login / Username</span>
+                                <span class="service-detail-value"><code>${product.login || 'N/A'}</code></span>
+                            </div>
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Password</span>
+                                <span class="service-detail-value"><code>${product.password || 'N/A'}</code></span>
+                            </div>
+                            ${product.notes ? `
+                            <div class="service-detail-row">
+                                <span class="service-detail-label">Additional Notes</span>
+                                <span class="service-detail-value">${product.notes}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="text-success">Description</h6>
+                            <div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">
+                                ${product.description || 'No description provided.'}
+                            </div>
+                        </div>
+                    `;
+
+                modalBody.innerHTML = details;
             });
         }
 
@@ -2254,7 +2640,7 @@
                 } else {
                     serviceTbody.innerHTML = serviceEntries.map(([name, rev]) => {
                         const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name)
-                        .length;
+                            .length;
                         return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
                     }).join('');
                 }
@@ -2276,8 +2662,6 @@
         // ============================================
         // TRANSACTIONS
         // ============================================
-        let currentTransactionSearch = '';
-
         function loadAllTransactions() {
             const transactionsRef = database.ref('transactions');
             transactionsRef.once('value', (snapshot) => {
@@ -2299,13 +2683,13 @@
                         const uid = (tx.uid || '').toLowerCase();
                         const type = (tx.type || '').toLowerCase();
                         return id.includes(searchTerm) || description.includes(searchTerm) || uid.includes(
-                        searchTerm) || type.includes(searchTerm);
+                            searchTerm) || type.includes(searchTerm);
                     });
                 }
 
                 if (transactions.length === 0) {
                     tbody.innerHTML =
-                    '<tr><td colspan="6" class="text-center text-muted">No transactions match your search</td></tr>';
+                        '<tr><td colspan="6" class="text-center text-muted">No transactions match your search</td></tr>';
                     return;
                 }
 
@@ -2352,7 +2736,7 @@
             }
         });
 
-        console.log('✅ Admin dashboard loaded with enhanced Order Management!');
+        console.log('✅ Admin dashboard loaded with enhanced Services and Shop!');
     </script>
 </body>
 </html>
