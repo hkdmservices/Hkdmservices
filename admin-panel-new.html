@@ -359,7 +359,7 @@
                 </div>
             </div>
 
-            <!-- USERS SECTION - UPDATED WITH FULL UID -->
+            <!-- USERS SECTION -->
             <div id="section-users" style="display:none;">
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -523,7 +523,7 @@
                 </div>
             </div>
 
-            <!-- TRANSACTIONS SECTION -->
+            <!-- TRANSACTIONS SECTION - UPDATED WITH FULL UID -->
             <div id="section-transactions" style="display:none;">
                 <div class="stat-card">
                     <h5>All Transactions</h5>
@@ -1699,7 +1699,13 @@
     }
 
     // ============================================
-    // ALL TRANSACTIONS
+    // ============================================
+    // TRANSACTIONS - FULL UID DISPLAY
+    // ============================================
+    // ============================================
+
+    // ============================================
+    // LOAD ALL TRANSACTIONS WITH FULL UID
     // ============================================
     function loadAllTransactions() {
         const transactionsRef = database.ref('transactions');
@@ -1725,7 +1731,7 @@
                 
                 return `
                     <tr>
-                        <td>${tx.uid ? tx.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                        <td><code class="uid-code">${tx.uid || 'N/A'}</code></td>
                         <td><span class="badge bg-${color}">${tx.type || 'N/A'}</span></td>
                         <td>${tx.description || 'N/A'}</td>
                         <td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td>
@@ -1737,7 +1743,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with full UID display!');
+    console.log('✅ Admin dashboard loaded with full UID display for Users and Transactions!');
 </script>
 </body>
 </html>
