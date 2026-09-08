@@ -202,17 +202,43 @@
             font-size: 0.7rem;
             padding: 2px 6px;
         }
-        .uid-code {
+        .uid-code, .id-code {
             font-size: 0.7rem;
             word-break: break-all;
             display: inline-block;
             max-width: 180px;
         }
         @media (max-width: 768px) {
-            .uid-code {
+            .uid-code, .id-code {
                 max-width: 100px;
                 font-size: 0.6rem;
             }
+        }
+        .section-search {
+            max-width: 250px;
+        }
+        .section-search:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
+        }
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: #161b22;
+            z-index: 10;
+        }
+        .search-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-wrapper .form-control {
+            min-width: 200px;
         }
     </style>
 </head>
@@ -322,18 +348,26 @@
                 </div>
             </div>
 
-            <!-- ORDERS SECTION -->
+            <!-- ============================================ -->
+            <!-- ORDERS SECTION - FULL ID + SEARCH            -->
+            <!-- ============================================ -->
             <div id="section-orders" style="display:none;">
                 <div class="stat-card">
-                    <h5>All Orders</h5>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                        <h5>All Orders</h5>
+                        <div class="search-wrapper">
+                            <input type="text" id="orderSearch" class="form-control form-control-sm section-search" placeholder="Search orders..." title="Search by Order ID, Service, or Platform">
+                            <button class="btn btn-sm btn-outline-light" id="clearOrderSearch" title="Clear search"><i class="bi bi-x-circle"></i></button>
+                        </div>
+                    </div>
                     <div class="status-filter">
-                        <button class="btn btn-outline-secondary active-filter" data-filter="all">All</button>
-                        <button class="btn btn-outline-secondary" data-filter="pending">Pending</button>
-                        <button class="btn btn-outline-secondary" data-filter="processing">Processing</button>
-                        <button class="btn btn-outline-secondary" data-filter="completed">Completed</button>
-                        <button class="btn btn-outline-secondary" data-filter="cancelled">Cancelled</button>
-                        <button class="btn btn-outline-secondary" data-filter="refunded">Refunded</button>
-                        <button class="btn btn-outline-secondary" data-filter="failed">Failed</button>
+                        <button class="btn btn-outline-secondary active-filter" data-filter="all" data-target="orders">All</button>
+                        <button class="btn btn-outline-secondary" data-filter="pending" data-target="orders">Pending</button>
+                        <button class="btn btn-outline-secondary" data-filter="processing" data-target="orders">Processing</button>
+                        <button class="btn btn-outline-secondary" data-filter="completed" data-target="orders">Completed</button>
+                        <button class="btn btn-outline-secondary" data-filter="cancelled" data-target="orders">Cancelled</button>
+                        <button class="btn btn-outline-secondary" data-filter="refunded" data-target="orders">Refunded</button>
+                        <button class="btn btn-outline-secondary" data-filter="failed" data-target="orders">Failed</button>
                     </div>
 
                     <div class="table-responsive">
@@ -365,7 +399,7 @@
                     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                         <h5>All Users</h5>
                         <div class="d-flex gap-2 flex-wrap">
-                            <input type="text" id="userSearch" class="form-control form-control-sm" placeholder="Search users..." style="width: 200px;">
+                            <input type="text" id="userSearch" class="form-control form-control-sm section-search" placeholder="Search users...">
                             <select id="userTierFilter" class="form-select form-select-sm" style="width: 130px;">
                                 <option value="all">All Tiers</option>
                                 <option value="regular">Regular</option>
@@ -404,13 +438,13 @@
 
             <!-- SERVICES SECTION -->
             <div id="section-services" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>Manage Services</h5>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-                        <i class="bi bi-plus-circle"></i> Add Service
-                    </button>
-                </div>
                 <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                        <h5>Manage Services</h5>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                            <i class="bi bi-plus-circle"></i> Add Service
+                        </button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -431,15 +465,20 @@
                 </div>
             </div>
 
-            <!-- SHOP SECTION -->
+            <!-- ============================================ -->
+            <!-- SHOP SECTION - FULL ID + SEARCH             -->
+            <!-- ============================================ -->
             <div id="section-shop" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>Manage Shop Products</h5>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                        <i class="bi bi-plus-circle"></i> Add Product
-                    </button>
-                </div>
                 <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                        <h5>Manage Shop Products</h5>
+                        <div class="search-wrapper">
+                            <input type="text" id="shopSearch" class="form-control form-control-sm section-search" placeholder="Search products...">
+                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="bi bi-plus-circle"></i> Add Product
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -523,10 +562,18 @@
                 </div>
             </div>
 
-            <!-- TRANSACTIONS SECTION - UPDATED WITH FULL UID -->
+            <!-- ============================================ -->
+            <!-- TRANSACTIONS SECTION - FULL ID + SEARCH     -->
+            <!-- ============================================ -->
             <div id="section-transactions" style="display:none;">
                 <div class="stat-card">
-                    <h5>All Transactions</h5>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                        <h5>All Transactions</h5>
+                        <div class="search-wrapper">
+                            <input type="text" id="transactionSearch" class="form-control form-control-sm section-search" placeholder="Search transactions...">
+                            <button class="btn btn-sm btn-outline-light" id="clearTransactionSearch" title="Clear search"><i class="bi bi-x-circle"></i></button>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -796,7 +843,8 @@
     const database = firebase.database();
 
     let currentUser = null;
-    let currentFilter = 'all';
+    let currentOrderFilter = 'all';
+    let currentOrderSearch = '';
 
     // ============================================
     // CHECK ADMIN ACCESS
@@ -976,7 +1024,7 @@
             } else {
                 tbody.innerHTML = sorted.map(order => `
                     <tr>
-                        <td><code>${(order.orderId || '').slice(0, 10)}</code></td>
+                        <td><code class="id-code">${(order.orderId || '').slice(0, 12)}</code></td>
                         <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
                         <td>${order.serviceName || 'N/A'}</td>
                         <td>${formatNaira(order.total)}</td>
@@ -996,19 +1044,19 @@
     }
 
     // ============================================
-    // STATUS FILTER
+    // ORDERS FILTER
     // ============================================
-    document.querySelectorAll('.status-filter .btn').forEach(btn => {
+    document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.status-filter .btn').forEach(b => b.classList.remove('active-filter'));
+            document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove('active-filter'));
             btn.classList.add('active-filter');
-            currentFilter = btn.dataset.filter;
+            currentOrderFilter = btn.dataset.filter;
             loadAllOrders();
         });
     });
 
     // ============================================
-    // ALL ORDERS
+    // ALL ORDERS - FULL ORDER ID + SEARCH
     // ============================================
     function loadAllOrders() {
         const ordersRef = database.ref('orders');
@@ -1021,14 +1069,28 @@
                 return;
             }
 
+            const searchTerm = document.getElementById('orderSearch')?.value?.toLowerCase() || '';
+
             let orders = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
 
-            if (currentFilter !== 'all') {
-                orders = orders.filter(([key, order]) => order.status === currentFilter);
+            // Apply filter
+            if (currentOrderFilter !== 'all') {
+                orders = orders.filter(([key, order]) => order.status === currentOrderFilter);
+            }
+
+            // Apply search
+            if (searchTerm) {
+                orders = orders.filter(([key, order]) => {
+                    const orderId = (order.orderId || key).toLowerCase();
+                    const service = (order.serviceName || '').toLowerCase();
+                    const platform = (order.platform || '').toLowerCase();
+                    const uid = (order.uid || '').toLowerCase();
+                    return orderId.includes(searchTerm) || service.includes(searchTerm) || platform.includes(searchTerm) || uid.includes(searchTerm);
+                });
             }
 
             if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No ${currentFilter} orders found</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No ${currentOrderFilter} orders found</td></tr>`;
                 return;
             }
 
@@ -1065,7 +1127,7 @@
 
                 return `
                     <tr>
-                        <td><code>${orderId.slice(0, 10)}</code></td>
+                        <td><code class="id-code">${orderId}</code></td>
                         <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
                         <td>${order.serviceName || 'N/A'}</td>
                         <td>${order.platform || 'N/A'}</td>
@@ -1078,6 +1140,7 @@
                 `;
             }).join('');
 
+            // Attach update status events
             document.querySelectorAll('.update-status-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -1089,6 +1152,7 @@
                 });
             });
 
+            // Attach cancel/refund events
             document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -1104,6 +1168,26 @@
             });
         });
     }
+
+    // ============================================
+    // ORDER SEARCH EVENT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const orderSearch = document.getElementById('orderSearch');
+        if (orderSearch) {
+            orderSearch.addEventListener('input', loadAllOrders);
+        }
+        const clearOrderSearch = document.getElementById('clearOrderSearch');
+        if (clearOrderSearch) {
+            clearOrderSearch.addEventListener('click', function() {
+                const searchInput = document.getElementById('orderSearch');
+                if (searchInput) {
+                    searchInput.value = '';
+                    loadAllOrders();
+                }
+            });
+        }
+    });
 
     // ============================================
     // UPDATE ORDER STATUS
@@ -1222,13 +1306,7 @@
     });
 
     // ============================================
-    // ============================================
-    // USER MANAGEMENT - FULL UID DISPLAY
-    // ============================================
-    // ============================================
-
-    // ============================================
-    // LOAD ALL USERS WITH FULL UID
+    // USER MANAGEMENT
     // ============================================
     function loadAllUsers() {
         const usersRef = database.ref('users');
@@ -1352,7 +1430,7 @@
     }
 
     // ============================================
-    // EDIT USER - OPEN MODAL
+    // EDIT USER
     // ============================================
     function openEditUserModal(user) {
         document.getElementById('editUserUid').value = user.uid;
@@ -1365,9 +1443,6 @@
         modal.show();
     }
 
-    // ============================================
-    // SAVE USER CHANGES
-    // ============================================
     document.getElementById('saveUserBtn').addEventListener('click', async () => {
         const uid = document.getElementById('editUserUid').value;
         const fullName = document.getElementById('editUserFullName').value.trim();
@@ -1403,7 +1478,7 @@
     });
 
     // ============================================
-    // USER FILTERS - EVENT LISTENERS
+    // USER FILTERS
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('userSearch');
@@ -1443,7 +1518,7 @@
 
             tbody.innerHTML = services.map(([key, service]) => `
                 <tr>
-                    <td><code>${key.slice(0, 8)}</code></td>
+                    <td><code class="id-code">${key}</code></td>
                     <td>${service.service || 'N/A'}</td>
                     <td>${service.platform || 'N/A'}</td>
                     <td>${formatNaira(service.ratePer1000)}</td>
@@ -1511,8 +1586,10 @@
     });
 
     // ============================================
-    // SHOP - LOAD ALL PRODUCTS
+    // SHOP - FULL ID + SEARCH
     // ============================================
+    let currentShopSearch = '';
+
     function loadAllProducts() {
         const productsRef = database.ref('shop');
         productsRef.once('value', (snapshot) => {
@@ -1524,7 +1601,23 @@
                 return;
             }
 
-            const products = Object.entries(data);
+            const searchTerm = document.getElementById('shopSearch')?.value?.toLowerCase() || '';
+            let products = Object.entries(data);
+
+            // Apply search
+            if (searchTerm) {
+                products = products.filter(([key, product]) => {
+                    const id = key.toLowerCase();
+                    const title = (product.title || '').toLowerCase();
+                    const platform = (product.platform || '').toLowerCase();
+                    return id.includes(searchTerm) || title.includes(searchTerm) || platform.includes(searchTerm);
+                });
+            }
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
+                return;
+            }
 
             tbody.innerHTML = products.map(([key, product]) => {
                 const statusColors = {
@@ -1536,7 +1629,7 @@
                 
                 return `
                     <tr>
-                        <td><code>${key.slice(0, 8)}</code></td>
+                        <td><code class="id-code">${key}</code></td>
                         <td><span class="badge bg-info">${product.platform || 'N/A'}</span></td>
                         <td><strong>${product.title || 'N/A'}</strong></td>
                         <td>${formatNaira(product.price)}</td>
@@ -1570,6 +1663,16 @@
             });
         });
     }
+
+    // ============================================
+    // SHOP SEARCH EVENT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const shopSearch = document.getElementById('shopSearch');
+        if (shopSearch) {
+            shopSearch.addEventListener('input', loadAllProducts);
+        }
+    });
 
     // ============================================
     // ADD PRODUCT
@@ -1699,14 +1802,10 @@
     }
 
     // ============================================
+    // TRANSACTIONS - FULL ID + SEARCH
     // ============================================
-    // TRANSACTIONS - FULL UID DISPLAY
-    // ============================================
-    // ============================================
+    let currentTransactionSearch = '';
 
-    // ============================================
-    // LOAD ALL TRANSACTIONS WITH FULL UID
-    // ============================================
     function loadAllTransactions() {
         const transactionsRef = database.ref('transactions');
         transactionsRef.once('value', (snapshot) => {
@@ -1718,7 +1817,24 @@
                 return;
             }
 
-            const transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+            const searchTerm = document.getElementById('transactionSearch')?.value?.toLowerCase() || '';
+            let transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+
+            // Apply search
+            if (searchTerm) {
+                transactions = transactions.filter(([key, tx]) => {
+                    const id = key.toLowerCase();
+                    const description = (tx.description || '').toLowerCase();
+                    const uid = (tx.uid || '').toLowerCase();
+                    const type = (tx.type || '').toLowerCase();
+                    return id.includes(searchTerm) || description.includes(searchTerm) || uid.includes(searchTerm) || type.includes(searchTerm);
+                });
+            }
+
+            if (transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No transactions match your search</td></tr>';
+                return;
+            }
 
             tbody.innerHTML = transactions.map(([key, tx]) => {
                 const typeColors = {
@@ -1731,7 +1847,7 @@
                 
                 return `
                     <tr>
-                        <td><code class="uid-code">${tx.uid || 'N/A'}</code></td>
+                        <td><code class="id-code">${tx.uid || 'N/A'}</code></td>
                         <td><span class="badge bg-${color}">${tx.type || 'N/A'}</span></td>
                         <td>${tx.description || 'N/A'}</td>
                         <td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td>
@@ -1743,7 +1859,27 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with full UID display for Users and Transactions!');
+    // ============================================
+    // TRANSACTION SEARCH EVENT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const transactionSearch = document.getElementById('transactionSearch');
+        if (transactionSearch) {
+            transactionSearch.addEventListener('input', loadAllTransactions);
+        }
+        const clearTransactionSearch = document.getElementById('clearTransactionSearch');
+        if (clearTransactionSearch) {
+            clearTransactionSearch.addEventListener('click', function() {
+                const searchInput = document.getElementById('transactionSearch');
+                if (searchInput) {
+                    searchInput.value = '';
+                    loadAllTransactions();
+                }
+            });
+        }
+    });
+
+    console.log('✅ Admin dashboard loaded with full ID display and search!');
 </script>
 </body>
 </html>
