@@ -194,10 +194,13 @@
             color: #8b949e;
             font-size: 0.9rem;
         }
-        /* Analytics extra */
         .analytics-highlight {
             border-left: 4px solid #198754;
             padding-left: 12px;
+        }
+        .user-actions .btn {
+            font-size: 0.7rem;
+            padding: 2px 6px;
         }
     </style>
 </head>
@@ -344,10 +347,29 @@
                 </div>
             </div>
 
-            <!-- USERS SECTION -->
+            <!-- ============================================ -->
+            <!-- UPDATED USERS SECTION WITH FULL MANAGEMENT   -->
+            <!-- ============================================ -->
             <div id="section-users" style="display:none;">
                 <div class="stat-card">
-                    <h5>All Users</h5>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                        <h5>All Users</h5>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input type="text" id="userSearch" class="form-control form-control-sm" placeholder="Search users..." style="width: 200px;">
+                            <select id="userTierFilter" class="form-select form-select-sm" style="width: 130px;">
+                                <option value="all">All Tiers</option>
+                                <option value="regular">Regular</option>
+                                <option value="vip">VIP</option>
+                                <option value="reseller">Reseller</option>
+                            </select>
+                            <select id="userStatusFilter" class="form-select form-select-sm" style="width: 130px;">
+                                <option value="all">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                            <button class="btn btn-sm btn-success" id="refreshUsers"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -358,10 +380,12 @@
                                     <th>Wallet</th>
                                     <th>Total Spent</th>
                                     <th>Tier</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="allUsersTable">
-                                <tr><td colspan="7" class="text-center text-muted">Loading...</td></tr>
+                                <tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -688,6 +712,53 @@
                 <button type="button" class="btn btn-danger" id="confirmCancelBtn">
                     <i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- EDIT USER MODAL (NEW)                       -->
+<!-- ============================================ -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-gear text-success"></i> Edit User</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserUid">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editUserFullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editUserEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tier</label>
+                        <select class="form-select" id="editUserTier">
+                            <option value="regular">Regular</option>
+                            <option value="vip">VIP</option>
+                            <option value="reseller">Reseller</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="editUserStatus">
+                            <option value="active">Active</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div id="editUserMsg"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveUserBtn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1143,7 +1214,13 @@
     });
 
     // ============================================
-    // ALL USERS
+    // ============================================
+    // USER MANAGEMENT - UPDATED VERSION
+    // ============================================
+    // ============================================
+
+    // ============================================
+    // LOAD ALL USERS WITH FILTERS
     // ============================================
     function loadAllUsers() {
         const usersRef = database.ref('users');
@@ -1152,24 +1229,199 @@
             const tbody = document.getElementById('allUsersTable');
 
             if (!data) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No users found</td></tr>';
                 return;
             }
 
             const users = Object.entries(data);
+            const searchTerm = document.getElementById('userSearch')?.value?.toLowerCase() || '';
+            const tierFilter = document.getElementById('userTierFilter')?.value || 'all';
+            const statusFilter = document.getElementById('userStatusFilter')?.value || 'all';
 
-            tbody.innerHTML = users.map(([key, user]) => `
-                <tr>
-                    <td><code>${key.slice(0, 12)}...</code></td>
-                    <td>${user.fullName || 'N/A'}</td>
-                    <td>${user.email || 'N/A'}</td>
-                    <td>${formatNaira(user.wallet)}</td>
-                    <td>${formatNaira(user.totalSpent)}</td>
-                    <td><span class="badge bg-${user.tier === 'reseller' ? 'danger' : user.tier === 'vip' ? 'success' : 'secondary'}">${(user.tier || 'regular').toUpperCase()}</span></td>
-                </tr>
-            `).join('');
+            let filtered = users.filter(([key, user]) => {
+                // Search filter
+                const name = (user.fullName || '').toLowerCase();
+                const email = (user.email || '').toLowerCase();
+                const uid = key.toLowerCase();
+                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || uid.includes(searchTerm);
+                
+                // Tier filter
+                const userTier = (user.tier || 'regular').toLowerCase();
+                const matchesTier = tierFilter === 'all' || userTier === tierFilter;
+                
+                // Status filter
+                const userStatus = user.status || 'active';
+                const matchesStatus = statusFilter === 'all' || userStatus === statusFilter;
+                
+                return matchesSearch && matchesTier && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(([key, user]) => {
+                const isSuspended = user.status === 'suspended';
+                const tierColors = {
+                    'reseller': 'danger',
+                    'vip': 'success',
+                    'regular': 'secondary'
+                };
+                const tierColor = tierColors[user.tier] || 'secondary';
+                
+                return `
+                    <tr class="${isSuspended ? 'text-muted' : ''}">
+                        <td><code>${key.slice(0, 12)}...</code></td>
+                        <td>${user.fullName || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${formatNaira(user.wallet)}</td>
+                        <td>${formatNaira(user.totalSpent)}</td>
+                        <td><span class="badge bg-${tierColor}">${(user.tier || 'regular').toUpperCase()}</span></td>
+                        <td>
+                            <span class="badge bg-${isSuspended ? 'danger' : 'success'}">
+                                ${isSuspended ? 'Suspended' : 'Active'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap user-actions">
+                                <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}">
+                                    <i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Attach edit events
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    openEditUserModal({
+                        uid: btn.dataset.uid,
+                        fullName: btn.dataset.fullname,
+                        email: btn.dataset.email,
+                        tier: btn.dataset.tier,
+                        status: btn.dataset.status
+                    });
+                });
+            });
+
+            // Attach toggle status events
+            document.querySelectorAll('.toggle-status-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const uid = btn.dataset.uid;
+                    const current = btn.dataset.current === 'true';
+                    const newStatus = current ? 'active' : 'suspended';
+                    if (confirm(`Are you sure you want to ${newStatus} this user?`)) {
+                        try {
+                            await database.ref('users/' + uid + '/status').set(newStatus);
+                            showToast(`✅ User ${newStatus}`, 'success');
+                            loadAllUsers();
+                        } catch (error) {
+                            showToast('❌ Failed: ' + error.message, 'error');
+                        }
+                    }
+                });
+            });
+
+            // Attach delete events
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const uid = btn.dataset.uid;
+                    if (confirm('⚠️ Delete this user permanently? This cannot be undone!')) {
+                        try {
+                            await database.ref('users/' + uid).remove();
+                            showToast('🗑️ User deleted', 'info');
+                            loadAllUsers();
+                        } catch (error) {
+                            showToast('❌ Failed: ' + error.message, 'error');
+                        }
+                    }
+                });
+            });
         });
     }
+
+    // ============================================
+    // EDIT USER - OPEN MODAL
+    // ============================================
+    function openEditUserModal(user) {
+        document.getElementById('editUserUid').value = user.uid;
+        document.getElementById('editUserFullName').value = user.fullName || '';
+        document.getElementById('editUserEmail').value = user.email || '';
+        document.getElementById('editUserTier').value = user.tier || 'regular';
+        document.getElementById('editUserStatus').value = user.status || 'active';
+        document.getElementById('editUserMsg').innerHTML = '';
+        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        modal.show();
+    }
+
+    // ============================================
+    // SAVE USER CHANGES
+    // ============================================
+    document.getElementById('saveUserBtn').addEventListener('click', async () => {
+        const uid = document.getElementById('editUserUid').value;
+        const fullName = document.getElementById('editUserFullName').value.trim();
+        const email = document.getElementById('editUserEmail').value.trim();
+        const tier = document.getElementById('editUserTier').value;
+        const status = document.getElementById('editUserStatus').value;
+        const msgDiv = document.getElementById('editUserMsg');
+
+        if (!uid || !fullName || !email) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
+            return;
+        }
+
+        msgDiv.innerHTML = '<div class="alert alert-info">Saving...</div>';
+
+        try {
+            await database.ref('users/' + uid).update({
+                fullName: fullName,
+                email: email,
+                tier: tier,
+                status: status
+            });
+            msgDiv.innerHTML = '<div class="alert alert-success">✅ User updated successfully!</div>';
+            showToast('✅ User updated', 'success');
+            setTimeout(() => {
+                msgDiv.innerHTML = '';
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                loadAllUsers();
+            }, 1500);
+        } catch (error) {
+            msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
+        }
+    });
+
+    // ============================================
+    // USER FILTERS - EVENT LISTENERS
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('userSearch');
+        const tierFilter = document.getElementById('userTierFilter');
+        const statusFilter = document.getElementById('userStatusFilter');
+        const refreshBtn = document.getElementById('refreshUsers');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', loadAllUsers);
+        }
+        if (tierFilter) {
+            tierFilter.addEventListener('change', loadAllUsers);
+        }
+        if (statusFilter) {
+            statusFilter.addEventListener('change', loadAllUsers);
+        }
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', loadAllUsers);
+        }
+    });
 
     // ============================================
     // ALL SERVICES
@@ -1483,7 +1735,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with Analytics!');
+    console.log('✅ Admin dashboard loaded with full User Management!');
 </script>
 </body>
 </html>
