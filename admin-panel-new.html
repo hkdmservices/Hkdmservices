@@ -202,6 +202,18 @@
             font-size: 0.7rem;
             padding: 2px 6px;
         }
+        .uid-code {
+            font-size: 0.7rem;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 180px;
+        }
+        @media (max-width: 768px) {
+            .uid-code {
+                max-width: 100px;
+                font-size: 0.6rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -347,9 +359,7 @@
                 </div>
             </div>
 
-            <!-- ============================================ -->
-            <!-- UPDATED USERS SECTION WITH FULL MANAGEMENT   -->
-            <!-- ============================================ -->
+            <!-- USERS SECTION - UPDATED WITH FULL UID -->
             <div id="section-users" style="display:none;">
                 <div class="stat-card">
                     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -717,9 +727,7 @@
     </div>
 </div>
 
-<!-- ============================================ -->
-<!-- EDIT USER MODAL (NEW)                       -->
-<!-- ============================================ -->
+<!-- EDIT USER MODAL -->
 <div class="modal fade" id="editUserModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -1215,12 +1223,12 @@
 
     // ============================================
     // ============================================
-    // USER MANAGEMENT - UPDATED VERSION
+    // USER MANAGEMENT - FULL UID DISPLAY
     // ============================================
     // ============================================
 
     // ============================================
-    // LOAD ALL USERS WITH FILTERS
+    // LOAD ALL USERS WITH FULL UID
     // ============================================
     function loadAllUsers() {
         const usersRef = database.ref('users');
@@ -1239,20 +1247,14 @@
             const statusFilter = document.getElementById('userStatusFilter')?.value || 'all';
 
             let filtered = users.filter(([key, user]) => {
-                // Search filter
                 const name = (user.fullName || '').toLowerCase();
                 const email = (user.email || '').toLowerCase();
                 const uid = key.toLowerCase();
                 const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || uid.includes(searchTerm);
-                
-                // Tier filter
                 const userTier = (user.tier || 'regular').toLowerCase();
                 const matchesTier = tierFilter === 'all' || userTier === tierFilter;
-                
-                // Status filter
                 const userStatus = user.status || 'active';
                 const matchesStatus = statusFilter === 'all' || userStatus === statusFilter;
-                
                 return matchesSearch && matchesTier && matchesStatus;
             });
 
@@ -1272,7 +1274,7 @@
                 
                 return `
                     <tr class="${isSuspended ? 'text-muted' : ''}">
-                        <td><code>${key.slice(0, 12)}...</code></td>
+                        <td><code class="uid-code">${key}</code></td>
                         <td>${user.fullName || 'N/A'}</td>
                         <td>${user.email || 'N/A'}</td>
                         <td>${formatNaira(user.wallet)}</td>
@@ -1735,7 +1737,7 @@
         });
     }
 
-    console.log('✅ Admin dashboard loaded with full User Management!');
+    console.log('✅ Admin dashboard loaded with full UID display!');
 </script>
 </body>
 </html>
