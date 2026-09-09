@@ -1368,7 +1368,7 @@
 
     <script>
         // ============================================================
-        // FIREBASE CONFIG (Only for Auth, Orders, Users, etc.)
+        // FIREBASE CONFIG
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -2123,97 +2123,62 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - ALWAYS LOAD FROM services.js
+        // SERVICE MANAGEMENT - LOAD FROM services.js USING import()
         // ============================================================
 
         // ============================================================
-        // HELPER: Load services from services.js file
+        // HELPER: Load services using import()
         // ============================================================
         async function loadServicesFromFile() {
             try {
-                const response = await fetch('services.js?t=' + Date.now());
-                const text = await response.text();
-                let match = text.match(/=\s*(\[[\s\S]*?\]);/);
-                if (!match) {
-                    match = text.match(/export\s*\{[^}]*\}\s*;\s*$/);
-                    if (match) {
-                        const arrayMatch = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
-                        if (arrayMatch) match = arrayMatch;
-                    }
-                }
-                if (match) {
-                    let arrayStr = match[1];
-                    arrayStr = arrayStr.replace(/\/\/.*$/gm, '');
-                    arrayStr = arrayStr.replace(/\/\*[\s\S]*?\*\//g, '');
-                    arrayStr = arrayStr.replace(/'/g, '"');
-                    arrayStr = arrayStr.replace(/undefined/g, 'null');
-                    arrayStr = arrayStr.replace(/,(\s*[\]}])/g, '$1');
-                    return JSON.parse(arrayStr);
+                const module = await import('./services.js?t=' + Date.now());
+                const services = module.hkdmservicesOfficialServicePriceCatalogue || module.default;
+                if (services && services.length > 0) {
+                    return services;
                 }
                 return [];
             } catch (error) {
-                console.error('Error loading services.js:', error);
+                console.error('Error importing services.js:', error);
                 return [];
             }
         }
 
         // ============================================================
-        // LOAD SERVICES - ALWAYS FROM services.js
+        // LOAD SERVICES - USING import()
         // ============================================================
         async function loadAllServices() {
             try {
-                console.log('🔍 Loading services from services.js...');
+                console.log('🔍 Loading services using import()...');
                 
-                // Always try to load from services.js first
-                const response = await fetch('services.js?t=' + Date.now());
-                const text = await response.text();
+                const module = await import('./services.js?t=' + Date.now());
+                const services = module.hkdmservicesOfficialServicePriceCatalogue || module.default;
                 
-                // Extract the array from the JS file
-                let match = text.match(/=\s*(\[[\s\S]*?\]);/);
-                if (!match) {
-                    match = text.match(/export\s*\{[^}]*\}\s*;\s*$/);
-                    if (match) {
-                        const arrayMatch = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
-                        if (arrayMatch) match = arrayMatch;
-                    }
+                if (services && services.length > 0) {
+                    console.log('✅ Loaded', services.length, 'services via import');
+                    renderServicesTable(services, 'globalServicesTable', 'global');
+                    updateServiceStats(services, []);
+                    showToast('✅ Loaded ' + services.length + ' services', 'success');
+                } else {
+                    console.warn('⚠️ No services found, using embedded');
+                    const fallback = getEmbeddedServices();
+                    renderServicesTable(fallback, 'globalServicesTable', 'global');
+                    updateServiceStats(fallback, []);
+                    showToast('⚠️ Using embedded services', 'warning');
                 }
-                
-                let services = [];
-                if (match) {
-                    let arrayStr = match[1];
-                    arrayStr = arrayStr.replace(/\/\/.*$/gm, '');
-                    arrayStr = arrayStr.replace(/\/\*[\s\S]*?\*\//g, '');
-                    arrayStr = arrayStr.replace(/'/g, '"');
-                    arrayStr = arrayStr.replace(/undefined/g, 'null');
-                    arrayStr = arrayStr.replace(/,(\s*[\]}])/g, '$1');
-                    services = JSON.parse(arrayStr);
-                    console.log('✅ Loaded', services.length, 'services from services.js');
-                }
-                
-                // If services.js is empty, use embedded as fallback
-                if (services.length === 0) {
-                    console.log('⚠️ services.js empty, using embedded fallback');
-                    services = getEmbeddedServices();
-                }
-                
-                renderServicesTable(services, 'globalServicesTable', 'global');
-                updateServiceStats(services, []);
-                showToast('✅ Loaded ' + services.length + ' services', 'success');
                 
             } catch (error) {
-                console.error('❌ Error loading services:', error);
-                // Fallback to embedded
+                console.error('❌ Import error:', error);
                 const services = getEmbeddedServices();
                 renderServicesTable(services, 'globalServicesTable', 'global');
                 updateServiceStats(services, []);
-                showToast('⚠️ Using embedded services', 'warning');
+                showToast('⚠️ Using embedded services (import failed)', 'warning');
             }
         }
 
+        // ============================================================
+        // EMBEDDED SERVICES (FALLBACK ONLY)
+        // ============================================================
         function getEmbeddedServices() {
-            // ============================================================
-            // COMPLETE SERVICES DATA - All 75+ services (FALLBACK ONLY)
-            // ============================================================
             return [
                 { id: "ig_followers", platform: "Instagram", service: "Followers", ratePer1000: 12000, resellerRatePer1000: 9000, vipRatePer1000: 10800, minimumQuantity: 100 },
                 { id: "ig_likes", platform: "Instagram", service: "Likes", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
@@ -2837,9 +2802,7 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded - ALWAYS loading from services.js!');
-        console.log('📊 Changes save to PHP and update services.js.');
-        console.log('🔄 Admin panel now shows the same prices as customers.');
+        console.log('✅ Admin dashboard loaded with import() - will load from services.js!');
     </script>
 </body>
 </html>
