@@ -1602,7 +1602,7 @@
         });
 
         // ============================================================
-        // ALL ORDERS (simplified)
+        // ALL ORDERS
         // ============================================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
@@ -2123,33 +2123,33 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - SCRIPT TAG APPROACH
+        // SERVICE MANAGEMENT - USING window OBJECT
         // ============================================================
 
         function loadAllServices() {
             try {
-                console.log('🔍 Loading services via script tag...');
+                console.log('🔍 Loading services...');
                 
-                // First, check if the variable already exists
-                if (typeof hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
-                    console.log('✅ Global services already loaded:', hkdmservicesOfficialServicePriceCatalogue.length);
-                    renderServicesTable(hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
-                    updateServiceStats(hkdmservicesOfficialServicePriceCatalogue, []);
-                    showToast('✅ Loaded ' + hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
+                // Check if already loaded via window
+                if (typeof window.hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
+                    console.log('✅ Services already loaded:', window.hkdmservicesOfficialServicePriceCatalogue.length);
+                    renderServicesTable(window.hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
+                    updateServiceStats(window.hkdmservicesOfficialServicePriceCatalogue, []);
+                    showToast('✅ Loaded ' + window.hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
                     return;
                 }
 
                 // Load services.js as a script
                 const script = document.createElement('script');
-                script.src = 'services.js?t=' + Date.now(); // Prevent caching
+                script.src = 'services.js?t=' + Date.now();
                 script.onload = function() {
-                    if (typeof hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
-                        console.log('✅ Global services loaded:', hkdmservicesOfficialServicePriceCatalogue.length);
-                        renderServicesTable(hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
-                        updateServiceStats(hkdmservicesOfficialServicePriceCatalogue, []);
-                        showToast('✅ Loaded ' + hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
+                    if (typeof window.hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
+                        console.log('✅ Services loaded:', window.hkdmservicesOfficialServicePriceCatalogue.length);
+                        renderServicesTable(window.hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
+                        updateServiceStats(window.hkdmservicesOfficialServicePriceCatalogue, []);
+                        showToast('✅ Loaded ' + window.hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
                     } else {
-                        console.error('❌ hkdmservicesOfficialServicePriceCatalogue not found after loading script');
+                        console.error('❌ Services not found');
                         showToast('❌ Failed to load services', 'error');
                         loadFallbackServices();
                     }
@@ -2162,8 +2162,7 @@
                 document.head.appendChild(script);
 
             } catch (error) {
-                console.error('❌ Error loading services:', error);
-                showToast('❌ Error: ' + error.message, 'error');
+                console.error('❌ Error:', error);
                 loadFallbackServices();
             }
         }
@@ -2673,7 +2672,7 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded with script tag service loading!');
+        console.log('✅ Admin dashboard loaded with window-based service loading!');
     </script>
 </body>
 </html>
