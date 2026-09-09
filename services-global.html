@@ -175,6 +175,7 @@
             return;
         }
 
+        // ✅ FIXED: Removed &catalogue=global from the Order link
         tbody.innerHTML = filtered.map(service => `
             <tr>
                 <td><strong>${service.service || 'N/A'}</strong></td>
@@ -182,7 +183,7 @@
                 <td class="fw-bold text-success">${formatNaira(service.ratePer1000)}</td>
                 <td>${service.minimumQuantity || 100}</td>
                 <td>
-                    <a href="order.html?service=${service.id}&platform=${service.platform}&catalogue=global" 
+                    <a href="order.html?service=${service.id}&platform=${service.platform}" 
                        class="btn btn-sm btn-success">
                         <i class="bi bi-cart-plus"></i> Order
                     </a>
