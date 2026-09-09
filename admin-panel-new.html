@@ -2123,32 +2123,8 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - EMBEDDED SERVICES (NO EXTERNAL FILE)
+        // SERVICE MANAGEMENT - LOAD FROM FIREBASE + PHP SAVING
         // ============================================================
-
-        function loadAllServices() {
-            try {
-                console.log('🔍 Loading embedded services...');
-                
-                // Get services from embedded data
-                const services = getEmbeddedServices();
-                
-                if (services && services.length > 0) {
-                    console.log('✅ Services loaded:', services.length);
-                    renderServicesTable(services, 'globalServicesTable', 'global');
-                    updateServiceStats(services, []);
-                    showToast('✅ Loaded ' + services.length + ' services', 'success');
-                } else {
-                    console.error('❌ No services found');
-                    showToast('❌ No services found', 'error');
-                    loadFallbackServices();
-                }
-                
-            } catch (error) {
-                console.error('❌ Error loading services:', error);
-                loadFallbackServices();
-            }
-        }
 
         function getEmbeddedServices() {
             // ============================================================
@@ -2264,11 +2240,41 @@
             ];
         }
 
-        function loadFallbackServices() {
-            const fallback = getEmbeddedServices();
-            renderServicesTable(fallback, 'globalServicesTable', 'global');
-            updateServiceStats(fallback, []);
-            showToast('✅ Loaded ' + fallback.length + ' services', 'success');
+        // ============================================================
+        // LOAD SERVICES - FROM FIREBASE WITH FALLBACK
+        // ============================================================
+        async function loadAllServices() {
+            try {
+                console.log('🔍 Loading services from Firebase...');
+                
+                // Try loading from Firebase first
+                const servicesRef = database.ref('services/global');
+                const snapshot = await servicesRef.once('value');
+                let services = snapshot.val();
+                
+                if (!services || services.length === 0) {
+                    // Fallback to embedded services
+                    console.log('📂 No services in Firebase, using embedded...');
+                    services = getEmbeddedServices();
+                    // Save to Firebase for next time
+                    await servicesRef.set(services);
+                    console.log('💾 Saved embedded services to Firebase');
+                } else {
+                    console.log('✅ Loaded ' + services.length + ' services from Firebase');
+                }
+                
+                renderServicesTable(services, 'globalServicesTable', 'global');
+                updateServiceStats(services, []);
+                showToast('✅ Loaded ' + services.length + ' services', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error loading services:', error);
+                // Fallback to embedded
+                const services = getEmbeddedServices();
+                renderServicesTable(services, 'globalServicesTable', 'global');
+                updateServiceStats(services, []);
+                showToast('⚠️ Using embedded services', 'warning');
+            }
         }
 
         function renderServicesTable(services, tableId, catalog) {
@@ -2360,7 +2366,7 @@
         }
 
         // ============================================================
-        // SAVE NEW SERVICE
+        // SAVE NEW SERVICE - TO FIREBASE + PHP
         // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2384,9 +2390,31 @@
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
+
+                // Save to Firebase
+                const path = catalog === 'global' ? 'services/global' : 'services/nigeria';
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                existing.push(newService);
+                await servicesRef.set(existing);
+
+                // Also save to PHP file
+                try {
+                    await fetch('api-php/save-services.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ services: existing, catalog: catalog })
+                    });
+                    console.log('✅ PHP file updated');
+                } catch (e) {
+                    console.log('PHP save skipped:', e.message);
+                }
+
                 document.getElementById('addServiceMsg').innerHTML =
                     `<div class="alert alert-success">✅ Service added successfully!</div>`;
                 showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
+
                 setTimeout(() => {
                     document.querySelector('#addServiceModal .btn-close').click();
                     document.getElementById('addServiceForm').reset();
@@ -2403,7 +2431,7 @@
         });
 
         // ============================================================
-        // UPDATE SERVICE
+        // UPDATE SERVICE - TO FIREBASE + PHP
         // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2413,6 +2441,8 @@
             try {
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
+                const path = catalog === 'global' ? 'services/global' : 'services/nigeria';
+                
                 const updatedService = {
                     id: serviceId,
                     platform: document.getElementById('editSvcPlatform').value,
@@ -2423,18 +2453,45 @@
                     minimumQuantity: parseInt(document.getElementById('editSvcMinQty').value) || 100,
                     updatedAt: Date.now()
                 };
+
                 if (!updatedService.service || !updatedService.ratePer1000) {
                     document.getElementById('editServiceMsg').innerHTML =
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
+
+                // Update in Firebase
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                const index = existing.findIndex(s => s.id === serviceId);
+                if (index === -1) {
+                    throw new Error('Service not found');
+                }
+                existing[index] = updatedService;
+                await servicesRef.set(existing);
+
+                // Also save to PHP file
+                try {
+                    await fetch('api-php/save-services.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ services: existing, catalog: catalog })
+                    });
+                    console.log('✅ PHP file updated');
+                } catch (e) {
+                    console.log('PHP save skipped:', e.message);
+                }
+
                 document.getElementById('editServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service updated successfully!</div>`;
+                    `<div class="alert alert-success">✅ Service updated and saved successfully!</div>`;
                 showToast('✅ Service updated!', 'success');
+
                 setTimeout(() => {
                     document.querySelector('#editServiceModal .btn-close').click();
                     loadAllServices();
                 }, 1500);
+
             } catch (error) {
                 console.error('Update service error:', error);
                 document.getElementById('editServiceMsg').innerHTML =
@@ -2446,10 +2503,17 @@
         });
 
         // ============================================================
-        // DELETE SERVICE
+        // DELETE SERVICE - FROM FIREBASE
         // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
+                const path = catalog === 'global' ? 'services/global' : 'services/nigeria';
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                const filtered = existing.filter(s => s.id !== serviceId);
+                await servicesRef.set(filtered);
+
                 showToast('✅ Service deleted successfully!', 'success');
                 loadAllServices();
             } catch (error) {
@@ -2758,8 +2822,8 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded with embedded services!');
-        console.log('📊 Total services embedded:', getEmbeddedServices().length);
+        console.log('✅ Admin dashboard loaded with Firebase + PHP saving!');
+        console.log('📊 Changes save to Firebase AND your services.js file via PHP.');
     </script>
 </body>
 </html>
