@@ -23,10 +23,18 @@
         .service-search:focus { border-color: #198754; box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2); }
         .table-responsive { max-height: 600px; overflow-y: auto; }
         .table thead th { position: sticky; top: 0; background: #161b22; z-index: 10; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
         .stat-item { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; text-align: center; }
-        .stat-item .number { font-size: 1.3rem; font-weight: bold; color: #198754; }
-        .stat-item .label { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; }
+        .stat-item .number { font-size: 1.5rem; font-weight: bold; color: #198754; }
+        .stat-item .label { font-size: 0.7rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+        .back-btn {
+            color: #8b949e;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-btn:hover {
+            color: #f1f3f5;
+        }
     </style>
 </head>
 <body>
@@ -40,9 +48,6 @@
             <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
                 <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
             </button>
-            <a href="services.html" class="btn btn-outline-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Services
-            </a>
         </div>
     </div>
 </nav>
@@ -52,12 +57,12 @@
 
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
             <div>
-                <h1 class="fw-bold"><i class="bi bi-flag text-success"></i> Nigeria Services</h1>
+                <a href="services.html" class="back-btn">
+                    <i class="bi bi-arrow-left"></i> Back to Services
+                </a>
+                <h1 class="fw-bold mt-2"><i class="bi bi-flag text-success"></i> Nigeria Services</h1>
                 <p class="text-muted">Local Nigerian social media services & packages</p>
             </div>
-            <a href="services.html" class="btn btn-outline-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Back
-            </a>
         </div>
 
         <div class="stats-grid" id="statsGrid">
@@ -184,10 +189,8 @@
         }
 
         tbody.innerHTML = filtered.map(service => {
-            // Check for one-time service
             const isOneTime = service.oneTimePayment === true || (service.fixedPrice !== null && service.fixedPrice !== undefined);
-            
-            // Display rate correctly
+
             let rateDisplay = '';
             if (isOneTime) {
                 rateDisplay = `💰 ${formatNaira(service.fixedPrice || service.ratePer1000)} (Fixed)`;
@@ -197,7 +200,6 @@
                 rateDisplay = 'N/A';
             }
 
-            // Add badges
             const badges = [];
             if (isOneTime) badges.push('<span class="badge bg-warning text-dark ms-1">One-Time</span>');
             if (service.service && service.service.toLowerCase().includes('comment')) {
@@ -227,8 +229,7 @@
     function updateStats() {
         const total = allServices.length;
         const platforms = [...new Set(allServices.map(s => s.platform).filter(Boolean))];
-        
-        // Handle one-time services in stats
+
         const rates = allServices.map(s => {
             if (s.oneTimePayment === true || s.fixedPrice !== null) {
                 return Number(s.fixedPrice || s.ratePer1000 || 0);
@@ -249,7 +250,7 @@
         loadServices();
     });
 
-    console.log('✅ Nigeria Services loaded with one-time support!');
+    console.log('✅ Nigeria Services loaded with back button!');
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
