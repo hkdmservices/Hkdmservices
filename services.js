@@ -2,7 +2,7 @@
 // HKDMservices Official Service & Price Catalogue
 // ============================================================
 
-
+// Make it work for both script tags AND ES modules
 const hkdmservicesOfficialServicePriceCatalogue = [
 
     // ========================================================
@@ -730,13 +730,14 @@ const hkdmservicesOfficialServicePriceCatalogue = [
 ];
 
 
-
 // ============================================================
-// EXPORT
+// MAKE IT WORK FOR BOTH SCRIPT TAGS AND ES MODULES
 // ============================================================
 
-export {
+// For script tag loading (admin panel, user pages)
+if (typeof window !== 'undefined') {
+    window.hkdmservicesOfficialServicePriceCatalogue = hkdmservicesOfficialServicePriceCatalogue;
+}
 
-    hkdmservicesOfficialServicePriceCatalogue
-
-};
+// For ES module loading (order.html)
+export { hkdmservicesOfficialServicePriceCatalogue };
