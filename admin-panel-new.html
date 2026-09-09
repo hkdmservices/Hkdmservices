@@ -2294,34 +2294,123 @@
         });
 
         // ============================================
-        // SERVICE MANAGEMENT - FIREBASE INTEGRATION
+        // SERVICE MANAGEMENT - LOAD FROM FIREBASE + JS FILES
         // ============================================
 
-        // Reference paths in Firebase
         const SERVICE_PATHS = {
             global: 'services/global',
             nigeria: 'services/nigeria'
         };
 
-        // Load all services from Firebase
-        function loadAllServices() {
-            const globalRef = database.ref(SERVICE_PATHS.global);
-            const nigeriaRef = database.ref(SERVICE_PATHS.nigeria);
-
-            Promise.all([
-                globalRef.once('value'),
-                nigeriaRef.once('value')
-            ]).then(([globalSnapshot, nigeriaSnapshot]) => {
-                const globalServices = globalSnapshot.val() || [];
-                const nigeriaServices = nigeriaSnapshot.val() || [];
-
+        // Load all services - checks Firebase first, then falls back to JS files
+        async function loadAllServices() {
+            try {
+                let globalServices = [];
+                let nigeriaServices = [];
+                
+                // Try to load from Firebase first
+                const globalRef = database.ref(SERVICE_PATHS.global);
+                const nigeriaRef = database.ref(SERVICE_PATHS.nigeria);
+                
+                const [globalSnapshot, nigeriaSnapshot] = await Promise.all([
+                    globalRef.once('value'),
+                    nigeriaRef.once('value')
+                ]);
+                
+                const firebaseGlobal = globalSnapshot.val();
+                const firebaseNigeria = nigeriaSnapshot.val();
+                
+                if (firebaseGlobal && firebaseGlobal.length > 0) {
+                    globalServices = firebaseGlobal;
+                } else {
+                    // Fallback: Try to load from JS files
+                    try {
+                        globalServices = await loadFromJSFile('services.js');
+                    } catch (e) {
+                        console.log('Could not load services.js, using fallback');
+                    }
+                }
+                
+                if (firebaseNigeria && firebaseNigeria.length > 0) {
+                    nigeriaServices = firebaseNigeria;
+                } else {
+                    try {
+                        nigeriaServices = await loadFromJSFile('nigeria-services-catalogue.js');
+                    } catch (e) {
+                        console.log('Could not load nigeria-services-catalogue.js, using fallback');
+                    }
+                }
+                
+                // If still empty, use hardcoded fallback
+                if (globalServices.length === 0 && nigeriaServices.length === 0) {
+                    const fallback = getFallbackServices();
+                    globalServices = fallback;
+                    nigeriaServices = [];
+                }
+                
                 renderServicesTable(globalServices, 'globalServicesTable', 'global');
                 renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(globalServices, nigeriaServices);
-            }).catch(error => {
+                
+                // Save to Firebase if empty (so they persist)
+                if (!firebaseGlobal || firebaseGlobal.length === 0) {
+                    await database.ref(SERVICE_PATHS.global).set(globalServices);
+                }
+                if (!firebaseNigeria || firebaseNigeria.length === 0) {
+                    await database.ref(SERVICE_PATHS.nigeria).set(nigeriaServices);
+                }
+                
+            } catch (error) {
                 console.error('Error loading services:', error);
                 showToast('❌ Error loading services: ' + error.message, 'error');
-            });
+                
+                // Fallback: Show hardcoded services
+                const fallback = getFallbackServices();
+                renderServicesTable(fallback, 'globalServicesTable', 'global');
+                renderServicesTable([], 'nigeriaServicesTable', 'nigeria');
+                updateServiceStats(fallback, []);
+            }
+        }
+
+        // Load from JS file
+        async function loadFromJSFile(filename) {
+            try {
+                const response = await fetch(filename);
+                const text = await response.text();
+                
+                // Extract the array from the JS file
+                const match = text.match(/=\s*(\[[\s\S]*?\]);/);
+                if (match) {
+                    // Parse the array
+                    const arrayStr = match[1];
+                    const jsonStr = arrayStr
+                        .replace(/'/g, '"')
+                        .replace(/undefined/g, 'null')
+                        .replace(/,(\s*[\]}])/g, '$1');
+                    const services = JSON.parse(jsonStr);
+                    return services;
+                }
+                return [];
+            } catch (error) {
+                console.error(`Error loading ${filename}:`, error);
+                return [];
+            }
+        }
+
+        // Fallback services with your existing data
+        function getFallbackServices() {
+            return [
+                { id: '1', service: 'Followers - High Quality', platform: 'Instagram', ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1800, minimumQuantity: 100 },
+                { id: '2', service: 'Likes - Real', platform: 'Instagram', ratePer1000: 1500, resellerRatePer1000: 1200, vipRatePer1000: 1000, minimumQuantity: 100 },
+                { id: '3', service: 'Subscribers', platform: 'YouTube', ratePer1000: 5000, resellerRatePer1000: 4000, vipRatePer1000: 3500, minimumQuantity: 50 },
+                { id: '4', service: 'Followers - Nigeria', platform: 'Instagram', ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
+                { id: '5', service: 'Views - Nigeria', platform: 'TikTok', ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: '6', service: 'Comments - Real', platform: 'Instagram', ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: '7', service: 'Saves - High Quality', platform: 'Instagram', ratePer1000: 2200, resellerRatePer1000: 1800, vipRatePer1000: 1600, minimumQuantity: 100 },
+                { id: '8', service: 'Shares', platform: 'Facebook', ratePer1000: 1200, resellerRatePer1000: 1000, vipRatePer1000: 800, minimumQuantity: 100 },
+                { id: '9', service: 'Watch Hours', platform: 'YouTube', ratePer1000: 8000, resellerRatePer1000: 6500, vipRatePer1000: 5500, minimumQuantity: 50 },
+                { id: '10', service: 'Telegram Members', platform: 'Telegram', ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+            ];
         }
 
         function renderServicesTable(services, tableId, catalog) {
