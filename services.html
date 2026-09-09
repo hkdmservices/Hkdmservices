@@ -9,28 +9,77 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <style>
-        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
-        html[data-theme="dark"] .card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
-        html[data-theme="dark"] .table { color: #f1f3f5 !important; }
-        html[data-theme="dark"] .table thead th { border-bottom-color: #30363d !important; }
-        html[data-theme="dark"] .table td, .table th { border-color: #30363d !important; }
-        .theme-toggle { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
-        .theme-toggle:hover { background: rgba(255,255,255,0.18); transform: rotate(15deg); }
-        .platform-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
-        .platform-filter .btn { font-size: 0.75rem; padding: 4px 14px; border-radius: 20px; }
-        .platform-filter .btn.active-filter { background: #198754; color: #fff; border-color: #198754; }
-        .service-search { max-width: 250px; }
-        .service-search:focus { border-color: #198754; box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2); }
-        .table-responsive { max-height: 600px; overflow-y: auto; }
-        .table thead th { position: sticky; top: 0; background: #161b22; z-index: 10; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; margin-bottom: 16px; }
-        .stat-item { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 12px; text-align: center; }
-        .stat-item .number { font-size: 1.3rem; font-weight: bold; color: #198754; }
-        .stat-item .label { font-size: 0.65rem; color: #8b949e; text-transform: uppercase; }
+        html[data-theme="dark"] body {
+            background: #101418;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .card {
+            background: #181d22 !important;
+            border-color: #30363d !important;
+            color: #f1f3f5 !important;
+        }
+        .theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.18);
+            transform: rotate(15deg);
+        }
+        .service-option-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+        .service-option-card:hover {
+            transform: translateY(-5px);
+            border-color: #198754;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .service-option-card .icon {
+            font-size: 3rem;
+            color: #198754;
+        }
+        .service-option-card h3 {
+            color: #f1f3f5;
+            margin-top: 12px;
+        }
+        .service-option-card p {
+            color: #8b949e;
+        }
+        .service-option-card .badge {
+            font-size: 0.7rem;
+        }
+        .service-option-card .arrow {
+            color: #8b949e;
+            transition: all 0.3s ease;
+        }
+        .service-option-card:hover .arrow {
+            color: #198754;
+            transform: translateX(4px);
+        }
     </style>
 </head>
 <body>
 
+<!-- NAVBAR -->
 <nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold" href="dashboard.html">
@@ -47,50 +96,79 @@
     </div>
 </nav>
 
-<section class="py-4">
+<section class="py-5">
     <div class="container">
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-            <div>
-                <h1 class="fw-bold"><i class="bi bi-list-ul text-success"></i> Services</h1>
-                <p class="text-muted">Browse all available services</p>
+        <div class="text-center mb-5">
+            <h1 class="fw-bold"><i class="bi bi-grid-3x3-gap text-success"></i> Services</h1>
+            <p class="text-muted">Select a catalog to browse available services</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            
+            <!-- Global Services -->
+            <div class="col-12 col-md-5">
+                <a href="services-global.html" class="service-option-card">
+                    <div class="icon"><i class="bi bi-globe"></i></div>
+                    <h3>Global Services</h3>
+                    <p class="text-muted">International social media services for all platforms</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <span class="badge bg-info">Instagram</span>
+                        <span class="badge bg-dark">TikTok</span>
+                        <span class="badge bg-danger">YouTube</span>
+                        <span class="badge bg-primary">Facebook</span>
+                        <span class="badge bg-secondary">+ more</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success">Browse Services <i class="bi bi-arrow-right arrow"></i></span>
+                    </div>
+                </a>
             </div>
-        </div>
 
-        <!-- Stats -->
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-item"><div class="number" id="statTotal">0</div><div class="label">Total Services</div></div>
-            <div class="stat-item"><div class="number" id="statPlatforms">0</div><div class="label">Platforms</div></div>
-            <div class="stat-item"><div class="number" id="statCheapest">₦0</div><div class="label">Cheapest</div></div>
-            <div class="stat-item"><div class="number" id="statExpensive">₦0</div><div class="label">Highest</div></div>
-        </div>
-
-        <!-- Filters -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-            <div class="platform-filter" id="platformFilters">
-                <button class="btn btn-outline-secondary active-filter" data-platform="all">All</button>
+            <!-- Nigeria Services -->
+            <div class="col-12 col-md-5">
+                <a href="services-nigeria.html" class="service-option-card">
+                    <div class="icon"><i class="bi bi-flag"></i></div>
+                    <h3>Nigeria Services</h3>
+                    <p class="text-muted">Local Nigerian social media services &amp; packages</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <span class="badge bg-info">Instagram</span>
+                        <span class="badge bg-dark">TikTok</span>
+                        <span class="badge bg-danger">YouTube</span>
+                        <span class="badge bg-warning">Snapchat</span>
+                        <span class="badge bg-secondary">+ more</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success">Browse Services <i class="bi bi-arrow-right arrow"></i></span>
+                    </div>
+                </a>
             </div>
-            <input type="text" id="serviceSearch" class="form-control service-search" placeholder="Search services...">
+
         </div>
 
-        <!-- Table -->
-        <div class="card bg-dark border-secondary">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>Platform</th>
-                                <th>Rate (per 1000)</th>
-                                <th>Min Qty</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="servicesTableBody">
-                            <tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading services...</p></td></tr>
-                        </tbody>
-                    </table>
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="globalCount">-</h4>
+                                <small class="text-muted">Global Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="nigeriaCount">-</h4>
+                                <small class="text-muted">Nigeria Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="totalCount">-</h4>
+                                <small class="text-muted">Total Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="platformCount">-</h4>
+                                <small class="text-muted">Platforms</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -111,6 +189,7 @@
     import { initializeApp } from "firebase/app";
     import { getAuth, onAuthStateChanged } from "firebase/auth";
     import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
+    import { hkdmservicesNigeriaServicePriceCatalogue } from "./nigeria-services-catalogue.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -125,99 +204,31 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const tbody = document.getElementById('servicesTableBody');
-    const searchInput = document.getElementById('serviceSearch');
-    const platformFilters = document.getElementById('platformFilters');
-
-    let allServices = [];
-    let currentPlatform = 'all';
-
-    function formatNaira(amount) {
-        return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-    }
-
-    function loadServices() {
-        allServices = hkdmservicesOfficialServicePriceCatalogue || [];
-        updatePlatformFilters();
-        renderServices();
-        updateStats();
-    }
-
-    function updatePlatformFilters() {
-        const platforms = [...new Set(allServices.map(s => s.platform).filter(Boolean))];
-        platformFilters.innerHTML = `
-            <button class="btn btn-outline-secondary active-filter" data-platform="all">All</button>
-            ${platforms.map(p => `<button class="btn btn-outline-secondary" data-platform="${p}">${p}</button>`).join('')}
-        `;
-        platformFilters.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                platformFilters.querySelectorAll('.btn').forEach(b => b.classList.remove('active-filter'));
-                btn.classList.add('active-filter');
-                currentPlatform = btn.dataset.platform;
-                renderServices();
-            });
-        });
-    }
-
-    function renderServices() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        let filtered = allServices;
-
-        if (currentPlatform !== 'all') {
-            filtered = filtered.filter(s => s.platform === currentPlatform);
-        }
-        if (searchTerm) {
-            filtered = filtered.filter(s =>
-                (s.service || '').toLowerCase().includes(searchTerm) ||
-                (s.platform || '').toLowerCase().includes(searchTerm)
-            );
-        }
-
-        filtered.sort((a, b) => {
-            if (a.platform !== b.platform) return a.platform.localeCompare(b.platform);
-            return (a.service || '').localeCompare(b.service || '');
-        });
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No services found</td></tr>`;
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
             return;
         }
-
-        tbody.innerHTML = filtered.map(service => `
-            <tr>
-                <td><strong>${service.service || 'N/A'}</strong></td>
-                <td><span class="badge bg-info">${service.platform || 'N/A'}</span></td>
-                <td class="fw-bold text-success">${formatNaira(service.ratePer1000)}</td>
-                <td>${service.minimumQuantity || 100}</td>
-                <td>
-                    <a href="order.html?service=${service.id}&platform=${service.platform}" 
-                       class="btn btn-sm btn-success">
-                        <i class="bi bi-cart-plus"></i> Order
-                    </a>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    function updateStats() {
-        const total = allServices.length;
-        const platforms = [...new Set(allServices.map(s => s.platform).filter(Boolean))];
-        const rates = allServices.map(s => Number(s.ratePer1000) || 0).filter(r => r > 0);
-
-        document.getElementById('statTotal').textContent = total;
-        document.getElementById('statPlatforms').textContent = platforms.length;
-        document.getElementById('statCheapest').textContent = rates.length > 0 ? formatNaira(Math.min(...rates)) : '₦0';
-        document.getElementById('statExpensive').textContent = rates.length > 0 ? formatNaira(Math.max(...rates)) : '₦0';
-    }
-
-    searchInput.addEventListener('input', renderServices);
-
-    onAuthStateChanged(auth, (user) => {
-        if (!user) { window.location.href = 'login.html'; return; }
-        loadServices();
+        loadStats();
     });
 
-    console.log('✅ Services loaded!');
+    function loadStats() {
+        const global = hkdmservicesOfficialServicePriceCatalogue || [];
+        const nigeria = hkdmservicesNigeriaServicePriceCatalogue || [];
+        const total = global.length + nigeria.length;
+        
+        const allPlatforms = [...new Set([
+            ...global.map(s => s.platform).filter(Boolean),
+            ...nigeria.map(s => s.platform).filter(Boolean)
+        ])];
+
+        document.getElementById('globalCount').textContent = global.length;
+        document.getElementById('nigeriaCount').textContent = nigeria.length;
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('platformCount').textContent = allPlatforms.length;
+    }
+
+    console.log('✅ Services page loaded!');
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
