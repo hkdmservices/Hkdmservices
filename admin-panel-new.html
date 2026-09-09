@@ -7,25 +7,54 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-        body {
-            background: #0d1117;
-            color: #f1f3f5;
+        /* ============================================================
+           BASE STYLES (Light Mode Default)
+           ============================================================ */
+        :root {
+            --bg-body: #f5f7fa;
+            --text-body: #212529;
+            --bg-sidebar: #ffffff;
+            --border-sidebar: #dee2e6;
+            --bg-card: #ffffff;
+            --border-card: #dee2e6;
+            --bg-table-header: #ffffff;
+            --border-table: #dee2e6;
+            --bg-modal: #ffffff;
+            --border-modal: #dee2e6;
+            --text-muted: #6c757d;
+            --bg-input: #ffffff;
+            --border-input: #ced4da;
+            --bg-stat-item: #f8f9fa;
+            --border-stat-item: #dee2e6;
+            --color-detail-label: #6c757d;
+            --color-detail-value: #212529;
+            --bg-detail-code: #f8f9fa;
+            --bg-tooltip: #e9ecef;
+            --shadow-color: rgba(0,0,0,0.1);
         }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-body);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
         .sidebar {
-            background: #161b22;
-            border-right: 1px solid #30363d;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-sidebar);
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .sidebar .nav-link {
-            color: #8b949e;
+            color: #495057;
             padding: 12px 16px;
             border-radius: 8px;
             transition: all 0.2s;
         }
         .sidebar .nav-link:hover {
-            background: #21262d;
-            color: #f1f3f5;
+            background: #e9ecef;
+            color: #212529;
         }
         .sidebar .nav-link.active {
             background: #198754;
@@ -34,107 +63,127 @@
         .sidebar .nav-link i {
             width: 20px;
         }
+
         .main-content {
             padding: 20px 30px;
         }
+
         .stat-card {
-            background: #161b22;
-            border: 1px solid #30363d;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
             border-radius: 10px;
             padding: 20px;
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
         .stat-card h3 {
             font-size: 2rem;
             margin: 0;
         }
+
         .table {
-            color: #f1f3f5;
+            color: var(--text-body);
         }
         .table thead th {
-            border-bottom-color: #30363d;
+            border-bottom-color: var(--border-table);
+            background: var(--bg-table-header);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .table td,
         .table th {
-            border-color: #30363d;
+            border-color: var(--border-table);
+            transition: border-color 0.4s ease;
+            vertical-align: middle;
         }
+        .table tbody tr:hover {
+            background: var(--bg-tooltip);
+            transition: background 0.2s ease;
+        }
+
         .modal-content {
-            background: #161b22;
-            color: #f1f3f5;
-            border-color: #30363d;
+            background: var(--bg-modal);
+            color: var(--text-body);
+            border-color: var(--border-modal);
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .modal-header {
-            border-bottom-color: #30363d;
+            border-bottom-color: var(--border-modal);
         }
         .modal-footer {
-            border-top-color: #30363d;
+            border-top-color: var(--border-modal);
         }
-        .form-control {
-            background: #0d1117;
-            border-color: #30363d;
-            color: #f1f3f5;
-        }
-        .form-control:focus {
-            border-color: #198754;
-            box-shadow: none;
-            color: #f1f3f5;
-        }
+
+        .form-control,
         .form-select {
-            background: #0d1117;
-            border-color: #30363d;
-            color: #f1f3f5;
+            background: var(--bg-input);
+            border-color: var(--border-input);
+            color: var(--text-body);
+            transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
         }
+        .form-control:focus,
         .form-select:focus {
             border-color: #198754;
-            box-shadow: none;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+            color: var(--text-body);
+            background: var(--bg-input);
         }
+        .form-control::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
         .btn-outline-light {
-            border-color: #30363d;
-            color: #f1f3f5;
+            border-color: var(--border-input);
+            color: var(--text-body);
         }
         .btn-outline-light:hover {
-            background: #21262d;
-            color: #f1f3f5;
+            background: var(--bg-tooltip);
+            color: var(--text-body);
         }
+
         .btn-refund {
-            color: #f85149;
-            border-color: #f85149;
+            color: #dc3545;
+            border-color: #dc3545;
         }
         .btn-refund:hover {
-            background: #f85149;
+            background: #dc3545;
             color: #fff;
         }
         .btn-cancel {
-            color: #f0883e;
-            border-color: #f0883e;
+            color: #fd7e14;
+            border-color: #fd7e14;
         }
         .btn-cancel:hover {
-            background: #f0883e;
+            background: #fd7e14;
             color: #fff;
         }
-        .table td {
-            vertical-align: middle;
-        }
+
         .badge-status {
             font-size: 0.75rem;
             padding: 5px 12px;
         }
+
         .refresh-btn {
             background: transparent;
-            border: 1px solid #30363d;
-            color: #8b949e;
+            border: 1px solid var(--border-input);
+            color: var(--text-body);
             border-radius: 8px;
             padding: 8px 16px;
             cursor: pointer;
             transition: all 0.3s;
         }
         .refresh-btn:hover {
-            background: #21262d;
-            color: #f1f3f5;
+            background: var(--bg-tooltip);
+            color: var(--text-body);
         }
         .refresh-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -142,24 +191,21 @@
             z-index: 9999;
         }
         .toast-custom {
-            background: #161b22;
-            color: #f1f3f5;
-            border: 1px solid #30363d;
+            background: var(--bg-card);
+            color: var(--text-body);
+            border: 1px solid var(--border-card);
             border-radius: 8px;
             padding: 16px 20px;
             margin-top: 10px;
             min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
-        .toast-success {
-            border-left: 4px solid #198754;
-        }
-        .toast-error {
-            border-left: 4px solid #f85149;
-        }
-        .toast-info {
-            border-left: 4px solid #58a6ff;
-        }
+        .toast-success { border-left: 4px solid #198754; }
+        .toast-error { border-left: 4px solid #dc3545; }
+        .toast-info { border-left: 4px solid #0d6efd; }
+        .toast-warning { border-left: 4px solid #fd7e14; }
+
         .status-filter {
             display: flex;
             gap: 8px;
@@ -176,6 +222,7 @@
             color: #fff;
             border-color: #198754;
         }
+
         .action-btns {
             display: flex;
             gap: 4px;
@@ -185,32 +232,35 @@
             font-size: 0.7rem;
             padding: 2px 10px;
         }
+
         .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid #30363d;
+            border: 2px solid var(--border-input);
             border-top-color: #198754;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
+
         .loading-text {
-            color: #8b949e;
+            color: var(--text-muted);
             font-size: 0.9rem;
         }
+
         .analytics-highlight {
             border-left: 4px solid #198754;
             padding-left: 12px;
         }
+
         .user-actions .btn {
             font-size: 0.7rem;
             padding: 2px 6px;
         }
+
         .uid-code,
         .id-code {
             font-size: 0.7rem;
@@ -225,6 +275,7 @@
                 font-size: 0.6rem;
             }
         }
+
         .section-search {
             max-width: 250px;
         }
@@ -232,16 +283,12 @@
             border-color: #198754;
             box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
         }
+
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
         }
-        .table thead th {
-            position: sticky;
-            top: 0;
-            background: #161b22;
-            z-index: 10;
-        }
+
         .search-wrapper {
             display: flex;
             gap: 10px;
@@ -257,27 +304,28 @@
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #30363d;
+            border-bottom: 1px solid var(--border-table);
+            transition: border-color 0.4s ease;
         }
-        .detail-row:last-child {
-            border-bottom: none;
-        }
+        .detail-row:last-child { border-bottom: none; }
         .detail-label {
-            color: #8b949e;
+            color: var(--color-detail-label);
             font-weight: 500;
         }
         .detail-value {
-            color: #f1f3f5;
+            color: var(--color-detail-value);
             word-break: break-all;
             text-align: right;
             max-width: 60%;
         }
         .detail-value code {
-            background: #0d1117;
+            background: var(--bg-detail-code);
             padding: 2px 8px;
             border-radius: 4px;
             font-size: 0.75rem;
+            transition: background 0.4s ease;
         }
+
         .order-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -285,11 +333,12 @@
             margin-bottom: 16px;
         }
         .order-stat-item {
-            background: #0d1117;
-            border: 1px solid #30363d;
+            background: var(--bg-stat-item);
+            border: 1px solid var(--border-stat-item);
             border-radius: 8px;
             padding: 12px;
             text-align: center;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .order-stat-item .number {
             font-size: 1.5rem;
@@ -298,18 +347,20 @@
         }
         .order-stat-item .label {
             font-size: 0.7rem;
-            color: #8b949e;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .bulk-actions-bar {
             display: flex;
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
             padding: 10px 0;
-            border-top: 1px solid #30363d;
+            border-top: 1px solid var(--border-table);
             margin-top: 10px;
+            transition: border-color 0.4s ease;
         }
         .bulk-actions-bar .form-select {
             width: 150px;
@@ -335,57 +386,49 @@
             margin-bottom: 16px;
         }
         .stat-item {
-            background: #0d1117;
-            border: 1px solid #30363d;
+            background: var(--bg-stat-item);
+            border: 1px solid var(--border-stat-item);
             border-radius: 8px;
             padding: 12px;
             text-align: center;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .stat-item .number {
             font-size: 1.5rem;
             font-weight: bold;
             color: #198754;
         }
-        .stat-item .number.text-warning {
-            color: #d29922;
-        }
-        .stat-item .number.text-danger {
-            color: #f85149;
-        }
-        .stat-item .number.text-info {
-            color: #58a6ff;
-        }
+        .stat-item .number.text-warning { color: #d29922; }
+        .stat-item .number.text-danger { color: #dc3545; }
+        .stat-item .number.text-info { color: #0d6efd; }
         .stat-item .label {
             font-size: 0.7rem;
-            color: #8b949e;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Service Details */
         .service-detail-row {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #30363d;
+            border-bottom: 1px solid var(--border-table);
+            transition: border-color 0.4s ease;
         }
-        .service-detail-row:last-child {
-            border-bottom: none;
-        }
+        .service-detail-row:last-child { border-bottom: none; }
         .service-detail-label {
-            color: #8b949e;
+            color: var(--color-detail-label);
             font-weight: 500;
         }
         .service-detail-value {
-            color: #f1f3f5;
+            color: var(--color-detail-value);
             word-break: break-all;
             text-align: right;
             max-width: 60%;
         }
 
-        /* Service Management Styles */
         .service-tabs .nav-link {
-            color: #8b949e;
+            color: var(--text-body);
             border-radius: 8px;
         }
         .service-tabs .nav-link.active {
@@ -393,9 +436,10 @@
             color: #fff;
         }
         .service-tabs .nav-link:hover:not(.active) {
-            background: #21262d;
-            color: #f1f3f5;
+            background: var(--bg-tooltip);
+            color: var(--text-body);
         }
+
         .service-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -403,29 +447,27 @@
             margin-bottom: 16px;
         }
         .service-stat-item {
-            background: #0d1117;
-            border: 1px solid #30363d;
+            background: var(--bg-stat-item);
+            border: 1px solid var(--border-stat-item);
             border-radius: 8px;
             padding: 12px;
             text-align: center;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .service-stat-item .number {
             font-size: 1.5rem;
             font-weight: bold;
             color: #198754;
         }
-        .service-stat-item .number.text-warning {
-            color: #d29922;
-        }
-        .service-stat-item .number.text-info {
-            color: #58a6ff;
-        }
+        .service-stat-item .number.text-warning { color: #d29922; }
+        .service-stat-item .number.text-info { color: #0d6efd; }
         .service-stat-item .label {
             font-size: 0.7rem;
-            color: #8b949e;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .service-actions .btn {
             font-size: 0.7rem;
             padding: 2px 8px;
@@ -446,7 +488,7 @@
             color: #fff;
         }
         .platform-badge.instagram { background: #E4405F; }
-        .platform-badge.tiktok { background: #000000; border: 1px solid #30363d; }
+        .platform-badge.tiktok { background: #000000; border: 1px solid #dee2e6; color: #fff; }
         .platform-badge.youtube { background: #FF0000; }
         .platform-badge.facebook { background: #1877F2; }
         .platform-badge.twitter { background: #1DA1F2; }
@@ -463,6 +505,211 @@
         .platform-badge.linkedin { background: #0A66C2; }
         .platform-badge.pinterest { background: #E60023; }
         .platform-badge.discord { background: #5865F2; }
+
+        /* ============================================================
+           THEME TOGGLE BUTTON
+           ============================================================ */
+        .theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid #dee2e6;
+            background: #ffffff;
+            color: #212529;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .theme-toggle:hover {
+            background: #e9ecef;
+            transform: rotate(15deg);
+        }
+        .theme-toggle .auto-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            font-size: 10px;
+            background: #198754;
+            color: #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+        }
+        html[data-theme="dark"] .theme-toggle .auto-indicator {
+            border-color: #161b22;
+        }
+
+        /* ============================================================
+           DARK MODE OVERRIDES
+           ============================================================ */
+        html[data-theme="dark"] {
+            --bg-body: #0d1117;
+            --text-body: #f1f3f5;
+            --bg-sidebar: #161b22;
+            --border-sidebar: #30363d;
+            --bg-card: #161b22;
+            --border-card: #30363d;
+            --bg-table-header: #161b22;
+            --border-table: #30363d;
+            --bg-modal: #161b22;
+            --border-modal: #30363d;
+            --text-muted: #8b949e;
+            --bg-input: #0d1117;
+            --border-input: #30363d;
+            --bg-stat-item: #0d1117;
+            --border-stat-item: #30363d;
+            --color-detail-label: #8b949e;
+            --color-detail-value: #f1f3f5;
+            --bg-detail-code: #0d1117;
+            --bg-tooltip: #21262d;
+            --shadow-color: rgba(0,0,0,0.5);
+        }
+
+        html[data-theme="dark"] .sidebar .nav-link {
+            color: #8b949e;
+        }
+        html[data-theme="dark"] .sidebar .nav-link:hover {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .sidebar .nav-link.active {
+            background: #198754;
+            color: #fff;
+        }
+
+        html[data-theme="dark"] .btn-outline-light {
+            border-color: #30363d;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .btn-outline-light:hover {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .btn-refund {
+            color: #f85149;
+            border-color: #f85149;
+        }
+        html[data-theme="dark"] .btn-refund:hover {
+            background: #f85149;
+            color: #fff;
+        }
+        html[data-theme="dark"] .btn-cancel {
+            color: #f0883e;
+            border-color: #f0883e;
+        }
+        html[data-theme="dark"] .btn-cancel:hover {
+            background: #f0883e;
+            color: #fff;
+        }
+
+        html[data-theme="dark"] .refresh-btn {
+            border-color: #30363d;
+            color: #8b949e;
+        }
+        html[data-theme="dark"] .refresh-btn:hover {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .toast-custom {
+            background: #161b22;
+            color: #f1f3f5;
+            border-color: #30363d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+        html[data-theme="dark"] .toast-success { border-left-color: #198754; }
+        html[data-theme="dark"] .toast-error { border-left-color: #f85149; }
+        html[data-theme="dark"] .toast-info { border-left-color: #58a6ff; }
+        html[data-theme="dark"] .toast-warning { border-left-color: #d29922; }
+
+        html[data-theme="dark"] .stat-card .text-muted {
+            color: #8b949e !important;
+        }
+        html[data-theme="dark"] .stat-card h3 {
+            color: #f1f3f5;
+        }
+
+        html[data-theme="dark"] .theme-toggle {
+            border-color: rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        html[data-theme="dark"] .theme-toggle:hover {
+            background: rgba(255,255,255,0.18);
+        }
+
+        html[data-theme="dark"] .platform-badge.tiktok {
+            border-color: #30363d;
+        }
+
+        /* Fix for dark mode modal close button */
+        html[data-theme="dark"] .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Ensure text in alerts is visible */
+        html[data-theme="dark"] .alert-success {
+            background: #0d2818;
+            color: #7ee8a2;
+            border-color: #198754;
+        }
+        html[data-theme="dark"] .alert-danger {
+            background: #2d0f14;
+            color: #f8a5a5;
+            border-color: #dc3545;
+        }
+        html[data-theme="dark"] .alert-warning {
+            background: #2d1f0a;
+            color: #f5c98a;
+            border-color: #d29922;
+        }
+        html[data-theme="dark"] .alert-info {
+            background: #0d1a2d;
+            color: #8ab8f5;
+            border-color: #0d6efd;
+        }
+
+        /* Fix for card text in dark mode */
+        html[data-theme="dark"] .card-title,
+        html[data-theme="dark"] .card-text,
+        html[data-theme="dark"] .card-body {
+            color: #f1f3f5;
+        }
+
+        /* Fix for modal body text */
+        html[data-theme="dark"] .modal-body,
+        html[data-theme="dark"] .modal-body p,
+        html[data-theme="dark"] .modal-body label {
+            color: #f1f3f5;
+        }
+
+        /* Fix for dropdown options in dark mode */
+        html[data-theme="dark"] .form-select option {
+            background: #0d1117;
+            color: #f1f3f5;
+        }
+
+        /* Fix for table hover in dark mode */
+        html[data-theme="dark"] .table tbody tr:hover {
+            background: #21262d;
+        }
+
+        /* Fix for pagination or any other text */
+        html[data-theme="dark"] .text-secondary {
+            color: #8b949e !important;
+        }
+        html[data-theme="dark"] .text-dark {
+            color: #f1f3f5 !important;
+        }
     </style>
 </head>
 <body>
@@ -472,8 +719,13 @@
 
             <!-- SIDEBAR -->
             <div class="col-md-3 col-lg-2 px-0 sidebar">
-                <div class="d-flex align-items-center mb-4 mt-2 px-3">
-                    <span class="navbar-brand fw-bold text-success">⬢ HKDM<span class="text-white">admin</span></span>
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 px-3">
+                    <span class="navbar-brand fw-bold text-success">⬢ HKDM<span id="brandText" style="color: #212529;">admin</span></span>
+                    <!-- THEME TOGGLE with Auto Indicator -->
+                    <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode (Auto: ON)">
+                        <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
+                        <span class="auto-indicator" id="autoIndicator" title="Auto-switch based on time">⏱</span>
+                    </button>
                 </div>
                 <nav class="nav flex-column">
                     <a class="nav-link active" href="#" data-section="overview">
@@ -497,7 +749,7 @@
                     <a class="nav-link" href="#" data-section="transactions">
                         <i class="bi bi-receipt"></i> Transactions
                     </a>
-                    <hr class="border-secondary">
+                    <hr class="border-secondary" id="sidebarDivider">
                     <a class="nav-link text-danger" href="#" id="adminLogout">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
@@ -1265,7 +1517,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to <strong class="text-danger">cancel and refund</strong> this order?</p>
-                    <div id="cancelOrderDetails" class="bg-dark p-3 rounded mb-3">
+                    <div id="cancelOrderDetails" class="bg-light p-3 rounded mb-3" style="html[data-theme='dark'] & { background: #0d1117 !important; }">
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Order ID:</span>
                             <span id="cancelOrderIdDisplay">-</span>
@@ -1412,6 +1664,133 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+    <!-- ============================================================
+         THEME TOGGLE SCRIPT (Auto + Manual)
+         ============================================================ -->
+    <script>
+    (function() {
+        // Get the theme toggle elements
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const autoIndicator = document.getElementById('autoIndicator');
+        const brandText = document.getElementById('brandText');
+
+        // Check for saved preference, default to 'auto'
+        let savedPreference = localStorage.getItem('adminTheme') || 'auto';
+        let currentTheme = 'light';
+        let isAutoMode = true;
+
+        // Function to determine theme based on time
+        function getTimeBasedTheme() {
+            const hour = new Date().getHours();
+            // Dark mode from 6 PM (18) to 6 AM (6)
+            return (hour >= 18 || hour < 6) ? 'dark' : 'light';
+        }
+
+        // Function to apply theme
+        function applyTheme(theme, isAuto) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-sun-fill';
+                currentTheme = 'dark';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'bi bi-moon-stars-fill';
+                currentTheme = 'light';
+            }
+
+            // Update brand text color for visibility
+            if (brandText) {
+                brandText.style.color = theme === 'dark' ? '#f1f3f5' : '#212529';
+            }
+
+            // Update auto indicator
+            if (autoIndicator) {
+                if (isAuto) {
+                    autoIndicator.style.display = 'flex';
+                    autoIndicator.textContent = '⏱';
+                    autoIndicator.title = 'Auto-switch based on time (ON)';
+                } else {
+                    autoIndicator.style.display = 'none';
+                }
+            }
+
+            // Update button title
+            if (themeToggle) {
+                const mode = theme === 'dark' ? 'Dark' : 'Light';
+                const autoText = isAuto ? ' (Auto: ON)' : ' (Manual)';
+                themeToggle.title = `Toggle theme - Current: ${mode}${autoText}`;
+            }
+
+            isAutoMode = isAuto;
+            localStorage.setItem('adminTheme', isAuto ? 'auto' : theme);
+        }
+
+        // Function to handle auto-switch
+        function handleAutoSwitch() {
+            if (isAutoMode) {
+                const timeBasedTheme = getTimeBasedTheme();
+                applyTheme(timeBasedTheme, true);
+            }
+        }
+
+        // Initialize theme
+        function initTheme() {
+            const preference = localStorage.getItem('adminTheme');
+
+            if (!preference || preference === 'auto') {
+                // Auto mode
+                const timeBasedTheme = getTimeBasedTheme();
+                applyTheme(timeBasedTheme, true);
+            } else {
+                // Manual mode (light or dark)
+                applyTheme(preference, false);
+            }
+        }
+
+        // Toggle on button click
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                if (isAutoMode) {
+                    // If auto mode is ON, turn it OFF and switch to opposite of current time theme
+                    const currentTimeTheme = getTimeBasedTheme();
+                    const newTheme = currentTimeTheme === 'dark' ? 'light' : 'dark';
+                    applyTheme(newTheme, false);
+                } else {
+                    // Manual mode: toggle between light and dark
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    applyTheme(newTheme, false);
+                }
+            });
+
+            // Double-click to re-enable auto mode
+            themeToggle.addEventListener('dblclick', function() {
+                const timeBasedTheme = getTimeBasedTheme();
+                applyTheme(timeBasedTheme, true);
+                showToast('🔄 Auto mode re-enabled!', 'info');
+            });
+        }
+
+        // Auto-switch every minute (check time)
+        setInterval(handleAutoSwitch, 60000);
+
+        // Also check on page visibility change (user returns to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                handleAutoSwitch();
+            }
+        });
+
+        // Initialize
+        initTheme();
+
+        console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
+    })();
+    </script>
+
+    <!-- ============================================================
+         FIREBASE & ADMIN SCRIPTS
+         ============================================================ -->
     <script>
         // ============================================================
         // FIREBASE CONFIG
