@@ -382,6 +382,58 @@
             text-align: right;
             max-width: 60%;
         }
+
+        /* Service Management Styles */
+        .service-tabs .nav-link {
+            color: #8b949e;
+            border-radius: 8px;
+        }
+        .service-tabs .nav-link.active {
+            background: #198754;
+            color: #fff;
+        }
+        .service-tabs .nav-link:hover:not(.active) {
+            background: #21262d;
+            color: #f1f3f5;
+        }
+        .service-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .service-stat-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .service-stat-item .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #198754;
+        }
+        .service-stat-item .number.text-warning {
+            color: #d29922;
+        }
+        .service-stat-item .number.text-info {
+            color: #58a6ff;
+        }
+        .service-stat-item .label {
+            font-size: 0.7rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .service-actions .btn {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            margin: 0 2px;
+        }
+        .service-actions .btn i {
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -628,65 +680,115 @@
                 </div>
 
                 <!-- ============================================ -->
-                <!-- SERVICES SECTION - ENHANCED                 -->
+                <!-- SERVICES SECTION - FULL MANAGEMENT           -->
                 <!-- ============================================ -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
                         <!-- Service Stats -->
-                        <div class="stats-grid" id="serviceStatsGrid">
-                            <div class="stat-item">
+                        <div class="service-stats-grid" id="serviceStatsGrid">
+                            <div class="service-stat-item">
                                 <div class="number" id="statTotalServices">0</div>
                                 <div class="label">Total Services</div>
                             </div>
-                            <div class="stat-item">
-                                <div class="number" id="statTotalPlatforms">0</div>
+                            <div class="service-stat-item">
+                                <div class="number" id="statGlobalCount">0</div>
+                                <div class="label">Global</div>
+                            </div>
+                            <div class="service-stat-item">
+                                <div class="number" id="statNigeriaCount">0</div>
+                                <div class="label">Nigeria</div>
+                            </div>
+                            <div class="service-stat-item">
+                                <div class="number text-info" id="statPlatformCount">0</div>
                                 <div class="label">Platforms</div>
                             </div>
-                            <div class="stat-item">
-                                <div class="number text-info" id="statUniquePlatforms">0</div>
-                                <div class="label">Unique Platforms</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="number text-success" id="statHighestRate">₦0</div>
-                                <div class="label">Highest Rate</div>
+                            <div class="service-stat-item">
+                                <div class="number text-warning" id="statAvgRate">₦0</div>
+                                <div class="label">Avg Rate</div>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
-                            <h5>Manage Services</h5>
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-                                <i class="bi bi-plus-circle"></i> Add Service
-                            </button>
-                        </div>
+                        <!-- Tabs: Global + Nigeria -->
+                        <ul class="nav nav-tabs service-tabs mb-3" id="serviceCatalogTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="svc-global-tab" data-bs-toggle="tab" data-bs-target="#svc-global" type="button" role="tab">
+                                    <i class="bi bi-globe"></i> Global Catalog
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="svc-nigeria-tab" data-bs-toggle="tab" data-bs-target="#svc-nigeria" type="button" role="tab">
+                                    <i class="bi bi-flag"></i> Nigeria Catalog
+                                </button>
+                            </li>
+                        </ul>
 
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Service</th>
-                                        <th>Platform</th>
-                                        <th>Rate (per 1000)</th>
-                                        <th>Min Qty</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="allServicesTable">
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">Loading...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="tab-content">
+                            <!-- Global Catalog -->
+                            <div class="tab-pane fade show active" id="svc-global" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                    <h5>Global Services</h5>
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal" onclick="setCatalogForAdd('global')">
+                                        <i class="bi bi-plus-circle"></i> Add Service
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 25%;">Service</th>
+                                                <th style="width: 15%;">Platform</th>
+                                                <th style="width: 15%;">Rate (1000)</th>
+                                                <th style="width: 12%;">Reseller</th>
+                                                <th style="width: 12%;">VIP</th>
+                                                <th style="width: 8%;">Min</th>
+                                                <th style="width: 13%;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="globalServicesTable">
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted">Loading...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Nigeria Catalog -->
+                            <div class="tab-pane fade" id="svc-nigeria" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                                    <h5>Nigeria Services</h5>
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addServiceModal" onclick="setCatalogForAdd('nigeria')">
+                                        <i class="bi bi-plus-circle"></i> Add Service
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 25%;">Service</th>
+                                                <th style="width: 15%;">Platform</th>
+                                                <th style="width: 15%;">Rate (1000)</th>
+                                                <th style="width: 12%;">Reseller</th>
+                                                <th style="width: 12%;">VIP</th>
+                                                <th style="width: 8%;">Min</th>
+                                                <th style="width: 13%;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="nigeriaServicesTable">
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted">Loading...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- ============================================ -->
-                <!-- SHOP SECTION - ENHANCED                     -->
-                <!-- ============================================ -->
+                <!-- SHOP SECTION -->
                 <div id="section-shop" style="display:none;">
                     <div class="stat-card">
-                        <!-- Shop Stats -->
                         <div class="stats-grid" id="shopStatsGrid">
                             <div class="stat-item">
                                 <div class="number" id="statTotalProducts">0</div>
@@ -849,38 +951,129 @@
         </div>
     </div>
 
-    <!-- ADD SERVICE MODAL -->
+    <!-- ============================================ -->
+    <!-- ADD SERVICE MODAL - ENHANCED                -->
+    <!-- ============================================ -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Service</h5>
+                    <h5 class="modal-title"><i class="bi bi-plus-circle text-success"></i> Add New Service</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addServiceForm">
-                        <div class="mb-3">
-                            <label class="form-label">Service Name</label>
-                            <input type="text" class="form-control" id="svcName" placeholder="e.g. Followers" required>
+                        <input type="hidden" id="addCatalog">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Catalog</label>
+                                <select class="form-select" id="addCatalogDisplay" disabled>
+                                    <option value="global">Global Catalog</option>
+                                    <option value="nigeria">Nigeria Catalog</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Service Name</label>
+                                <input type="text" class="form-control" id="svcName" placeholder="e.g. Followers - High Quality" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Platform</label>
+                                <select class="form-select" id="svcPlatform" required>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="TikTok">TikTok</option>
+                                    <option value="YouTube">YouTube</option>
+                                    <option value="Facebook">Facebook</option>
+                                    <option value="Twitter/X">Twitter/X</option>
+                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="Telegram">Telegram</option>
+                                    <option value="Spotify">Spotify</option>
+                                    <option value="Twitch">Twitch</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Rate (per 1000) ₦</label>
+                                <input type="number" class="form-control" id="svcRate" placeholder="e.g. 2500" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Reseller Rate ₦</label>
+                                <input type="number" class="form-control" id="svcResellerRate" placeholder="e.g. 2000">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">VIP Rate ₦</label>
+                                <input type="number" class="form-control" id="svcVipRate" placeholder="e.g. 1800">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Minimum Quantity</label>
+                                <input type="number" class="form-control" id="svcMinQty" value="100" required>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Platform</label>
-                            <input type="text" class="form-control" id="svcPlatform" placeholder="e.g. Instagram" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Rate Per 1000 (₦)</label>
-                            <input type="number" class="form-control" id="svcRate" placeholder="e.g. 12000" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Minimum Quantity</label>
-                            <input type="number" class="form-control" id="svcMinQty" placeholder="e.g. 100" value="100" required>
-                        </div>
-                        <div id="addServiceMsg"></div>
+                        <div id="addServiceMsg" class="mt-3"></div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" id="saveServiceBtn">Save Service</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- EDIT SERVICE MODAL                          -->
+    <!-- ============================================ -->
+    <div class="modal fade" id="editServiceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square text-success"></i> Edit Service</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editServiceForm">
+                        <input type="hidden" id="editServiceId">
+                        <input type="hidden" id="editCatalog">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Service Name</label>
+                                <input type="text" class="form-control" id="editSvcName" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Platform</label>
+                                <select class="form-select" id="editSvcPlatform" required>
+                                    <option value="Instagram">Instagram</option>
+                                    <option value="TikTok">TikTok</option>
+                                    <option value="YouTube">YouTube</option>
+                                    <option value="Facebook">Facebook</option>
+                                    <option value="Twitter/X">Twitter/X</option>
+                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="Telegram">Telegram</option>
+                                    <option value="Spotify">Spotify</option>
+                                    <option value="Twitch">Twitch</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Rate (per 1000) ₦</label>
+                                <input type="number" class="form-control" id="editSvcRate" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Reseller Rate ₦</label>
+                                <input type="number" class="form-control" id="editSvcResellerRate">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">VIP Rate ₦</label>
+                                <input type="number" class="form-control" id="editSvcVipRate">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Minimum Quantity</label>
+                                <input type="number" class="form-control" id="editSvcMinQty" required>
+                            </div>
+                        </div>
+                        <div id="editServiceMsg" class="mt-3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="updateServiceBtn">Update Service</button>
                 </div>
             </div>
         </div>
@@ -1284,7 +1477,7 @@
         // FORMAT FUNCTIONS
         // ============================================
         function formatNaira(amount) {
-            return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
 
         function formatDate(timestamp) {
@@ -1687,8 +1880,8 @@
                 await database.ref('transactions/' + transactionId).set(transactionData);
 
                 msgDiv.innerHTML =
-                    `<div class="alert alert-success">✅ Refund successful! ₦${amount.toLocaleString()} returned to user's wallet.</div>`;
-                showToast(`✅ Refunded ₦${amount.toLocaleString()} for order ${orderId}`, 'success');
+                    `<div class="alert alert-success">✅ Refund successful! ${formatNaira(amount)} returned to user's wallet.</div>`;
+                showToast(`✅ Refunded ${formatNaira(amount)} for order ${orderId}`, 'success');
 
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('confirmCancelModal')).hide();
@@ -1888,7 +2081,7 @@
                 }
 
                 showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`,
-                'success');
+                    'success');
                 selectedOrders.clear();
                 loadAllOrders();
                 loadDashboard();
@@ -2101,197 +2294,256 @@
         });
 
         // ============================================
-        // SERVICES - ENHANCED
+        // SERVICE MANAGEMENT - FIREBASE INTEGRATION
         // ============================================
+
+        // Reference paths in Firebase
+        const SERVICE_PATHS = {
+            global: 'services/global',
+            nigeria: 'services/nigeria'
+        };
+
+        // Load all services from Firebase
         function loadAllServices() {
-            const servicesRef = database.ref('services');
-            servicesRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                const tbody = document.getElementById('allServicesTable');
+            const globalRef = database.ref(SERVICE_PATHS.global);
+            const nigeriaRef = database.ref(SERVICE_PATHS.nigeria);
 
-                if (!data) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No services found</td></tr>';
-                    updateServiceStats({});
-                    return;
-                }
+            Promise.all([
+                globalRef.once('value'),
+                nigeriaRef.once('value')
+            ]).then(([globalSnapshot, nigeriaSnapshot]) => {
+                const globalServices = globalSnapshot.val() || [];
+                const nigeriaServices = nigeriaSnapshot.val() || [];
 
-                const services = Object.entries(data);
-                updateServiceStats(data);
-
-                tbody.innerHTML = services.map(([key, service]) => {
-                    return `
-                            <tr>
-                                <td><code class="id-code">${key}</code></td>
-                                <td><strong>${service.service || 'N/A'}</strong></td>
-                                <td><span class="badge bg-info">${service.platform || 'N/A'}</span></td>
-                                <td>${formatNaira(service.ratePer1000)}</td>
-                                <td>${service.minimumQuantity || 100}</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="btn btn-sm btn-outline-light view-service-btn" 
-                                            data-service-key="${key}"
-                                            title="View service details">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-service-btn" 
-                                            data-service-key="${key}"
-                                            title="Delete service">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                }).join('');
-
-                // Attach view service events
-                document.querySelectorAll('.view-service-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        viewServiceDetails(btn.dataset.serviceKey);
-                    });
-                });
-
-                // Attach delete events
-                document.querySelectorAll('.delete-service-btn').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        if (confirm('Delete this service?')) {
-                            await database.ref('services/' + btn.dataset.serviceKey).remove();
-                            loadAllServices();
-                            showToast('🗑️ Service deleted', 'info');
-                        }
-                    });
-                });
+                renderServicesTable(globalServices, 'globalServicesTable', 'global');
+                renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
+                updateServiceStats(globalServices, nigeriaServices);
+            }).catch(error => {
+                console.error('Error loading services:', error);
+                showToast('❌ Error loading services: ' + error.message, 'error');
             });
         }
 
-        // ============================================
-        // UPDATE SERVICE STATS
-        // ============================================
-        function updateServiceStats(data) {
-            let total = 0;
-            let platforms = new Set();
-            let highestRate = 0;
-
-            if (data) {
-                Object.values(data).forEach(service => {
-                    total++;
-                    if (service.platform) {
-                        platforms.add(service.platform);
-                    }
-                    const rate = Number(service.ratePer1000) || 0;
-                    if (rate > highestRate) {
-                        highestRate = rate;
-                    }
-                });
-            }
-
-            document.getElementById('statTotalServices').textContent = total;
-            document.getElementById('statTotalPlatforms').textContent = platforms.size;
-            document.getElementById('statUniquePlatforms').textContent = platforms.size;
-            document.getElementById('statHighestRate').textContent = formatNaira(highestRate);
-        }
-
-        // ============================================
-        // VIEW SERVICE DETAILS
-        // ============================================
-        function viewServiceDetails(serviceKey) {
-            const modalBody = document.getElementById('serviceDetailsBody');
-            modalBody.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-success" role="status"></div>
-                        <p class="mt-2">Loading service details...</p>
-                    </div>
-                `;
-
-            const modal = new bootstrap.Modal(document.getElementById('serviceDetailsModal'));
-            modal.show();
-
-            const servicesRef = database.ref('services/' + serviceKey);
-            servicesRef.once('value', (snapshot) => {
-                const service = snapshot.val();
-
-                if (!service) {
-                    modalBody.innerHTML = `
-                            <div class="alert alert-danger">Service not found</div>
-                        `;
-                    return;
-                }
-
-                const details = `
-                        <div class="mb-3">
-                            <h6 class="text-success">Service Information</h6>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Service Key</span>
-                                <span class="service-detail-value"><code>${serviceKey}</code></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Service Name</span>
-                                <span class="service-detail-value"><strong>${service.service || 'N/A'}</strong></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Platform</span>
-                                <span class="service-detail-value"><span class="badge bg-info">${service.platform || 'N/A'}</span></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Rate Per 1000</span>
-                                <span class="service-detail-value fw-bold text-success">${formatNaira(service.ratePer1000)}</span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Minimum Quantity</span>
-                                <span class="service-detail-value">${service.minimumQuantity || 100}</span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Created At</span>
-                                <span class="service-detail-value">${formatDate(service.createdAt)}</span>
-                            </div>
-                        </div>
-                    `;
-
-                modalBody.innerHTML = details;
-            });
-        }
-
-        // ============================================
-        // ADD SERVICE
-        // ============================================
-        document.getElementById('saveServiceBtn').addEventListener('click', async () => {
-            const name = document.getElementById('svcName').value.trim();
-            const platform = document.getElementById('svcPlatform').value.trim();
-            const rate = parseFloat(document.getElementById('svcRate').value);
-            const minQty = parseInt(document.getElementById('svcMinQty').value) || 100;
-            const msgDiv = document.getElementById('addServiceMsg');
-
-            if (!name || !platform || !rate) {
-                msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
+        function renderServicesTable(services, tableId, catalog) {
+            const tbody = document.getElementById(tableId);
+            if (!services || services.length === 0) {
+                tbody.innerHTML =
+                `<tr><td colspan="7" class="text-center text-muted">No services found</td></tr>`;
                 return;
             }
 
-            msgDiv.innerHTML = '<div class="alert alert-info">Adding service...</div>';
+            tbody.innerHTML = services.map((service, index) => `
+                    <tr id="service-row-${service.id || index}">
+                        <td><strong>${service.service || 'N/A'}</strong></td>
+                        <td><span class="badge bg-info">${service.platform || 'N/A'}</span></td>
+                        <td class="text-success fw-bold">${formatNaira(service.ratePer1000)}</td>
+                        <td>${service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-'}</td>
+                        <td>${service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-'}</td>
+                        <td>${service.minimumQuantity || 100}</td>
+                        <td class="service-actions">
+                            <button class="btn btn-outline-success btn-sm edit-service-btn" 
+                                    data-id="${service.id || index}" 
+                                    data-catalog="${catalog}"
+                                    data-service='${JSON.stringify(service).replace(/'/g, "&#39;")}'
+                                    title="Edit service">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm delete-service-btn" 
+                                    data-id="${service.id || index}" 
+                                    data-catalog="${catalog}"
+                                    title="Delete service">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            // Attach edit event listeners
+            tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const service = JSON.parse(btn.dataset.service);
+                    openEditServiceModal(service, btn.dataset.catalog);
+                });
+            });
+
+            // Attach delete event listeners
+            tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (confirm('Delete this service permanently?')) {
+                        deleteService(btn.dataset.id, btn.dataset.catalog);
+                    }
+                });
+            });
+        }
+
+        function updateServiceStats(global, nigeria) {
+            const all = [...(global || []), ...(nigeria || [])];
+            const platforms = [...new Set(all.map(s => s.platform).filter(Boolean))];
+            const rates = all.map(s => Number(s.ratePer1000) || 0).filter(r => r > 0);
+
+            document.getElementById('statTotalServices').textContent = all.length;
+            document.getElementById('statGlobalCount').textContent = global ? global.length : 0;
+            document.getElementById('statNigeriaCount').textContent = nigeria ? nigeria.length : 0;
+            document.getElementById('statPlatformCount').textContent = platforms.length;
+            document.getElementById('statAvgRate').textContent = rates.length > 0 ? formatNaira(Math.round(rates.reduce((a, b) => a + b, 0) / rates.length)) : '₦0';
+        }
+
+        function setCatalogForAdd(catalog) {
+            document.getElementById('addCatalog').value = catalog;
+            const display = document.getElementById('addCatalogDisplay');
+            display.value = catalog;
+            display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
+        }
+
+        function openEditServiceModal(service, catalog) {
+            document.getElementById('editServiceId').value = service.id;
+            document.getElementById('editCatalog').value = catalog;
+            document.getElementById('editSvcName').value = service.service || '';
+            document.getElementById('editSvcPlatform').value = service.platform || 'Instagram';
+            document.getElementById('editSvcRate').value = service.ratePer1000 || 0;
+            document.getElementById('editSvcResellerRate').value = service.resellerRatePer1000 || '';
+            document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
+            document.getElementById('editSvcMinQty').value = service.minimumQuantity || 100;
+
+            const modal = new bootstrap.Modal(document.getElementById('editServiceModal'));
+            modal.show();
+        }
+
+        // ============================================
+        // SAVE NEW SERVICE TO FIREBASE
+        // ============================================
+        document.getElementById('saveServiceBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+            btn.disabled = true;
 
             try {
-                const newRef = database.ref('services').push();
-                await newRef.set({
-                    id: newRef.key,
-                    service: name,
-                    platform: platform,
-                    ratePer1000: rate,
-                    minimumQuantity: minQty,
+                const catalog = document.getElementById('addCatalog').value;
+                const newService = {
+                    id: Date.now().toString(),
+                    platform: document.getElementById('svcPlatform').value,
+                    service: document.getElementById('svcName').value.trim(),
+                    ratePer1000: parseInt(document.getElementById('svcRate').value) || 0,
+                    resellerRatePer1000: parseInt(document.getElementById('svcResellerRate').value) || null,
+                    vipRatePer1000: parseInt(document.getElementById('svcVipRate').value) || null,
+                    minimumQuantity: parseInt(document.getElementById('svcMinQty').value) || 100,
                     createdAt: Date.now()
-                });
+                };
 
-                msgDiv.innerHTML = '<div class="alert alert-success">✅ Service added successfully!</div>';
-                showToast(`✅ Service "${name}" added`, 'success');
-                document.getElementById('addServiceForm').reset();
+                if (!newService.service || !newService.ratePer1000) {
+                    document.getElementById('addServiceMsg').innerHTML =
+                        `<div class="alert alert-danger">Please fill in all required fields.</div>`;
+                    return;
+                }
+
+                // Save to Firebase
+                const path = SERVICE_PATHS[catalog];
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                existing.push(newService);
+                await servicesRef.set(existing);
+
+                document.getElementById('addServiceMsg').innerHTML =
+                    `<div class="alert alert-success">✅ Service added successfully!</div>`;
+                showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
+
                 setTimeout(() => {
-                    msgDiv.innerHTML = '';
-                    bootstrap.Modal.getInstance(document.getElementById('addServiceModal')).hide();
+                    document.querySelector('#addServiceModal .btn-close').click();
+                    document.getElementById('addServiceForm').reset();
                     loadAllServices();
                 }, 1500);
 
             } catch (error) {
-                msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
+                console.error('Add service error:', error);
+                document.getElementById('addServiceMsg').innerHTML =
+                    `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
             }
         });
+
+        // ============================================
+        // UPDATE SERVICE IN FIREBASE
+        // ============================================
+        document.getElementById('updateServiceBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
+            btn.disabled = true;
+
+            try {
+                const catalog = document.getElementById('editCatalog').value;
+                const serviceId = document.getElementById('editServiceId').value;
+                const updatedService = {
+                    id: serviceId,
+                    platform: document.getElementById('editSvcPlatform').value,
+                    service: document.getElementById('editSvcName').value.trim(),
+                    ratePer1000: parseInt(document.getElementById('editSvcRate').value) || 0,
+                    resellerRatePer1000: parseInt(document.getElementById('editSvcResellerRate').value) || null,
+                    vipRatePer1000: parseInt(document.getElementById('editSvcVipRate').value) || null,
+                    minimumQuantity: parseInt(document.getElementById('editSvcMinQty').value) || 100,
+                    updatedAt: Date.now()
+                };
+
+                if (!updatedService.service || !updatedService.ratePer1000) {
+                    document.getElementById('editServiceMsg').innerHTML =
+                        `<div class="alert alert-danger">Please fill in all required fields.</div>`;
+                    return;
+                }
+
+                // Update in Firebase
+                const path = SERVICE_PATHS[catalog];
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                const index = existing.findIndex(s => s.id === serviceId);
+                if (index === -1) {
+                    throw new Error('Service not found');
+                }
+                existing[index] = updatedService;
+                await servicesRef.set(existing);
+
+                document.getElementById('editServiceMsg').innerHTML =
+                    `<div class="alert alert-success">✅ Service updated successfully!</div>`;
+                showToast('✅ Service updated!', 'success');
+
+                setTimeout(() => {
+                    document.querySelector('#editServiceModal .btn-close').click();
+                    loadAllServices();
+                }, 1500);
+
+            } catch (error) {
+                console.error('Update service error:', error);
+                document.getElementById('editServiceMsg').innerHTML =
+                    `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        });
+
+        // ============================================
+        // DELETE SERVICE FROM FIREBASE
+        // ============================================
+        async function deleteService(serviceId, catalog) {
+            try {
+                const path = SERVICE_PATHS[catalog];
+                const servicesRef = database.ref(path);
+                const snapshot = await servicesRef.once('value');
+                const existing = snapshot.val() || [];
+                const filtered = existing.filter(s => s.id !== serviceId);
+                await servicesRef.set(filtered);
+
+                showToast('✅ Service deleted successfully!', 'success');
+                loadAllServices();
+            } catch (error) {
+                console.error('Delete service error:', error);
+                showToast('❌ Error deleting service: ' + error.message, 'error');
+            }
+        }
 
         // ============================================
         // SHOP - ENHANCED
@@ -2736,7 +2988,7 @@
             }
         });
 
-        console.log('✅ Admin dashboard loaded with enhanced Services and Shop!');
+        console.log('✅ Admin dashboard loaded with full Service Management (Global + Nigeria)');
     </script>
 </body>
 </html>
