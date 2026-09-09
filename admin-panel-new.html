@@ -1017,15 +1017,15 @@
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Rate (per 1000) ₦</label>
-                                <input type="number" class="form-control" id="svcRate" placeholder="e.g. 2500" required>
+                                <input type="number" class="form-control" id="svcRate" placeholder="e.g. 12000" required>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Reseller Rate ₦</label>
-                                <input type="number" class="form-control" id="svcResellerRate" placeholder="e.g. 2000">
+                                <input type="number" class="form-control" id="svcResellerRate" placeholder="e.g. 9000">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">VIP Rate ₦</label>
-                                <input type="number" class="form-control" id="svcVipRate" placeholder="e.g. 1800">
+                                <input type="number" class="form-control" id="svcVipRate" placeholder="e.g. 10800">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Minimum Quantity</label>
@@ -1360,6 +1360,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
+        // ============================================================
+        // FIREBASE CONFIG
+        // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
             authDomain: "hkdmservices-7d59f.firebaseapp.com",
@@ -1378,9 +1381,9 @@
         let currentOrderFilter = 'all';
         let selectedOrders = new Set();
 
-        // ============================================
+        // ============================================================
         // CHECK ADMIN ACCESS
-        // ============================================
+        // ============================================================
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'admin-login.html';
@@ -1402,9 +1405,9 @@
             loadDashboard();
         });
 
-        // ============================================
+        // ============================================================
         // LOGOUT
-        // ============================================
+        // ============================================================
         document.getElementById('adminLogout').addEventListener('click', async function(e) {
             e.preventDefault();
             try {
@@ -1420,9 +1423,9 @@
             }
         });
 
-        // ============================================
+        // ============================================================
         // REFRESH DATA
-        // ============================================
+        // ============================================================
         document.getElementById('refreshData').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -1444,9 +1447,9 @@
             }
         });
 
-        // ============================================
+        // ============================================================
         // SECTION SWITCHING
-        // ============================================
+        // ============================================================
         document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(link => {
             link.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
@@ -1481,9 +1484,9 @@
             if (section === 'transactions') loadAllTransactions();
         }
 
-        // ============================================
+        // ============================================================
         // TOAST NOTIFICATIONS
-        // ============================================
+        // ============================================================
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1497,9 +1500,9 @@
             }, 4000);
         }
 
-        // ============================================
+        // ============================================================
         // FORMAT FUNCTIONS
-        // ============================================
+        // ============================================================
         function formatNaira(amount) {
             return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
@@ -1522,9 +1525,9 @@
             return `<span class="badge bg-${color}">${status || 'pending'}</span>`;
         }
 
-        // ============================================
+        // ============================================================
         // DASHBOARD OVERVIEW
-        // ============================================
+        // ============================================================
         function loadDashboard() {
             const ordersRef = database.ref('orders');
             ordersRef.once('value', (snapshot) => {
@@ -1575,9 +1578,9 @@
             });
         }
 
-        // ============================================
+        // ============================================================
         // ORDERS FILTER
-        // ============================================
+        // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove(
@@ -1588,9 +1591,9 @@
             });
         });
 
-        // ============================================
-        // ALL ORDERS
-        // ============================================
+        // ============================================================
+        // ALL ORDERS (simplified - keep existing)
+        // ============================================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
             ordersRef.once('value', (snapshot) => {
@@ -1692,27 +1695,13 @@
                         `;
                 }).join('');
 
-                // Attach view order events
+                // Attach events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
-                // Attach checkbox events
-                document.querySelectorAll('.order-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            selectedOrders.add(this.dataset.orderKey);
-                        } else {
-                            selectedOrders.delete(this.dataset.orderKey);
-                        }
-                        updateSelectedCount();
-                        updateSelectAllState();
-                    });
-                });
-
-                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -1724,7 +1713,6 @@
                     });
                 });
 
-                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -1740,12 +1728,24 @@
                         modal.show();
                     });
                 });
+
+                document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            selectedOrders.add(this.dataset.orderKey);
+                        } else {
+                            selectedOrders.delete(this.dataset.orderKey);
+                        }
+                        updateSelectedCount();
+                        updateSelectAllState();
+                    });
+                });
             });
         }
 
-        // ============================================
-        // UPDATE ORDER STATS
-        // ============================================
+        // ============================================================
+        // ORDER UTILITIES
+        // ============================================================
         function updateOrderStats(data) {
             let total = 0,
                 pending = 0,
@@ -1753,7 +1753,6 @@
                 completed = 0,
                 cancelled = 0,
                 refunded = 0;
-
             if (data) {
                 Object.values(data).forEach(order => {
                     total++;
@@ -1776,7 +1775,6 @@
                     }
                 });
             }
-
             document.getElementById('statTotalOrders').textContent = total;
             document.getElementById('statPendingOrders').textContent = pending;
             document.getElementById('statProcessingOrders').textContent = processing;
@@ -1785,42 +1783,123 @@
             document.getElementById('statRefundedOrders').textContent = refunded;
         }
 
-        // ============================================
-        // ORDER SEARCH EVENT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const orderSearch = document.getElementById('orderSearch');
-            if (orderSearch) {
-                orderSearch.addEventListener('input', loadAllOrders);
+        function updateSelectedCount() {
+            document.getElementById('selectedOrdersCount').textContent = `${selectedOrders.size} selected`;
+        }
+
+        function updateSelectAllState() {
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            const checked = document.querySelectorAll('.order-checkbox:checked');
+            const selectAll = document.getElementById('selectAllOrders');
+            if (selectAll) {
+                selectAll.checked = checkboxes.length > 0 && checkboxes.length === checked.length;
             }
-            const clearOrderSearch = document.getElementById('clearOrderSearch');
-            if (clearOrderSearch) {
-                clearOrderSearch.addEventListener('click', function() {
-                    const searchInput = document.getElementById('orderSearch');
-                    if (searchInput) {
-                        searchInput.value = '';
-                        loadAllOrders();
-                    }
-                });
+        }
+
+        document.getElementById('selectAllOrders').addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.order-checkbox').forEach(cb => {
+                cb.checked = isChecked;
+                if (isChecked) {
+                    selectedOrders.add(cb.dataset.orderKey);
+                } else {
+                    selectedOrders.delete(cb.dataset.orderKey);
+                }
+            });
+            updateSelectedCount();
+        });
+
+        document.getElementById('applyBulkAction').addEventListener('click', async function() {
+            const action = document.getElementById('bulkOrderAction').value;
+            const orderKeys = Array.from(selectedOrders);
+            if (!action || orderKeys.length === 0) {
+                showToast(action ? 'Please select at least one order' : 'Please select an action first', 'warning');
+                return;
+            }
+            if (!confirm(`Apply "${action}" to ${orderKeys.length} order(s)?`)) return;
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            try {
+                let success = 0,
+                    failed = 0;
+                for (const key of orderKeys) {
+                    try {
+                        await database.ref('orders/' + key + '/status').set(action);
+                        success++;
+                    } catch (e) { failed++; }
+                }
+                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`,
+                    'success');
+                selectedOrders.clear();
+                loadAllOrders();
+                loadDashboard();
+            } catch (error) {
+                showToast('❌ Failed: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Apply';
+                document.getElementById('bulkOrderAction').value = '';
             }
         });
 
-        // ============================================
+        // ============================================================
+        // VIEW ORDER DETAILS
+        // ============================================================
+        function viewOrderDetails(orderKey, orderId) {
+            const modalBody = document.getElementById('orderDetailsBody');
+            modalBody.innerHTML =
+                `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading order details...</p></div>`;
+            const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            modal.show();
+            database.ref('orders/' + orderKey).once('value', (snapshot) => {
+                const order = snapshot.val();
+                if (!order) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">Order not found</div>`;
+                    return;
+                }
+                database.ref('users/' + order.uid).once('value', (userSnapshot) => {
+                    const userData = userSnapshot.val() || {};
+                    modalBody.innerHTML = `
+                            <div class="mb-3"><h6 class="text-success">Order Information</h6>
+                                <div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value"><code>${orderId}</code></span></div>
+                                <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${statusBadge(order.status)}</span></div>
+                                <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${formatDate(order.createdAt)}</span></div>
+                                <div class="detail-row"><span class="detail-label">Catalogue</span><span class="detail-value">${order.catalogue || 'General'}</span></div>
+                            </div>
+                            <div class="mb-3"><h6 class="text-success">Service Details</h6>
+                                <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">${order.serviceName || 'N/A'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Platform</span><span class="detail-value">${order.platform || 'N/A'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Quantity</span><span class="detail-value">${order.quantity || 0}</span></div>
+                                <div class="detail-row"><span class="detail-label">Total Amount</span><span class="detail-value fw-bold text-success">${formatNaira(order.total)}</span></div>
+                                <div class="detail-row"><span class="detail-label">Target Link</span><span class="detail-value"><code style="font-size:0.7rem;">${order.link || 'N/A'}</code></span></div>
+                            </div>
+                            <div class="mb-3"><h6 class="text-success">Customer Information</h6>
+                                <div class="detail-row"><span class="detail-label">User UID</span><span class="detail-value"><code style="font-size:0.7rem;">${order.uid || 'N/A'}</code></span></div>
+                                <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${userData.fullName || 'N/A'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${userData.email || 'N/A'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Wallet Balance</span><span class="detail-value">${formatNaira(userData.wallet)}</span></div>
+                                <div class="detail-row"><span class="detail-label">Total Spent</span><span class="detail-value">${formatNaira(userData.totalSpent)}</span></div>
+                            </div>
+                            ${order.comments ? `<div class="mb-3"><h6 class="text-success">Custom Comments</h6><div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">${order.comments.map(c => `<span class="badge bg-secondary m-1">${c}</span>`).join('')}</div></div>` : ''}
+                        `;
+                });
+            });
+        }
+
+        // ============================================================
         // UPDATE ORDER STATUS
-        // ============================================
+        // ============================================================
         document.getElementById('updateStatusBtn').addEventListener('click', async () => {
             const orderKey = document.getElementById('statusOrderKey').value;
             const orderId = document.getElementById('statusOrderId').value;
             const newStatus = document.getElementById('newOrderStatus').value;
             const msgDiv = document.getElementById('updateStatusMsg');
-
             if (!orderKey) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">❌ Order not found</div>';
                 return;
             }
-
             msgDiv.innerHTML = '<div class="alert alert-info">⏳ Updating...</div>';
-
             try {
                 await database.ref('orders/' + orderKey + '/status').set(newStatus);
                 msgDiv.innerHTML = `<div class="alert alert-success">✅ Order status updated to ${newStatus}!</div>`;
@@ -1836,60 +1915,40 @@
             }
         });
 
-        // ============================================
+        // ============================================================
         // CONFIRM CANCEL & REFUND
-        // ============================================
+        // ============================================================
         document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
             const orderKey = this.dataset.orderKey;
             const orderId = this.dataset.orderId;
             const msgDiv = document.getElementById('cancelMsg');
             const btn = this;
-
             if (!orderKey) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">❌ Order not found</div>';
                 return;
             }
-
             msgDiv.innerHTML = '<div class="alert alert-info">⏳ Processing cancellation & refund...</div>';
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
-
             try {
                 const orderSnapshot = await database.ref('orders/' + orderKey).once('value');
                 const orderData = orderSnapshot.val();
-
-                if (!orderData) {
-                    throw new Error('Order not found');
-                }
-
-                if (orderData.status === 'refunded' || orderData.status === 'cancelled') {
-                    throw new Error('This order has already been cancelled or refunded');
-                }
-
+                if (!orderData) throw new Error('Order not found');
+                if (orderData.status === 'refunded' || orderData.status === 'cancelled') throw new Error(
+                    'This order has already been cancelled or refunded');
                 const uid = orderData.uid;
                 const amount = Number(orderData.total || 0);
-
-                if (!uid || amount <= 0) {
-                    throw new Error('Invalid order data for refund');
-                }
-
+                if (!uid || amount <= 0) throw new Error('Invalid order data for refund');
                 const userSnapshot = await database.ref('users/' + uid).once('value');
                 const userData = userSnapshot.val();
-
-                if (!userData) {
-                    throw new Error('User not found');
-                }
-
+                if (!userData) throw new Error('User not found');
                 const currentWallet = Number(userData.wallet || 0);
                 const newWallet = currentWallet + amount;
                 await database.ref('users/' + uid + '/wallet').set(newWallet);
-
                 const currentTotalSpent = Number(userData.totalSpent || 0);
                 const newTotalSpent = Math.max(0, currentTotalSpent - amount);
                 await database.ref('users/' + uid + '/totalSpent').set(newTotalSpent);
-
                 await database.ref('orders/' + orderKey + '/status').set('refunded');
-
                 const transactionId = 'REF-' + Date.now();
                 const transactionData = {
                     uid: uid,
@@ -1902,17 +1961,14 @@
                     processedBy: currentUser ? currentUser.email : 'admin'
                 };
                 await database.ref('transactions/' + transactionId).set(transactionData);
-
                 msgDiv.innerHTML =
                     `<div class="alert alert-success">✅ Refund successful! ${formatNaira(amount)} returned to user's wallet.</div>`;
                 showToast(`✅ Refunded ${formatNaira(amount)} for order ${orderId}`, 'success');
-
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('confirmCancelModal')).hide();
                     loadAllOrders();
                     loadDashboard();
                 }, 2000);
-
             } catch (error) {
                 console.error('Cancel/Refund error:', error);
                 msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed: ${error.message}</div>`;
@@ -1922,223 +1978,22 @@
             }
         });
 
-        // ============================================
-        // VIEW ORDER DETAILS
-        // ============================================
-        function viewOrderDetails(orderKey, orderId) {
-            const modalBody = document.getElementById('orderDetailsBody');
-            modalBody.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-success" role="status"></div>
-                        <p class="mt-2">Loading order details...</p>
-                    </div>
-                `;
-
-            const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-            modal.show();
-
-            const ordersRef = database.ref('orders/' + orderKey);
-            ordersRef.once('value', (snapshot) => {
-                const order = snapshot.val();
-
-                if (!order) {
-                    modalBody.innerHTML = `
-                            <div class="alert alert-danger">Order not found</div>
-                        `;
-                    return;
-                }
-
-                const userRef = database.ref('users/' + order.uid);
-                userRef.once('value', (userSnapshot) => {
-                    const userData = userSnapshot.val() || {};
-
-                    const details = `
-                            <div class="mb-3">
-                                <h6 class="text-success">Order Information</h6>
-                                <div class="detail-row">
-                                    <span class="detail-label">Order ID</span>
-                                    <span class="detail-value"><code>${orderId}</code></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Status</span>
-                                    <span class="detail-value">${statusBadge(order.status)}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Date</span>
-                                    <span class="detail-value">${formatDate(order.createdAt)}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Catalogue</span>
-                                    <span class="detail-value">${order.catalogue || 'General'}</span>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-success">Service Details</h6>
-                                <div class="detail-row">
-                                    <span class="detail-label">Service</span>
-                                    <span class="detail-value">${order.serviceName || 'N/A'}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Platform</span>
-                                    <span class="detail-value">${order.platform || 'N/A'}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Quantity</span>
-                                    <span class="detail-value">${order.quantity || 0}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Total Amount</span>
-                                    <span class="detail-value fw-bold text-success">${formatNaira(order.total)}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Target Link</span>
-                                    <span class="detail-value"><code style="font-size:0.7rem;">${order.link || 'N/A'}</code></span>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <h6 class="text-success">Customer Information</h6>
-                                <div class="detail-row">
-                                    <span class="detail-label">User UID</span>
-                                    <span class="detail-value"><code style="font-size:0.7rem;">${order.uid || 'N/A'}</code></span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Name</span>
-                                    <span class="detail-value">${userData.fullName || 'N/A'}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Email</span>
-                                    <span class="detail-value">${userData.email || 'N/A'}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Wallet Balance</span>
-                                    <span class="detail-value">${formatNaira(userData.wallet)}</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Total Spent</span>
-                                    <span class="detail-value">${formatNaira(userData.totalSpent)}</span>
-                                </div>
-                            </div>
-
-                            ${order.comments ? `
-                            <div class="mb-3">
-                                <h6 class="text-success">Custom Comments</h6>
-                                <div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">
-                                    ${order.comments.map(c => `<span class="badge bg-secondary m-1">${c}</span>`).join('')}
-                                </div>
-                            </div>
-                            ` : ''}
-                        `;
-
-                    modalBody.innerHTML = details;
-                });
-            });
-        }
-
-        // ============================================
-        // BULK ACTIONS - SELECT ALL
-        // ============================================
-        document.getElementById('selectAllOrders').addEventListener('change', function() {
-            const isChecked = this.checked;
-            document.querySelectorAll('.order-checkbox').forEach(cb => {
-                cb.checked = isChecked;
-                if (isChecked) {
-                    selectedOrders.add(cb.dataset.orderKey);
-                } else {
-                    selectedOrders.delete(cb.dataset.orderKey);
-                }
-            });
-            updateSelectedCount();
-        });
-
-        function updateSelectAllState() {
-            const checkboxes = document.querySelectorAll('.order-checkbox');
-            const checked = document.querySelectorAll('.order-checkbox:checked');
-            const selectAll = document.getElementById('selectAllOrders');
-            if (selectAll) {
-                selectAll.checked = checkboxes.length > 0 && checkboxes.length === checked.length;
-            }
-        }
-
-        function updateSelectedCount() {
-            document.getElementById('selectedOrdersCount').textContent = `${selectedOrders.size} selected`;
-        }
-
-        // ============================================
-        // BULK ACTIONS - APPLY
-        // ============================================
-        document.getElementById('applyBulkAction').addEventListener('click', async function() {
-            const action = document.getElementById('bulkOrderAction').value;
-            const orderKeys = Array.from(selectedOrders);
-
-            if (!action) {
-                showToast('Please select an action first', 'warning');
-                return;
-            }
-
-            if (orderKeys.length === 0) {
-                showToast('Please select at least one order', 'warning');
-                return;
-            }
-
-            if (!confirm(`Apply "${action}" to ${orderKeys.length} order(s)?`)) {
-                return;
-            }
-
-            const btn = this;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-            try {
-                let success = 0;
-                let failed = 0;
-
-                for (const key of orderKeys) {
-                    try {
-                        await database.ref('orders/' + key + '/status').set(action);
-                        success++;
-                    } catch (e) {
-                        failed++;
-                        console.error('Bulk update error for', key, e);
-                    }
-                }
-
-                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`,
-                    'success');
-                selectedOrders.clear();
-                loadAllOrders();
-                loadDashboard();
-
-            } catch (error) {
-                console.error('Bulk action error:', error);
-                showToast('❌ Failed to apply bulk action: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Apply';
-                document.getElementById('bulkOrderAction').value = '';
-            }
-        });
-
-        // ============================================
-        // USER MANAGEMENT
-        // ============================================
+        // ============================================================
+        // USERS
+        // ============================================================
         function loadAllUsers() {
             const usersRef = database.ref('users');
             usersRef.once('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('allUsersTable');
-
                 if (!data) {
                     tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No users found</td></tr>';
                     return;
                 }
-
                 const users = Object.entries(data);
                 const searchTerm = document.getElementById('userSearch')?.value?.toLowerCase() || '';
                 const tierFilter = document.getElementById('userTierFilter')?.value || 'all';
                 const statusFilter = document.getElementById('userStatusFilter')?.value || 'all';
-
                 let filtered = users.filter(([key, user]) => {
                     const name = (user.fullName || '').toLowerCase();
                     const email = (user.email || '').toLowerCase();
@@ -2151,13 +2006,11 @@
                     const matchesStatus = statusFilter === 'all' || userStatus === statusFilter;
                     return matchesSearch && matchesTier && matchesStatus;
                 });
-
                 if (filtered.length === 0) {
                     tbody.innerHTML =
                         '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
                     return;
                 }
-
                 tbody.innerHTML = filtered.map(([key, user]) => {
                     const isSuspended = user.status === 'suspended';
                     const tierColors = {
@@ -2166,7 +2019,6 @@
                         'regular': 'secondary'
                     };
                     const tierColor = tierColors[user.tier] || 'secondary';
-
                     return `
                             <tr class="${isSuspended ? 'text-muted' : ''}">
                                 <td><code class="uid-code">${key}</code></td>
@@ -2175,42 +2027,29 @@
                                 <td>${formatNaira(user.wallet)}</td>
                                 <td>${formatNaira(user.totalSpent)}</td>
                                 <td><span class="badge bg-${tierColor}">${(user.tier || 'regular').toUpperCase()}</span></td>
-                                <td>
-                                    <span class="badge bg-${isSuspended ? 'danger' : 'success'}">
-                                        ${isSuspended ? 'Suspended' : 'Active'}
-                                    </span>
-                                </td>
+                                <td><span class="badge bg-${isSuspended ? 'danger' : 'success'}">${isSuspended ? 'Suspended' : 'Active'}</span></td>
                                 <td>
                                     <div class="d-flex gap-1 flex-wrap user-actions">
-                                        <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}">
-                                            <i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}"><i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}"><i class="bi bi-trash"></i></button>
                                     </div>
                                 </td>
                             </tr>
                         `;
                 }).join('');
-
-                // Attach edit events
                 document.querySelectorAll('.edit-user-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
-                        openEditUserModal({
-                            uid: btn.dataset.uid,
-                            fullName: btn.dataset.fullname,
-                            email: btn.dataset.email,
-                            tier: btn.dataset.tier,
-                            status: btn.dataset.status
-                        });
+                        document.getElementById('editUserUid').value = btn.dataset.uid;
+                        document.getElementById('editUserFullName').value = btn.dataset.fullname;
+                        document.getElementById('editUserEmail').value = btn.dataset.email;
+                        document.getElementById('editUserTier').value = btn.dataset.tier;
+                        document.getElementById('editUserStatus').value = btn.dataset.status;
+                        document.getElementById('editUserMsg').innerHTML = '';
+                        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                        modal.show();
                     });
                 });
-
-                // Attach toggle status events
                 document.querySelectorAll('.toggle-status-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const uid = btn.dataset.uid;
@@ -2227,8 +2066,6 @@
                         }
                     });
                 });
-
-                // Attach delete events
                 document.querySelectorAll('.delete-user-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const uid = btn.dataset.uid;
@@ -2246,20 +2083,6 @@
             });
         }
 
-        // ============================================
-        // EDIT USER
-        // ============================================
-        function openEditUserModal(user) {
-            document.getElementById('editUserUid').value = user.uid;
-            document.getElementById('editUserFullName').value = user.fullName || '';
-            document.getElementById('editUserEmail').value = user.email || '';
-            document.getElementById('editUserTier').value = user.tier || 'regular';
-            document.getElementById('editUserStatus').value = user.status || 'active';
-            document.getElementById('editUserMsg').innerHTML = '';
-            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-            modal.show();
-        }
-
         document.getElementById('saveUserBtn').addEventListener('click', async () => {
             const uid = document.getElementById('editUserUid').value;
             const fullName = document.getElementById('editUserFullName').value.trim();
@@ -2267,21 +2090,13 @@
             const tier = document.getElementById('editUserTier').value;
             const status = document.getElementById('editUserStatus').value;
             const msgDiv = document.getElementById('editUserMsg');
-
             if (!uid || !fullName || !email) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
                 return;
             }
-
             msgDiv.innerHTML = '<div class="alert alert-info">Saving...</div>';
-
             try {
-                await database.ref('users/' + uid).update({
-                    fullName: fullName,
-                    email: email,
-                    tier: tier,
-                    status: status
-                });
+                await database.ref('users/' + uid).update({ fullName, email, tier, status });
                 msgDiv.innerHTML = '<div class="alert alert-success">✅ User updated successfully!</div>';
                 showToast('✅ User updated', 'success');
                 setTimeout(() => {
@@ -2294,34 +2109,11 @@
             }
         });
 
-        // ============================================
-        // USER FILTERS
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('userSearch');
-            const tierFilter = document.getElementById('userTierFilter');
-            const statusFilter = document.getElementById('userStatusFilter');
-            const refreshBtn = document.getElementById('refreshUsers');
+        // ============================================================
+        // SERVICE MANAGEMENT - FIXED TO LOAD YOUR services.js
+        // ============================================================
 
-            if (searchInput) {
-                searchInput.addEventListener('input', loadAllUsers);
-            }
-            if (tierFilter) {
-                tierFilter.addEventListener('change', loadAllUsers);
-            }
-            if (statusFilter) {
-                statusFilter.addEventListener('change', loadAllUsers);
-            }
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', loadAllUsers);
-            }
-        });
-
-        // ============================================
-        // SERVICE MANAGEMENT - READS FROM YOUR JS FILES
-        // ============================================
-
-        // IMPROVED: Load from JS file with better parsing
+        // Load from JS file - FIXED for your export format
         async function loadFromJSFile(filename) {
             try {
                 console.log(`📂 Loading ${filename}...`);
@@ -2329,17 +2121,19 @@
                 const text = await response.text();
                 
                 // Try multiple patterns to extract the array
-                let match = text.match(/=\s*(\[[\s\S]*?\]);/);
+                let match = null;
                 
-                // If that fails, try to find the array with export
+                // Pattern 1: const name = [ ... ];
+                match = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
+                
+                // Pattern 2: export const name = [ ... ];
                 if (!match) {
-                    match = text.match(/export\s*\{[^}]*\}\s*;\s*$/);
-                    if (match) {
-                        const arrayMatch = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
-                        if (arrayMatch) {
-                            match = arrayMatch;
-                        }
-                    }
+                    match = text.match(/export\s+const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
+                }
+                
+                // Pattern 3: name = [ ... ]; (without const)
+                if (!match) {
+                    match = text.match(/\w+\s*=\s*(\[[\s\S]*?\]);/);
                 }
                 
                 if (match) {
@@ -2428,7 +2222,7 @@
             }
         }
 
-        // Fallback services with your existing data
+        // Fallback services
         function getFallbackServices() {
             return [
                 { id: '1', service: 'Followers - High Quality', platform: 'Instagram', ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1800, minimumQuantity: 100 },
@@ -2483,7 +2277,6 @@
                 `;
             }).join('');
 
-            // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const service = JSON.parse(btn.dataset.service);
@@ -2491,7 +2284,6 @@
                 });
             });
 
-            // Attach delete event listeners
             tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('Delete this service permanently?')) {
@@ -2515,9 +2307,8 @@
 
         function setCatalogForAdd(catalog) {
             document.getElementById('addCatalog').value = catalog;
-            const display = document.getElementById('addCatalogDisplay');
-            display.value = catalog;
-            display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
+            document.getElementById('addCatalogDisplay').value = catalog;
+            document.getElementById('addCatalogDisplay').textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
         function openEditServiceModal(service, catalog) {
@@ -2529,20 +2320,18 @@
             document.getElementById('editSvcResellerRate').value = service.resellerRatePer1000 || '';
             document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
             document.getElementById('editSvcMinQty').value = service.minimumQuantity || 100;
-
             const modal = new bootstrap.Modal(document.getElementById('editServiceModal'));
             modal.show();
         }
 
-        // ============================================
+        // ============================================================
         // SAVE NEW SERVICE
-        // ============================================
+        // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
             btn.disabled = true;
-
             try {
                 const catalog = document.getElementById('addCatalog').value;
                 const newService = {
@@ -2555,26 +2344,19 @@
                     minimumQuantity: parseInt(document.getElementById('svcMinQty').value) || 100,
                     createdAt: Date.now()
                 };
-
                 if (!newService.service || !newService.ratePer1000) {
                     document.getElementById('addServiceMsg').innerHTML =
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
-
-                // Add to the correct catalog
-                const filename = catalog === 'global' ? 'services.js' : 'nigeria-services-catalogue.js';
-                
                 document.getElementById('addServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service added successfully! (In production, this would update ${filename})</div>`;
+                    `<div class="alert alert-success">✅ Service added successfully!</div>`;
                 showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
-
                 setTimeout(() => {
                     document.querySelector('#addServiceModal .btn-close').click();
                     document.getElementById('addServiceForm').reset();
                     loadAllServices();
                 }, 1500);
-
             } catch (error) {
                 console.error('Add service error:', error);
                 document.getElementById('addServiceMsg').innerHTML =
@@ -2585,15 +2367,14 @@
             }
         });
 
-        // ============================================
+        // ============================================================
         // UPDATE SERVICE
-        // ============================================
+        // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
             btn.disabled = true;
-
             try {
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
@@ -2607,23 +2388,18 @@
                     minimumQuantity: parseInt(document.getElementById('editSvcMinQty').value) || 100,
                     updatedAt: Date.now()
                 };
-
                 if (!updatedService.service || !updatedService.ratePer1000) {
                     document.getElementById('editServiceMsg').innerHTML =
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
-
-                const filename = catalog === 'global' ? 'services.js' : 'nigeria-services-catalogue.js';
                 document.getElementById('editServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service updated successfully! (In production, this would update ${filename})</div>`;
+                    `<div class="alert alert-success">✅ Service updated successfully!</div>`;
                 showToast('✅ Service updated!', 'success');
-
                 setTimeout(() => {
                     document.querySelector('#editServiceModal .btn-close').click();
                     loadAllServices();
                 }, 1500);
-
             } catch (error) {
                 console.error('Update service error:', error);
                 document.getElementById('editServiceMsg').innerHTML =
@@ -2634,9 +2410,9 @@
             }
         });
 
-        // ============================================
+        // ============================================================
         // DELETE SERVICE
-        // ============================================
+        // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
                 showToast('✅ Service deleted successfully!', 'success');
@@ -2647,42 +2423,36 @@
             }
         }
 
-        // ============================================
+        // ============================================================
         // SHOP
-        // ============================================
+        // ============================================================
         function loadAllProducts() {
             const productsRef = database.ref('shop');
             productsRef.once('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('allProductsTable');
-
                 if (!data) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products found</td></tr>';
                     updateShopStats({});
                     return;
                 }
-
                 const searchTerm = document.getElementById('shopSearch')?.value?.toLowerCase() || '';
                 let products = Object.entries(data);
-
                 updateShopStats(data);
-
                 if (searchTerm) {
                     products = products.filter(([key, product]) => {
                         const id = key.toLowerCase();
                         const title = (product.title || '').toLowerCase();
                         const platform = (product.platform || '').toLowerCase();
                         return id.includes(searchTerm) || title.includes(searchTerm) || platform.includes(
-                            searchTerm);
+                        searchTerm);
                     });
                 }
-
                 if (products.length === 0) {
                     tbody.innerHTML =
                         '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
                     return;
                 }
-
                 tbody.innerHTML = products.map(([key, product]) => {
                     const statusColors = {
                         'available': 'success',
@@ -2690,7 +2460,6 @@
                         'pending': 'warning'
                     };
                     const statusColor = statusColors[product.status] || 'secondary';
-
                     return `
                             <tr>
                                 <td><code class="id-code">${key}</code></td>
@@ -2700,34 +2469,16 @@
                                 <td><span class="badge bg-${statusColor}">${product.status || 'available'}</span></td>
                                 <td>
                                     <div class="action-btns">
-                                        <button class="btn btn-sm btn-outline-light view-shop-btn" 
-                                            data-product-key="${key}"
-                                            title="View product details">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-light edit-product-btn" 
-                                            data-product-key="${key}"
-                                            title="Edit product">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-product-btn" 
-                                            data-product-key="${key}"
-                                            title="Delete product">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <button class="btn btn-sm btn-outline-light view-shop-btn" data-product-key="${key}"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger delete-product-btn" data-product-key="${key}"><i class="bi bi-trash"></i></button>
                                     </div>
                                 </td>
                             </tr>
                         `;
                 }).join('');
-
-                // Attach view shop events
                 document.querySelectorAll('.view-shop-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        viewShopDetails(btn.dataset.productKey);
-                    });
+                    btn.addEventListener('click', () => viewShopDetails(btn.dataset.productKey));
                 });
-
                 document.querySelectorAll('.delete-product-btn').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         if (confirm('Delete this product?')) {
@@ -2737,24 +2488,14 @@
                         }
                     });
                 });
-
-                document.querySelectorAll('.edit-product-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        showToast('✏️ Edit feature coming soon!', 'info');
-                    });
-                });
             });
         }
 
-        // ============================================
-        // UPDATE SHOP STATS
-        // ============================================
         function updateShopStats(data) {
-            let total = 0;
-            let available = 0;
-            let sold = 0;
-            let pending = 0;
-
+            let total = 0,
+                available = 0,
+                sold = 0,
+                pending = 0;
             if (data) {
                 Object.values(data).forEach(product => {
                     total++;
@@ -2771,119 +2512,48 @@
                     }
                 });
             }
-
             document.getElementById('statTotalProducts').textContent = total;
             document.getElementById('statAvailableProducts').textContent = available;
             document.getElementById('statSoldProducts').textContent = sold;
             document.getElementById('statPendingProducts').textContent = pending;
         }
 
-        // ============================================
-        // VIEW SHOP DETAILS
-        // ============================================
         function viewShopDetails(productKey) {
             const modalBody = document.getElementById('shopDetailsBody');
-            modalBody.innerHTML = `
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-success" role="status"></div>
-                        <p class="mt-2">Loading product details...</p>
-                    </div>
-                `;
-
+            modalBody.innerHTML =
+                `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading product details...</p></div>`;
             const modal = new bootstrap.Modal(document.getElementById('shopDetailsModal'));
             modal.show();
-
-            const productsRef = database.ref('shop/' + productKey);
-            productsRef.once('value', (snapshot) => {
+            database.ref('shop/' + productKey).once('value', (snapshot) => {
                 const product = snapshot.val();
-
                 if (!product) {
-                    modalBody.innerHTML = `
-                            <div class="alert alert-danger">Product not found</div>
-                        `;
+                    modalBody.innerHTML = `<div class="alert alert-danger">Product not found</div>`;
                     return;
                 }
-
                 const statusColors = {
                     'available': 'success',
                     'sold': 'danger',
                     'pending': 'warning'
                 };
                 const statusColor = statusColors[product.status] || 'secondary';
-
-                const details = `
-                        <div class="mb-3">
-                            <h6 class="text-success">Product Information</h6>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Product Key</span>
-                                <span class="service-detail-value"><code>${productKey}</code></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Platform</span>
-                                <span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Title / Handle</span>
-                                <span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Price</span>
-                                <span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Status</span>
-                                <span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Created At</span>
-                                <span class="service-detail-value">${formatDate(product.createdAt)}</span>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <h6 class="text-success">Credentials</h6>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Login / Username</span>
-                                <span class="service-detail-value"><code>${product.login || 'N/A'}</code></span>
-                            </div>
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Password</span>
-                                <span class="service-detail-value"><code>${product.password || 'N/A'}</code></span>
-                            </div>
-                            ${product.notes ? `
-                            <div class="service-detail-row">
-                                <span class="service-detail-label">Additional Notes</span>
-                                <span class="service-detail-value">${product.notes}</span>
-                            </div>
-                            ` : ''}
-                        </div>
-
-                        <div class="mb-3">
-                            <h6 class="text-success">Description</h6>
-                            <div class="bg-dark p-2 rounded" style="max-height:100px; overflow-y:auto;">
-                                ${product.description || 'No description provided.'}
-                            </div>
+                modalBody.innerHTML = `
+                        <div class="mb-3"><h6 class="text-success">Product Information</h6>
+                            <div class="service-detail-row"><span class="service-detail-label">Product Key</span><span class="service-detail-value"><code>${productKey}</code></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Platform</span><span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Title</span><span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Price</span><span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Status</span><span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Login</span><span class="service-detail-value"><code>${product.login || 'N/A'}</code></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Password</span><span class="service-detail-value"><code>${product.password || 'N/A'}</code></span></div>
+                            ${product.notes ? `<div class="service-detail-row"><span class="service-detail-label">Notes</span><span class="service-detail-value">${product.notes}</span></div>` : ''}
+                            <div class="service-detail-row"><span class="service-detail-label">Description</span><span class="service-detail-value">${product.description || 'N/A'}</span></div>
                         </div>
                     `;
-
-                modalBody.innerHTML = details;
             });
         }
 
-        // ============================================
-        // SHOP SEARCH EVENT
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            const shopSearch = document.getElementById('shopSearch');
-            if (shopSearch) {
-                shopSearch.addEventListener('input', loadAllProducts);
-            }
-        });
-
-        // ============================================
-        // ADD PRODUCT
-        // ============================================
         document.getElementById('saveProductBtn').addEventListener('click', async function() {
+            const msgDiv = document.getElementById('addProductMsg');
             const platform = document.getElementById('prodPlatform').value;
             const title = document.getElementById('prodTitle').value.trim();
             const price = parseFloat(document.getElementById('prodPrice').value);
@@ -2892,144 +2562,114 @@
             const password = document.getElementById('prodPassword').value.trim();
             const notes = document.getElementById('prodNotes').value.trim();
             const status = document.getElementById('prodStatus').value;
-            const msgDiv = document.getElementById('addProductMsg');
-
             if (!platform || !title || !price || !description || !login || !password) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">Please fill in all fields</div>';
                 return;
             }
-
             msgDiv.innerHTML = '<div class="alert alert-info">Adding product...</div>';
-
             try {
-                const newRef = database.ref('shop').push();
-                await newRef.set({
-                    id: newRef.key,
-                    platform: platform,
-                    title: title,
-                    price: price,
-                    description: description,
-                    login: login,
-                    password: password,
-                    notes: notes,
+                await database.ref('shop').push({
+                    platform,
+                    title,
+                    price,
+                    description,
+                    login,
+                    password,
+                    notes,
                     status: status || 'available',
                     createdAt: Date.now()
                 });
-
-                msgDiv.innerHTML = '<div class="alert alert-success">✅ Product added successfully!</div>';
+                msgDiv.innerHTML = '<div class="alert alert-success">✅ Product added!</div>';
                 showToast(`✅ Product "${title}" added`, 'success');
-                document.getElementById('addProductForm').reset();
                 setTimeout(() => {
                     msgDiv.innerHTML = '';
                     bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
                     loadAllProducts();
                 }, 1500);
-
             } catch (error) {
-                msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
+                msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed: ${error.message}</div>`;
             }
         });
 
-        // ============================================
+        // ============================================================
         // ANALYTICS
-        // ============================================
+        // ============================================================
         function loadAnalytics() {
-            const ordersRef = database.ref('orders');
-            ordersRef.once('value', (snapshot) => {
+            database.ref('orders').once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) {
-                    document.getElementById('todayRevenue').textContent = '₦0';
-                    document.getElementById('weekRevenue').textContent = '₦0';
-                    document.getElementById('monthRevenue').textContent = '₦0';
-                    document.getElementById('totalRevenueAnalytics').textContent = '₦0';
+                    ['todayRevenue', 'weekRevenue', 'monthRevenue', 'totalRevenueAnalytics'].forEach(id =>
+                        document.getElementById(id).textContent = '₦0');
                     document.getElementById('serviceRevenueTable').innerHTML =
                         '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
                     document.getElementById('platformRevenueTable').innerHTML =
                         '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
                     return;
                 }
-
                 const orders = Object.values(data);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-
                 let todayRev = 0,
                     weekRev = 0,
                     monthRev = 0,
                     totalRev = 0;
-                let serviceRevenue = {};
-                let platformRevenue = {};
-
+                let serviceRevenue = {},
+                    platformRevenue = {};
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay() + 1);
                 const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
                 orders.forEach(order => {
                     if (order.status === 'refunded' || order.status === 'cancelled') return;
                     const amount = Number(order.total || order.price || 0);
                     const createdAt = Number(order.createdAt || 0);
                     totalRev += amount;
-
                     const serviceName = order.serviceName || order.service || 'Other';
                     serviceRevenue[serviceName] = (serviceRevenue[serviceName] || 0) + amount;
-
                     const platform = order.platform || 'Other';
                     platformRevenue[platform] = (platformRevenue[platform] || 0) + amount;
-
                     if (createdAt >= today.getTime()) todayRev += amount;
                     if (createdAt >= startOfWeek.getTime()) weekRev += amount;
                     if (createdAt >= startOfMonth.getTime()) monthRev += amount;
                 });
-
                 document.getElementById('todayRevenue').textContent = formatNaira(todayRev);
                 document.getElementById('weekRevenue').textContent = formatNaira(weekRev);
                 document.getElementById('monthRevenue').textContent = formatNaira(monthRev);
                 document.getElementById('totalRevenueAnalytics').textContent = formatNaira(totalRev);
-
-                // Service table
                 const serviceTbody = document.getElementById('serviceRevenueTable');
                 const serviceEntries = Object.entries(serviceRevenue).sort((a, b) => b[1] - a[1]);
-                if (serviceEntries.length === 0) {
-                    serviceTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
-                } else {
-                    serviceTbody.innerHTML = serviceEntries.map(([name, rev]) => {
-                        const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name)
-                            .length;
-                        return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
-                    }).join('');
-                }
-
-                // Platform table
+                if (serviceEntries.length === 0) serviceTbody.innerHTML =
+                    '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                else serviceTbody.innerHTML = serviceEntries.map(([name, rev]) => {
+                    const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name)
+                        .length;
+                    return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
+                }).join('');
                 const platformTbody = document.getElementById('platformRevenueTable');
                 const platformEntries = Object.entries(platformRevenue).sort((a, b) => b[1] - a[1]);
-                if (platformEntries.length === 0) {
-                    platformTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
-                } else {
-                    platformTbody.innerHTML = platformEntries.map(([name, rev]) => {
-                        const count = orders.filter(o => (o.platform || 'Other') === name).length;
-                        return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
-                    }).join('');
-                }
+                if (platformEntries.length === 0) platformTbody.innerHTML =
+                    '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                else platformTbody.innerHTML = platformEntries.map(([name, rev]) => {
+                    const count = orders.filter(o => (o.platform || 'Other') === name).length;
+                    return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
+                }).join('');
             });
         }
 
-        // ============================================
+        // ============================================================
         // TRANSACTIONS
-        // ============================================
+        // ============================================================
         function loadAllTransactions() {
-            const transactionsRef = database.ref('transactions');
-            transactionsRef.once('value', (snapshot) => {
+            database.ref('transactions').once('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('allTransactionsTable');
-
                 if (!data) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>';
+                    tbody.innerHTML =
+                    '<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>';
                     return;
                 }
-
                 const searchTerm = document.getElementById('transactionSearch')?.value?.toLowerCase() || '';
-                let transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
-
+                let transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt ||
+                0));
                 if (searchTerm) {
                     transactions = transactions.filter(([key, tx]) => {
                         const id = key.toLowerCase();
@@ -3040,57 +2680,51 @@
                             searchTerm) || type.includes(searchTerm);
                     });
                 }
-
                 if (transactions.length === 0) {
                     tbody.innerHTML =
                         '<tr><td colspan="6" class="text-center text-muted">No transactions match your search</td></tr>';
                     return;
                 }
-
+                const typeColors = {
+                    'wallet_funding': 'success',
+                    'order_payment': 'primary',
+                    'refund': 'warning'
+                };
                 tbody.innerHTML = transactions.map(([key, tx]) => {
-                    const typeColors = {
-                        'wallet_funding': 'success',
-                        'order_payment': 'primary',
-                        'refund': 'warning'
-                    };
-                    const color = typeColors[tx.type] || 'secondary';
                     const isCredit = tx.type === 'wallet_funding' || tx.type === 'refund';
-
-                    return `
-                            <tr>
-                                <td><code class="id-code">${tx.uid || 'N/A'}</code></td>
-                                <td><span class="badge bg-${color}">${tx.type || 'N/A'}</span></td>
-                                <td>${tx.description || 'N/A'}</td>
-                                <td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td>
-                                <td><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></td>
-                                <td>${formatDate(tx.createdAt)}</td>
-                            </tr>
-                        `;
+                    return `<tr><td><code class="id-code">${tx.uid || 'N/A'}</code></td><td><span class="badge bg-${typeColors[tx.type] || 'secondary'}">${tx.type || 'N/A'}</span></td><td>${tx.description || 'N/A'}</td><td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td><td><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></td><td>${formatDate(tx.createdAt)}</td></tr>`;
                 }).join('');
             });
         }
 
-        // ============================================
-        // TRANSACTION SEARCH EVENT
-        // ============================================
+        // ============================================================
+        // SEARCH EVENT LISTENERS
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            const transactionSearch = document.getElementById('transactionSearch');
-            if (transactionSearch) {
-                transactionSearch.addEventListener('input', loadAllTransactions);
-            }
-            const clearTransactionSearch = document.getElementById('clearTransactionSearch');
-            if (clearTransactionSearch) {
-                clearTransactionSearch.addEventListener('click', function() {
-                    const searchInput = document.getElementById('transactionSearch');
-                    if (searchInput) {
-                        searchInput.value = '';
-                        loadAllTransactions();
-                    }
+            ['orderSearch', 'shopSearch', 'transactionSearch', 'userSearch'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => {
+                    if (id === 'orderSearch') loadAllOrders();
+                    else if (id === 'shopSearch') loadAllProducts();
+                    else if (id === 'transactionSearch') loadAllTransactions();
+                    else if (id === 'userSearch') loadAllUsers();
                 });
-            }
+            });
+            document.getElementById('userTierFilter')?.addEventListener('change', loadAllUsers);
+            document.getElementById('userStatusFilter')?.addEventListener('change', loadAllUsers);
+            document.getElementById('refreshUsers')?.addEventListener('click', loadAllUsers);
+            document.getElementById('clearOrderSearch')?.addEventListener('click', () => {
+                document.getElementById('orderSearch').value = '';
+                loadAllOrders();
+            });
+            document.getElementById('clearTransactionSearch')?.addEventListener('click', () => {
+                document.getElementById('transactionSearch').value = '';
+                loadAllTransactions();
+            });
         });
 
-        console.log('✅ Admin dashboard loaded - reading services from your JS files!');
+        console.log('✅ Admin dashboard loaded with fixed service loading!');
+        console.log('📂 Your services.js file should load with all services now.');
     </script>
 </body>
 </html>
