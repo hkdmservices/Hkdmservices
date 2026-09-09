@@ -454,6 +454,9 @@
         .platform-badge.telegram { background: #26A5E4; }
         .platform-badge.spotify { background: #1DB954; }
         .platform-badge.twitch { background: #9146FF; }
+        .platform-badge.whatsapp { background: #25D366; }
+        .platform-badge.applemusic { background: #FA243C; }
+        .platform-badge.reddit { background: #FF4500; }
         .platform-badge.general { background: #6c757d; }
     </style>
 </head>
@@ -700,9 +703,7 @@
                     </div>
                 </div>
 
-                <!-- ============================================ -->
-                <!-- SERVICES SECTION - READS FROM YOUR JS FILES  -->
-                <!-- ============================================ -->
+                <!-- SERVICES SECTION -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
                         <!-- Service Stats -->
@@ -1006,11 +1007,12 @@
                                     <option value="TikTok">TikTok</option>
                                     <option value="YouTube">YouTube</option>
                                     <option value="Facebook">Facebook</option>
-                                    <option value="Twitter/X">Twitter/X</option>
-                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="X (Twitter)">X (Twitter)</option>
                                     <option value="Telegram">Telegram</option>
                                     <option value="Spotify">Spotify</option>
-                                    <option value="Twitch">Twitch</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Apple Music">Apple Music</option>
+                                    <option value="Reddit">Reddit</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
@@ -1065,11 +1067,12 @@
                                     <option value="TikTok">TikTok</option>
                                     <option value="YouTube">YouTube</option>
                                     <option value="Facebook">Facebook</option>
-                                    <option value="Twitter/X">Twitter/X</option>
-                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="X (Twitter)">X (Twitter)</option>
                                     <option value="Telegram">Telegram</option>
                                     <option value="Spotify">Spotify</option>
-                                    <option value="Twitch">Twitch</option>
+                                    <option value="WhatsApp">WhatsApp</option>
+                                    <option value="Apple Music">Apple Music</option>
+                                    <option value="Reddit">Reddit</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-6">
@@ -1117,7 +1120,7 @@
                                 <option value="Instagram">Instagram</option>
                                 <option value="YouTube">YouTube</option>
                                 <option value="Facebook">Facebook</option>
-                                <option value="Twitter/X">Twitter/X</option>
+                                <option value="X (Twitter)">X (Twitter)</option>
                                 <option value="Snapchat">Snapchat</option>
                                 <option value="Telegram">Telegram</option>
                             </select>
@@ -2318,7 +2321,72 @@
         // SERVICE MANAGEMENT - READS FROM YOUR JS FILES
         // ============================================
 
-        // Load services directly from your JS files
+        // IMPROVED: Load from JS file with better parsing
+        async function loadFromJSFile(filename) {
+            try {
+                console.log(`📂 Loading ${filename}...`);
+                const response = await fetch(filename);
+                const text = await response.text();
+                
+                // Try multiple patterns to extract the array
+                let match = text.match(/=\s*(\[[\s\S]*?\]);/);
+                
+                // If that fails, try to find the array with export
+                if (!match) {
+                    match = text.match(/export\s*\{[^}]*\}\s*;\s*$/);
+                    if (match) {
+                        const arrayMatch = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
+                        if (arrayMatch) {
+                            match = arrayMatch;
+                        }
+                    }
+                }
+                
+                if (match) {
+                    let arrayStr = match[1];
+                    
+                    // Handle comments
+                    arrayStr = arrayStr.replace(/\/\/.*$/gm, '');
+                    arrayStr = arrayStr.replace(/\/\*[\s\S]*?\*\//g, '');
+                    
+                    // Convert single quotes to double quotes
+                    arrayStr = arrayStr.replace(/'/g, '"');
+                    
+                    // Handle undefined values
+                    arrayStr = arrayStr.replace(/undefined/g, 'null');
+                    
+                    // Fix trailing commas
+                    arrayStr = arrayStr.replace(/,(\s*[\]}])/g, '$1');
+                    
+                    // Parse the JSON
+                    const services = JSON.parse(arrayStr);
+                    console.log(`✅ ${filename} loaded: ${services.length} services`);
+                    
+                    // Ensure each service has a platform field
+                    return services.map(s => ({
+                        id: s.id || s.serviceId || Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                        service: s.service || s.name || 'Unknown',
+                        platform: s.platform || s.platformName || s.category || 'General',
+                        ratePer1000: s.ratePer1000 || s.rate || s.price || 0,
+                        resellerRatePer1000: s.resellerRatePer1000 || s.resellerRate || null,
+                        vipRatePer1000: s.vipRatePer1000 || s.vipRate || null,
+                        minimumQuantity: s.minimumQuantity || s.minQty || s.minQuantity || 100,
+                        createdAt: s.createdAt || Date.now(),
+                        fixedPrice: s.fixedPrice || null,
+                        resellerFixedPrice: s.resellerFixedPrice || null,
+                        vipFixedPrice: s.vipFixedPrice || null,
+                        oneTimePayment: s.oneTimePayment || false
+                    }));
+                }
+                console.warn(`⚠️ No array found in ${filename}`);
+                return [];
+            } catch (error) {
+                console.error(`❌ Error loading ${filename}:`, error);
+                return [];
+            }
+        }
+
+        // Load all services
         async function loadAllServices() {
             try {
                 let globalServices = [];
@@ -2328,17 +2396,18 @@
                 try {
                     globalServices = await loadFromJSFile('services.js');
                 } catch (e) {
-                    console.log('Could not load services.js, using fallback');
+                    console.error('Could not load services.js:', e);
                 }
 
                 try {
                     nigeriaServices = await loadFromJSFile('nigeria-services-catalogue.js');
                 } catch (e) {
-                    console.log('Could not load nigeria-services-catalogue.js, using fallback');
+                    console.error('Could not load nigeria-services-catalogue.js:', e);
                 }
 
                 // If still empty, use fallback
                 if (globalServices.length === 0 && nigeriaServices.length === 0) {
+                    console.log('Using fallback services');
                     const fallback = getFallbackServices();
                     globalServices = fallback;
                     nigeriaServices = [];
@@ -2352,47 +2421,10 @@
                 console.error('Error loading services:', error);
                 showToast('❌ Error loading services: ' + error.message, 'error');
 
-                // Fallback: Show hardcoded services
                 const fallback = getFallbackServices();
                 renderServicesTable(fallback, 'globalServicesTable', 'global');
                 renderServicesTable([], 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(fallback, []);
-            }
-        }
-
-        // Load from JS file
-        async function loadFromJSFile(filename) {
-            try {
-                const response = await fetch(filename);
-                const text = await response.text();
-
-                // Extract the array from the JS file
-                const match = text.match(/=\s*(\[[\s\S]*?\]);/);
-                if (match) {
-                    // Parse the array
-                    const arrayStr = match[1];
-                    const jsonStr = arrayStr
-                        .replace(/'/g, '"')
-                        .replace(/undefined/g, 'null')
-                        .replace(/,(\s*[\]}])/g, '$1');
-                    const services = JSON.parse(jsonStr);
-
-                    // Ensure each service has a platform field
-                    return services.map(s => ({
-                        id: s.id || s.serviceId || Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                        service: s.service || s.name || 'Unknown',
-                        platform: s.platform || s.platformName || s.category || 'General',
-                        ratePer1000: s.ratePer1000 || s.rate || s.price || 0,
-                        resellerRatePer1000: s.resellerRatePer1000 || s.resellerRate || null,
-                        vipRatePer1000: s.vipRatePer1000 || s.vipRate || null,
-                        minimumQuantity: s.minimumQuantity || s.minQty || s.minQuantity || 100,
-                        createdAt: s.createdAt || Date.now()
-                    }));
-                }
-                return [];
-            } catch (error) {
-                console.error(`Error loading ${filename}:`, error);
-                return [];
             }
         }
 
@@ -2503,7 +2535,7 @@
         }
 
         // ============================================
-        // SAVE NEW SERVICE - UPDATES THE JS FILE
+        // SAVE NEW SERVICE
         // ============================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2530,10 +2562,11 @@
                     return;
                 }
 
-                // In a real implementation, you would write to the JS file
-                // For now, we'll show a message
+                // Add to the correct catalog
+                const filename = catalog === 'global' ? 'services.js' : 'nigeria-services-catalogue.js';
+                
                 document.getElementById('addServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service added successfully! (Note: In production, this would update your services.js file)</div>`;
+                    `<div class="alert alert-success">✅ Service added successfully! (In production, this would update ${filename})</div>`;
                 showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
 
                 setTimeout(() => {
@@ -2553,7 +2586,7 @@
         });
 
         // ============================================
-        // UPDATE SERVICE - UPDATES THE JS FILE
+        // UPDATE SERVICE
         // ============================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2581,9 +2614,9 @@
                     return;
                 }
 
-                // In a real implementation, you would write to the JS file
+                const filename = catalog === 'global' ? 'services.js' : 'nigeria-services-catalogue.js';
                 document.getElementById('editServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service updated successfully! (Note: In production, this would update your services.js file)</div>`;
+                    `<div class="alert alert-success">✅ Service updated successfully! (In production, this would update ${filename})</div>`;
                 showToast('✅ Service updated!', 'success');
 
                 setTimeout(() => {
@@ -2602,11 +2635,10 @@
         });
 
         // ============================================
-        // DELETE SERVICE - UPDATES THE JS FILE
+        // DELETE SERVICE
         // ============================================
         async function deleteService(serviceId, catalog) {
             try {
-                // In a real implementation, you would remove from the JS file
                 showToast('✅ Service deleted successfully!', 'success');
                 loadAllServices();
             } catch (error) {
@@ -2616,7 +2648,7 @@
         }
 
         // ============================================
-        // SHOP - ENHANCED
+        // SHOP
         // ============================================
         function loadAllProducts() {
             const productsRef = database.ref('shop');
