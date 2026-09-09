@@ -2123,12 +2123,43 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - EMBEDDED + PHP (NO FIREBASE)
+        // SERVICE MANAGEMENT - LOAD FROM services.js (with embedded fallback)
         // ============================================================
+
+        // ============================================================
+        // HELPER: Load services from services.js file
+        // ============================================================
+        async function loadServicesFromFile() {
+            try {
+                const response = await fetch('services.js?t=' + Date.now());
+                const text = await response.text();
+                let match = text.match(/=\s*(\[[\s\S]*?\]);/);
+                if (!match) {
+                    match = text.match(/export\s*\{[^}]*\}\s*;\s*$/);
+                    if (match) {
+                        const arrayMatch = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
+                        if (arrayMatch) match = arrayMatch;
+                    }
+                }
+                if (match) {
+                    let arrayStr = match[1];
+                    arrayStr = arrayStr.replace(/\/\/.*$/gm, '');
+                    arrayStr = arrayStr.replace(/\/\*[\s\S]*?\*\//g, '');
+                    arrayStr = arrayStr.replace(/'/g, '"');
+                    arrayStr = arrayStr.replace(/undefined/g, 'null');
+                    arrayStr = arrayStr.replace(/,(\s*[\]}])/g, '$1');
+                    return JSON.parse(arrayStr);
+                }
+                return [];
+            } catch (error) {
+                console.error('Error loading services.js:', error);
+                return [];
+            }
+        }
 
         function getEmbeddedServices() {
             // ============================================================
-            // COMPLETE SERVICES DATA - All 75+ services
+            // COMPLETE SERVICES DATA - All 75+ services (FALLBACK ONLY)
             // ============================================================
             return [
                 // ========================================================
@@ -2241,25 +2272,36 @@
         }
 
         // ============================================================
-        // LOAD SERVICES - EMBEDDED ONLY (NO FIREBASE)
+        // LOAD SERVICES - FROM services.js WITH EMBEDDED FALLBACK
         // ============================================================
-        function loadAllServices() {
+        async function loadAllServices() {
             try {
-                console.log('🔍 Loading embedded services...');
-                const services = getEmbeddedServices();
+                console.log('🔍 Loading services from services.js...');
+                
+                // Try to load from services.js
+                let services = await loadServicesFromFile();
                 
                 if (services && services.length > 0) {
-                    console.log('✅ Loaded', services.length, 'services');
+                    console.log('✅ Loaded', services.length, 'services from services.js');
                     renderServicesTable(services, 'globalServicesTable', 'global');
                     updateServiceStats(services, []);
                     showToast('✅ Loaded ' + services.length + ' services', 'success');
                 } else {
-                    console.error('❌ No services found');
-                    showToast('❌ No services found', 'error');
+                    // Fallback to embedded
+                    console.log('⚠️ services.js empty, using embedded fallback');
+                    services = getEmbeddedServices();
+                    renderServicesTable(services, 'globalServicesTable', 'global');
+                    updateServiceStats(services, []);
+                    showToast('✅ Loaded ' + services.length + ' services (embedded)', 'success');
                 }
+                
             } catch (error) {
                 console.error('❌ Error loading services:', error);
-                showToast('❌ Error loading services', 'error');
+                // Fallback to embedded
+                const services = getEmbeddedServices();
+                renderServicesTable(services, 'globalServicesTable', 'global');
+                updateServiceStats(services, []);
+                showToast('⚠️ Using embedded services', 'warning');
             }
         }
 
@@ -2352,7 +2394,7 @@
         }
 
         // ============================================================
-        // SAVE NEW SERVICE - TO PHP ONLY
+        // SAVE NEW SERVICE - TO PHP
         // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2377,8 +2419,11 @@
                     return;
                 }
 
-                // Get current embedded services and add the new one
-                let services = getEmbeddedServices();
+                // Get current services from services.js
+                let services = await loadServicesFromFile();
+                if (!services || services.length === 0) {
+                    services = getEmbeddedServices();
+                }
                 services.push(newService);
 
                 // Save to PHP
@@ -2413,7 +2458,7 @@
         });
 
         // ============================================================
-        // UPDATE SERVICE - TO PHP ONLY
+        // UPDATE SERVICE - TO PHP
         // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2441,8 +2486,11 @@
                     return;
                 }
 
-                // Get current services and update
-                let services = getEmbeddedServices();
+                // Get current services from services.js
+                let services = await loadServicesFromFile();
+                if (!services || services.length === 0) {
+                    services = getEmbeddedServices();
+                }
                 const index = services.findIndex(s => s.id === serviceId);
                 if (index === -1) {
                     throw new Error('Service not found');
@@ -2484,7 +2532,10 @@
         // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
-                let services = getEmbeddedServices();
+                let services = await loadServicesFromFile();
+                if (!services || services.length === 0) {
+                    services = getEmbeddedServices();
+                }
                 services = services.filter(s => s.id !== serviceId);
 
                 const response = await fetch('api-php/save-services.php', {
@@ -2806,8 +2857,8 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded with Embedded + PHP (NO Firebase for services)!');
-        console.log('📊 Services are loaded from embedded data and saved to PHP.');
+        console.log('✅ Admin dashboard loaded with services from services.js + embedded fallback!');
+        console.log('📊 Changes save to PHP and update services.js.');
     </script>
 </body>
 </html>
