@@ -175,7 +175,7 @@
             return;
         }
 
-        // ✅ FIXED: Removed &catalogue=global from the Order link
+        // ✅ FIXED: Removed &catalogue=global
         tbody.innerHTML = filtered.map(service => `
             <tr>
                 <td><strong>${service.service || 'N/A'}</strong></td>
