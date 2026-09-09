@@ -133,7 +133,7 @@ rel="stylesheet">
 
 /* =====================================================
    DARK MODE OVERRIDES
-===================================================== -->
+===================================================== */
 html[data-theme="dark"] body {
     background: #101418;
     color: #f1f3f5;
@@ -183,6 +183,46 @@ html[data-theme="dark"] footer.about-footer {
     transform: rotate(15deg);
 }
 
+/* =====================================================
+   BACK BUTTON - MATCHES WALLET PAGE STYLE
+===================================================== */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+}
+.back-btn:hover {
+    background: #e9ecef;
+    color: #212529;
+}
+
+/* Dark mode overrides for back button */
+html[data-theme="dark"] .back-btn {
+    background: rgba(255,255,255,0.08);
+    color: #f1f3f5;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+html[data-theme="dark"] .back-btn:hover {
+    background: rgba(255,255,255,0.18);
+    color: #f1f3f5;
+}
+
+/* Page header with back button */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
+}
 </style>
 
 </head>
@@ -307,6 +347,12 @@ html[data-theme="dark"] footer.about-footer {
 
 <div class="container">
 
+    <!-- BACK BUTTON INSIDE HERO (light background for visibility) -->
+    <div class="text-start mb-4">
+        <a href="dashboard.html" class="back-btn">
+            <i class="bi bi-arrow-left"></i> Dashboard
+        </a>
+    </div>
 
     <div class="about-icon">
 
