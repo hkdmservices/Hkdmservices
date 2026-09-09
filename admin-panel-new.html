@@ -459,6 +459,8 @@
         .platform-badge.reddit { background: #FF4500; }
         .platform-badge.general { background: #6c757d; }
         .platform-badge.x-twitter { background: #000000; }
+        /* Custom platform badge */
+        .platform-badge.custom { background: #6f42c1; }
     </style>
 </head>
 <body>
@@ -1020,7 +1022,12 @@
                                     <option value="WhatsApp">WhatsApp</option>
                                     <option value="Apple Music">Apple Music</option>
                                     <option value="Reddit">Reddit</option>
+                                    <option value="other">+ Add New Platform</option>
                                 </select>
+                            </div>
+                            <div class="col-12 col-md-6" id="customPlatformContainer" style="display:none;">
+                                <label class="form-label">Custom Platform Name</label>
+                                <input type="text" class="form-control" id="svcCustomPlatform" placeholder="e.g. Snapchat, Twitch, LinkedIn">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Rate (per 1000) ₦</label>
@@ -1080,7 +1087,12 @@
                                     <option value="WhatsApp">WhatsApp</option>
                                     <option value="Apple Music">Apple Music</option>
                                     <option value="Reddit">Reddit</option>
+                                    <option value="other">+ Add New Platform</option>
                                 </select>
+                            </div>
+                            <div class="col-12 col-md-6" id="editCustomPlatformContainer" style="display:none;">
+                                <label class="form-label">Custom Platform Name</label>
+                                <input type="text" class="form-control" id="editSvcCustomPlatform" placeholder="e.g. Snapchat, Twitch, LinkedIn">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Rate (per 1000) ₦</label>
@@ -2307,12 +2319,16 @@
 
             tbody.innerHTML = services.map((service, index) => {
                 const platformName = service.platform || service.category || 'General';
+                // Check if platform is one of the predefined ones for styling
                 const platformClass = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                // If platform is not in our predefined list, use 'custom' class
+                const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit'];
+                const finalClass = validPlatforms.includes(platformClass) ? platformClass : 'custom';
 
                 return `
                     <tr id="service-row-${service.id || index}">
                         <td><strong>${service.service || 'N/A'}</strong></td>
-                        <td><span class="platform-badge ${platformClass}">${platformName}</span></td>
+                        <td><span class="platform-badge ${finalClass}">${platformName}</span></td>
                         <td class="text-success fw-bold">${formatNaira(service.ratePer1000)}</td>
                         <td>${service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-'}</td>
                         <td>${service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-'}</td>
@@ -2373,11 +2389,28 @@
             display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
+        // ============================================================
+        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM SUPPORT
+        // ============================================================
         function openEditServiceModal(service, catalog) {
             document.getElementById('editServiceId').value = service.id;
             document.getElementById('editCatalog').value = catalog;
             document.getElementById('editSvcName').value = service.service || '';
-            document.getElementById('editSvcPlatform').value = service.platform || 'Instagram';
+            
+            // Check if platform is in the dropdown list
+            const platformSelect = document.getElementById('editSvcPlatform');
+            const platformOptions = Array.from(platformSelect.options).map(opt => opt.value);
+            const platformName = service.platform || 'Instagram';
+            
+            if (platformOptions.includes(platformName)) {
+                platformSelect.value = platformName;
+                document.getElementById('editCustomPlatformContainer').style.display = 'none';
+            } else {
+                platformSelect.value = 'other';
+                document.getElementById('editCustomPlatformContainer').style.display = 'block';
+                document.getElementById('editSvcCustomPlatform').value = platformName;
+            }
+            
             document.getElementById('editSvcRate').value = service.ratePer1000 || 0;
             document.getElementById('editSvcResellerRate').value = service.resellerRatePer1000 || '';
             document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
@@ -2385,6 +2418,36 @@
             const modal = new bootstrap.Modal(document.getElementById('editServiceModal'));
             modal.show();
         }
+
+        // ============================================================
+        // CUSTOM PLATFORM HANDLING - Add Service
+        // ============================================================
+        document.getElementById('svcPlatform').addEventListener('change', function() {
+            const container = document.getElementById('customPlatformContainer');
+            if (this.value === 'other') {
+                container.style.display = 'block';
+                document.getElementById('svcCustomPlatform').required = true;
+            } else {
+                container.style.display = 'none';
+                document.getElementById('svcCustomPlatform').required = false;
+                document.getElementById('svcCustomPlatform').value = '';
+            }
+        });
+
+        // ============================================================
+        // CUSTOM PLATFORM HANDLING - Edit Service
+        // ============================================================
+        document.getElementById('editSvcPlatform').addEventListener('change', function() {
+            const container = document.getElementById('editCustomPlatformContainer');
+            if (this.value === 'other') {
+                container.style.display = 'block';
+                document.getElementById('editSvcCustomPlatform').required = true;
+            } else {
+                container.style.display = 'none';
+                document.getElementById('editSvcCustomPlatform').required = false;
+                document.getElementById('editSvcCustomPlatform').value = '';
+            }
+        });
 
         // ============================================================
         // SAVE NEW SERVICE - TO PHP
@@ -2396,9 +2459,22 @@
             btn.disabled = true;
             try {
                 const catalog = document.getElementById('addCatalog').value;
+                
+                // Get platform value (supporting custom platform)
+                const platformValue = document.getElementById('svcPlatform').value;
+                const platform = platformValue === 'other' 
+                    ? document.getElementById('svcCustomPlatform').value.trim() 
+                    : platformValue;
+                
+                if (!platform) {
+                    document.getElementById('addServiceMsg').innerHTML =
+                        `<div class="alert alert-danger">Please enter a platform name.</div>`;
+                    return;
+                }
+                
                 const newService = {
                     id: Date.now().toString(),
-                    platform: document.getElementById('svcPlatform').value,
+                    platform: platform,
                     service: document.getElementById('svcName').value.trim(),
                     ratePer1000: parseInt(document.getElementById('svcRate').value) || 0,
                     resellerRatePer1000: parseInt(document.getElementById('svcResellerRate').value) || null,
@@ -2434,6 +2510,7 @@
                     setTimeout(() => {
                         document.querySelector('#addServiceModal .btn-close').click();
                         document.getElementById('addServiceForm').reset();
+                        document.getElementById('customPlatformContainer').style.display = 'none';
                         loadAllServices();
                     }, 1500);
                 } else {
@@ -2462,9 +2539,21 @@
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
                 
+                // Get platform value (supporting custom platform)
+                const platformValue = document.getElementById('editSvcPlatform').value;
+                const platform = platformValue === 'other' 
+                    ? document.getElementById('editSvcCustomPlatform').value.trim() 
+                    : platformValue;
+                
+                if (!platform) {
+                    document.getElementById('editServiceMsg').innerHTML =
+                        `<div class="alert alert-danger">Please enter a platform name.</div>`;
+                    return;
+                }
+                
                 const updatedService = {
                     id: serviceId,
-                    platform: document.getElementById('editSvcPlatform').value,
+                    platform: platform,
                     service: document.getElementById('editSvcName').value.trim(),
                     ratePer1000: parseInt(document.getElementById('editSvcRate').value) || 0,
                     resellerRatePer1000: parseInt(document.getElementById('editSvcResellerRate').value) || null,
@@ -2852,6 +2941,7 @@
 
         console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
         console.log('📊 Using import() to load services from both files.');
+        console.log('📱 Custom platform support added - you can now add new platforms!');
     </script>
 </body>
 </html>
