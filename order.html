@@ -123,7 +123,8 @@
                         </div>
                     </div>
                 </div>
-            </div><!-- INFORMATION -->
+            </div>
+            <!-- INFORMATION -->
             <div class="row justify-content-center mt-4">
                 <div class="col-12 col-lg-7">
                     <div class="card border-0 shadow-sm">
@@ -144,7 +145,9 @@
             </div>
 
         </div>
-    </section><!-- ORDER JAVASCRIPT -->
+    </section>
+
+    <!-- ORDER JAVASCRIPT -->
     <script type="importmap">
         {
             "imports": {
@@ -200,11 +203,23 @@
         const platform = params.get("platform");
         const requestedServiceId = params.get("service");
         const requestedCatalogue = String(params.get("catalogue") || "general").toLowerCase().trim();
-        const catalogue = requestedCatalogue === "nigeria" ? "nigeria" : "general";
+        
+        // ✅ FIXED: Handle 'global' as 'general'
+        let catalogue = "general";
+        if (requestedCatalogue === "nigeria") {
+            catalogue = "nigeria";
+        } else if (requestedCatalogue === "global" || requestedCatalogue === "general") {
+            catalogue = "general";
+        } else {
+            catalogue = "general";
+        }
+        
         const currentServices = catalogue === "nigeria" ? hkdmservicesNigeriaServicePriceCatalogue : hkdmservicesOfficialServicePriceCatalogue;
 
         let currentUser = null;
-        let currentTier = "regular";// FORMAT NAIRA
+        let currentTier = "regular";
+
+        // FORMAT NAIRA
         function formatNaira(amount) {
             return new Intl.NumberFormat("en-NG", {
                 style: "currency",
@@ -279,7 +294,9 @@
                 commentStatus.textContent = `Need ${remaining} more comment${remaining === 1 ? "" : "s"}`;
                 commentStatus.className = "text-danger";
             }
-        }function updateServiceFields() {
+        }
+
+        function updateServiceFields() {
             const service = getSelectedService();
             if (!service) {
                 quantityContainer.style.display = "block";
@@ -360,7 +377,9 @@
         commentsInput.addEventListener("input", () => {
             updateCommentCounter();
             calculateTotal();
-        });// 🔥 PLACE ORDER - FIXED VERSION
+        });
+
+        // 🔥 PLACE ORDER
         placeOrderButton.addEventListener("click", async () => {
             try {
                 if (!currentUser) {
@@ -395,7 +414,6 @@
                     }
                 }
 
-                // 🔥 CRITICAL FIX: Get the service name and platform
                 const serviceName = service.service || 'Unknown';
                 const platformName = service.platform || platform || 'General';
                 const totalText = totalDisplay.textContent;
@@ -405,7 +423,8 @@
                     serviceId: service.id,
                     serviceName: serviceName,
                     platform: platformName,
-                    total: totalAmount
+                    total: totalAmount,
+                    catalogue: catalogue
                 });
 
                 placeOrderButton.disabled = true;
@@ -458,8 +477,15 @@
                 placeOrderButton.disabled = false;
                 placeOrderButton.innerHTML = `<i class="bi bi-cart-check"></i> Place Order`;
             }
-        });function loadServices() {
-            if (catalogue === "nigeria" && requestedServiceId) {
+        });
+
+        function loadServices() {
+            // ✅ FIXED: Handle both "general" and "global" catalog names
+            const isNigeria = catalogue === "nigeria";
+            const isGeneral = catalogue === "general";
+            
+            // For Nigeria catalog with specific service ID
+            if (isNigeria && requestedServiceId) {
                 const selectedService = currentServices.find(service => String(service.id) === String(requestedServiceId));
                 if (!selectedService) {
                     platformTitle.textContent = "Nigeria service not found.";
@@ -474,29 +500,56 @@
                 option.selected = true;
                 serviceSelect.appendChild(option);
                 platformTitle.textContent = `${selectedService.platform} — 🇳🇬 Nigeria`;
-                backServicesButton.href = "nigeria-services.html";
+                backServicesButton.href = "services-nigeria.html";
                 placeOrderButton.disabled = false;
                 updateServiceFields();
                 calculateTotal();
                 return;
             }
+            
+            // For General/Global catalog with specific service ID
+            if (isGeneral && requestedServiceId) {
+                const selectedService = currentServices.find(service => String(service.id) === String(requestedServiceId));
+                if (!selectedService) {
+                    platformTitle.textContent = "Service not found.";
+                    serviceSelect.innerHTML = `<option value="">Service not found</option>`;
+                    placeOrderButton.disabled = true;
+                    return;
+                }
+                serviceSelect.innerHTML = "";
+                const option = document.createElement("option");
+                option.value = selectedService.id;
+                option.textContent = selectedService.service;
+                option.selected = true;
+                serviceSelect.appendChild(option);
+                platformTitle.textContent = `${selectedService.platform} — 🌍 Global`;
+                backServicesButton.href = "services-global.html";
+                placeOrderButton.disabled = false;
+                updateServiceFields();
+                calculateTotal();
+                return;
+            }
+
+            // No platform or service ID selected — show dropdown
             if (!platform) {
                 platformTitle.textContent = "No platform selected.";
                 serviceSelect.innerHTML = `<option value="">No platform selected</option>`;
                 placeOrderButton.disabled = true;
                 return;
             }
-            platformTitle.textContent = `${platform} Services — General`;
-            backServicesButton.href = "services.html";
+
+            // Filter services by platform
             const platformServices = currentServices.filter(service =>
                 String(service.platform || "").toLowerCase().replace("(twitter)", "").trim() ===
                 String(platform).toLowerCase().replace("(twitter)", "").trim()
             );
+
             if (platformServices.length === 0) {
                 serviceSelect.innerHTML = `<option value="">No services available</option>`;
                 placeOrderButton.disabled = true;
                 return;
             }
+
             serviceSelect.innerHTML = `<option value="">Select a service</option>`;
             platformServices.forEach(service => {
                 const option = document.createElement("option");
@@ -505,6 +558,13 @@
                 serviceSelect.appendChild(option);
             });
             placeOrderButton.disabled = false;
+            
+            // Set back button based on catalog
+            if (isNigeria) {
+                backServicesButton.href = "services-nigeria.html";
+            } else {
+                backServicesButton.href = "services-global.html";
+            }
         }
 
         async function initializeOrderPage() {
@@ -517,6 +577,16 @@
                     }
                     currentUser = user;
                     await loadUserTier(user);
+                    
+                    // ✅ FIXED: Set proper platform title
+                    if (catalogue === "nigeria") {
+                        platformTitle.textContent = `${platform || 'Nigeria'} Services — 🇳🇬 Nigeria`;
+                        backServicesButton.href = "services-nigeria.html";
+                    } else {
+                        platformTitle.textContent = `${platform || 'Global'} Services — 🌍 Global`;
+                        backServicesButton.href = "services-global.html";
+                    }
+                    
                     loadServices();
                     updateServiceFields();
                     calculateTotal();
@@ -526,7 +596,7 @@
         }
 
         initializeOrderPage();
-        console.log("✅ Order page loaded with Firebase auth.");
+        console.log("✅ Order page loaded with Firebase auth. Catalogue:", catalogue);
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
