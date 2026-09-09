@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | HKDMservices</title>
+    <script src="theme.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        html[data-theme="dark"] body {
+            background: #101418;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .card {
+            background: #181d22 !important;
+            border-color: #30363d !important;
+            color: #f1f3f5 !important;
+        }
+        .theme-toggle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.18);
+            transform: rotate(15deg);
+        }
+        .service-option-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+        .service-option-card:hover {
+            transform: translateY(-5px);
+            border-color: #198754;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .service-option-card .icon {
+            font-size: 3rem;
+            color: #198754;
+        }
+        .service-option-card h3 {
+            color: #f1f3f5;
+            margin-top: 12px;
+        }
+        .service-option-card p {
+            color: #8b949e;
+        }
+        .service-option-card .badge {
+            font-size: 0.7rem;
+        }
+        .service-option-card .arrow {
+            color: #8b949e;
+            transition: all 0.3s ease;
+        }
+        .service-option-card:hover .arrow {
+            color: #198754;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand fw-bold" href="dashboard.html">
+            <span class="brand-icon">⬢</span> HKDMservices
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
+            </button>
+            <a href="dashboard.html" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+</nav>
+
+<section class="py-5">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h1 class="fw-bold"><i class="bi bi-grid-3x3-gap text-success"></i> Services</h1>
+            <p class="text-muted">Select a catalog to browse available services</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            
+            <!-- Global Services -->
+            <div class="col-12 col-md-5">
+                <a href="services-global.html" class="service-option-card">
+                    <div class="icon"><i class="bi bi-globe"></i></div>
+                    <h3>Global Services</h3>
+                    <p class="text-muted">International social media services for all platforms</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <span class="badge bg-info">Instagram</span>
+                        <span class="badge bg-dark">TikTok</span>
+                        <span class="badge bg-danger">YouTube</span>
+                        <span class="badge bg-primary">Facebook</span>
+                        <span class="badge bg-secondary">+ more</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success">Browse Services <i class="bi bi-arrow-right arrow"></i></span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Nigeria Services -->
+            <div class="col-12 col-md-5">
+                <a href="services-nigeria.html" class="service-option-card">
+                    <div class="icon"><i class="bi bi-flag"></i></div>
+                    <h3>Nigeria Services</h3>
+                    <p class="text-muted">Local Nigerian social media services &amp; packages</p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <span class="badge bg-info">Instagram</span>
+                        <span class="badge bg-dark">TikTok</span>
+                        <span class="badge bg-danger">YouTube</span>
+                        <span class="badge bg-warning">Snapchat</span>
+                        <span class="badge bg-secondary">+ more</span>
+                    </div>
+                    <div class="mt-3">
+                        <span class="text-success">Browse Services <i class="bi bi-arrow-right arrow"></i></span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="globalCount">-</h4>
+                                <small class="text-muted">Global Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="nigeriaCount">-</h4>
+                                <small class="text-muted">Nigeria Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="totalCount">-</h4>
+                                <small class="text-muted">Total Services</small>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <h4 class="text-success" id="platformCount">-</h4>
+                                <small class="text-muted">Platforms</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script type="importmap">
+{
+    "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js"
+    }
+}
+</script>
+
+<script type="module">
+    import { initializeApp } from "firebase/app";
+    import { getAuth, onAuthStateChanged } from "firebase/auth";
+    import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
+    import { hkdmservicesNigeriaServicePriceCatalogue } from "./nigeria-services-catalogue.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+        authDomain: "hkdmservices-7d59f.firebaseapp.com",
+        databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+        projectId: "hkdmservices-7d59f",
+        storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+        messagingSenderId: "839538334772",
+        appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        loadStats();
+    });
+
+    function loadStats() {
+        const global = hkdmservicesOfficialServicePriceCatalogue || [];
+        const nigeria = hkdmservicesNigeriaServicePriceCatalogue || [];
+        const total = global.length + nigeria.length;
+        
+        const allPlatforms = [...new Set([
+            ...global.map(s => s.platform).filter(Boolean),
+            ...nigeria.map(s => s.platform).filter(Boolean)
+        ])];
+
+        document.getElementById('globalCount').textContent = global.length;
+        document.getElementById('nigeriaCount').textContent = nigeria.length;
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('platformCount').textContent = allPlatforms.length;
+    }
+
+    console.log('✅ Services page loaded!');
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
+</script>
+
+</body>
+</html>
