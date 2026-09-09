@@ -458,6 +458,7 @@
         .platform-badge.applemusic { background: #FA243C; }
         .platform-badge.reddit { background: #FF4500; }
         .platform-badge.general { background: #6c757d; }
+        .platform-badge.x-twitter { background: #000000; }
     </style>
 </head>
 <body>
@@ -768,7 +769,10 @@
                                         </thead>
                                         <tbody id="globalServicesTable">
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted">Loading...</td>
+                                                <td colspan="7" class="text-center text-muted">
+                                                    <div class="spinner-border text-success" role="status"></div>
+                                                    <p class="mt-2">Loading services...</p>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -798,7 +802,10 @@
                                         </thead>
                                         <tbody id="nigeriaServicesTable">
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted">Loading...</td>
+                                                <td colspan="7" class="text-center text-muted">
+                                                    <div class="spinner-border text-success" role="status"></div>
+                                                    <p class="mt-2">Loading services...</p>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1478,7 +1485,10 @@
             if (section === 'overview') loadDashboard();
             if (section === 'orders') loadAllOrders();
             if (section === 'users') loadAllUsers();
-            if (section === 'services') loadAllServices();
+            if (section === 'services') {
+                document.getElementById('globalServicesTable').innerHTML = '<tr><td colspan="7" class="text-center text-muted"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading services...</p></td></tr>';
+                loadAllServices();
+            }
             if (section === 'shop') loadAllProducts();
             if (section === 'analytics') loadAnalytics();
             if (section === 'transactions') loadAllTransactions();
@@ -1592,7 +1602,7 @@
         });
 
         // ============================================================
-        // ALL ORDERS (simplified - keep existing)
+        // ALL ORDERS (simplified)
         // ============================================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
@@ -1695,13 +1705,27 @@
                         `;
                 }).join('');
 
-                // Attach events
+                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
+                // Attach checkbox events
+                document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            selectedOrders.add(this.dataset.orderKey);
+                        } else {
+                            selectedOrders.delete(this.dataset.orderKey);
+                        }
+                        updateSelectedCount();
+                        updateSelectAllState();
+                    });
+                });
+
+                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -1713,6 +1737,7 @@
                     });
                 });
 
+                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -1726,18 +1751,6 @@
                         document.getElementById('cancelMsg').innerHTML = '';
                         const modal = new bootstrap.Modal(document.getElementById('confirmCancelModal'));
                         modal.show();
-                    });
-                });
-
-                document.querySelectorAll('.order-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            selectedOrders.add(this.dataset.orderKey);
-                        } else {
-                            selectedOrders.delete(this.dataset.orderKey);
-                        }
-                        updateSelectedCount();
-                        updateSelectAllState();
                     });
                 });
             });
@@ -2110,139 +2123,73 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - FIXED TO LOAD YOUR services.js
+        // SERVICE MANAGEMENT - SCRIPT TAG APPROACH
         // ============================================================
 
-        // Load from JS file - FIXED for your export format
-        async function loadFromJSFile(filename) {
+        function loadAllServices() {
             try {
-                console.log(`📂 Loading ${filename}...`);
-                const response = await fetch(filename);
-                const text = await response.text();
+                console.log('🔍 Loading services via script tag...');
                 
-                // Try multiple patterns to extract the array
-                let match = null;
-                
-                // Pattern 1: const name = [ ... ];
-                match = text.match(/const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
-                
-                // Pattern 2: export const name = [ ... ];
-                if (!match) {
-                    match = text.match(/export\s+const\s+\w+\s*=\s*(\[[\s\S]*?\]);/);
+                // First, check if the variable already exists
+                if (typeof hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
+                    console.log('✅ Global services already loaded:', hkdmservicesOfficialServicePriceCatalogue.length);
+                    renderServicesTable(hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
+                    updateServiceStats(hkdmservicesOfficialServicePriceCatalogue, []);
+                    showToast('✅ Loaded ' + hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
+                    return;
                 }
-                
-                // Pattern 3: name = [ ... ]; (without const)
-                if (!match) {
-                    match = text.match(/\w+\s*=\s*(\[[\s\S]*?\]);/);
-                }
-                
-                if (match) {
-                    let arrayStr = match[1];
-                    
-                    // Handle comments
-                    arrayStr = arrayStr.replace(/\/\/.*$/gm, '');
-                    arrayStr = arrayStr.replace(/\/\*[\s\S]*?\*\//g, '');
-                    
-                    // Convert single quotes to double quotes
-                    arrayStr = arrayStr.replace(/'/g, '"');
-                    
-                    // Handle undefined values
-                    arrayStr = arrayStr.replace(/undefined/g, 'null');
-                    
-                    // Fix trailing commas
-                    arrayStr = arrayStr.replace(/,(\s*[\]}])/g, '$1');
-                    
-                    // Parse the JSON
-                    const services = JSON.parse(arrayStr);
-                    console.log(`✅ ${filename} loaded: ${services.length} services`);
-                    
-                    // Ensure each service has a platform field
-                    return services.map(s => ({
-                        id: s.id || s.serviceId || Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                        service: s.service || s.name || 'Unknown',
-                        platform: s.platform || s.platformName || s.category || 'General',
-                        ratePer1000: s.ratePer1000 || s.rate || s.price || 0,
-                        resellerRatePer1000: s.resellerRatePer1000 || s.resellerRate || null,
-                        vipRatePer1000: s.vipRatePer1000 || s.vipRate || null,
-                        minimumQuantity: s.minimumQuantity || s.minQty || s.minQuantity || 100,
-                        createdAt: s.createdAt || Date.now(),
-                        fixedPrice: s.fixedPrice || null,
-                        resellerFixedPrice: s.resellerFixedPrice || null,
-                        vipFixedPrice: s.vipFixedPrice || null,
-                        oneTimePayment: s.oneTimePayment || false
-                    }));
-                }
-                console.warn(`⚠️ No array found in ${filename}`);
-                return [];
+
+                // Load services.js as a script
+                const script = document.createElement('script');
+                script.src = 'services.js?t=' + Date.now(); // Prevent caching
+                script.onload = function() {
+                    if (typeof hkdmservicesOfficialServicePriceCatalogue !== 'undefined') {
+                        console.log('✅ Global services loaded:', hkdmservicesOfficialServicePriceCatalogue.length);
+                        renderServicesTable(hkdmservicesOfficialServicePriceCatalogue, 'globalServicesTable', 'global');
+                        updateServiceStats(hkdmservicesOfficialServicePriceCatalogue, []);
+                        showToast('✅ Loaded ' + hkdmservicesOfficialServicePriceCatalogue.length + ' services', 'success');
+                    } else {
+                        console.error('❌ hkdmservicesOfficialServicePriceCatalogue not found after loading script');
+                        showToast('❌ Failed to load services', 'error');
+                        loadFallbackServices();
+                    }
+                };
+                script.onerror = function() {
+                    console.error('❌ Failed to load services.js');
+                    showToast('❌ Failed to load services.js', 'error');
+                    loadFallbackServices();
+                };
+                document.head.appendChild(script);
+
             } catch (error) {
-                console.error(`❌ Error loading ${filename}:`, error);
-                return [];
+                console.error('❌ Error loading services:', error);
+                showToast('❌ Error: ' + error.message, 'error');
+                loadFallbackServices();
             }
         }
 
-        // Load all services
-        async function loadAllServices() {
-            try {
-                let globalServices = [];
-                let nigeriaServices = [];
-
-                // Load from your JS files
-                try {
-                    globalServices = await loadFromJSFile('services.js');
-                } catch (e) {
-                    console.error('Could not load services.js:', e);
-                }
-
-                try {
-                    nigeriaServices = await loadFromJSFile('nigeria-services-catalogue.js');
-                } catch (e) {
-                    console.error('Could not load nigeria-services-catalogue.js:', e);
-                }
-
-                // If still empty, use fallback
-                if (globalServices.length === 0 && nigeriaServices.length === 0) {
-                    console.log('Using fallback services');
-                    const fallback = getFallbackServices();
-                    globalServices = fallback;
-                    nigeriaServices = [];
-                }
-
-                renderServicesTable(globalServices, 'globalServicesTable', 'global');
-                renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
-                updateServiceStats(globalServices, nigeriaServices);
-
-            } catch (error) {
-                console.error('Error loading services:', error);
-                showToast('❌ Error loading services: ' + error.message, 'error');
-
-                const fallback = getFallbackServices();
-                renderServicesTable(fallback, 'globalServicesTable', 'global');
-                renderServicesTable([], 'nigeriaServicesTable', 'nigeria');
-                updateServiceStats(fallback, []);
-            }
-        }
-
-        // Fallback services
-        function getFallbackServices() {
-            return [
-                { id: '1', service: 'Followers - High Quality', platform: 'Instagram', ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1800, minimumQuantity: 100 },
-                { id: '2', service: 'Likes - Real', platform: 'Instagram', ratePer1000: 1500, resellerRatePer1000: 1200, vipRatePer1000: 1000, minimumQuantity: 100 },
-                { id: '3', service: 'Subscribers', platform: 'YouTube', ratePer1000: 5000, resellerRatePer1000: 4000, vipRatePer1000: 3500, minimumQuantity: 50 },
-                { id: '4', service: 'Followers - Nigeria', platform: 'Instagram', ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
-                { id: '5', service: 'Views - Nigeria', platform: 'TikTok', ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
-                { id: '6', service: 'Comments - Real', platform: 'Instagram', ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
-                { id: '7', service: 'Saves - High Quality', platform: 'Instagram', ratePer1000: 2200, resellerRatePer1000: 1800, vipRatePer1000: 1600, minimumQuantity: 100 },
-                { id: '8', service: 'Shares', platform: 'Facebook', ratePer1000: 1200, resellerRatePer1000: 1000, vipRatePer1000: 800, minimumQuantity: 100 },
-                { id: '9', service: 'Watch Hours', platform: 'YouTube', ratePer1000: 8000, resellerRatePer1000: 6500, vipRatePer1000: 5500, minimumQuantity: 50 },
-                { id: '10', service: 'Telegram Members', platform: 'Telegram', ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+        function loadFallbackServices() {
+            const fallback = [
+                { id: '1', service: 'Fallback - Followers', platform: 'Instagram', ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1800, minimumQuantity: 100 },
+                { id: '2', service: 'Fallback - Likes', platform: 'Instagram', ratePer1000: 1500, resellerRatePer1000: 1200, vipRatePer1000: 1000, minimumQuantity: 100 },
+                { id: '3', service: 'Fallback - Subscribers', platform: 'YouTube', ratePer1000: 5000, resellerRatePer1000: 4000, vipRatePer1000: 3500, minimumQuantity: 50 },
+                { id: '4', service: 'Fallback - Followers Nigeria', platform: 'Instagram', ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
+                { id: '5', service: 'Fallback - Views Nigeria', platform: 'TikTok', ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: '6', service: 'Fallback - Comments', platform: 'Instagram', ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: '7', service: 'Fallback - Saves', platform: 'Instagram', ratePer1000: 2200, resellerRatePer1000: 1800, vipRatePer1000: 1600, minimumQuantity: 100 },
+                { id: '8', service: 'Fallback - Shares', platform: 'Facebook', ratePer1000: 1200, resellerRatePer1000: 1000, vipRatePer1000: 800, minimumQuantity: 100 },
+                { id: '9', service: 'Fallback - Watch Hours', platform: 'YouTube', ratePer1000: 8000, resellerRatePer1000: 6500, vipRatePer1000: 5500, minimumQuantity: 50 },
+                { id: '10', service: 'Fallback - Telegram Members', platform: 'Telegram', ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
             ];
+            renderServicesTable(fallback, 'globalServicesTable', 'global');
+            updateServiceStats(fallback, []);
+            showToast('⚠️ Using fallback services (10 items)', 'warning');
         }
 
         function renderServicesTable(services, tableId, catalog) {
             const tbody = document.getElementById(tableId);
             if (!services || services.length === 0) {
-                tbody.innerHTML =
-                `<tr><td colspan="7" class="text-center text-muted">No services found</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No services found</td></tr>`;
                 return;
             }
 
@@ -2277,6 +2224,7 @@
                 `;
             }).join('');
 
+            // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const service = JSON.parse(btn.dataset.service);
@@ -2284,6 +2232,7 @@
                 });
             });
 
+            // Attach delete event listeners
             tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('Delete this service permanently?')) {
@@ -2307,8 +2256,9 @@
 
         function setCatalogForAdd(catalog) {
             document.getElementById('addCatalog').value = catalog;
-            document.getElementById('addCatalogDisplay').value = catalog;
-            document.getElementById('addCatalogDisplay').textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
+            const display = document.getElementById('addCatalogDisplay');
+            display.value = catalog;
+            display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
         function openEditServiceModal(service, catalog) {
@@ -2723,8 +2673,7 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded with fixed service loading!');
-        console.log('📂 Your services.js file should load with all services now.');
+        console.log('✅ Admin dashboard loaded with script tag service loading!');
     </script>
 </body>
 </html>
