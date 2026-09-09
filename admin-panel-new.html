@@ -459,8 +459,10 @@
         .platform-badge.reddit { background: #FF4500; }
         .platform-badge.general { background: #6c757d; }
         .platform-badge.x-twitter { background: #000000; }
-        /* Custom platform badge */
         .platform-badge.custom { background: #6f42c1; }
+        .platform-badge.linkedin { background: #0A66C2; }
+        .platform-badge.pinterest { background: #E60023; }
+        .platform-badge.discord { background: #5865F2; }
     </style>
 </head>
 <body>
@@ -762,7 +764,7 @@
                                             <tr>
                                                 <th style="width: 25%;">Service</th>
                                                 <th style="width: 15%;">Platform</th>
-                                                <th style="width: 15%;">Rate (1000)</th>
+                                                <th style="width: 15%;">Rate</th>
                                                 <th style="width: 12%;">Reseller</th>
                                                 <th style="width: 12%;">VIP</th>
                                                 <th style="width: 8%;">Min</th>
@@ -795,7 +797,7 @@
                                             <tr>
                                                 <th style="width: 25%;">Service</th>
                                                 <th style="width: 15%;">Platform</th>
-                                                <th style="width: 15%;">Rate (1000)</th>
+                                                <th style="width: 15%;">Rate</th>
                                                 <th style="width: 12%;">Reseller</th>
                                                 <th style="width: 12%;">VIP</th>
                                                 <th style="width: 8%;">Min</th>
@@ -1008,6 +1010,7 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Service Name</label>
                                 <input type="text" class="form-control" id="svcName" placeholder="e.g. Followers - High Quality" required>
+                                <div class="form-text text-muted small">For comment services, include "comment" in the name. For one-time services, include "Package" or "Monetization".</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Platform</label>
@@ -1022,6 +1025,11 @@
                                     <option value="WhatsApp">WhatsApp</option>
                                     <option value="Apple Music">Apple Music</option>
                                     <option value="Reddit">Reddit</option>
+                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="Twitch">Twitch</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Pinterest">Pinterest</option>
+                                    <option value="Discord">Discord</option>
                                     <option value="other">+ Add New Platform</option>
                                 </select>
                             </div>
@@ -1030,8 +1038,9 @@
                                 <input type="text" class="form-control" id="svcCustomPlatform" placeholder="e.g. Snapchat, Twitch, LinkedIn">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label">Rate (per 1000) ₦</label>
-                                <input type="number" class="form-control" id="svcRate" placeholder="e.g. 12000" required>
+                                <label class="form-label" id="rateLabel">Rate (per 1000) ₦</label>
+                                <input type="number" class="form-control" id="svcRate" placeholder="e.g. 12000">
+                                <div class="form-text text-muted small">For one-time services, this will be the fixed price.</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Reseller Rate ₦</label>
@@ -1044,6 +1053,16 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Minimum Quantity</label>
                                 <input type="number" class="form-control" id="svcMinQty" value="100" required>
+                                <div class="form-text text-muted small">For one-time services, set to 1.</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="svcOneTime">
+                                    <label class="form-check-label" for="svcOneTime">
+                                        One-Time Service (Fixed Price)
+                                    </label>
+                                    <div class="form-text text-muted small">Check this if this is a one-time package (e.g., 100,000 Views package).</div>
+                                </div>
                             </div>
                         </div>
                         <div id="addServiceMsg" class="mt-3"></div>
@@ -1087,6 +1106,11 @@
                                     <option value="WhatsApp">WhatsApp</option>
                                     <option value="Apple Music">Apple Music</option>
                                     <option value="Reddit">Reddit</option>
+                                    <option value="Snapchat">Snapchat</option>
+                                    <option value="Twitch">Twitch</option>
+                                    <option value="LinkedIn">LinkedIn</option>
+                                    <option value="Pinterest">Pinterest</option>
+                                    <option value="Discord">Discord</option>
                                     <option value="other">+ Add New Platform</option>
                                 </select>
                             </div>
@@ -1095,8 +1119,9 @@
                                 <input type="text" class="form-control" id="editSvcCustomPlatform" placeholder="e.g. Snapchat, Twitch, LinkedIn">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label">Rate (per 1000) ₦</label>
+                                <label class="form-label" id="editRateLabel">Rate ₦</label>
                                 <input type="number" class="form-control" id="editSvcRate" required>
+                                <div class="form-text text-muted small">For one-time services, this is the fixed price.</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Reseller Rate ₦</label>
@@ -1109,6 +1134,15 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Minimum Quantity</label>
                                 <input type="number" class="form-control" id="editSvcMinQty" required>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editSvcOneTime">
+                                    <label class="form-check-label" for="editSvcOneTime">
+                                        One-Time Service (Fixed Price)
+                                    </label>
+                                    <div class="form-text text-muted small">Check this if this is a one-time package.</div>
+                                </div>
                             </div>
                         </div>
                         <div id="editServiceMsg" class="mt-3"></div>
@@ -2304,12 +2338,13 @@
                 { id: "n12", service: "Followers - Nigeria", platform: "Telegram", ratePer1000: 4000, resellerRatePer1000: 3200, vipRatePer1000: 2800, minimumQuantity: 100 },
                 { id: "n13", service: "Followers - Nigeria", platform: "Snapchat", ratePer1000: 3200, resellerRatePer1000: 2600, vipRatePer1000: 2200, minimumQuantity: 100 },
                 { id: "n14", service: "Followers - Nigeria", platform: "Spotify", ratePer1000: 4500, resellerRatePer1000: 3600, vipRatePer1000: 3000, minimumQuantity: 100 },
-                { id: "n15", service: "Followers - Nigeria", platform: "X (Twitter)", ratePer1000: 2800, resellerRatePer1000: 2300, vipRatePer1000: 1900, minimumQuantity: 100 },
-                { id: "n16", service: "Members - Nigeria", platform: "Telegram", ratePer1000: 4000, resellerRatePer1000: 3200, vipRatePer1000: 2800, minimumQuantity: 100 },
-                { id: "n17", service: "Followers - Nigeria", platform: "Twitch", ratePer1000: 5000, resellerRatePer1000: 4000, vipRatePer1000: 3500, minimumQuantity: 50 }
+                { id: "n15", service: "Followers - Nigeria", platform: "X (Twitter)", ratePer1000: 2800, resellerRatePer1000: 2300, vipRatePer1000: 1900, minimumQuantity: 100 }
             ];
         }
 
+        // ============================================================
+        // RENDER SERVICES TABLE - WITH ONE-TIME SERVICE SUPPORT
+        // ============================================================
         function renderServicesTable(services, tableId, catalog) {
             const tbody = document.getElementById(tableId);
             if (!services || services.length === 0) {
@@ -2319,19 +2354,48 @@
 
             tbody.innerHTML = services.map((service, index) => {
                 const platformName = service.platform || service.category || 'General';
-                // Check if platform is one of the predefined ones for styling
                 const platformClass = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                // If platform is not in our predefined list, use 'custom' class
-                const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit'];
+                const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit', 'linkedin', 'pinterest', 'discord'];
                 const finalClass = validPlatforms.includes(platformClass) ? platformClass : 'custom';
+
+                // ✅ Handle one-time services (fixedPrice) and regular services
+                let rateDisplay = '';
+                let resellerDisplay = '-';
+                let vipDisplay = '-';
+                
+                if (service.oneTimePayment === true || service.fixedPrice !== null && service.fixedPrice !== undefined) {
+                    // One-time service with fixed price
+                    rateDisplay = `<span class="text-warning">💰 ${formatNaira(service.fixedPrice || service.ratePer1000)}</span>`;
+                    if (service.resellerFixedPrice) {
+                        resellerDisplay = formatNaira(service.resellerFixedPrice);
+                    }
+                    if (service.vipFixedPrice) {
+                        vipDisplay = formatNaira(service.vipFixedPrice);
+                    }
+                } else if (service.ratePer1000 !== null && service.ratePer1000 !== undefined) {
+                    // Regular per-1000 service
+                    rateDisplay = formatNaira(service.ratePer1000);
+                    resellerDisplay = service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-';
+                    vipDisplay = service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-';
+                } else {
+                    rateDisplay = '<span class="text-muted">N/A</span>';
+                }
+
+                // Check if it's a comment service
+                const isComment = service.service && service.service.toLowerCase().includes('comment');
 
                 return `
                     <tr id="service-row-${service.id || index}">
-                        <td><strong>${service.service || 'N/A'}</strong></td>
+                        <td>
+                            <strong>${service.service || 'N/A'}</strong>
+                            ${service.oneTimePayment === true ? ' <span class="badge bg-warning text-dark">One-Time</span>' : ''}
+                            ${service.fixedPrice !== null && service.fixedPrice !== undefined && !service.oneTimePayment ? ' <span class="badge bg-info">Fixed</span>' : ''}
+                            ${isComment ? ' <span class="badge bg-primary">Comment</span>' : ''}
+                        </td>
                         <td><span class="platform-badge ${finalClass}">${platformName}</span></td>
-                        <td class="text-success fw-bold">${formatNaira(service.ratePer1000)}</td>
-                        <td>${service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-'}</td>
-                        <td>${service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-'}</td>
+                        <td class="fw-bold">${rateDisplay}</td>
+                        <td>${resellerDisplay}</td>
+                        <td>${vipDisplay}</td>
                         <td>${service.minimumQuantity || 100}</td>
                         <td class="service-actions">
                             <button class="btn btn-outline-success btn-sm edit-service-btn" 
@@ -2370,10 +2434,20 @@
             });
         }
 
+        // ============================================================
+        // UPDATE SERVICE STATS - WITH ONE-TIME SERVICE SUPPORT
+        // ============================================================
         function updateServiceStats(global, nigeria) {
             const all = [...(global || []), ...(nigeria || [])];
             const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
-            const rates = all.map(s => Number(s.ratePer1000) || 0).filter(r => r > 0);
+            
+            // Handle both regular and one-time services
+            const rates = all.map(s => {
+                if (s.oneTimePayment === true || s.fixedPrice !== null) {
+                    return Number(s.fixedPrice || s.ratePer1000 || 0);
+                }
+                return Number(s.ratePer1000 || 0);
+            }).filter(r => r > 0);
 
             document.getElementById('statTotalServices').textContent = all.length;
             document.getElementById('statGlobalCount').textContent = global ? global.length : 0;
@@ -2390,7 +2464,7 @@
         }
 
         // ============================================================
-        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM SUPPORT
+        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM & ONE-TIME SUPPORT
         // ============================================================
         function openEditServiceModal(service, catalog) {
             document.getElementById('editServiceId').value = service.id;
@@ -2411,9 +2485,22 @@
                 document.getElementById('editSvcCustomPlatform').value = platformName;
             }
             
-            document.getElementById('editSvcRate').value = service.ratePer1000 || 0;
-            document.getElementById('editSvcResellerRate').value = service.resellerRatePer1000 || '';
-            document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
+            // Handle one-time services
+            const isOneTime = service.oneTimePayment === true || (service.fixedPrice !== null && service.fixedPrice !== undefined);
+            document.getElementById('editSvcOneTime').checked = isOneTime;
+            
+            if (isOneTime) {
+                document.getElementById('editSvcRate').value = service.fixedPrice || service.ratePer1000 || 0;
+                document.getElementById('editSvcResellerRate').value = service.resellerFixedPrice || '';
+                document.getElementById('editSvcVipRate').value = service.vipFixedPrice || '';
+                document.getElementById('editRateLabel').textContent = 'Fixed Price ₦';
+            } else {
+                document.getElementById('editSvcRate').value = service.ratePer1000 || 0;
+                document.getElementById('editSvcResellerRate').value = service.resellerRatePer1000 || '';
+                document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
+                document.getElementById('editRateLabel').textContent = 'Rate (per 1000) ₦';
+            }
+            
             document.getElementById('editSvcMinQty').value = service.minimumQuantity || 100;
             const modal = new bootstrap.Modal(document.getElementById('editServiceModal'));
             modal.show();
@@ -2450,7 +2537,47 @@
         });
 
         // ============================================================
-        // SAVE NEW SERVICE - TO PHP
+        // ONE-TIME SERVICE TOGGLE - Add Service
+        // ============================================================
+        document.getElementById('svcOneTime').addEventListener('change', function() {
+            const rateLabel = document.getElementById('rateLabel');
+            const rateInput = document.getElementById('svcRate');
+            const minQty = document.getElementById('svcMinQty');
+            if (this.checked) {
+                rateLabel.textContent = 'Fixed Price ₦';
+                rateInput.placeholder = 'e.g. 50000';
+                minQty.value = 1;
+                minQty.readOnly = true;
+            } else {
+                rateLabel.textContent = 'Rate (per 1000) ₦';
+                rateInput.placeholder = 'e.g. 12000';
+                minQty.value = 100;
+                minQty.readOnly = false;
+            }
+        });
+
+        // ============================================================
+        // ONE-TIME SERVICE TOGGLE - Edit Service
+        // ============================================================
+        document.getElementById('editSvcOneTime').addEventListener('change', function() {
+            const rateLabel = document.getElementById('editRateLabel');
+            const rateInput = document.getElementById('editSvcRate');
+            const minQty = document.getElementById('editSvcMinQty');
+            if (this.checked) {
+                rateLabel.textContent = 'Fixed Price ₦';
+                rateInput.placeholder = 'e.g. 50000';
+                minQty.value = 1;
+                minQty.readOnly = true;
+            } else {
+                rateLabel.textContent = 'Rate (per 1000) ₦';
+                rateInput.placeholder = 'e.g. 12000';
+                minQty.value = 100;
+                minQty.readOnly = false;
+            }
+        });
+
+        // ============================================================
+        // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
         // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2472,20 +2599,44 @@
                     return;
                 }
                 
-                const newService = {
-                    id: Date.now().toString(),
-                    platform: platform,
-                    service: document.getElementById('svcName').value.trim(),
-                    ratePer1000: parseInt(document.getElementById('svcRate').value) || 0,
-                    resellerRatePer1000: parseInt(document.getElementById('svcResellerRate').value) || null,
-                    vipRatePer1000: parseInt(document.getElementById('svcVipRate').value) || null,
-                    minimumQuantity: parseInt(document.getElementById('svcMinQty').value) || 100,
-                    createdAt: Date.now()
-                };
-                if (!newService.service || !newService.ratePer1000) {
+                const serviceName = document.getElementById('svcName').value.trim();
+                const isOneTime = document.getElementById('svcOneTime').checked;
+                const rate = parseInt(document.getElementById('svcRate').value) || 0;
+                const resellerRate = parseInt(document.getElementById('svcResellerRate').value) || null;
+                const vipRate = parseInt(document.getElementById('svcVipRate').value) || null;
+                const minQty = parseInt(document.getElementById('svcMinQty').value) || (isOneTime ? 1 : 100);
+                
+                if (!serviceName || !rate) {
                     document.getElementById('addServiceMsg').innerHTML =
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
+                }
+                
+                let newService = {
+                    id: Date.now().toString(),
+                    platform: platform,
+                    service: serviceName,
+                    minimumQuantity: minQty,
+                    createdAt: Date.now()
+                };
+                
+                if (isOneTime) {
+                    newService.ratePer1000 = null;
+                    newService.resellerRatePer1000 = null;
+                    newService.vipRatePer1000 = null;
+                    newService.fixedPrice = rate;
+                    newService.resellerFixedPrice = resellerRate;
+                    newService.vipFixedPrice = vipRate;
+                    newService.oneTimePayment = true;
+                    newService.minimumQuantity = 1;
+                } else {
+                    newService.ratePer1000 = rate;
+                    newService.resellerRatePer1000 = resellerRate;
+                    newService.vipRatePer1000 = vipRate;
+                    newService.fixedPrice = null;
+                    newService.resellerFixedPrice = null;
+                    newService.vipFixedPrice = null;
+                    newService.oneTimePayment = false;
                 }
 
                 // Get current services from the correct file
@@ -2511,6 +2662,9 @@
                         document.querySelector('#addServiceModal .btn-close').click();
                         document.getElementById('addServiceForm').reset();
                         document.getElementById('customPlatformContainer').style.display = 'none';
+                        document.getElementById('svcOneTime').checked = false;
+                        document.getElementById('rateLabel').textContent = 'Rate (per 1000) ₦';
+                        document.getElementById('svcMinQty').readOnly = false;
                         loadAllServices();
                     }, 1500);
                 } else {
@@ -2528,7 +2682,7 @@
         });
 
         // ============================================================
-        // UPDATE SERVICE - TO PHP
+        // UPDATE SERVICE - TO PHP WITH ONE-TIME SUPPORT
         // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2551,21 +2705,44 @@
                     return;
                 }
                 
-                const updatedService = {
-                    id: serviceId,
-                    platform: platform,
-                    service: document.getElementById('editSvcName').value.trim(),
-                    ratePer1000: parseInt(document.getElementById('editSvcRate').value) || 0,
-                    resellerRatePer1000: parseInt(document.getElementById('editSvcResellerRate').value) || null,
-                    vipRatePer1000: parseInt(document.getElementById('editSvcVipRate').value) || null,
-                    minimumQuantity: parseInt(document.getElementById('editSvcMinQty').value) || 100,
-                    updatedAt: Date.now()
-                };
-
-                if (!updatedService.service || !updatedService.ratePer1000) {
+                const serviceName = document.getElementById('editSvcName').value.trim();
+                const isOneTime = document.getElementById('editSvcOneTime').checked;
+                const rate = parseInt(document.getElementById('editSvcRate').value) || 0;
+                const resellerRate = parseInt(document.getElementById('editSvcResellerRate').value) || null;
+                const vipRate = parseInt(document.getElementById('editSvcVipRate').value) || null;
+                const minQty = parseInt(document.getElementById('editSvcMinQty').value) || (isOneTime ? 1 : 100);
+                
+                if (!serviceName || !rate) {
                     document.getElementById('editServiceMsg').innerHTML =
                         `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
+                }
+                
+                let updatedService = {
+                    id: serviceId,
+                    platform: platform,
+                    service: serviceName,
+                    minimumQuantity: minQty,
+                    updatedAt: Date.now()
+                };
+                
+                if (isOneTime) {
+                    updatedService.ratePer1000 = null;
+                    updatedService.resellerRatePer1000 = null;
+                    updatedService.vipRatePer1000 = null;
+                    updatedService.fixedPrice = rate;
+                    updatedService.resellerFixedPrice = resellerRate;
+                    updatedService.vipFixedPrice = vipRate;
+                    updatedService.oneTimePayment = true;
+                    updatedService.minimumQuantity = 1;
+                } else {
+                    updatedService.ratePer1000 = rate;
+                    updatedService.resellerRatePer1000 = resellerRate;
+                    updatedService.vipRatePer1000 = vipRate;
+                    updatedService.fixedPrice = null;
+                    updatedService.resellerFixedPrice = null;
+                    updatedService.vipFixedPrice = null;
+                    updatedService.oneTimePayment = false;
                 }
 
                 // Get current services from the correct file
@@ -2942,6 +3119,7 @@
         console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
         console.log('📊 Using import() to load services from both files.');
         console.log('📱 Custom platform support added - you can now add new platforms!');
+        console.log('💰 One-time service support added - fixed prices now display correctly!');
     </script>
 </body>
 </html>
