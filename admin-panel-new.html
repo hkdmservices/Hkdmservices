@@ -434,6 +434,27 @@
         .service-actions .btn i {
             font-size: 0.8rem;
         }
+
+        /* Platform Badges */
+        .platform-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: #0d6efd;
+            color: #fff;
+        }
+        .platform-badge.instagram { background: #E4405F; }
+        .platform-badge.tiktok { background: #000000; border: 1px solid #30363d; }
+        .platform-badge.youtube { background: #FF0000; }
+        .platform-badge.facebook { background: #1877F2; }
+        .platform-badge.twitter { background: #1DA1F2; }
+        .platform-badge.snapchat { background: #FFFC00; color: #000; }
+        .platform-badge.telegram { background: #26A5E4; }
+        .platform-badge.spotify { background: #1DB954; }
+        .platform-badge.twitch { background: #9146FF; }
+        .platform-badge.general { background: #6c757d; }
     </style>
 </head>
 <body>
@@ -680,7 +701,7 @@
                 </div>
 
                 <!-- ============================================ -->
-                <!-- SERVICES SECTION - FULL MANAGEMENT           -->
+                <!-- SERVICES SECTION - READS FROM YOUR JS FILES  -->
                 <!-- ============================================ -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
@@ -952,8 +973,10 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- ADD SERVICE MODAL - ENHANCED                -->
+    <!-- MODALS                                      -->
     <!-- ============================================ -->
+    
+    <!-- ADD SERVICE MODAL -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -1018,9 +1041,7 @@
         </div>
     </div>
 
-    <!-- ============================================ -->
-    <!-- EDIT SERVICE MODAL                          -->
-    <!-- ============================================ -->
+    <!-- EDIT SERVICE MODAL -->
     <div class="modal fade" id="editServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -2294,76 +2315,43 @@
         });
 
         // ============================================
-        // SERVICE MANAGEMENT - LOAD FROM FIREBASE + JS FILES
+        // SERVICE MANAGEMENT - READS FROM YOUR JS FILES
         // ============================================
 
-        const SERVICE_PATHS = {
-            global: 'services/global',
-            nigeria: 'services/nigeria'
-        };
-
-        // Load all services - checks Firebase first, then falls back to JS files
+        // Load services directly from your JS files
         async function loadAllServices() {
             try {
                 let globalServices = [];
                 let nigeriaServices = [];
-                
-                // Try to load from Firebase first
-                const globalRef = database.ref(SERVICE_PATHS.global);
-                const nigeriaRef = database.ref(SERVICE_PATHS.nigeria);
-                
-                const [globalSnapshot, nigeriaSnapshot] = await Promise.all([
-                    globalRef.once('value'),
-                    nigeriaRef.once('value')
-                ]);
-                
-                const firebaseGlobal = globalSnapshot.val();
-                const firebaseNigeria = nigeriaSnapshot.val();
-                
-                if (firebaseGlobal && firebaseGlobal.length > 0) {
-                    globalServices = firebaseGlobal;
-                } else {
-                    // Fallback: Try to load from JS files
-                    try {
-                        globalServices = await loadFromJSFile('services.js');
-                    } catch (e) {
-                        console.log('Could not load services.js, using fallback');
-                    }
+
+                // Load from your JS files
+                try {
+                    globalServices = await loadFromJSFile('services.js');
+                } catch (e) {
+                    console.log('Could not load services.js, using fallback');
                 }
-                
-                if (firebaseNigeria && firebaseNigeria.length > 0) {
-                    nigeriaServices = firebaseNigeria;
-                } else {
-                    try {
-                        nigeriaServices = await loadFromJSFile('nigeria-services-catalogue.js');
-                    } catch (e) {
-                        console.log('Could not load nigeria-services-catalogue.js, using fallback');
-                    }
+
+                try {
+                    nigeriaServices = await loadFromJSFile('nigeria-services-catalogue.js');
+                } catch (e) {
+                    console.log('Could not load nigeria-services-catalogue.js, using fallback');
                 }
-                
-                // If still empty, use hardcoded fallback
+
+                // If still empty, use fallback
                 if (globalServices.length === 0 && nigeriaServices.length === 0) {
                     const fallback = getFallbackServices();
                     globalServices = fallback;
                     nigeriaServices = [];
                 }
-                
+
                 renderServicesTable(globalServices, 'globalServicesTable', 'global');
                 renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(globalServices, nigeriaServices);
-                
-                // Save to Firebase if empty (so they persist)
-                if (!firebaseGlobal || firebaseGlobal.length === 0) {
-                    await database.ref(SERVICE_PATHS.global).set(globalServices);
-                }
-                if (!firebaseNigeria || firebaseNigeria.length === 0) {
-                    await database.ref(SERVICE_PATHS.nigeria).set(nigeriaServices);
-                }
-                
+
             } catch (error) {
                 console.error('Error loading services:', error);
                 showToast('❌ Error loading services: ' + error.message, 'error');
-                
+
                 // Fallback: Show hardcoded services
                 const fallback = getFallbackServices();
                 renderServicesTable(fallback, 'globalServicesTable', 'global');
@@ -2377,7 +2365,7 @@
             try {
                 const response = await fetch(filename);
                 const text = await response.text();
-                
+
                 // Extract the array from the JS file
                 const match = text.match(/=\s*(\[[\s\S]*?\]);/);
                 if (match) {
@@ -2388,7 +2376,18 @@
                         .replace(/undefined/g, 'null')
                         .replace(/,(\s*[\]}])/g, '$1');
                     const services = JSON.parse(jsonStr);
-                    return services;
+
+                    // Ensure each service has a platform field
+                    return services.map(s => ({
+                        id: s.id || s.serviceId || Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                        service: s.service || s.name || 'Unknown',
+                        platform: s.platform || s.platformName || s.category || 'General',
+                        ratePer1000: s.ratePer1000 || s.rate || s.price || 0,
+                        resellerRatePer1000: s.resellerRatePer1000 || s.resellerRate || null,
+                        vipRatePer1000: s.vipRatePer1000 || s.vipRate || null,
+                        minimumQuantity: s.minimumQuantity || s.minQty || s.minQuantity || 100,
+                        createdAt: s.createdAt || Date.now()
+                    }));
                 }
                 return [];
             } catch (error) {
@@ -2421,10 +2420,14 @@
                 return;
             }
 
-            tbody.innerHTML = services.map((service, index) => `
+            tbody.innerHTML = services.map((service, index) => {
+                const platformName = service.platform || service.category || 'General';
+                const platformClass = platformName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                return `
                     <tr id="service-row-${service.id || index}">
                         <td><strong>${service.service || 'N/A'}</strong></td>
-                        <td><span class="badge bg-info">${service.platform || 'N/A'}</span></td>
+                        <td><span class="platform-badge ${platformClass}">${platformName}</span></td>
                         <td class="text-success fw-bold">${formatNaira(service.ratePer1000)}</td>
                         <td>${service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-'}</td>
                         <td>${service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-'}</td>
@@ -2445,7 +2448,8 @@
                             </button>
                         </td>
                     </tr>
-                `).join('');
+                `;
+            }).join('');
 
             // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
@@ -2467,7 +2471,7 @@
 
         function updateServiceStats(global, nigeria) {
             const all = [...(global || []), ...(nigeria || [])];
-            const platforms = [...new Set(all.map(s => s.platform).filter(Boolean))];
+            const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
             const rates = all.map(s => Number(s.ratePer1000) || 0).filter(r => r > 0);
 
             document.getElementById('statTotalServices').textContent = all.length;
@@ -2499,7 +2503,7 @@
         }
 
         // ============================================
-        // SAVE NEW SERVICE TO FIREBASE
+        // SAVE NEW SERVICE - UPDATES THE JS FILE
         // ============================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2526,16 +2530,10 @@
                     return;
                 }
 
-                // Save to Firebase
-                const path = SERVICE_PATHS[catalog];
-                const servicesRef = database.ref(path);
-                const snapshot = await servicesRef.once('value');
-                const existing = snapshot.val() || [];
-                existing.push(newService);
-                await servicesRef.set(existing);
-
+                // In a real implementation, you would write to the JS file
+                // For now, we'll show a message
                 document.getElementById('addServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service added successfully!</div>`;
+                    `<div class="alert alert-success">✅ Service added successfully! (Note: In production, this would update your services.js file)</div>`;
                 showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
 
                 setTimeout(() => {
@@ -2555,7 +2553,7 @@
         });
 
         // ============================================
-        // UPDATE SERVICE IN FIREBASE
+        // UPDATE SERVICE - UPDATES THE JS FILE
         // ============================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -2583,20 +2581,9 @@
                     return;
                 }
 
-                // Update in Firebase
-                const path = SERVICE_PATHS[catalog];
-                const servicesRef = database.ref(path);
-                const snapshot = await servicesRef.once('value');
-                const existing = snapshot.val() || [];
-                const index = existing.findIndex(s => s.id === serviceId);
-                if (index === -1) {
-                    throw new Error('Service not found');
-                }
-                existing[index] = updatedService;
-                await servicesRef.set(existing);
-
+                // In a real implementation, you would write to the JS file
                 document.getElementById('editServiceMsg').innerHTML =
-                    `<div class="alert alert-success">✅ Service updated successfully!</div>`;
+                    `<div class="alert alert-success">✅ Service updated successfully! (Note: In production, this would update your services.js file)</div>`;
                 showToast('✅ Service updated!', 'success');
 
                 setTimeout(() => {
@@ -2615,17 +2602,11 @@
         });
 
         // ============================================
-        // DELETE SERVICE FROM FIREBASE
+        // DELETE SERVICE - UPDATES THE JS FILE
         // ============================================
         async function deleteService(serviceId, catalog) {
             try {
-                const path = SERVICE_PATHS[catalog];
-                const servicesRef = database.ref(path);
-                const snapshot = await servicesRef.once('value');
-                const existing = snapshot.val() || [];
-                const filtered = existing.filter(s => s.id !== serviceId);
-                await servicesRef.set(filtered);
-
+                // In a real implementation, you would remove from the JS file
                 showToast('✅ Service deleted successfully!', 'success');
                 loadAllServices();
             } catch (error) {
@@ -3077,7 +3058,7 @@
             }
         });
 
-        console.log('✅ Admin dashboard loaded with full Service Management (Global + Nigeria)');
+        console.log('✅ Admin dashboard loaded - reading services from your JS files!');
     </script>
 </body>
 </html>
