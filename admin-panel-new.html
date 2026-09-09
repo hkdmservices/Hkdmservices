@@ -2123,60 +2123,83 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - LOAD FROM services.js USING import()
+        // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
         // ============================================================
 
         // ============================================================
-        // HELPER: Load services using import()
+        // HELPER: Load services from file (supports both catalogs)
         // ============================================================
-        async function loadServicesFromFile() {
+        async function loadServicesFromFile(catalog = 'global') {
             try {
-                const module = await import('./services.js?t=' + Date.now());
-                const services = module.hkdmservicesOfficialServicePriceCatalogue || module.default;
-                if (services && services.length > 0) {
-                    return services;
+                const filename = catalog === 'nigeria' ? './nigeria-services-catalogue.js' : './services.js';
+                const module = await import(filename + '?t=' + Date.now());
+                
+                if (catalog === 'nigeria') {
+                    return module.hkdmservicesNigeriaServicePriceCatalogue || module.default || [];
+                } else {
+                    return module.hkdmservicesOfficialServicePriceCatalogue || module.default || [];
                 }
-                return [];
             } catch (error) {
-                console.error('Error importing services.js:', error);
+                console.error('Error importing', catalog, 'services:', error);
                 return [];
             }
         }
 
         // ============================================================
-        // LOAD SERVICES - USING import()
+        // LOAD SERVICES - BOTH GLOBAL AND NIGERIA
         // ============================================================
         async function loadAllServices() {
             try {
                 console.log('🔍 Loading services using import()...');
                 
-                const module = await import('./services.js?t=' + Date.now());
-                const services = module.hkdmservicesOfficialServicePriceCatalogue || module.default;
+                let globalServices = [];
+                let nigeriaServices = [];
                 
-                if (services && services.length > 0) {
-                    console.log('✅ Loaded', services.length, 'services via import');
-                    renderServicesTable(services, 'globalServicesTable', 'global');
-                    updateServiceStats(services, []);
-                    showToast('✅ Loaded ' + services.length + ' services', 'success');
-                } else {
-                    console.warn('⚠️ No services found, using embedded');
-                    const fallback = getEmbeddedServices();
-                    renderServicesTable(fallback, 'globalServicesTable', 'global');
-                    updateServiceStats(fallback, []);
-                    showToast('⚠️ Using embedded services', 'warning');
+                // Load Global services
+                try {
+                    const globalModule = await import('./services.js?t=' + Date.now());
+                    globalServices = globalModule.hkdmservicesOfficialServicePriceCatalogue || globalModule.default || [];
+                    console.log('✅ Global services loaded:', globalServices.length);
+                } catch (e) {
+                    console.error('❌ Error loading global services:', e);
                 }
                 
+                // Load Nigeria services
+                try {
+                    const nigeriaModule = await import('./nigeria-services-catalogue.js?t=' + Date.now());
+                    nigeriaServices = nigeriaModule.hkdmservicesNigeriaServicePriceCatalogue || nigeriaModule.default || [];
+                    console.log('✅ Nigeria services loaded:', nigeriaServices.length);
+                } catch (e) {
+                    console.error('❌ Error loading Nigeria services:', e);
+                }
+                
+                // If both are empty, use embedded fallback
+                if (globalServices.length === 0 && nigeriaServices.length === 0) {
+                    console.warn('⚠️ No services loaded, using embedded fallback');
+                    globalServices = getEmbeddedServices();
+                    nigeriaServices = getEmbeddedNigeriaServices();
+                    showToast('⚠️ Using embedded services (import failed)', 'warning');
+                } else {
+                    showToast('✅ Loaded ' + globalServices.length + ' Global + ' + nigeriaServices.length + ' Nigeria services', 'success');
+                }
+                
+                renderServicesTable(globalServices, 'globalServicesTable', 'global');
+                renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
+                updateServiceStats(globalServices, nigeriaServices);
+                
             } catch (error) {
-                console.error('❌ Import error:', error);
-                const services = getEmbeddedServices();
-                renderServicesTable(services, 'globalServicesTable', 'global');
-                updateServiceStats(services, []);
-                showToast('⚠️ Using embedded services (import failed)', 'warning');
+                console.error('❌ Error loading services:', error);
+                const fallback = getEmbeddedServices();
+                const nigeriaFallback = getEmbeddedNigeriaServices();
+                renderServicesTable(fallback, 'globalServicesTable', 'global');
+                renderServicesTable(nigeriaFallback, 'nigeriaServicesTable', 'nigeria');
+                updateServiceStats(fallback, nigeriaFallback);
+                showToast('⚠️ Using embedded services (error)', 'warning');
             }
         }
 
         // ============================================================
-        // EMBEDDED SERVICES (FALLBACK ONLY)
+        // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
         // ============================================================
         function getEmbeddedServices() {
             return [
@@ -2247,6 +2270,31 @@
                 { id: "reddit_shares", platform: "Reddit", service: "Shares", ratePer1000: 2500, resellerRatePer1000: 1875, vipRatePer1000: 2250, minimumQuantity: 100 },
                 { id: "reddit_comments", platform: "Reddit", service: "Comments | Custom |", ratePer1000: 150000, resellerRatePer1000: 112500, vipRatePer1000: 135000, minimumQuantity: 100 },
                 { id: "reddit_community_members", platform: "Reddit", service: "Community Members", ratePer1000: 300000, resellerRatePer1000: 225000, vipRatePer1000: 270000, minimumQuantity: 100 }
+            ];
+        }
+
+        // ============================================================
+        // NIGERIA EMBEDDED SERVICES (FALLBACK ONLY)
+        // ============================================================
+        function getEmbeddedNigeriaServices() {
+            return [
+                { id: "n1", service: "Followers - Nigeria", platform: "Instagram", ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
+                { id: "n2", service: "Likes - Nigeria", platform: "Instagram", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n3", service: "Comments - Nigeria", platform: "Instagram", ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: "n4", service: "Views - Nigeria", platform: "Instagram", ratePer1000: 1400, resellerRatePer1000: 1100, vipRatePer1000: 900, minimumQuantity: 100 },
+                { id: "n5", service: "Followers - Nigeria", platform: "TikTok", ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+                { id: "n6", service: "Likes - Nigeria", platform: "TikTok", ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: "n7", service: "Views - Nigeria", platform: "TikTok", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n8", service: "Subscribers - Nigeria", platform: "YouTube", ratePer1000: 5500, resellerRatePer1000: 4500, vipRatePer1000: 3800, minimumQuantity: 50 },
+                { id: "n9", service: "Views - Nigeria", platform: "YouTube", ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+                { id: "n10", service: "Followers - Nigeria", platform: "Facebook", ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1700, minimumQuantity: 100 },
+                { id: "n11", service: "Likes - Nigeria", platform: "Facebook", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n12", service: "Followers - Nigeria", platform: "Telegram", ratePer1000: 4000, resellerRatePer1000: 3200, vipRatePer1000: 2800, minimumQuantity: 100 },
+                { id: "n13", service: "Followers - Nigeria", platform: "Snapchat", ratePer1000: 3200, resellerRatePer1000: 2600, vipRatePer1000: 2200, minimumQuantity: 100 },
+                { id: "n14", service: "Followers - Nigeria", platform: "Spotify", ratePer1000: 4500, resellerRatePer1000: 3600, vipRatePer1000: 3000, minimumQuantity: 100 },
+                { id: "n15", service: "Followers - Nigeria", platform: "X (Twitter)", ratePer1000: 2800, resellerRatePer1000: 2300, vipRatePer1000: 1900, minimumQuantity: 100 },
+                { id: "n16", service: "Members - Nigeria", platform: "Telegram", ratePer1000: 4000, resellerRatePer1000: 3200, vipRatePer1000: 2800, minimumQuantity: 100 },
+                { id: "n17", service: "Followers - Nigeria", platform: "Twitch", ratePer1000: 5000, resellerRatePer1000: 4000, vipRatePer1000: 3500, minimumQuantity: 50 }
             ];
         }
 
@@ -2364,10 +2412,10 @@
                     return;
                 }
 
-                // Get current services from services.js
-                let services = await loadServicesFromFile();
+                // Get current services from the correct file
+                let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
-                    services = getEmbeddedServices();
+                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 }
                 services.push(newService);
 
@@ -2431,10 +2479,10 @@
                     return;
                 }
 
-                // Get current services from services.js
-                let services = await loadServicesFromFile();
+                // Get current services from the correct file
+                let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
-                    services = getEmbeddedServices();
+                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 }
                 const index = services.findIndex(s => s.id === serviceId);
                 if (index === -1) {
@@ -2477,9 +2525,9 @@
         // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
-                let services = await loadServicesFromFile();
+                let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
-                    services = getEmbeddedServices();
+                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 }
                 services = services.filter(s => s.id !== serviceId);
 
@@ -2802,7 +2850,8 @@
             });
         });
 
-        console.log('✅ Admin dashboard loaded with import() - will load from services.js!');
+        console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
+        console.log('📊 Using import() to load services from both files.');
     </script>
 </body>
 </html>
