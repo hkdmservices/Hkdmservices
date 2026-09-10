@@ -304,6 +304,19 @@ async function loadUserInformation(user) {
         }
 
 
+        const totalInvestedEl =
+            document.getElementById("totalInvested");
+
+        if (totalInvestedEl) {
+
+            totalInvestedEl.textContent =
+                formatNaira(
+                    data.totalInvested || 0
+                );
+
+        }
+
+
     } catch (error) {
 
         console.error(
@@ -1780,7 +1793,7 @@ if (logoutBtn) {
 
 
                 window.location.href =
-                    "login.html";
+                "login.html";
 
 
             } catch (error) {
