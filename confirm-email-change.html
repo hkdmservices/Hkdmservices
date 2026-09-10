@@ -53,17 +53,18 @@
 <script>
 async function verifyEmailChange() {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
+    const uid = params.get('uid');
+    const code = params.get('code');
 
-    if (!token) {
+    if (!uid || !code) {
         document.getElementById('loadingView').classList.add('d-none');
         document.getElementById('errorView').classList.remove('d-none');
-        document.getElementById('errorMessage').textContent = 'Missing verification token.';
+        document.getElementById('errorMessage').textContent = 'Missing verification info. Please use the full link from your email.';
         return;
     }
 
     try {
-        const response = await fetch('https://hkdmservices.xyz/api-php/confirm-email-change.php?token=' + encodeURIComponent(token));
+        const response = await fetch('https://hkdmservices.xyz/api-php/confirm-email-change.php?uid=' + encodeURIComponent(uid) + '&code=' + encodeURIComponent(code));
         const result = await response.json();
 
         document.getElementById('loadingView').classList.add('d-none');
