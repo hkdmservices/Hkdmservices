@@ -461,7 +461,6 @@ if (
 
 /* =========================================================
    LOAD ORDERS (INDEX-QUERY FIX)
-   ✅ FIXED: Uses serviceName instead of service
 ========================================================= */
 
 async function loadRecentOrders(uid) {
@@ -541,7 +540,6 @@ async function loadRecentOrders(uid) {
                         <tbody>
         `;
 
-        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
 
@@ -565,7 +563,6 @@ async function loadRecentOrders(uid) {
 
         let mobileHtml = `<div class="d-md-none">`;
 
-        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
 
@@ -1250,7 +1247,7 @@ async function evaluateAndRenderUserTier(
 
 
 /* =========================================================
-   REQUEST TIER UPGRADE
+   REQUEST TIER UPGRADE (VIP) — Uses PHP endpoint
 ========================================================= */
 
 async function requestTierUpgrade(
@@ -1276,54 +1273,64 @@ async function requestTierUpgrade(
             auth.currentUser;
 
 
-        const requestsRef =
-            ref(
-                database,
-                "tierRequests"
+        if (!userAuth) {
+
+            alert("Please log in.");
+
+            return;
+
+        }
+
+
+        const idToken =
+            await userAuth.getIdToken(
+                true
             );
 
 
-        const newReqRef =
-            push(
-                requestsRef
+        const response =
+            await fetch(
+                "https://hkdmservices.xyz/api-php/request-vip.php",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${idToken}`,
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            details:
+                                details
+                        })
+
+                }
             );
 
 
-        await set(
-            newReqRef,
-            {
+        const result =
+            await response.json();
 
-                userId:
-                    userId,
 
-                userEmail:
-                    userAuth
-                        ? userAuth.email
-                        : "Unknown",
+        if (
+            !response.ok ||
+            !result.success
+        ) {
 
-                currentTier:
-                    document
-                        .getElementById(
-                            "user-current-tier-badge"
-                        )
-                        ?.innerText
-                        .toLowerCase() ||
-                    "regular",
+            throw new Error(
+                result.message ||
+                "Failed to submit request."
+            );
 
-                requestedTier:
-                    requestedTier,
-
-                details:
-                    details,
-
-                status:
-                    "pending",
-
-                timestamp:
-                    Date.now()
-
-            }
-        );
+        }
 
 
         alert(
@@ -1343,7 +1350,8 @@ async function requestTierUpgrade(
 
 
         alert(
-            "Failed to submit request."
+            "Failed to submit request: " +
+            err.message
         );
 
     }
@@ -1543,9 +1551,10 @@ if (confirmResellerPaymentBtn) {
                     );
 
 
+                // ✅ FIXED: Points to the correct PHP endpoint
                 const response =
                     await fetch(
-                        "/api/unlock-reseller",
+                        "https://hkdmservices.xyz/api-php/unlock-reseller.php",
                         {
 
                             method:
