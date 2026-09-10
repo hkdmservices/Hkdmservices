@@ -88,7 +88,7 @@ html[data-theme="dark"] .border-end {
 }
 
 /* =====================================================
-   MASTER THEME TOGGLE BUTTON (iPhone-friendly)
+   MASTER THEME TOGGLE BUTTON
 ===================================================== */
 .theme-toggle {
     width: 42px;
@@ -168,7 +168,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 </head>
 <body>
 
-<!-- Dashboard Side Panel Toggle -->
 <button id="dashboardToggle" class="dashboard-toggle" type="button" aria-label="Open dashboard menu" aria-controls="dashboardPanel" aria-expanded="false">
     <i class="bi bi-list"></i>
 </button>
@@ -196,7 +195,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
     </div>
 </div>
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold" href="index.html">
@@ -223,7 +221,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
             <span id="userName">User</span>
         </h1>
 
-        <!-- Admin-Only Product Creator Section -->
         <div class="row mb-4" id="adminProductCreatorRow" style="display: none;">
             <div class="col-12">
                 <div class="card p-4 shadow border-success">
@@ -264,7 +261,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
         </div>
 
         <div class="row g-4 mb-4">
-            <!-- Wallet Balance Card -->
             <div class="col-12 col-md-6">
                 <div class="card p-4 shadow h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -392,7 +388,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
     </div>
 </section>
 
-<!-- Reseller Modal -->
 <div class="modal fade" id="resellerModal" tabindex="-1" aria-labelledby="resellerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -420,7 +415,9 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-     THEME TOGGLE — iPhone-friendly (fixed single + double tap)
+     THEME TOGGLE — DEBUG VERSION
+     🚨 TEMPORARY: shows red debug box at bottom-left
+     Tap the icon and send me a screenshot of the red box
 ============================================================ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -428,139 +425,89 @@ document.addEventListener('DOMContentLoaded', function() {
     const icon = document.getElementById('themeIcon');
     const indicator = document.getElementById('autoIndicator');
 
-    if (!toggleBtn) return;
+    if (!toggleBtn) {
+        alert('❌ themeToggle button not found in HTML');
+        return;
+    }
 
     // ============================================================
-    // LISTEN FOR THEME CHANGES (from theme.js)
+    // ON-SCREEN DEBUG COUNTER (bottom-left corner)
+    // ============================================================
+    const debugBox = document.createElement('div');
+    debugBox.style.cssText = `
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        z-index: 999999;
+        background: #ff0000;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        pointer-events: none;
+        max-width: 280px;
+    `;
+    debugBox.innerHTML = 'DEBUG: waiting...';
+    document.body.appendChild(debugBox);
+
+    let touchStartCount = 0;
+    let touchEndCount = 0;
+    let clickCount = 0;
+    let pointerCount = 0;
+    let lastEvent = 'none';
+
+    function updateDebug() {
+        debugBox.innerHTML = `
+            <b>DEBUG</b><br>
+            touchstart: ${touchStartCount}<br>
+            touchend: ${touchEndCount}<br>
+            click: ${clickCount}<br>
+            pointer: ${pointerCount}<br>
+            last: ${lastEvent}
+        `;
+    }
+
+    // ============================================================
+    // TRACK EVERY POSSIBLE EVENT
+    // ============================================================
+    toggleBtn.addEventListener('touchstart', function() {
+        touchStartCount++;
+        lastEvent = 'touchstart';
+        updateDebug();
+        console.log('🔥 touchstart fired');
+    }, { passive: true });
+
+    toggleBtn.addEventListener('touchend', function() {
+        touchEndCount++;
+        lastEvent = 'touchend';
+        updateDebug();
+        console.log('🔥 touchend fired');
+    }, { passive: true });
+
+    toggleBtn.addEventListener('click', function() {
+        clickCount++;
+        lastEvent = 'click';
+        updateDebug();
+        console.log('🔥 click fired');
+    });
+
+    toggleBtn.addEventListener('pointerdown', function(e) {
+        pointerCount++;
+        lastEvent = 'pointerdown (' + e.pointerType + ')';
+        updateDebug();
+        console.log('🔥 pointerdown fired', e.pointerType);
+    });
+
+    // ============================================================
+    // THEME CHANGE LISTENER
     // ============================================================
     document.addEventListener('themeChanged', function(e) {
-        const { theme, isAuto } = e.detail;
-        if (icon) {
-            icon.className = theme === 'dark' ? 'bi bi-sun-fill theme-icon' : 'bi bi-moon-stars-fill theme-icon';
-        }
-        if (indicator) {
-            indicator.style.display = isAuto ? 'flex' : 'none';
-        }
-        const mode = theme === 'dark' ? 'Dark' : 'Light';
-        toggleBtn.title = isAuto ? `Theme: ${mode} (Auto: ON)` : `Theme: ${mode} (Manual)`;
+        console.log('🎨 themeChanged event:', e.detail);
     });
 
-    // ============================================================
-    // UNIFIED TAP DETECTION
-    // Uses touchstart on mobile, click on desktop — never both
-    // ============================================================
-    let lastTapTime = 0;
-    let singleTapTimer = null;
-    const DOUBLE_TAP_WINDOW = 280;
-
-    // Detect if device is touch-capable
-    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
-    function processTap() {
-        const now = Date.now();
-        const gap = now - lastTapTime;
-        lastTapTime = now;
-
-        // If second tap came quickly → double tap
-        if (gap > 0 && gap < DOUBLE_TAP_WINDOW) {
-            // Cancel pending single tap
-            if (singleTapTimer) {
-                clearTimeout(singleTapTimer);
-                singleTapTimer = null;
-            }
-            lastTapTime = 0;
-
-            console.log('👆👆 Double tap → Auto mode');
-
-            if (typeof window.enableAutoTheme === 'function') {
-                window.enableAutoTheme();
-            }
-            showFeedback('🔄 Auto mode enabled', '#198754');
-            return;
-        }
-
-        // Otherwise, this is the first tap → schedule single tap
-        if (singleTapTimer) clearTimeout(singleTapTimer);
-        singleTapTimer = setTimeout(function() {
-            console.log('👆 Single tap → toggle + hint');
-
-            if (typeof window.toggleTheme === 'function') {
-                window.toggleTheme();
-            }
-            if (typeof window.showThemeAutoHint === 'function') {
-                window.showThemeAutoHint();
-            } else {
-                console.warn('⚠️ showThemeAutoHint missing in theme.js');
-            }
-
-            singleTapTimer = null;
-            lastTapTime = 0;
-        }, DOUBLE_TAP_WINDOW);
-    }
-
-    // ============================================================
-    // ATTACH — only ONE handler fires per tap
-    // ============================================================
-    if (isTouchDevice) {
-        // Mobile: use touchstart (fires instantly, no delay)
-        toggleBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            processTap();
-        }, { passive: false });
-    } else {
-        // Desktop: use click
-        toggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            processTap();
-        });
-    }
-
-    // Block double-tap zoom on the button
-    toggleBtn.addEventListener('dblclick', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
-    // ============================================================
-    // FEEDBACK TOAST
-    // ============================================================
-    function showFeedback(text, bg) {
-        const t = document.createElement('div');
-        t.textContent = text;
-        t.style.cssText = `
-            position: fixed; bottom: 90px; right: 20px;
-            z-index: 2147483647; padding: 12px 18px;
-            background: ${bg}; color: #fff;
-            border-radius: 10px; font-size: 14px;
-            font-family: system-ui, -apple-system, sans-serif;
-            opacity: 0; transition: opacity 0.3s ease;
-            pointer-events: none; user-select: none;
-        `;
-        document.body.appendChild(t);
-        requestAnimationFrame(() => { t.style.opacity = '1'; });
-        setTimeout(() => {
-            t.style.opacity = '0';
-            setTimeout(() => t.remove(), 300);
-        }, 2000);
-    }
-
-    // ============================================================
-    // SYNC ON LOAD
-    // ============================================================
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const isAuto = localStorage.getItem('hkdmservices_theme_auto') !== 'false';
-    if (icon) {
-        icon.className = currentTheme === 'dark' ? 'bi bi-sun-fill theme-icon' : 'bi bi-moon-stars-fill theme-icon';
-    }
-    if (indicator) {
-        indicator.style.display = isAuto ? 'flex' : 'none';
-    }
-    const mode = currentTheme === 'dark' ? 'Dark' : 'Light';
-    toggleBtn.title = isAuto ? `Theme: ${mode} (Auto: ON)` : `Theme: ${mode} (Manual)`;
-
-    console.log('✅ Theme toggle ready. Device:', isTouchDevice ? 'Touch' : 'Desktop');
+    console.log('✅ DEBUG version loaded. Tap the icon and watch the red box.');
 });
 </script>
 
@@ -674,9 +621,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<!-- ============================================================
-     ROLE VERIFICATION (Admin controls)
-============================================================ -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const listForm = document.getElementById("adminListAccountForm");
