@@ -420,7 +420,7 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-     THEME TOGGLE — iPhone-friendly tap detection (Chrome + Safari)
+     THEME TOGGLE — iPhone-friendly (fixed single + double tap)
 ============================================================ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -446,30 +446,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // TAP DETECTION — works on iPhone Chrome + Safari
+    // UNIFIED TAP DETECTION
+    // Uses touchstart on mobile, click on desktop — never both
     // ============================================================
-    let tapCount = 0;
-    let tapTimer = null;
     let lastTapTime = 0;
-    const DOUBLE_TAP_WINDOW = 300;
+    let singleTapTimer = null;
+    const DOUBLE_TAP_WINDOW = 280;
 
-    function handleTap(e) {
-        if (e && e.cancelable) e.preventDefault();
-        e.stopPropagation();
+    // Detect if device is touch-capable
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
+    function processTap() {
         const now = Date.now();
-        const timeSinceLast = now - lastTapTime;
+        const gap = now - lastTapTime;
         lastTapTime = now;
 
-        // Double tap detected
-        if (timeSinceLast > 0 && timeSinceLast < DOUBLE_TAP_WINDOW) {
-            if (tapTimer) {
-                clearTimeout(tapTimer);
-                tapTimer = null;
+        // If second tap came quickly → double tap
+        if (gap > 0 && gap < DOUBLE_TAP_WINDOW) {
+            // Cancel pending single tap
+            if (singleTapTimer) {
+                clearTimeout(singleTapTimer);
+                singleTapTimer = null;
             }
-            tapCount = 0;
+            lastTapTime = 0;
 
-            console.log('👆👆 Double tap detected → enabling Auto');
+            console.log('👆👆 Double tap → Auto mode');
 
             if (typeof window.enableAutoTheme === 'function') {
                 window.enableAutoTheme();
@@ -478,12 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Single tap — wait to make sure no second tap
-        tapCount++;
-        if (tapTimer) clearTimeout(tapTimer);
-
-        tapTimer = setTimeout(function() {
-            console.log('👆 Single tap → toggling theme + showing hint');
+        // Otherwise, this is the first tap → schedule single tap
+        if (singleTapTimer) clearTimeout(singleTapTimer);
+        singleTapTimer = setTimeout(function() {
+            console.log('👆 Single tap → toggle + hint');
 
             if (typeof window.toggleTheme === 'function') {
                 window.toggleTheme();
@@ -491,35 +490,42 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.showThemeAutoHint === 'function') {
                 window.showThemeAutoHint();
             } else {
-                console.warn('⚠️ showThemeAutoHint missing — check theme.js');
+                console.warn('⚠️ showThemeAutoHint missing in theme.js');
             }
 
-            tapCount = 0;
-            tapTimer = null;
+            singleTapTimer = null;
+            lastTapTime = 0;
         }, DOUBLE_TAP_WINDOW);
     }
 
-    // Use touchend on touch devices (more reliable on iPhone)
-    let touchHandled = false;
-    toggleBtn.addEventListener('touchend', function(e) {
-        touchHandled = true;
-        handleTap(e);
-        setTimeout(() => { touchHandled = false; }, 400);
-    }, { passive: false });
+    // ============================================================
+    // ATTACH — only ONE handler fires per tap
+    // ============================================================
+    if (isTouchDevice) {
+        // Mobile: use touchstart (fires instantly, no delay)
+        toggleBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            processTap();
+        }, { passive: false });
+    } else {
+        // Desktop: use click
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            processTap();
+        });
+    }
 
-    // Fallback for desktop / non-touch
-    toggleBtn.addEventListener('click', function(e) {
-        if (touchHandled) return;
-        handleTap(e);
-    });
-
-    // Block the browser's double-tap zoom
+    // Block double-tap zoom on the button
     toggleBtn.addEventListener('dblclick', function(e) {
         e.preventDefault();
         e.stopPropagation();
     });
 
-    // Simple feedback toast
+    // ============================================================
+    // FEEDBACK TOAST
+    // ============================================================
     function showFeedback(text, bg) {
         const t = document.createElement('div');
         t.textContent = text;
@@ -540,7 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2000);
     }
 
-    // Sync on load
+    // ============================================================
+    // SYNC ON LOAD
+    // ============================================================
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const isAuto = localStorage.getItem('hkdmservices_theme_auto') !== 'false';
     if (icon) {
@@ -552,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mode = currentTheme === 'dark' ? 'Dark' : 'Light';
     toggleBtn.title = isAuto ? `Theme: ${mode} (Auto: ON)` : `Theme: ${mode} (Manual)`;
 
-    console.log('✅ Theme toggle ready. Mode:', isAuto ? 'Auto' : 'Manual');
+    console.log('✅ Theme toggle ready. Device:', isTouchDevice ? 'Touch' : 'Desktop');
 });
 </script>
 
