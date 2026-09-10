@@ -950,6 +950,23 @@ async function evaluateAndRenderUserTier(
         const userData =
             userSnap.val() || {};
 
+        // ✅ ADDED: Show actual data from Firebase
+        console.log("[TIER DEBUG] userData:", userData);
+        console.log("[TIER DEBUG] tier:", userData.tier);
+        console.log("[TIER DEBUG] wallet:", userData.wallet);
+        console.log("[TIER DEBUG] totalSpent:", userData.totalSpent);
+
+        if (actionContainerDebug) {
+            actionContainerDebug.innerHTML = `
+                <p style="color:orange; margin:0; font-size:0.7rem; word-break:break-all; line-height:1.4;">
+                    <strong>UID:</strong> ${userId}<br>
+                    <strong>Tier:</strong> ${userData.tier || "MISSING"}<br>
+                    <strong>Wallet:</strong> ${userData.wallet || "MISSING"}<br>
+                    <strong>totalSpent:</strong> ${userData.totalSpent || "MISSING"}
+                </p>
+            `;
+        }
+
 
         const currentTier =
             (
