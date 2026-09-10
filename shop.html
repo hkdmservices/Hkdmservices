@@ -9,46 +9,31 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <style>
-        html[data-theme="dark"] body {
-            background: #101418;
-            color: #f1f3f5;
-        }
-        html[data-theme="dark"] .card {
-            background: #181d22 !important;
-            border-color: #30363d !important;
-            color: #f1f3f5 !important;
-        }
-        html[data-theme="dark"] .card-footer {
-            background: #151a1f !important;
-            border-color: #30363d !important;
-        }
-        html[data-theme="dark"] .text-muted {
-            color: #99a1ab !important;
-        }
-        .theme-toggle {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.25);
-            background: rgba(255,255,255,0.08);
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-        .theme-toggle:hover {
-            background: rgba(255,255,255,0.18);
-            transform: rotate(15deg);
-        }
+        /* =====================================================
+           DARK MODE OVERRIDES
+        ===================================================== */
+        html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
+        html[data-theme="dark"] nav.navbar { background: #080a0c !important; }
+        html[data-theme="dark"] .card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
+        html[data-theme="dark"] .card-footer { background: #151a1f !important; border-color: #30363d !important; }
+        html[data-theme="dark"] .text-muted { color: #99a1ab !important; }
+        html[data-theme="dark"] .text-dark { color: #f1f3f5 !important; }
+        html[data-theme="dark"] .bg-dark { background: #0d1117 !important; }
+        html[data-theme="dark"] .modal-content { background: #181d22; color: #f1f3f5; border-color: #30363d; }
+        html[data-theme="dark"] .modal-header, html[data-theme="dark"] .modal-footer { border-color: #30363d; }
+
+        /* =====================================================
+           PRODUCT CARDS
+        ===================================================== */
         .product-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             height: 100%;
         }
         .product-card:hover {
             transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        html[data-theme="dark"] .product-card:hover {
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
         .product-card .platform-badge {
@@ -69,6 +54,10 @@
             padding: 3px 10px;
             border-radius: 20px;
         }
+
+        /* =====================================================
+           FILTER SECTION
+        ===================================================== */
         .filter-section {
             display: flex;
             gap: 8px;
@@ -85,35 +74,55 @@
             color: #fff;
             border-color: #198754;
         }
+
+        /* =====================================================
+           WALLET DISPLAY
+        ===================================================== */
         .wallet-display {
-            background: #161b22;
-            border: 1px solid #30363d;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
             border-radius: 10px;
             padding: 12px 20px;
             display: inline-flex;
             align-items: center;
             gap: 12px;
+            transition: background 0.4s ease, border-color 0.4s ease;
         }
         .wallet-display .balance {
             font-size: 1.2rem;
             font-weight: bold;
             color: #198754;
         }
+        html[data-theme="dark"] .wallet-display {
+            background: #161b22;
+            border-color: #30363d;
+        }
+
+        /* =====================================================
+           EMPTY STATE
+        ===================================================== */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
         }
         .empty-state i {
             font-size: 4rem;
-            color: #30363d;
+            color: #ced4da;
         }
         .empty-state h3 {
             margin-top: 20px;
-            color: #f1f3f5;
+            color: #212529;
         }
         .empty-state p {
-            color: #8b949e;
+            color: #6c757d;
         }
+        html[data-theme="dark"] .empty-state i { color: #30363d; }
+        html[data-theme="dark"] .empty-state h3 { color: #f1f3f5; }
+        html[data-theme="dark"] .empty-state p { color: #8b949e; }
+
+        /* =====================================================
+           TOASTS
+        ===================================================== */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -121,19 +130,39 @@
             z-index: 9999;
         }
         .toast-custom {
-            background: #161b22;
-            color: #f1f3f5;
-            border: 1px solid #30363d;
+            background: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 16px 20px;
             margin-top: 10px;
             min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .toast-success { border-left: 4px solid #198754; }
-        .toast-error { border-left: 4px solid #f85149; }
-        .toast-info { border-left: 4px solid #58a6ff; }
-        .toast-warning { border-left: 4px solid #d29922; }
+        .toast-error { border-left: 4px solid #dc3545; }
+        .toast-info { border-left: 4px solid #0d6efd; }
+        .toast-warning { border-left: 4px solid #fd7e14; }
+        html[data-theme="dark"] .toast-custom {
+            background: #161b22;
+            color: #f1f3f5;
+            border-color: #30363d;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        /* =====================================================
+           MODAL DETAIL ROWS
+        ===================================================== */
+        .modal-body .bg-dark {
+            background: #f8f9fa !important;
+            color: #212529;
+        }
+        .modal-body .bg-dark .text-muted { color: #6c757d !important; }
+        html[data-theme="dark"] .modal-body .bg-dark {
+            background: #0d1117 !important;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .modal-body .bg-dark .text-muted { color: #8b949e !important; }
     </style>
 </head>
 <body>
@@ -145,9 +174,7 @@
             <span class="brand-icon">⬢</span> HKDMservices
         </a>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-                <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
-            </button>
+            <!-- NO THEME TOGGLE — controlled from dashboard -->
             <a href="dashboard.html" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-arrow-left"></i> Dashboard
             </a>
@@ -316,7 +343,6 @@
         }
         currentUser = user;
         
-        // Load user wallet
         const userRef = ref(database, 'users/' + user.uid);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
@@ -325,7 +351,6 @@
             walletBalanceEl.textContent = formatNaira(userWallet);
         }
 
-        // Load products
         loadProducts();
     });
 
@@ -373,14 +398,14 @@
 
         productsGrid.innerHTML = filtered.map(product => `
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="card product-card bg-dark border-secondary position-relative">
+                <div class="card product-card border-secondary position-relative">
                     <span class="platform-badge bg-info text-dark">${product.platform || 'N/A'}</span>
                     <div class="card-body">
                         <h5 class="card-title">${product.title || 'N/A'}</h5>
                         <p class="card-text text-muted small">${product.description || 'No description'}</p>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="price">${formatNaira(product.price)}</span>
-                            <span class="status-badge bg-success">Available</span>
+                            <span class="status-badge bg-success text-white">Available</span>
                         </div>
                     </div>
                     <div class="card-footer bg-transparent border-secondary">
@@ -396,14 +421,11 @@
             </div>
         `).join('');
 
-        // Attach buy events
         document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.key;
                 const product = allProducts.find(p => p.key === key);
-                if (product) {
-                    openPurchaseModal(product);
-                }
+                if (product) openPurchaseModal(product);
             });
         });
     }
@@ -439,7 +461,7 @@
     }
 
     // ============================================
-    // CONFIRM PURCHASE - SEND CREDENTIALS VIA EMAIL
+    // CONFIRM PURCHASE
     // ============================================
     document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
         const product = selectedProduct;
@@ -452,7 +474,6 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
         try {
-            // Check if user has enough balance
             if (userWallet < product.price) {
                 msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
                 btn.disabled = false;
@@ -460,16 +481,13 @@
                 return;
             }
 
-            // 1️⃣ Deduct wallet
             const newWallet = userWallet - product.price;
             await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
             userWallet = newWallet;
             walletBalanceEl.textContent = formatNaira(userWallet);
 
-            // 2️⃣ Update product status to sold
             await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
 
-            // 3️⃣ Create order
             const orderId = 'SHOP-' + Date.now();
             const orderData = {
                 uid: currentUser.uid,
@@ -484,7 +502,6 @@
             };
             await set(ref(database, 'orders/' + orderId), orderData);
 
-            // 4️⃣ Create transaction
             const transactionId = 'TXN-' + Date.now();
             const transactionData = {
                 uid: currentUser.uid,
@@ -497,13 +514,10 @@
             };
             await set(ref(database, 'transactions/' + transactionId), transactionData);
 
-            // ✅ 5️⃣ SEND CREDENTIALS VIA EMAIL (with error handling)
             try {
                 const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: currentUser.email,
                         platform: product.platform || 'N/A',
@@ -531,7 +545,6 @@
                     `;
                     showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
                 } else {
-                    // Email failed but purchase is complete
                     msgDiv.innerHTML = `
                         <div class="alert alert-success">✅ Purchase successful!</div>
                         <div class="alert alert-warning">
@@ -545,7 +558,6 @@
                     showToast(`⚠️ Purchase complete but email failed`, 'warning');
                 }
             } catch (emailError) {
-                // Email fetch failed
                 console.error('Email error:', emailError);
                 msgDiv.innerHTML = `
                     <div class="alert alert-success">✅ Purchase successful!</div>
@@ -560,14 +572,12 @@
                 showToast(`⚠️ Purchase complete but email failed`, 'warning');
             }
 
-            // Delete credentials from shop after sending (for security)
             await set(ref(database, 'shop/' + product.key + '/login'), null);
             await set(ref(database, 'shop/' + product.key + '/password'), null);
             
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
 
-            // Reload products after delay
             setTimeout(() => {
                 bootstrap.Modal.getInstance(document.getElementById('confirmPurchaseModal')).hide();
                 loadProducts();
@@ -582,7 +592,7 @@
     });
 
     // ============================================
-    // WALLET LISTENER (Real-time updates)
+    // WALLET LISTENER
     // ============================================
     if (currentUser) {
         const userRef = ref(database, 'users/' + currentUser.uid + '/wallet');
@@ -595,7 +605,7 @@
         });
     }
 
-    console.log('✅ Shop page loaded with email delivery!');
+    console.log('✅ Shop page loaded!');
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
