@@ -1,6 +1,7 @@
 // ============================================================
 // MASTER THEME CONTROLLER - HKDMservices
-// Works on iPhone Chrome + Safari, Android, Desktop
+// Single tap: toggle theme + show hint
+// Double tap: re-enable auto mode
 // ============================================================
 (function() {
     'use strict';
@@ -64,7 +65,8 @@
     }
 
     // ============================================================
-    // HINT TOAST — bulletproof for iPhone
+    // HINT TOAST — "Double tap for Auto switch"
+    // Shows for 5 seconds on single tap
     // ============================================================
     let hintTimeout = null;
     let hintElement = null;
@@ -90,8 +92,6 @@
             position: fixed !important;
             bottom: 90px !important;
             right: 20px !important;
-            left: auto !important;
-            top: auto !important;
             z-index: 2147483647 !important;
             background: ${isDark ? '#161b22' : '#ffffff'} !important;
             color: ${isDark ? '#f1f3f5' : '#212529'} !important;
@@ -114,7 +114,6 @@
 
         document.body.appendChild(hintElement);
 
-        // Force reflow to make sure transition works
         void hintElement.offsetHeight;
 
         requestAnimationFrame(() => {
