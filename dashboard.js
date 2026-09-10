@@ -1560,9 +1560,10 @@ if (confirmResellerPaymentBtn) {
                     );
 
 
+                // ✅ FIXED: Correct endpoint path
                 const response =
                     await fetch(
-                        "/api/unlock-reseller",
+                        "/api-php/unlock-reseller.php",
                         {
 
                             method:
