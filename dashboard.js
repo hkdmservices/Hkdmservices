@@ -21,10 +21,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 
-// =========================================================
-//   SESSION PERSISTENCE FIX
-// =========================================================
-
 setPersistence(auth, browserLocalPersistence).catch((error) => {
     console.error("Persistence error:", error);
 });
@@ -35,41 +31,18 @@ setPersistence(auth, browserLocalPersistence).catch((error) => {
    ELEMENTS
 ========================================================= */
 
-const userName =
-    document.getElementById("userName");
-
-const walletBalance =
-    document.getElementById("walletBalance");
-
-const ordersCount =
-    document.getElementById("ordersCount");
-
-const recentOrders =
-    document.getElementById("recentOrders");
-
-const logoutBtn =
-    document.getElementById("logout");
-
-const redeemVoucherForm =
-    document.getElementById("redeemVoucherForm");
-
-const redeemCodeInput =
-    document.getElementById("redeemCodeInput");
-
-const redeemMsg =
-    document.getElementById("redeemMsg");
-
-const referralLinkInput =
-    document.getElementById("referralLinkInput");
-
-const copyRefBtn =
-    document.getElementById("copyRefBtn");
-
-const totalReferralsEl =
-    document.getElementById("totalReferrals");
-
-const totalEarningsEl =
-    document.getElementById("totalEarnings");
+const userName = document.getElementById("userName");
+const walletBalance = document.getElementById("walletBalance");
+const ordersCount = document.getElementById("ordersCount");
+const recentOrders = document.getElementById("recentOrders");
+const logoutBtn = document.getElementById("logout");
+const redeemVoucherForm = document.getElementById("redeemVoucherForm");
+const redeemCodeInput = document.getElementById("redeemCodeInput");
+const redeemMsg = document.getElementById("redeemMsg");
+const referralLinkInput = document.getElementById("referralLinkInput");
+const copyRefBtn = document.getElementById("copyRefBtn");
+const totalReferralsEl = document.getElementById("totalReferrals");
+const totalEarningsEl = document.getElementById("totalEarnings");
 
 
 
@@ -78,16 +51,10 @@ const totalEarningsEl =
 ========================================================= */
 
 function formatNaira(amount) {
-
-    return "₦" +
-        Number(amount || 0).toLocaleString(
-            "en-NG",
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        );
-
+    return "₦" + Number(amount || 0).toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
 
 
@@ -97,22 +64,11 @@ function formatNaira(amount) {
 ========================================================= */
 
 function formatDate(timestamp) {
-
-    if (!timestamp) {
-
-        return "—";
-
-    }
-
-
-    return new Date(timestamp).toLocaleString(
-        "en-NG",
-        {
-            dateStyle: "medium",
-            timeStyle: "short"
-        }
-    );
-
+    if (!timestamp) return "—";
+    return new Date(timestamp).toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
 }
 
 
@@ -122,94 +78,31 @@ function formatDate(timestamp) {
 ========================================================= */
 
 function statusBadge(status) {
+    const safeStatus = String(status || "pending").toLowerCase().trim();
+    let badgeClass = "bg-warning text-dark";
+    let displayText = "Pending";
 
-    const safeStatus =
-        String(
-            status || "pending"
-        )
-        .toLowerCase()
-        .trim();
-
-
-    let badgeClass =
-        "bg-warning text-dark";
-
-
-    let displayText =
-        "Pending";
-
-
-    if (
-        safeStatus === "refund" ||
-        safeStatus === "refunded"
-    ) {
-
-        badgeClass =
-            "bg-warning text-dark";
-
-        displayText =
-            "Refunded";
-
-    } else if (
-        safeStatus === "pending"
-    ) {
-
-        badgeClass =
-            "bg-warning text-dark";
-
-        displayText =
-            "Pending";
-
-    } else if (
-        safeStatus === "processing"
-    ) {
-
-        badgeClass =
-            "bg-info text-dark";
-
-        displayText =
-            "Processing";
-
-    } else if (
-        safeStatus === "completed"
-    ) {
-
-        badgeClass =
-            "bg-success";
-
-        displayText =
-            "Completed";
-
-    } else if (
-        safeStatus === "cancelled" ||
-        safeStatus === "failed"
-    ) {
-
-        badgeClass =
-            "bg-danger";
-
-        displayText =
-            safeStatus.charAt(0).toUpperCase() +
-            safeStatus.slice(1);
-
+    if (safeStatus === "refund" || safeStatus === "refunded") {
+        badgeClass = "bg-warning text-dark";
+        displayText = "Refunded";
+    } else if (safeStatus === "pending") {
+        badgeClass = "bg-warning text-dark";
+        displayText = "Pending";
+    } else if (safeStatus === "processing") {
+        badgeClass = "bg-info text-dark";
+        displayText = "Processing";
+    } else if (safeStatus === "completed") {
+        badgeClass = "bg-success";
+        displayText = "Completed";
+    } else if (safeStatus === "cancelled" || safeStatus === "failed") {
+        badgeClass = "bg-danger";
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     } else {
-
-        badgeClass =
-            "bg-warning text-dark";
-
-        displayText =
-            safeStatus.charAt(0).toUpperCase() +
-            safeStatus.slice(1);
-
+        badgeClass = "bg-warning text-dark";
+        displayText = safeStatus.charAt(0).toUpperCase() + safeStatus.slice(1);
     }
 
-
-    return `
-        <span class="badge ${badgeClass}">
-            ${displayText}
-        </span>
-    `;
-
+    return `<span class="badge ${badgeClass}">${displayText}</span>`;
 }
 
 
@@ -219,96 +112,28 @@ function statusBadge(status) {
 ========================================================= */
 
 async function loadUserInformation(user) {
-
     try {
-
-        const userRef =
-            ref(
-                database,
-                "users/" + user.uid
-            );
-
-
-        const snapshot =
-            await get(userRef);
-
+        const userRef = ref(database, "users/" + user.uid);
+        const snapshot = await get(userRef);
 
         if (!snapshot.exists()) {
-
-            console.warn(
-                "USER DATA NOT FOUND"
-            );
-
-
-            if (userName) {
-
-                userName.textContent =
-                    user.displayName ||
-                    "User";
-
-            }
-
-
+            console.warn("USER DATA NOT FOUND");
+            if (userName) userName.textContent = user.displayName || "User";
             return;
-
         }
 
+        const data = snapshot.val();
 
-        const data =
-            snapshot.val();
+        if (userName) userName.textContent = data.fullName || user.displayName || "User";
+        if (walletBalance) walletBalance.textContent = formatNaira(data.wallet);
 
-
-        if (userName) {
-
-            userName.textContent =
-                data.fullName ||
-                user.displayName ||
-                "User";
-
-        }
-
-
-        if (walletBalance) {
-
-            walletBalance.textContent =
-                formatNaira(
-                    data.wallet
-                );
-
-        }
-
-
-        const totalSpentEl =
-            document.getElementById("totalSpent");
-
-        if (totalSpentEl) {
-
-            totalSpentEl.textContent =
-                formatNaira(
-                    data.totalSpent || 0
-                );
-
-        }
-
+        const totalSpentEl = document.getElementById("totalSpent");
+        if (totalSpentEl) totalSpentEl.textContent = formatNaira(data.totalSpent || 0);
 
     } catch (error) {
-
-        console.error(
-            "USER DATA ERROR:",
-            error
-        );
-
-
-        if (userName) {
-
-            userName.textContent =
-                user.displayName ||
-                "User";
-
-        }
-
+        console.error("USER DATA ERROR:", error);
+        if (userName) userName.textContent = user.displayName || "User";
     }
-
 }
 
 
@@ -318,67 +143,23 @@ async function loadUserInformation(user) {
 ========================================================= */
 
 async function loadReferralInformation(uid) {
-
     try {
-
-        const userRef =
-            ref(
-                database,
-                "users/" + uid
-            );
-
-
-        const snapshot =
-            await get(userRef);
-
+        const userRef = ref(database, "users/" + uid);
+        const snapshot = await get(userRef);
 
         if (snapshot.exists()) {
-
-            const data =
-                snapshot.val();
-
-
-            const refCode =
-                data.referralCode ||
-                uid;
-
+            const data = snapshot.val();
+            const refCode = data.referralCode || uid;
 
             if (referralLinkInput) {
-
-                referralLinkInput.value =
-                    `https://hkdmservices.xyz/register.html?ref=${refCode}`;
-
+                referralLinkInput.value = `https://hkdmservices.xyz/register.html?ref=${refCode}`;
             }
-
-
-            if (totalReferralsEl) {
-
-                totalReferralsEl.textContent =
-                    data.totalReferrals || 0;
-
-            }
-
-
-            if (totalEarningsEl) {
-
-                totalEarningsEl.textContent =
-                    formatNaira(
-                        data.totalReferralEarnings || 0
-                    );
-
-            }
-
+            if (totalReferralsEl) totalReferralsEl.textContent = data.totalReferrals || 0;
+            if (totalEarningsEl) totalEarningsEl.textContent = formatNaira(data.totalReferralEarnings || 0);
         }
-
     } catch (error) {
-
-        console.error(
-            "REFERRAL DATA ERROR:",
-            error
-        );
-
+        console.error("REFERRAL DATA ERROR:", error);
     }
-
 }
 
 
@@ -387,98 +168,38 @@ async function loadReferralInformation(uid) {
    COPY REFERRAL LINK
 ========================================================= */
 
-if (
-    copyRefBtn &&
-    referralLinkInput
-) {
+if (copyRefBtn && referralLinkInput) {
+    copyRefBtn.addEventListener("click", () => {
+        if (!referralLinkInput.value || referralLinkInput.value.includes("Generating")) return;
 
-    copyRefBtn.addEventListener(
-        "click",
-        () => {
+        navigator.clipboard.writeText(referralLinkInput.value).then(() => {
+            copyRefBtn.textContent = "Copied!";
+            copyRefBtn.classList.remove("btn-success");
+            copyRefBtn.classList.add("btn-dark");
 
-            if (
-                !referralLinkInput.value ||
-                referralLinkInput.value.includes(
-                    "Generating"
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            navigator.clipboard
-                .writeText(
-                    referralLinkInput.value
-                )
-                .then(
-                    () => {
-
-                        copyRefBtn.textContent =
-                            "Copied!";
-
-
-                        copyRefBtn.classList.remove(
-                            "btn-success"
-                        );
-
-
-                        copyRefBtn.classList.add(
-                            "btn-dark"
-                        );
-
-
-                        setTimeout(
-                            () => {
-
-                                copyRefBtn.textContent =
-                                    "Copy Link";
-
-
-                                copyRefBtn.classList.remove(
-                                    "btn-dark"
-                                );
-
-
-                                copyRefBtn.classList.add(
-                                    "btn-success"
-                                );
-
-                            },
-                            2000
-                        );
-
-                    }
-                );
-
-        }
-    );
-
+            setTimeout(() => {
+                copyRefBtn.textContent = "Copy Link";
+                copyRefBtn.classList.remove("btn-dark");
+                copyRefBtn.classList.add("btn-success");
+            }, 2000);
+        });
+    });
 }
 
 
 
 /* =========================================================
-   LOAD ORDERS (INDEX-QUERY FIX)
+   LOAD ORDERS
 ========================================================= */
 
 async function loadRecentOrders(uid) {
-
     try {
-
         const ordersRef = ref(database, "orders");
         const userOrdersQuery = query(ordersRef, orderByChild("uid"), equalTo(uid));
-        
         const snapshot = await get(userOrdersQuery);
 
-
         if (!snapshot.exists()) {
-
-            if (ordersCount) {
-                ordersCount.textContent = "0";
-            }
-
+            if (ordersCount) ordersCount.textContent = "0";
             if (recentOrders) {
                 recentOrders.innerHTML = `
                     <div class="text-center text-muted py-4">
@@ -487,22 +208,15 @@ async function loadRecentOrders(uid) {
                     </div>
                 `;
             }
-
             return;
-
         }
 
-
         const ordersObj = snapshot.val();
-        
         const userOrders = Object.values(ordersObj).sort(
             (a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0)
         );
 
-
-        if (ordersCount) {
-            ordersCount.textContent = String(userOrders.length);
-        }
+        if (ordersCount) ordersCount.textContent = String(userOrders.length);
 
         if (userOrders.length === 0) {
             if (recentOrders) {
@@ -516,12 +230,9 @@ async function loadRecentOrders(uid) {
             return;
         }
 
-        if (!recentOrders) {
-            return;
-        }
+        if (!recentOrders) return;
 
         const latestOrders = userOrders.slice(0, 5);
-
 
         let desktopHtml = `
             <div class="d-none d-md-block">
@@ -542,7 +253,6 @@ async function loadRecentOrders(uid) {
 
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
-
             desktopHtml += `
                 <tr>
                     <td><code>${shortOrderId}</code></td>
@@ -560,12 +270,10 @@ async function loadRecentOrders(uid) {
 
         desktopHtml += `</tbody></table></div></div>`;
 
-
         let mobileHtml = `<div class="d-md-none">`;
 
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
-
             mobileHtml += `
                 <div class="card border shadow-sm mb-3">
                     <div class="card-body">
@@ -599,13 +307,10 @@ async function loadRecentOrders(uid) {
         });
 
         mobileHtml += `</div>`;
-
         recentOrders.innerHTML = desktopHtml + mobileHtml;
 
     } catch (error) {
-
         console.error("ORDERS ERROR:", error);
-
         if (recentOrders) {
             recentOrders.innerHTML = `
                 <div class="alert alert-warning mb-0">
@@ -614,9 +319,7 @@ async function loadRecentOrders(uid) {
                 </div>
             `;
         }
-
     }
-
 }
 
 
@@ -626,190 +329,57 @@ async function loadRecentOrders(uid) {
 ========================================================= */
 
 if (redeemVoucherForm) {
+    redeemVoucherForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!redeemCodeInput) return;
 
-    redeemVoucherForm.addEventListener(
-        "submit",
-        async (e) => {
+        const voucherCode = redeemCodeInput.value.trim();
+        if (!voucherCode) return;
 
-            e.preventDefault();
+        if (redeemMsg) {
+            redeemMsg.innerHTML = `<div class="alert alert-info mb-0">Processing voucher...</div>`;
+        }
 
+        try {
+            if (!auth.currentUser) throw new Error("You must be logged in to redeem a voucher.");
 
-            if (!redeemCodeInput) {
+            const idToken = await auth.currentUser.getIdToken(true);
 
-                return;
+            const response = await fetch("/api/redeem-voucher", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${idToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ voucherCode })
+            });
 
-            }
-
-
-            const voucherCode =
-                redeemCodeInput.value.trim();
-
-
-            if (!voucherCode) {
-
-                return;
-
-            }
-
-
-            if (redeemMsg) {
-
-                redeemMsg.innerHTML = `
-
-                    <div class="alert alert-info mb-0">
-
-                        Processing voucher...
-
-                    </div>
-
-                `;
-
-            }
-
+            const textResponse = await response.text();
+            let result;
 
             try {
-
-                if (!auth.currentUser) {
-
-                    throw new Error(
-                        "You must be logged in to redeem a voucher."
-                    );
-
-                }
-
-
-                const idToken =
-                    await auth.currentUser.getIdToken(
-                        true
-                    );
-
-
-                const response =
-                    await fetch(
-                        "/api/redeem-voucher",
-                        {
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Authorization":
-                                    `Bearer ${idToken}`,
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    voucherCode
-                                })
-
-                        }
-                    );
-
-
-                const textResponse =
-                    await response.text();
-
-
-                let result;
-
-
-                try {
-
-                    result =
-                        JSON.parse(
-                            textResponse
-                        );
-
-                } catch (e) {
-
-                    console.error(
-                        "Non-JSON response received:",
-                        textResponse
-                    );
-
-
-                    throw new Error(
-                        "Server returned an invalid response format."
-                    );
-
-                }
-
-
-                if (
-                    !response.ok ||
-                    !result.success
-                ) {
-
-                    throw new Error(
-                        result.message ||
-                        "Failed to redeem voucher."
-                    );
-
-                }
-
-
-                if (redeemMsg) {
-
-                    redeemMsg.innerHTML = `
-
-                        <div
-                            class="alert
-                            alert-success
-                            mb-0"
-                        >
-
-                            ${result.message}
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                redeemVoucherForm.reset();
-
-
-                await loadUserInformation(
-                    auth.currentUser
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "REDEEM VOUCHER ERROR:",
-                    error
-                );
-
-
-                if (redeemMsg) {
-
-                    redeemMsg.innerHTML = `
-
-                        <div
-                            class="alert
-                            alert-danger
-                            mb-0"
-                        >
-
-                            ${error.message}
-
-                        </div>
-
-                    `;
-
-                }
-
+                result = JSON.parse(textResponse);
+            } catch (e) {
+                console.error("Non-JSON response received:", textResponse);
+                throw new Error("Server returned an invalid response format.");
             }
 
-        }
-    );
+            if (!response.ok || !result.success) throw new Error(result.message || "Failed to redeem voucher.");
 
+            if (redeemMsg) {
+                redeemMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            }
+
+            redeemVoucherForm.reset();
+            await loadUserInformation(auth.currentUser);
+
+        } catch (error) {
+            console.error("REDEEM VOUCHER ERROR:", error);
+            if (redeemMsg) {
+                redeemMsg.innerHTML = `<div class="alert alert-danger mb-0">${error.message}</div>`;
+            }
+        }
+    });
 }
 
 
@@ -818,97 +388,35 @@ if (redeemVoucherForm) {
    WHATSAPP SUPPORT
 ========================================================= */
 
-const whatsappSupportForm =
-    document.getElementById(
-        "whatsappSupportForm"
-    );
-
+const whatsappSupportForm = document.getElementById("whatsappSupportForm");
 
 if (whatsappSupportForm) {
+    whatsappSupportForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-    whatsappSupportForm.addEventListener(
-        "submit",
-        (e) => {
+        const subjectInput = document.getElementById("waSubject");
+        const messageInput = document.getElementById("waMessage");
 
-            e.preventDefault();
+        if (!subjectInput || !messageInput) return;
 
+        const subject = subjectInput.value.trim();
+        const message = messageInput.value.trim();
 
-            const subjectInput =
-                document.getElementById(
-                    "waSubject"
-                );
+        if (!subject || !message) return;
 
+        const currentUser = auth.currentUser;
+        const userEmail = currentUser ? currentUser.email : "Guest User";
+        const phoneNumber = "18253635037";
 
-            const messageInput =
-                document.getElementById(
-                    "waMessage"
-                );
+        const text = `*New Support Message*%0A` +
+            `*From:* ${userEmail}%0A` +
+            `*Subject:* ${subject}%0A` +
+            `*Message:* ${message}`;
 
-
-            if (
-                !subjectInput ||
-                !messageInput
-            ) {
-
-                return;
-
-            }
-
-
-            const subject =
-                subjectInput.value.trim();
-
-
-            const message =
-                messageInput.value.trim();
-
-
-            if (
-                !subject ||
-                !message
-            ) {
-
-                return;
-
-            }
-
-
-            const currentUser =
-                auth.currentUser;
-
-
-            const userEmail =
-                currentUser
-                    ? currentUser.email
-                    : "Guest User";
-
-
-            const phoneNumber =
-                "18253635037";
-
-
-            const text =
-                `*New Support Message*%0A` +
-                `*From:* ${userEmail}%0A` +
-                `*Subject:* ${subject}%0A` +
-                `*Message:* ${message}`;
-
-
-            const whatsappUrl =
-                `https://wa.me/${phoneNumber}?text=${text}`;
-
-
-            window.open(
-                whatsappUrl,
-                "_blank"
-            );
-
-
-            whatsappSupportForm.reset();
-
-        }
-    );
-
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${text}`;
+        window.open(whatsappUrl, "_blank");
+        whatsappSupportForm.reset();
+    });
 }
 
 
@@ -917,331 +425,133 @@ if (whatsappSupportForm) {
    USER TIERS & UPGRADE SYSTEM
 ========================================================= */
 
-async function evaluateAndRenderUserTier(
-    userId
-) {
-
+async function evaluateAndRenderUserTier(userId) {
     try {
+        const userRef = ref(database, `users/${userId}`);
+        const userSnap = await get(userRef);
+        const userData = userSnap.val() || {};
 
-        const userRef =
-            ref(
-                database,
-                `users/${userId}`
-            );
+        const currentTier = (userData.tier || "regular").toLowerCase();
+        const totalSpent = Number(userData.totalSpent || 0);
+        const currentWallet = Number(userData.wallet || 0);
 
-
-        const userSnap =
-            await get(
-                userRef
-            );
-
-
-        const userData =
-            userSnap.val() || {};
-
-
-        const currentTier =
-            (
-                userData.tier ||
-                "regular"
-            ).toLowerCase();
-
-
-        const totalSpent =
-            Number(
-                userData.totalSpent || 0
-            );
-
-
-        const badgeEl =
-            document.getElementById(
-                "user-current-tier-badge"
-            );
-
-
-        const resellerPromoSection =
-            document.getElementById(
-                "resellerPromoSection"
-            );
-
+        const badgeEl = document.getElementById("user-current-tier-badge");
+        const resellerPromoSection = document.getElementById("resellerPromoSection");
 
         if (badgeEl) {
-
-            badgeEl.innerText =
-                currentTier.toUpperCase();
-
-
-            badgeEl.className =
-                "badge ";
-
-
-            if (
-                currentTier === "reseller"
-            ) {
-
-                badgeEl.classList.add(
-                    "bg-danger"
-                );
-
-            } else if (
-                currentTier === "vip"
-            ) {
-
-                badgeEl.classList.add(
-                    "bg-success"
-                );
-
+            badgeEl.innerText = currentTier.toUpperCase();
+            badgeEl.className = "badge ";
+            if (currentTier === "reseller") {
+                badgeEl.classList.add("bg-danger");
+            } else if (currentTier === "vip") {
+                badgeEl.classList.add("bg-success");
             } else {
-
-                badgeEl.classList.add(
-                    "bg-secondary"
-                );
-
+                badgeEl.classList.add("bg-secondary");
             }
-
         }
 
-
-        if (
-            currentTier === "reseller"
-        ) {
-
+        // Hide reseller promo if already reseller
+        if (currentTier === "reseller") {
             if (resellerPromoSection) {
-
                 resellerPromoSection.innerHTML = `
-
                     <div class="col-12">
-
-                        <div
-                            class="card p-3
-                            shadow border-danger
-                            bg-light text-center"
-                        >
-
+                        <div class="card p-3 shadow border-danger bg-light text-center">
                             <h5 class="text-danger mb-0">
-
-                                <i
-                                    class="bi
-                                    bi-patch-check-fill"
-                                ></i>
-
-                                You are an Official Reseller!
-                                Enjoy your exclusive rates.
-
+                                <i class="bi bi-patch-check-fill"></i>
+                                You are an Official Reseller! Enjoy your exclusive rates.
                             </h5>
-
                         </div>
-
                     </div>
-
                 `;
-
             }
-
         }
 
+        const actionContainer = document.getElementById("tier-action-container");
+        if (!actionContainer) return;
 
-        const actionContainer =
-            document.getElementById(
-                "tier-action-container"
-            );
-
-
-        if (!actionContainer) {
-
-            return;
-
-        }
-
-
-        if (
-            currentTier === "reseller"
-        ) {
-
+        if (currentTier === "reseller") {
             actionContainer.innerHTML = `
-
-                <span
-                    style="
-                        font-size:0.8rem;
-                        color:#dc3545;
-                        display:block;
-                    "
-                >
-
-                    <i
-                        class="bi
-                        bi-patch-check-fill"
-                    ></i>
-
+                <span style="font-size:0.8rem; color:#dc3545; display:block;">
+                    <i class="bi bi-patch-check-fill"></i>
                     Reseller Status Active
-
                 </span>
-
             `;
-
             return;
-
         }
 
+        // ✅ FIX: Wrap tierRequests read in try/catch so it doesn't crash
+        const reqRef = ref(database, "tierRequests");
 
-        const reqRef =
-            ref(
-                database,
-                "tierRequests"
-            );
+        let reqSnap = null;
+        let hasPending = false;
 
+        try {
+            reqSnap = await get(reqRef);
+        } catch (e) {
+            console.warn("tierRequests read failed (probably empty):", e);
+            reqSnap = null;
+        }
 
-        const reqSnap =
-            await get(
-                reqRef
-            );
-
-
-        let hasPending =
-            false;
-
-
-        if (reqSnap.exists()) {
-
-            const requests =
-                reqSnap.val();
-
-
-            Object.values(
-                requests
-            ).forEach(
-                req => {
-
-                    if (
-                        req &&
-                        req.userId === userId &&
-                        req.status === "pending" &&
-                        req.requestedTier === "vip"
-                    ) {
-
-                        hasPending = true;
-
-                    }
-
+        if (reqSnap && reqSnap.exists()) {
+            const requests = reqSnap.val();
+            Object.values(requests).forEach(req => {
+                if (req && req.userId === userId && req.status === "pending" && req.requestedTier === "vip") {
+                    hasPending = true;
                 }
-            );
-
+            });
         }
-
 
         if (hasPending) {
-
             actionContainer.innerHTML = `
-
-                <span
-                    style="
-                        font-size:0.8rem;
-                        color:#ffc107;
-                        display:block;
-                    "
-                >
-
-                    <i
-                        class="bi
-                        bi-clock-history"
-                    ></i>
-
+                <span style="font-size:0.8rem; color:#ffc107; display:block;">
+                    <i class="bi bi-clock-history"></i>
                     VIP Upgrade Request Pending
-
                 </span>
-
             `;
-
             return;
-
         }
-
 
         let html = "";
 
-
-        if (
-            currentTier === "regular"
-        ) {
-
-            if (
-                totalSpent >= 60000
-            ) {
-
+        if (currentTier === "regular") {
+            if (totalSpent >= 60000) {
                 html += `
-
-                    <button
-                        class="btn btn-success
-                        btn-sm w-100 mt-2"
-                        onclick="
-                            requestTierUpgrade(
-                                '${userId}',
-                                'vip',
-                                'Total spend of ₦60k+ met'
-                            )
-                        "
-                    >
-
+                    <button class="btn btn-success btn-sm w-100 mt-2" onclick="requestTierUpgrade('${userId}', 'vip', 'Total spend of ₦60k+ met')">
                         Request VIP Tier
-
                     </button>
-
                 `;
-
             } else {
-
+                const neededForReseller = 100000 - currentWallet;
                 html = `
-
-                    <p
-                        class="text-muted
-                        small mb-0 mt-2"
-                    >
-
-                        Spend ₦60,000 total across
-                        orders to unlock VIP tier
-                        automatically.
-
+                    <p class="text-muted small mb-0 mt-2">
+                        Spend ₦60,000 total across orders to unlock VIP tier automatically.
                     </p>
-
+                    <p class="text-muted small mb-0 mt-1">
+                        <em>Or upgrade to Reseller for ₦100,000 ${neededForReseller > 0 ? "(need ₦" + neededForReseller.toLocaleString("en-NG") + " more)" : "(ready!)"}.</em>
+                    </p>
                 `;
-
             }
-
-        } else if (
-            currentTier === "vip"
-        ) {
-
+        } else if (currentTier === "vip") {
             html = `
-
-                <p
-                    class="text-muted
-                    small mb-0 mt-2"
-                >
-
-                    You are currently on VIP.
-                    Use the Reseller box above
-                    to unlock Reseller status anytime.
-
+                <p class="text-muted small mb-0 mt-2">
+                    You are currently on VIP. Use the Reseller box above to unlock Reseller status anytime.
                 </p>
-
             `;
-
         }
 
-
-        actionContainer.innerHTML =
-            html;
-
+        actionContainer.innerHTML = html;
 
     } catch (err) {
-
-        console.error(
-            "Error evaluating user tier:",
-            err
-        );
-
+        console.error("Error evaluating user tier:", err);
+        const actionContainer = document.getElementById("tier-action-container");
+        if (actionContainer) {
+            actionContainer.innerHTML = `
+                <p class="text-muted small mb-0">
+                    Unable to load tier status. Please refresh.
+                </p>
+            `;
+        }
     }
-
 }
 
 
@@ -1250,117 +560,40 @@ async function evaluateAndRenderUserTier(
    REQUEST TIER UPGRADE (VIP) — Uses PHP endpoint
 ========================================================= */
 
-async function requestTierUpgrade(
-    userId,
-    requestedTier,
-    details
-) {
-
-    if (
-        !confirm(
-            `Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`
-        )
-    ) {
-
+async function requestTierUpgrade(userId, requestedTier, details) {
+    if (!confirm(`Are you sure you want to submit a request for ${requestedTier.toUpperCase()} status?`)) {
         return;
-
     }
-
 
     try {
+        const userAuth = auth.currentUser;
+        if (!userAuth) { alert("Please log in."); return; }
 
-        const userAuth =
-            auth.currentUser;
+        const idToken = await userAuth.getIdToken(true);
 
+        const response = await fetch("https://hkdmservices.xyz/api-php/request-vip.php", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${idToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ details: details })
+        });
 
-        if (!userAuth) {
+        const result = await response.json();
 
-            alert("Please log in.");
+        if (!response.ok || !result.success) throw new Error(result.message || "Failed to submit request.");
 
-            return;
-
-        }
-
-
-        const idToken =
-            await userAuth.getIdToken(
-                true
-            );
-
-
-        const response =
-            await fetch(
-                "https://hkdmservices.xyz/api-php/request-vip.php",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${idToken}`,
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify({
-                            details:
-                                details
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            !result.success
-        ) {
-
-            throw new Error(
-                result.message ||
-                "Failed to submit request."
-            );
-
-        }
-
-
-        alert(
-            "Tier upgrade request submitted successfully!"
-        );
-
-
+        alert("Tier upgrade request submitted successfully!");
         location.reload();
 
-
     } catch (err) {
-
-        console.error(
-            "Error submitting upgrade request:",
-            err
-        );
-
-
-        alert(
-            "Failed to submit request: " +
-            err.message
-        );
-
+        console.error("Error submitting upgrade request:", err);
+        alert("Failed to submit request: " + err.message);
     }
-
 }
 
-
-window.requestTierUpgrade =
-    requestTierUpgrade;
+window.requestTierUpgrade = requestTierUpgrade;
 
 
 
@@ -1368,344 +601,104 @@ window.requestTierUpgrade =
    RESELLER MODAL & PAYMENT
 ========================================================= */
 
-const openResellerModalBtn =
-    document.getElementById(
-        "openResellerModalBtn"
-    );
-
-
-const confirmResellerPaymentBtn =
-    document.getElementById(
-        "confirmResellerPaymentBtn"
-    );
-
-
-const modalWalletBalance =
-    document.getElementById(
-        "modalWalletBalance"
-    );
-
-
-const resellerModalMsg =
-    document.getElementById(
-        "resellerModalMsg"
-    );
+const openResellerModalBtn = document.getElementById("openResellerModalBtn");
+const confirmResellerPaymentBtn = document.getElementById("confirmResellerPaymentBtn");
+const modalWalletBalance = document.getElementById("modalWalletBalance");
+const resellerModalMsg = document.getElementById("resellerModalMsg");
 
 
 
 if (openResellerModalBtn) {
+    openResellerModalBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
 
-    openResellerModalBtn.addEventListener(
-        "click",
-        async () => {
+        try {
+            const userRef = ref(database, `users/${user.uid}`);
+            const snap = await get(userRef);
+            const data = snap.val() || {};
+            const currentWallet = Number(data.wallet || 0);
 
-            const user =
-                auth.currentUser;
+            if (modalWalletBalance) modalWalletBalance.textContent = formatNaira(currentWallet);
+            if (resellerModalMsg) resellerModalMsg.innerHTML = "";
 
-
-            if (!user) {
-
-                return;
-
+            const modalElement = document.getElementById("resellerModal");
+            if (modalElement) {
+                const myModal = new bootstrap.Modal(modalElement);
+                myModal.show();
             }
-
-
-            try {
-
-                const userRef =
-                    ref(
-                        database,
-                        `users/${user.uid}`
-                    );
-
-
-                const snap =
-                    await get(
-                        userRef
-                    );
-
-
-                const data =
-                    snap.val() || {};
-
-
-                const currentWallet =
-                    Number(
-                        data.wallet || 0
-                    );
-
-
-                if (modalWalletBalance) {
-
-                    modalWalletBalance.textContent =
-                        formatNaira(
-                            currentWallet
-                        );
-
-                }
-
-
-                if (resellerModalMsg) {
-
-                    resellerModalMsg.innerHTML =
-                        "";
-
-                }
-
-
-                const modalElement =
-                    document.getElementById(
-                        "resellerModal"
-                    );
-
-
-                if (modalElement) {
-
-                    const myModal =
-                        new bootstrap.Modal(
-                            modalElement
-                        );
-
-
-                    myModal.show();
-
-                }
-
-
-            } catch (err) {
-
-                console.error(
-                    "Error opening reseller modal:",
-                    err
-                );
-
-            }
-
+        } catch (err) {
+            console.error("Error opening reseller modal:", err);
         }
-    );
-
+    });
 }
 
 
 
 if (confirmResellerPaymentBtn) {
+    confirmResellerPaymentBtn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
 
-    confirmResellerPaymentBtn.addEventListener(
-        "click",
-        async () => {
+        confirmResellerPaymentBtn.disabled = true;
+        const originalBtnText = confirmResellerPaymentBtn.innerHTML;
+        confirmResellerPaymentBtn.innerHTML = "Processing...";
 
-            const user =
-                auth.currentUser;
+        if (resellerModalMsg) {
+            resellerModalMsg.innerHTML = `<div class="alert alert-info mb-0">Processing payment...</div>`;
+        }
 
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-            if (!user) {
+            const idToken = await user.getIdToken(true);
 
-                return;
+            const response = await fetch("https://hkdmservices.xyz/api-php/unlock-reseller.php", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${idToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ amount: 100000 }),
+                signal: controller.signal
+            });
 
-            }
+            clearTimeout(timeoutId);
 
-
-            confirmResellerPaymentBtn.disabled =
-                true;
-
-
-            const originalBtnText =
-                confirmResellerPaymentBtn.innerHTML;
-
-
-            confirmResellerPaymentBtn.innerHTML =
-                "Processing...";
-
-
-            if (resellerModalMsg) {
-
-                resellerModalMsg.innerHTML = `
-
-                    <div class="alert alert-info mb-0">
-
-                        Processing payment...
-
-                    </div>
-
-                `;
-
-            }
-
+            const textResponse = await response.text();
+            let result;
 
             try {
-
-                const controller =
-                    new AbortController();
-
-
-                const timeoutId =
-                    setTimeout(
-                        () => controller.abort(),
-                        15000
-                    );
-
-
-                const idToken =
-                    await user.getIdToken(
-                        true
-                    );
-
-
-                // ✅ FIXED: Points to the correct PHP endpoint
-                const response =
-                    await fetch(
-                        "https://hkdmservices.xyz/api-php/unlock-reseller.php",
-                        {
-
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Authorization":
-                                    `Bearer ${idToken}`,
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    amount: 100000
-                                }),
-
-                            signal:
-                                controller.signal
-
-                        }
-                    );
-
-
-                clearTimeout(
-                    timeoutId
-                );
-
-
-                const textResponse =
-                    await response.text();
-
-
-                let result;
-
-
-                try {
-
-                    result =
-                        JSON.parse(
-                            textResponse
-                        );
-
-                } catch (e) {
-
-                    console.error(
-                        "Non-JSON response received:",
-                        textResponse
-                    );
-
-
-                    throw new Error(
-                        "Server returned an invalid response format."
-                    );
-
-                }
-
-
-                if (
-                    !response.ok ||
-                    !result.success
-                ) {
-
-                    throw new Error(
-                        result.message ||
-                        "Failed to process reseller upgrade."
-                    );
-
-                }
-
-
-                if (resellerModalMsg) {
-
-                    resellerModalMsg.innerHTML = `
-
-                        <div
-                            class="alert
-                            alert-success
-                            mb-0"
-                        >
-
-                            ${result.message}
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                setTimeout(
-                    () => {
-
-                        location.reload();
-
-                    },
-                    2000
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "RESELLER UPGRADE ERROR:",
-                    error
-                );
-
-
-                if (resellerModalMsg) {
-
-                    const errorMessage =
-                        error.name === "AbortError"
-                            ? "Request timed out. Please check your connection."
-                            : (
-                                error.message ||
-                                "Load failed. Please try again."
-                            );
-
-
-                    resellerModalMsg.innerHTML = `
-
-                        <div
-                            class="alert
-                            alert-danger
-                            mb-0"
-                        >
-
-                            ${errorMessage}
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                confirmResellerPaymentBtn.disabled =
-                    false;
-
-
-                confirmResellerPaymentBtn.innerHTML =
-                    originalBtnText;
-
+                result = JSON.parse(textResponse);
+            } catch (e) {
+                console.error("Non-JSON response received:", textResponse);
+                throw new Error("Server returned an invalid response format.");
             }
 
-        }
-    );
+            if (!response.ok || !result.success) throw new Error(result.message || "Failed to process reseller upgrade.");
 
+            if (resellerModalMsg) {
+                resellerModalMsg.innerHTML = `<div class="alert alert-success mb-0">${result.message}</div>`;
+            }
+
+            setTimeout(() => { location.reload(); }, 2000);
+
+        } catch (error) {
+            console.error("RESELLER UPGRADE ERROR:", error);
+
+            if (resellerModalMsg) {
+                const errorMessage = error.name === "AbortError"
+                    ? "Request timed out. Please check your connection."
+                    : (error.message || "Load failed. Please try again.");
+
+                resellerModalMsg.innerHTML = `<div class="alert alert-danger mb-0">${errorMessage}</div>`;
+            }
+
+            confirmResellerPaymentBtn.disabled = false;
+            confirmResellerPaymentBtn.innerHTML = originalBtnText;
+        }
+    });
 }
 
 
@@ -1714,42 +707,19 @@ if (confirmResellerPaymentBtn) {
    AUTHENTICATION
 ========================================================= */
 
-onAuthStateChanged(
-    auth,
-    async (user) => {
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        await Promise.allSettled([
-
-            loadUserInformation(
-                user
-            ),
-
-            loadRecentOrders(
-                user.uid
-            ),
-
-            loadReferralInformation(
-                user.uid
-            ),
-
-            evaluateAndRenderUserTier(
-                user.uid
-            )
-
-        ]);
-
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
     }
-);
+
+    await Promise.allSettled([
+        loadUserInformation(user),
+        loadRecentOrders(user.uid),
+        loadReferralInformation(user.uid),
+        evaluateAndRenderUserTier(user.uid)
+    ]);
+});
 
 
 
@@ -1758,32 +728,12 @@ onAuthStateChanged(
 ========================================================= */
 
 if (logoutBtn) {
-
-    logoutBtn.addEventListener(
-        "click",
-        async () => {
-
-            try {
-
-                await signOut(
-                    auth
-                );
-
-
-                window.location.href =
-                    "login.html";
-
-
-            } catch (error) {
-
-                console.error(
-                    "LOGOUT ERROR:",
-                    error
-                );
-
-            }
-
+    logoutBtn.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+            window.location.href = "login.html";
+        } catch (error) {
+            console.error("LOGOUT ERROR:", error);
         }
-    );
-
+    });
 }
