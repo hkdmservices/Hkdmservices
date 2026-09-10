@@ -45,47 +45,20 @@ html[data-theme="dark"] .form-control:focus {
     border-color: #198754 !important;
 }
 
-html[data-theme="dark"] .btn-outline-light {
-    color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-html[data-theme="dark"] .btn-outline-light:hover {
-    color: #212529;
-    background-color: #f8f9fa;
-    border-color: #f8f9fa;
-}
-
-/* Theme Toggle Button Style */
-.theme-toggle {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.theme-toggle:hover {
-    background: rgba(255,255,255,0.18);
-    transform: rotate(15deg);
+html[data-theme="dark"] .text-muted {
+    color: #adb5bd !important;
 }
 
 /* =====================================================
-   FIXED BACK BUTTON - WORKS IN BOTH MODES
+   BACK BUTTON - WORKS IN BOTH MODES
 ===================================================== */
 .back-btn {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    border: 1px solid #dee2e6; /* Light border for light mode */
-    background: #ffffff; /* White background for light mode */
-    color: #212529; /* Dark text for light mode */
+    border: 1px solid #dee2e6;
+    background: #ffffff;
+    color: #212529;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -99,8 +72,6 @@ html[data-theme="dark"] .btn-outline-light:hover {
     transform: rotate(-15deg);
     color: #212529;
 }
-
-/* Dark mode overrides for back button */
 html[data-theme="dark"] .back-btn {
     border: 1px solid rgba(255,255,255,0.25);
     background: rgba(255,255,255,0.08);
@@ -120,25 +91,13 @@ html[data-theme="dark"] .back-btn:hover {
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-3">
-            <!-- BACK TO DASHBOARD BUTTON - NOW VISIBLE IN BOTH MODES -->
+            <!-- BACK TO DASHBOARD BUTTON -->
             <a href="dashboard.html" class="back-btn" title="Back to Dashboard">
                 <i class="bi bi-arrow-left"></i>
             </a>
             <h2 class="mb-0">Fund Wallet</h2>
         </div>
-        <!-- THEME TOGGLE -->
-        <button
-            type="button"
-            id="themeToggle"
-            class="theme-toggle"
-            aria-label="Toggle dark mode"
-            title="Toggle dark mode"
-        >
-            <i
-                id="themeIcon"
-                class="bi bi-moon-stars-fill"
-            ></i>
-        </button>
+        <!-- NO THEME TOGGLE — controlled from dashboard -->
     </div>
 
     <!-- Fund Wallet Card -->
@@ -354,4 +313,39 @@ redeemBtn.addEventListener("click", async () => {
             usedAt: Date.now()
         });
 
-        const userRef = database.ref("
+        const userRef = database.ref("users/" + currentUid);
+        const userSnapshot = await userRef.once("value");
+        const userData = userSnapshot.val() || {};
+        const currentBalance = userData.wallet || 0;
+        const newBalance = currentBalance + voucherData.amount;
+
+        await userRef.update({
+            wallet: newBalance
+        });
+
+        const transactionRef = database.ref("transactions").push();
+        await transactionRef.set({
+            uid: currentUid,
+            type: "voucher",
+            amount: voucherData.amount,
+            description: "Voucher redemption: " + code,
+            status: "success",
+            createdAt: Date.now()
+        });
+
+        messageDiv.textContent = "✅ Voucher redeemed! ₦" + voucherData.amount + " added to your wallet.";
+        messageDiv.style.color = "green";
+        voucherInput.value = "";
+
+    } catch (error) {
+        console.error("Voucher redemption error:", error);
+        messageDiv.textContent = "❌ " + error.message;
+        messageDiv.style.color = "red";
+    }
+});
+
+console.log("✅ Wallet page loaded completely!");
+</script>
+
+</body>
+</html>
