@@ -42,6 +42,7 @@ html[data-theme="dark"] nav.navbar { background: #080a0c !important; }
 html[data-theme="dark"] .card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
 html[data-theme="dark"] .form-control { background-color: #151a1f !important; border-color: #30363d !important; color: #f1f3f5 !important; }
 html[data-theme="dark"] .form-control:focus { background-color: #151a1f !important; color: #f1f3f5 !important; border-color: #198754 !important; }
+html[data-theme="dark"] .form-control::placeholder { color: #8b949e !important; }
 html[data-theme="dark"] .text-muted { color: #adb5bd !important; }
 html[data-theme="dark"] .bg-light { background-color: #151a1f !important; color: #f1f3f5 !important; }
 html[data-theme="dark"] .border-top { border-color: #30363d !important; }
@@ -52,6 +53,10 @@ html[data-theme="dark"] .alert-success { background-color: #0b2217 !important; b
 html[data-theme="dark"] .alert-danger { background-color: #2d0f14 !important; border-color: #5c1e26 !important; color: #f8a5a5 !important; }
 html[data-theme="dark"] .alert-warning { background-color: #2d1f0a !important; border-color: #5c4014 !important; color: #f5c98a !important; }
 html[data-theme="dark"] .alert-info { background-color: #0a2029 !important; border-color: #113847 !important; color: #6edff6 !important; }
+html[data-theme="dark"] .modal-content { background: #181d22; color: #f1f3f5; border-color: #30363d; }
+html[data-theme="dark"] .modal-header, html[data-theme="dark"] .modal-footer { border-color: #30363d; }
+html[data-theme="dark"] .modal .form-control { background-color: #151a1f !important; border-color: #30363d !important; color: #f1f3f5 !important; }
+html[data-theme="dark"] .modal .form-label { color: #f1f3f5 !important; }
 </style>
 
 </head>
@@ -163,7 +168,7 @@ html[data-theme="dark"] .alert-info { background-color: #0a2029 !important; bord
                     ================================================= -->
                     <div class="border-top pt-4 mt-4">
                         <h6 class="fw-bold mb-2"><i class="bi bi-envelope-at text-success"></i> Change Email Address</h6>
-                        <p class="text-muted small mb-3">Enter your new email address. We'll send a verification link to confirm it.</p>
+                        <p class="text-muted small mb-3">Enter your new email address. We'll ask for your password for security, then send a verification link.</p>
 
                         <form id="changeEmailForm">
                             <div class="mb-3">
@@ -229,6 +234,53 @@ html[data-theme="dark"] .alert-info { background-color: #0a2029 !important; bord
 
 
 <!-- =====================================================
+     RE-AUTHENTICATION MODAL (Password Prompt)
+===================================================== -->
+<div class="modal fade" id="reauthModal" tabindex="-1" aria-labelledby="reauthModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header border-success">
+                <h5 class="modal-title" id="reauthModalLabel">
+                    <i class="bi bi-shield-lock-fill text-success"></i> Confirm Your Password
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="reauthCloseBtn"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <p class="mb-3">
+                    For security, please enter your current password to confirm this change.
+                </p>
+
+                <div class="mb-3">
+                    <label for="reauthPassword" class="form-label">Current Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="reauthPassword" placeholder="Enter your password" autocomplete="current-password">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleReauthPassword" tabindex="-1">
+                            <i class="bi bi-eye" id="toggleReauthIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reauthMsg"></div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="reauthCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-success" id="reauthConfirmBtn">
+                    <i class="bi bi-check-circle"></i> Confirm & Continue
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- =====================================================
      FIREBASE LOGIC
 ===================================================== -->
 <script type="importmap">
@@ -243,7 +295,17 @@ html[data-theme="dark"] .alert-info { background-color: #0a2029 !important; bord
 
 <script type="module">
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, updateProfile, sendPasswordResetEmail, sendEmailVerification, signOut, verifyBeforeUpdateEmail } from "firebase/auth";
+import {
+    getAuth,
+    onAuthStateChanged,
+    updateProfile,
+    sendPasswordResetEmail,
+    sendEmailVerification,
+    signOut,
+    verifyBeforeUpdateEmail,
+    EmailAuthProvider,
+    reauthenticateWithCredential
+} from "firebase/auth";
 import { getDatabase, ref, onValue, update } from "firebase/database";
 
 const firebaseConfig = {
@@ -280,8 +342,18 @@ const confirmEmailInput = document.getElementById("confirmEmailInput");
 const changeEmailBtn = document.getElementById("changeEmailBtn");
 const changeEmailMsg = document.getElementById("changeEmailMsg");
 
+// Re-auth Modal Elements
+const reauthModalEl = document.getElementById("reauthModal");
+const reauthPassword = document.getElementById("reauthPassword");
+const reauthMsg = document.getElementById("reauthMsg");
+const reauthConfirmBtn = document.getElementById("reauthConfirmBtn");
+const toggleReauthPassword = document.getElementById("toggleReauthPassword");
+const toggleReauthIcon = document.getElementById("toggleReauthIcon");
+
 let currentUserData = null;
 let currentUser = null;
+let pendingNewEmail = null;
+let reauthModalInstance = null;
 
 // ============================================================
 // 1. CHECK AUTH STATE & LOAD USER DATA
@@ -311,7 +383,6 @@ onAuthStateChanged(auth, (user) => {
                 maximumFractionDigits: 2
             });
 
-            // Count orders
             const ordersRef = ref(database, "orders");
             onValue(ordersRef, (snap) => {
                 const orders = snap.val();
@@ -324,7 +395,6 @@ onAuthStateChanged(auth, (user) => {
                 profileOrders.textContent = count;
             });
 
-            // Email verification status
             if (user.emailVerified) {
                 emailVerification.innerHTML = '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>';
                 verifyEmailBtn.classList.add("d-none");
@@ -370,7 +440,7 @@ profileForm.addEventListener("submit", async (e) => {
 });
 
 // ============================================================
-// 3. CHANGE EMAIL ADDRESS
+// 3. CHANGE EMAIL — Step 1: Validate & Prompt for Password
 // ============================================================
 changeEmailForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -378,7 +448,6 @@ changeEmailForm.addEventListener("submit", async (e) => {
     const newEmail = newEmailInput.value.trim();
     const confirmEmail = confirmEmailInput.value.trim();
 
-    // Clear previous messages
     changeEmailMsg.innerHTML = "";
 
     // Validations
@@ -397,31 +466,73 @@ changeEmailForm.addEventListener("submit", async (e) => {
         return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
         showChangeEmailMessage("Please enter a valid email address.", "danger");
         return;
     }
 
-    const originalBtnText = changeEmailBtn.innerHTML;
-    changeEmailBtn.disabled = true;
-    changeEmailBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending verification...';
+    // Save pending email and open re-auth modal
+    pendingNewEmail = newEmail;
+    reauthPassword.value = "";
+    reauthMsg.innerHTML = "";
+
+    // Hide toggle if it was showing
+    reauthPassword.type = "password";
+    toggleReauthIcon.className = "bi bi-eye";
+
+    if (!reauthModalInstance) {
+        reauthModalInstance = new bootstrap.Modal(reauthModalEl);
+    }
+    reauthModalInstance.show();
+
+    // Autofocus on password field
+    setTimeout(() => reauthPassword.focus(), 400);
+});
+
+// ============================================================
+// 4. RE-AUTHENTICATION — Step 2: Confirm Password & Update Email
+// ============================================================
+reauthConfirmBtn.addEventListener("click", async () => {
+    const password = reauthPassword.value;
+
+    if (!password) {
+        reauthMsg.innerHTML = '<div class="alert alert-danger py-2 mb-0">Please enter your password.</div>';
+        return;
+    }
+
+    if (!pendingNewEmail) {
+        reauthMsg.innerHTML = '<div class="alert alert-danger py-2 mb-0">No email change in progress.</div>';
+        return;
+    }
+
+    const originalBtnText = reauthConfirmBtn.innerHTML;
+    reauthConfirmBtn.disabled = true;
+    reauthConfirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verifying...';
 
     try {
-        // ✅ Firebase: Send verification link to NEW email
-        // The email only changes AFTER the user clicks the link in the new email
-        await verifyBeforeUpdateEmail(currentUser, newEmail);
+        // Step 1: Re-authenticate with email + password
+        const credential = EmailAuthProvider.credential(currentUser.email, password);
+        await reauthenticateWithCredential(currentUser, credential);
 
-        // Save pending email to database for reference
+        console.log("✅ Re-authentication successful");
+
+        // Step 2: Send verification link to new email
+        await verifyBeforeUpdateEmail(currentUser, pendingNewEmail);
+
+        // Step 3: Save pending email in database
         await update(ref(database, "users/" + currentUser.uid), {
-            pendingEmail: newEmail,
+            pendingEmail: pendingNewEmail,
             pendingEmailRequestedAt: Date.now()
         });
 
+        // Close modal
+        reauthModalInstance.hide();
+
+        // Show success message
         showChangeEmailMessage(
-            `✅ Verification link sent to <strong>${newEmail}</strong>.<br>
-            Please check your inbox and click the link to confirm your new email.<br>
+            `✅ Verification link sent to <strong>${pendingNewEmail}</strong>.<br>
+            Please check your inbox (and spam folder) and click the link to confirm your new email.<br>
             <small class="text-muted">Your email will not change until you verify it.</small>`,
             "success"
         );
@@ -429,15 +540,17 @@ changeEmailForm.addEventListener("submit", async (e) => {
         // Clear form
         newEmailInput.value = "";
         confirmEmailInput.value = "";
+        pendingNewEmail = null;
 
     } catch (error) {
-        console.error("Change email error:", error);
+        console.error("Re-auth / change email error:", error);
 
-        let errorMessage = "❌ Error: " + error.message;
+        let errorMessage = "❌ " + error.message;
 
-        // Friendly error messages
-        if (error.code === "auth/requires-recent-login") {
-            errorMessage = "⚠️ For security, please log out and log back in before changing your email.";
+        if (error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+            errorMessage = "❌ Incorrect password. Please try again.";
+        } else if (error.code === "auth/too-many-requests") {
+            errorMessage = "⚠️ Too many attempts. Please wait a moment and try again.";
         } else if (error.code === "auth/email-already-in-use") {
             errorMessage = "❌ This email is already in use by another account.";
         } else if (error.code === "auth/invalid-email") {
@@ -446,15 +559,37 @@ changeEmailForm.addEventListener("submit", async (e) => {
             errorMessage = "❌ Email change is not allowed. Please contact support.";
         }
 
-        showChangeEmailMessage(errorMessage, "danger");
+        reauthMsg.innerHTML = `<div class="alert alert-danger py-2 mb-0">${errorMessage}</div>`;
+
     } finally {
-        changeEmailBtn.disabled = false;
-        changeEmailBtn.innerHTML = originalBtnText;
+        reauthConfirmBtn.disabled = false;
+        reauthConfirmBtn.innerHTML = originalBtnText;
     }
 });
 
 // ============================================================
-// 4. SEND PASSWORD RESET
+// 5. TOGGLE PASSWORD VISIBILITY (Re-auth Modal)
+// ============================================================
+toggleReauthPassword.addEventListener("click", () => {
+    if (reauthPassword.type === "password") {
+        reauthPassword.type = "text";
+        toggleReauthIcon.className = "bi bi-eye-slash";
+    } else {
+        reauthPassword.type = "password";
+        toggleReauthIcon.className = "bi bi-eye";
+    }
+});
+
+// Allow Enter key in password field to submit
+reauthPassword.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        reauthConfirmBtn.click();
+    }
+});
+
+// ============================================================
+// 6. SEND PASSWORD RESET
 // ============================================================
 resetPasswordBtn.addEventListener("click", async () => {
     if (!currentUser || !currentUser.email) {
@@ -472,7 +607,7 @@ resetPasswordBtn.addEventListener("click", async () => {
 });
 
 // ============================================================
-// 5. SEND EMAIL VERIFICATION
+// 7. SEND EMAIL VERIFICATION
 // ============================================================
 verifyEmailBtn.addEventListener("click", async () => {
     if (!currentUser) return;
@@ -488,7 +623,7 @@ verifyEmailBtn.addEventListener("click", async () => {
 });
 
 // ============================================================
-// 6. LOGOUT
+// 8. LOGOUT
 // ============================================================
 logoutBtn.addEventListener("click", async () => {
     try {
@@ -501,7 +636,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 // ============================================================
-// 7. HELPERS
+// 9. HELPERS
 // ============================================================
 function showMessage(text, type) {
     profileMessage.textContent = text;
@@ -515,16 +650,14 @@ function showMessage(text, type) {
 function showChangeEmailMessage(html, type) {
     changeEmailMsg.innerHTML = `<div class="alert alert-${type} mb-0">${html}</div>`;
 
-    // Auto-hide only for non-persistent messages
     if (type === "danger" || type === "warning") {
         setTimeout(() => {
             changeEmailMsg.innerHTML = "";
         }, 6000);
     }
-    // Success message stays until user leaves or resubmits
 }
 
-console.log("✅ Profile page loaded with email change functionality!");
+console.log("✅ Profile page loaded with re-authentication for email change!");
 </script>
 
 </body>
