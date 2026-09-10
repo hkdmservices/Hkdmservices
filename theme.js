@@ -1,19 +1,16 @@
 // ============================================================
 // MASTER THEME CONTROLLER - HKDMservices
-// Single tap: toggle manual theme + show hint for 5 seconds
-// Double tap: re-enable auto mode (time-based)
+// Single tap: toggle theme + show hint
+// Double tap: re-enable auto mode
 // ============================================================
 (function() {
     'use strict';
 
-    // ============================================================
-    // CONFIGURATION
-    // ============================================================
     const STORAGE_KEY = 'hkdmservices_theme';
     const AUTO_MODE_KEY = 'hkdmservices_theme_auto';
-    const DARK_HOUR_START = 18; // 6 PM
-    const DARK_HOUR_END = 6;    // 6 AM
-    const HINT_DURATION = 5000; // 5 seconds
+    const DARK_HOUR_START = 18;
+    const DARK_HOUR_END = 6;
+    const HINT_DURATION = 5000;
 
     const html = document.documentElement;
 
@@ -28,25 +25,21 @@
     function applyTheme(theme, isAuto) {
         html.setAttribute('data-theme', theme);
 
-        // Update all theme icons on the page
         document.querySelectorAll('.theme-icon, #themeIcon, #masterThemeIcon').forEach(icon => {
             icon.className = theme === 'dark'
                 ? 'bi bi-sun-fill theme-icon'
                 : 'bi bi-moon-stars-fill theme-icon';
         });
 
-        // Update auto indicators
         document.querySelectorAll('.auto-indicator').forEach(indicator => {
             indicator.style.display = isAuto ? 'flex' : 'none';
         });
 
-        // Save to localStorage
         try {
             localStorage.setItem(STORAGE_KEY, theme);
             localStorage.setItem(AUTO_MODE_KEY, isAuto ? 'true' : 'false');
         } catch (e) {}
 
-        // Dispatch event so page scripts can react
         document.dispatchEvent(new CustomEvent('themeChanged', {
             detail: { theme: theme, isAuto: isAuto }
         }));
@@ -72,91 +65,89 @@
     }
 
     // ============================================================
-    // HINT TOAST — "Double tap for Auto switch"
-    // Shows for 5 seconds on single tap
+    // HINT TOAST — always shows on single tap
     // ============================================================
     let hintTimeout = null;
     let hintElement = null;
 
     function showAutoHint() {
-        // Remove existing hint if any
-        if (hintElement) {
-            hintElement.remove();
-            hintElement = null;
+        console.log('💬 Showing auto-switch hint');
+
+        // Remove any existing hint
+        if (hintElement && hintElement.parentNode) {
+            hintElement.parentNode.removeChild(hintElement);
         }
+        hintElement = null;
         if (hintTimeout) {
             clearTimeout(hintTimeout);
             hintTimeout = null;
         }
 
-        // Build hint element
+        // Build element
         hintElement = document.createElement('div');
         hintElement.className = 'theme-hint-toast';
-        hintElement.innerHTML = '👆👆 Double tap for Auto switch';
+        hintElement.textContent = '👆👆 Double tap for Auto switch';
 
-        // Base styles
+        // Inline styles with proper dark/light support
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         hintElement.style.cssText = `
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
-            z-index: 99999;
-            background: #161b22;
-            color: #f1f3f5;
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            padding: 12px 18px;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-            max-width: 280px;
-            font-family: system-ui, -apple-system, sans-serif;
+            position: fixed !important;
+            bottom: 90px !important;
+            right: 20px !important;
+            z-index: 2147483647 !important;
+            background: ${isDark ? '#161b22' : '#ffffff'} !important;
+            color: ${isDark ? '#f1f3f5' : '#212529'} !important;
+            border: 1px solid ${isDark ? '#30363d' : '#dee2e6'} !important;
+            border-radius: 10px !important;
+            padding: 12px 18px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 6px 20px rgba(0,0,0,${isDark ? '0.5' : '0.15'}) !important;
+            max-width: 280px !important;
+            font-family: system-ui, -apple-system, sans-serif !important;
             opacity: 0;
             transform: translateY(10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            pointer-events: none;
-            user-select: none;
+            pointer-events: none !important;
+            user-select: none !important;
         `;
-
-        // Light mode variant
-        if (document.documentElement.getAttribute('data-theme') !== 'dark') {
-            hintElement.style.background = '#ffffff';
-            hintElement.style.color = '#212529';
-            hintElement.style.borderColor = '#dee2e6';
-            hintElement.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)';
-        }
 
         document.body.appendChild(hintElement);
 
         // Animate in
         requestAnimationFrame(() => {
-            hintElement.style.opacity = '1';
-            hintElement.style.transform = 'translateY(0)';
+            if (hintElement) {
+                hintElement.style.opacity = '1';
+                hintElement.style.transform = 'translateY(0)';
+            }
         });
 
-        // Auto-dismiss after 5 seconds
+        // Auto-dismiss
         hintTimeout = setTimeout(() => {
             if (!hintElement) return;
             hintElement.style.opacity = '0';
             hintElement.style.transform = 'translateY(10px)';
             setTimeout(() => {
-                if (hintElement) {
-                    hintElement.remove();
-                    hintElement = null;
+                if (hintElement && hintElement.parentNode) {
+                    hintElement.parentNode.removeChild(hintElement);
                 }
+                hintElement = null;
             }, 300);
         }, HINT_DURATION);
     }
 
     // ============================================================
-    // PUBLIC API (exposed globally)
+    // PUBLIC API
     // ============================================================
     window.toggleTheme = function() {
         const current = getCurrentTheme();
         if (current.isAuto) {
+            // Auto → switch to manual, opposite of current time
             const timeTheme = getTimeBasedTheme();
             const newTheme = timeTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme, false);
         } else {
+            // Manual → toggle
             const newTheme = current.theme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme, false);
         }
@@ -165,16 +156,15 @@
     window.enableAutoTheme = function() {
         const timeTheme = getTimeBasedTheme();
         applyTheme(timeTheme, true);
+        console.log('🔄 Auto mode re-enabled');
     };
 
-    // Expose hint so pages can trigger it if needed
     window.showThemeAutoHint = showAutoHint;
 
     // ============================================================
     // AUTO-SWITCH TIMER
     // ============================================================
     function startAutoSwitch() {
-        // Check every minute
         setInterval(() => {
             const current = getCurrentTheme();
             if (current.isAuto) {
@@ -185,7 +175,6 @@
             }
         }, 60000);
 
-        // Re-check when user returns to the tab
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 const current = getCurrentTheme();
@@ -206,7 +195,7 @@
         const { theme, isAuto } = getCurrentTheme();
         applyTheme(theme, isAuto);
         startAutoSwitch();
-        console.log('✅ Master theme controller initialized.');
+        console.log('✅ Master theme controller initialized. Mode:', isAuto ? 'Auto' : 'Manual');
     }
 
     if (document.readyState === 'loading') {
