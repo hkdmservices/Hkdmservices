@@ -924,6 +924,14 @@ async function evaluateAndRenderUserTier(
     userId
 ) {
 
+    // ✅ DEBUG: Show that function started
+    console.log("🚀 [TIER] Function called for:", userId);
+
+    const actionContainerDebug = document.getElementById("tier-action-container");
+    if (actionContainerDebug) {
+        actionContainerDebug.innerHTML = "<p style='color:orange; margin:0;'>🟠 Function started for " + userId + "</p>";
+    }
+
     try {
 
         const userRef =
