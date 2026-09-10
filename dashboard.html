@@ -415,7 +415,7 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-     THEME TOGGLE — FINAL (pointerdown only)
+     THEME TOGGLE — FINAL (Chrome + Firefox + Safari + Desktop)
 ============================================================ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================================
-    // TAP DETECTION — uses pointerdown ONLY
+    // TAP DETECTION
     // ============================================================
     let lastTapTime = 0;
     let singleTapTimer = null;
@@ -455,7 +455,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const gap = now - lastTapTime;
         lastTapTime = now;
 
-        // Double tap
         if (gap > 0 && gap < DOUBLE_TAP_WINDOW) {
             if (singleTapTimer) {
                 clearTimeout(singleTapTimer);
@@ -471,7 +470,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Single tap — wait to confirm
         if (singleTapTimer) clearTimeout(singleTapTimer);
         singleTapTimer = setTimeout(function() {
             console.log('👆 Single tap → toggle + hint');
@@ -489,19 +487,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================================
-    // ONLY LISTEN TO pointerdown — fires ONCE per tap
+    // GHOST CLICK DEDUP
+    // touchstart fires first → record time
+    // click within 500ms → ignore (it's a ghost click)
     // ============================================================
-    toggleBtn.addEventListener('pointerdown', function(e) {
+    let lastTouchTime = 0;
+
+    toggleBtn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        lastTouchTime = Date.now();
+        console.log('🔥 touchstart');
+        processTap();
+    }, { passive: false });
+
+    toggleBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }, { passive: false });
+
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (Date.now() - lastTouchTime < 500) {
+            console.log('🚫 Ignored ghost click');
+            return;
+        }
+
+        console.log('🔥 click');
         processTap();
     });
 
-    // Block other events from firing on this button
-    toggleBtn.addEventListener('touchstart', function(e) { e.preventDefault(); }, { passive: false });
-    toggleBtn.addEventListener('touchend', function(e) { e.preventDefault(); }, { passive: false });
-    toggleBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); });
-    toggleBtn.addEventListener('dblclick', function(e) { e.preventDefault(); e.stopPropagation(); });
+    toggleBtn.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
     // ============================================================
     // FEEDBACK TOAST
@@ -540,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mode = currentTheme === 'dark' ? 'Dark' : 'Light';
     toggleBtn.title = isAuto ? `Theme: ${mode} (Auto: ON)` : `Theme: ${mode} (Manual)`;
 
-    console.log('✅ Theme toggle ready (pointerdown mode)');
+    console.log('✅ Theme toggle ready (touchstart + ghost-click dedup)');
 });
 </script>
 
@@ -654,9 +675,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<!-- ============================================================
-     ROLE VERIFICATION (Admin controls)
-============================================================ -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const listForm = document.getElementById("adminListAccountForm");
