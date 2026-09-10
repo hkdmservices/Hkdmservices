@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title id="pageTitle">HKDMservices Dashboard</title>
 
-<!-- ============================================================
-     MASTER THEME CONTROLLER (load FIRST)
-============================================================ -->
 <script src="theme.js"></script>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -104,9 +101,6 @@ html[data-theme="dark"] .border-end {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    /* ============================================
-       CRITICAL: Prevents double-tap zoom on mobile
-       ============================================ */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -171,7 +165,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 </head>
 <body>
 
-<!-- Dashboard Side Panel Toggle -->
 <button id="dashboardToggle" class="dashboard-toggle" type="button" aria-label="Open dashboard menu" aria-controls="dashboardPanel" aria-expanded="false">
     <i class="bi bi-list"></i>
 </button>
@@ -199,7 +192,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
     </div>
 </div>
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold" href="index.html">
@@ -226,7 +218,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
             <span id="userName">User</span>
         </h1>
 
-        <!-- Admin-Only Product Creator Section -->
         <div class="row mb-4" id="adminProductCreatorRow" style="display: none;">
             <div class="col-12">
                 <div class="card p-4 shadow border-success">
@@ -267,7 +258,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
         </div>
 
         <div class="row g-4 mb-4">
-            <!-- Wallet Balance Card -->
             <div class="col-12 col-md-6">
                 <div class="card p-4 shadow h-100">
                     <div class="d-flex justify-content-between align-items-start">
@@ -395,7 +385,6 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
     </div>
 </section>
 
-<!-- Reseller Modal -->
 <div class="modal fade" id="resellerModal" tabindex="-1" aria-labelledby="resellerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -423,7 +412,7 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-     THEME TOGGLE SYNC SCRIPT (Touch-Optimized)
+     SIMPLIFIED THEME TOGGLE — WORKS RELIABLY ON MOBILE + DESKTOP
 ============================================================ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -431,9 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const icon = document.getElementById('themeIcon');
     const indicator = document.getElementById('autoIndicator');
 
-    // ============================================================
-    // LISTEN FOR THEME CHANGES FROM MASTER CONTROLLER
-    // ============================================================
+    // Listen for theme changes from master controller
     document.addEventListener('themeChanged', function(e) {
         const { theme, isAuto } = e.detail;
         if (icon) {
@@ -448,82 +435,80 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    if (!toggleBtn) return;
+
     // ============================================================
-    // TOUCH-OPTIMIZED TAP DETECTION
-    // Handles both single tap and double tap reliably on mobile
+    // SIMPLIFIED TAP DETECTION
+    // - Tap ONCE → show hint AFTER 250ms if no second tap
+    // - Tap TWICE quickly → enable auto mode
     // ============================================================
-    if (toggleBtn) {
-        let lastTap = 0;
-        let singleTapTimeout = null;
-        const DOUBLE_TAP_DELAY = 300; // ms between taps for double-tap
+    let tapCount = 0;
+    let tapTimer = null;
+    const DOUBLE_TAP_WINDOW = 280; // ms
 
-        toggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+    toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-            const now = Date.now();
-            const timeSinceLastTap = now - lastTap;
+        tapCount++;
 
-            if (timeSinceLastTap < DOUBLE_TAP_DELAY && timeSinceLastTap > 0) {
-                // ============================================
-                // DOUBLE TAP → Enable Auto Mode
-                // ============================================
-                if (singleTapTimeout) {
-                    clearTimeout(singleTapTimeout);
-                    singleTapTimeout = null;
+        if (tapCount === 1) {
+            // Wait to see if a second tap comes
+            tapTimer = setTimeout(function() {
+                // It was a single tap
+                if (typeof window.toggleTheme === 'function') {
+                    window.toggleTheme();
                 }
-                lastTap = 0; // reset
-
-                if (typeof window.enableAutoTheme === 'function') {
-                    window.enableAutoTheme();
+                if (typeof window.showThemeAutoHint === 'function') {
+                    window.showThemeAutoHint();
+                } else {
+                    console.warn('⚠️ showThemeAutoHint not available — check theme.js');
                 }
-
-                // Optional small feedback toast
-                if (typeof window.showThemeAutoHint !== 'function') {
-                    // fallback: show a quick inline message
-                }
-
-            } else {
-                // ============================================
-                // SINGLE TAP (delayed to check for double)
-                // ============================================
-                lastTap = now;
-
-                if (singleTapTimeout) {
-                    clearTimeout(singleTapTimeout);
-                }
-
-                singleTapTimeout = setTimeout(function() {
-                    // It's a real single tap
-                    if (typeof window.toggleTheme === 'function') {
-                        window.toggleTheme();
-                    }
-                    // Show hint
-                    if (typeof window.showThemeAutoHint === 'function') {
-                        window.showThemeAutoHint();
-                    }
-                    singleTapTimeout = null;
-                    lastTap = 0;
-                }, DOUBLE_TAP_DELAY);
+                tapCount = 0;
+                tapTimer = null;
+            }, DOUBLE_TAP_WINDOW);
+        } else if (tapCount >= 2) {
+            // Double tap detected
+            if (tapTimer) {
+                clearTimeout(tapTimer);
+                tapTimer = null;
             }
-        });
+            tapCount = 0;
 
-        // Prevent mobile zoom on double-tap gesture
-        toggleBtn.addEventListener('dblclick', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        });
+            if (typeof window.enableAutoTheme === 'function') {
+                window.enableAutoTheme();
+            }
+            // Quick feedback
+            if (typeof window.showThemeAutoHint === 'function') {
+                // Replace with a different hint or just a short message
+                const temp = document.createElement('div');
+                temp.textContent = '🔄 Auto mode enabled';
+                temp.style.cssText = `
+                    position: fixed; bottom: 90px; right: 20px;
+                    z-index: 2147483647; padding: 12px 18px;
+                    background: #198754; color: #fff;
+                    border-radius: 10px; font-size: 14px;
+                    font-family: system-ui, sans-serif;
+                    opacity: 0; transition: opacity 0.3s ease;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(temp);
+                requestAnimationFrame(() => { temp.style.opacity = '1'; });
+                setTimeout(() => {
+                    temp.style.opacity = '0';
+                    setTimeout(() => temp.remove(), 300);
+                }, 2000);
+            }
+        }
+    });
 
-        // Prevent iOS/Android gesture zoom on the button
-        toggleBtn.addEventListener('touchstart', function(e) {
-            // Do not preventDefault here because we need the click event;
-            // but disable default zoom on the container instead.
-        }, { passive: true });
-    }
+    // Prevent double-tap zoom on the button specifically
+    toggleBtn.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
-    // ============================================================
-    // SYNC ON LOAD
-    // ============================================================
+    // Sync on load
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const isAuto = localStorage.getItem('hkdmservices_theme_auto') !== 'false';
     if (icon) {
@@ -536,6 +521,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const mode = currentTheme === 'dark' ? 'Dark' : 'Light';
         toggleBtn.title = isAuto ? `Theme: ${mode} (Auto: ON)` : `Theme: ${mode} (Manual)`;
     }
+
+    console.log('✅ Theme toggle script ready. Auto indicator:', isAuto ? 'ON' : 'OFF');
 });
 </script>
 
@@ -649,9 +636,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<!-- ============================================================
-     ROLE VERIFICATION (Admin controls)
-============================================================ -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const listForm = document.getElementById("adminListAccountForm");
