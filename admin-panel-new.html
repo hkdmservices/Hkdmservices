@@ -31,6 +31,10 @@
             --bg-detail-code: #f8f9fa;
             --bg-tooltip: #e9ecef;
             --shadow-color: rgba(0,0,0,0.1);
+            --bg-table-stripe: #f8f9fa;
+            --bg-table-hover: #e9ecef;
+            --bg-badge-secondary: #e9ecef;
+            --text-badge-secondary: #212529;
         }
 
         body {
@@ -53,8 +57,8 @@
             transition: all 0.2s;
         }
         .sidebar .nav-link:hover {
-            background: #e9ecef;
-            color: #212529;
+            background: var(--bg-tooltip);
+            color: var(--text-body);
         }
         .sidebar .nav-link.active {
             background: #198754;
@@ -81,8 +85,14 @@
             margin: 0;
         }
 
+        /* ============================================================
+           TABLE STYLES - FIXED FOR BOTH MODES
+           ============================================================ */
         .table {
-            color: var(--text-body);
+            color: var(--text-body) !important;
+            --bs-table-bg: transparent !important;
+            --bs-table-striped-bg: var(--bg-table-stripe) !important;
+            --bs-table-hover-bg: var(--bg-table-hover) !important;
         }
         .table thead th {
             border-bottom-color: var(--border-table);
@@ -91,16 +101,27 @@
             top: 0;
             z-index: 10;
             transition: background 0.4s ease, border-color 0.4s ease;
+            color: var(--text-body) !important;
         }
         .table td,
         .table th {
             border-color: var(--border-table);
             transition: border-color 0.4s ease;
             vertical-align: middle;
+            color: var(--text-body) !important;
         }
         .table tbody tr:hover {
-            background: var(--bg-tooltip);
+            background: var(--bg-table-hover) !important;
             transition: background 0.2s ease;
+        }
+        .table tbody tr {
+            background: transparent !important;
+        }
+
+        /* Fix for table in dark mode */
+        html[data-theme="dark"] .table {
+            --bs-table-striped-bg: #1a1f26 !important;
+            --bs-table-hover-bg: #21262d !important;
         }
 
         .modal-content {
@@ -571,6 +592,10 @@
             --bg-detail-code: #0d1117;
             --bg-tooltip: #21262d;
             --shadow-color: rgba(0,0,0,0.5);
+            --bg-table-stripe: #1a1f26;
+            --bg-table-hover: #21262d;
+            --bg-badge-secondary: #21262d;
+            --text-badge-secondary: #f1f3f5;
         }
 
         html[data-theme="dark"] .sidebar .nav-link {
@@ -700,7 +725,7 @@
 
         /* Fix for table hover in dark mode */
         html[data-theme="dark"] .table tbody tr:hover {
-            background: #21262d;
+            background: #21262d !important;
         }
 
         /* Fix for pagination or any other text */
@@ -709,6 +734,31 @@
         }
         html[data-theme="dark"] .text-dark {
             color: #f1f3f5 !important;
+        }
+
+        /* Fix for badges in dark mode */
+        html[data-theme="dark"] .badge.bg-light {
+            background: #21262d !important;
+            color: #f1f3f5 !important;
+        }
+
+        /* Fix for table striped rows in dark mode */
+        html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+            --bs-table-color-type: var(--bs-table-striped-color);
+            --bs-table-bg-type: #1a1f26;
+        }
+
+        /* Fix for "No orders found" text */
+        html[data-theme="dark"] .text-muted {
+            color: #8b949e !important;
+        }
+
+        /* Fix for code elements */
+        html[data-theme="dark"] code,
+        html[data-theme="dark"] .id-code,
+        html[data-theme="dark"] .uid-code {
+            color: #f1f3f5;
+            background: #0d1117;
         }
     </style>
 </head>
@@ -1237,9 +1287,9 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- MODALS                                      -->
+    <!-- MODALS (kept as-is from your original file)  -->
     <!-- ============================================ -->
-    
+
     <!-- ADD SERVICE MODAL -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
