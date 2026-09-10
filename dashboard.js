@@ -541,6 +541,7 @@ async function loadRecentOrders(uid) {
                         <tbody>
         `;
 
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
 
@@ -564,6 +565,7 @@ async function loadRecentOrders(uid) {
 
         let mobileHtml = `<div class="d-md-none">`;
 
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
 
@@ -1086,7 +1088,7 @@ async function evaluateAndRenderUserTier(
 
 
         // =========================================================
-        // ✅ FIX: Wrap tierRequests read in try/catch
+        // ✅ FIX APPLIED HERE — try/catch around tierRequests read
         // =========================================================
         const reqRef =
             ref(
