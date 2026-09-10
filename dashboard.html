@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title id="pageTitle">HKDMservices Dashboard</title>
 
 <!-- ============================================================
@@ -104,6 +104,13 @@ html[data-theme="dark"] .border-end {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    /* ============================================
+       CRITICAL: Prevents double-tap zoom on mobile
+       ============================================ */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .theme-toggle:hover {
     background: #e9ecef;
@@ -416,7 +423,7 @@ html[data-theme="dark"] .theme-toggle .auto-indicator {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <!-- ============================================================
-     THEME TOGGLE SYNC SCRIPT
+     THEME TOGGLE SYNC SCRIPT (Touch-Optimized)
 ============================================================ -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -424,7 +431,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const icon = document.getElementById('themeIcon');
     const indicator = document.getElementById('autoIndicator');
 
-    // Listen for theme changes from master controller
+    // ============================================================
+    // LISTEN FOR THEME CHANGES FROM MASTER CONTROLLER
+    // ============================================================
     document.addEventListener('themeChanged', function(e) {
         const { theme, isAuto } = e.detail;
         if (icon) {
@@ -439,43 +448,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Single click: toggle theme + show hint
-    let clickTimeout = null;
-    let clickCount = 0;
-    const HINT_COOLDOWN = 5000; // 5 seconds hint
-    let lastHintTime = 0;
-
+    // ============================================================
+    // TOUCH-OPTIMIZED TAP DETECTION
+    // Handles both single tap and double tap reliably on mobile
+    // ============================================================
     if (toggleBtn) {
-        toggleBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            clickCount++;
+        let lastTap = 0;
+        let singleTapTimeout = null;
+        const DOUBLE_TAP_DELAY = 300; // ms between taps for double-tap
 
-            if (clickCount === 1) {
-                clickTimeout = setTimeout(() => {
-                    // Single tap: toggle theme
-                    if (typeof window.toggleTheme === 'function') {
-                        window.toggleTheme();
-                    }
-                    // Show hint (respecting cooldown to avoid spamming)
-                    const now = Date.now();
-                    if (now - lastHintTime > 1000 && typeof window.showThemeAutoHint === 'function') {
-                        window.showThemeAutoHint();
-                        lastHintTime = now;
-                    }
-                    clickCount = 0;
-                }, 280);
-            } else if (clickCount === 2) {
-                // Double tap: re-enable auto mode
-                clearTimeout(clickTimeout);
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const now = Date.now();
+            const timeSinceLastTap = now - lastTap;
+
+            if (timeSinceLastTap < DOUBLE_TAP_DELAY && timeSinceLastTap > 0) {
+                // ============================================
+                // DOUBLE TAP → Enable Auto Mode
+                // ============================================
+                if (singleTapTimeout) {
+                    clearTimeout(singleTapTimeout);
+                    singleTapTimeout = null;
+                }
+                lastTap = 0; // reset
+
                 if (typeof window.enableAutoTheme === 'function') {
                     window.enableAutoTheme();
                 }
-                clickCount = 0;
+
+                // Optional small feedback toast
+                if (typeof window.showThemeAutoHint !== 'function') {
+                    // fallback: show a quick inline message
+                }
+
+            } else {
+                // ============================================
+                // SINGLE TAP (delayed to check for double)
+                // ============================================
+                lastTap = now;
+
+                if (singleTapTimeout) {
+                    clearTimeout(singleTapTimeout);
+                }
+
+                singleTapTimeout = setTimeout(function() {
+                    // It's a real single tap
+                    if (typeof window.toggleTheme === 'function') {
+                        window.toggleTheme();
+                    }
+                    // Show hint
+                    if (typeof window.showThemeAutoHint === 'function') {
+                        window.showThemeAutoHint();
+                    }
+                    singleTapTimeout = null;
+                    lastTap = 0;
+                }, DOUBLE_TAP_DELAY);
             }
         });
+
+        // Prevent mobile zoom on double-tap gesture
+        toggleBtn.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        // Prevent iOS/Android gesture zoom on the button
+        toggleBtn.addEventListener('touchstart', function(e) {
+            // Do not preventDefault here because we need the click event;
+            // but disable default zoom on the container instead.
+        }, { passive: true });
     }
 
-    // Sync with current theme on load
+    // ============================================================
+    // SYNC ON LOAD
+    // ============================================================
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const isAuto = localStorage.getItem('hkdmservices_theme_auto') !== 'false';
     if (icon) {
