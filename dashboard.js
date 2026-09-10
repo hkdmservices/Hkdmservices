@@ -3,22 +3,35 @@ import {
     database
 } from "./firebase.js";
 
-import {
-    onAuthStateChanged,
-    signOut,
-    setPersistence,
-    browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-import {
-    ref,
-    get,
-    push,
-    set,
-    query,
-    orderByChild,
-    equalTo
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+// ============================================================
+// COMPAT SDK WRAPPERS — match the modular function names used below
+// ============================================================
+
+const onAuthStateChanged = (authInst, cb) => authInst.onAuthStateChanged(cb);
+const signOut = (authInst) => authInst.signOut();
+
+const ref = (db, path) => db.ref(path);
+const get = (refObj) => refObj.once('value');
+const push = (refObj) => refObj.push();
+const set = (refObj, value) => refObj.set(value);
+
+const query = (refObj, orderByObj, equalToObj) => {
+    let result = refObj;
+    if (orderByObj && orderByObj.orderByChild) {
+        result = result.orderByChild(orderByObj.orderByChild);
+    }
+    if (equalToObj && equalToObj.equalTo !== undefined) {
+        result = result.equalTo(equalToObj.equalTo);
+    }
+    return result;
+};
+
+const orderByChild = (field) => ({ orderByChild: field });
+const equalTo = (value) => ({ equalTo: value });
+
+const setPersistence = (authInst, persistence) => authInst.setPersistence(persistence);
+const browserLocalPersistence = firebase.auth.Auth.Persistence.LOCAL;
 
 
 // =========================================================
@@ -924,14 +937,6 @@ async function evaluateAndRenderUserTier(
     userId
 ) {
 
-    // ✅ DEBUG: Show that function started
-    console.log("🚀 [TIER] Function called for:", userId);
-
-    const actionContainerDebug = document.getElementById("tier-action-container");
-    if (actionContainerDebug) {
-        actionContainerDebug.innerHTML = "<p style='color:orange; margin:0;'>🟠 Function started for " + userId + "</p>";
-    }
-
     try {
 
         const userRef =
@@ -949,23 +954,6 @@ async function evaluateAndRenderUserTier(
 
         const userData =
             userSnap.val() || {};
-
-        // ✅ ADDED: Show actual data from Firebase
-        console.log("[TIER DEBUG] userData:", userData);
-        console.log("[TIER DEBUG] tier:", userData.tier);
-        console.log("[TIER DEBUG] wallet:", userData.wallet);
-        console.log("[TIER DEBUG] totalSpent:", userData.totalSpent);
-
-        if (actionContainerDebug) {
-            actionContainerDebug.innerHTML = `
-                <p style="color:orange; margin:0; font-size:0.7rem; word-break:break-all; line-height:1.4;">
-                    <strong>UID:</strong> ${userId}<br>
-                    <strong>Tier:</strong> ${userData.tier || "MISSING"}<br>
-                    <strong>Wallet:</strong> ${userData.wallet || "MISSING"}<br>
-                    <strong>totalSpent:</strong> ${userData.totalSpent || "MISSING"}
-                </p>
-            `;
-        }
 
 
         const currentTier =
@@ -1271,15 +1259,6 @@ async function evaluateAndRenderUserTier(
             "Error evaluating user tier:",
             err
         );
-
-        const actionContainer = document.getElementById("tier-action-container");
-        if (actionContainer) {
-            actionContainer.innerHTML = `
-                <div style="color:#ff6b6b; font-size:0.75rem; padding:8px; border:1px solid #ff6b6b; border-radius:6px; word-break:break-all;">
-                    ⚠️ Error: ${err.message || err}
-                </div>
-            `;
-        }
 
     }
 
