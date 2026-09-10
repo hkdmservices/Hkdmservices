@@ -493,8 +493,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ============================================================
      FIREBASE LOGIC
-     ✅ FIX: Removed duplicate tier badge + referral display
-     (Tier and referral are now handled ONLY by dashboard.js)
 ============================================================ -->
 <script>
 const firebaseConfig = {
@@ -565,9 +563,21 @@ auth.onAuthStateChanged((user) => {
             if (modalWallet) modalWallet.textContent = formatNaira(wallet);
             const fullName = data.fullName || user.displayName || "User";
             document.getElementById("userName").textContent = fullName;
-
-            // NOTE: Tier badge + referral display handled by dashboard.js
-            // to avoid duplicate updates between inline script and module script.
+            const tier = data.tier || "regular";
+            const tierBadge = document.getElementById("user-current-tier-badge");
+            if (tierBadge) {
+                tierBadge.textContent = tier.toUpperCase();
+                tierBadge.className = "badge bg-" + (tier === "reseller" ? "success" : tier === "vip" ? "warning" : "secondary");
+            }
+            const refLinkInput = document.getElementById("referralLinkInput");
+            if (refLinkInput) {
+                const baseUrl = window.location.origin + "/register.html?ref=";
+                refLinkInput.value = baseUrl + uid;
+            }
+            const totalReferrals = data.totalReferrals || 0;
+            const totalEarnings = data.totalReferralEarnings || 0;
+            document.getElementById("totalReferrals").textContent = totalReferrals;
+            document.getElementById("totalEarnings").textContent = formatNaira(totalEarnings);
         }
     }, (error) => { console.error("Database read error:", error); });
 
