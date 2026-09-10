@@ -1247,6 +1247,15 @@ async function evaluateAndRenderUserTier(
             err
         );
 
+        const actionContainer = document.getElementById("tier-action-container");
+        if (actionContainer) {
+            actionContainer.innerHTML = `
+                <div style="color:#ff6b6b; font-size:0.75rem; padding:8px; border:1px solid #ff6b6b; border-radius:6px; word-break:break-all;">
+                    ⚠️ Error: ${err.message || err}
+                </div>
+            `;
+        }
+
     }
 
 }
