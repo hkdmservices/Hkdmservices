@@ -698,6 +698,31 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+</script><script type="module" src="dashboard.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // ... (your existing dashboard panel code)
+});
 </script>
+
+<!-- ✅ ADD THIS TEST SCRIPT HERE -->
+<script>
+window.addEventListener('error', function(e) {
+    const check = document.getElementById("tier-action-container");
+    if (check && check.innerText.includes("Loading")) {
+        check.innerHTML = "<p style='color:red; font-size:0.75rem; word-break:break-all;'>ERROR: " + (e.message || 'unknown') + "</p>";
+    }
+});
+setTimeout(() => {
+    const check = document.getElementById("tier-action-container");
+    if (check && check.innerText.includes("Loading")) {
+        check.innerHTML = "<p style='color:orange; font-size:0.75rem;'>Scripts checked — no error caught. Module may not have loaded.</p>";
+    }
+}, 3000);
+</script>
+
+</body>  ← CLOSE BODY AFTER
+</html>
 </body>
 </html>
