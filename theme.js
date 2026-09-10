@@ -1,7 +1,6 @@
 // ============================================================
 // MASTER THEME CONTROLLER - HKDMservices
-// Single tap: toggle theme + show hint
-// Double tap: re-enable auto mode
+// Works on iPhone Chrome + Safari, Android, Desktop
 // ============================================================
 (function() {
     'use strict';
@@ -65,7 +64,7 @@
     }
 
     // ============================================================
-    // HINT TOAST — always shows on single tap
+    // HINT TOAST — bulletproof for iPhone
     // ============================================================
     let hintTimeout = null;
     let hintElement = null;
@@ -73,7 +72,6 @@
     function showAutoHint() {
         console.log('💬 Showing auto-switch hint');
 
-        // Remove any existing hint
         if (hintElement && hintElement.parentNode) {
             hintElement.parentNode.removeChild(hintElement);
         }
@@ -83,17 +81,17 @@
             hintTimeout = null;
         }
 
-        // Build element
         hintElement = document.createElement('div');
         hintElement.className = 'theme-hint-toast';
         hintElement.textContent = '👆👆 Double tap for Auto switch';
 
-        // Inline styles with proper dark/light support
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         hintElement.style.cssText = `
             position: fixed !important;
             bottom: 90px !important;
             right: 20px !important;
+            left: auto !important;
+            top: auto !important;
             z-index: 2147483647 !important;
             background: ${isDark ? '#161b22' : '#ffffff'} !important;
             color: ${isDark ? '#f1f3f5' : '#212529'} !important;
@@ -110,11 +108,15 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
             pointer-events: none !important;
             user-select: none !important;
+            -webkit-user-select: none !important;
+            display: block !important;
         `;
 
         document.body.appendChild(hintElement);
 
-        // Animate in
+        // Force reflow to make sure transition works
+        void hintElement.offsetHeight;
+
         requestAnimationFrame(() => {
             if (hintElement) {
                 hintElement.style.opacity = '1';
@@ -122,7 +124,6 @@
             }
         });
 
-        // Auto-dismiss
         hintTimeout = setTimeout(() => {
             if (!hintElement) return;
             hintElement.style.opacity = '0';
@@ -142,12 +143,10 @@
     window.toggleTheme = function() {
         const current = getCurrentTheme();
         if (current.isAuto) {
-            // Auto → switch to manual, opposite of current time
             const timeTheme = getTimeBasedTheme();
             const newTheme = timeTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme, false);
         } else {
-            // Manual → toggle
             const newTheme = current.theme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme, false);
         }
