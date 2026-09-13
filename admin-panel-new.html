@@ -799,14 +799,15 @@
                     <a class="nav-link" href="#" data-section="transactions">
                         <i class="bi bi-receipt"></i> Transactions
                     </a>
+                    <a class="nav-link" href="#" data-section="vouchers">
+                        <i class="bi bi-ticket-perforated"></i> Vouchers
+                    </a>
                     <hr class="border-secondary" id="sidebarDivider">
                     <a class="nav-link text-danger" href="#" id="adminLogout">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </nav>
-            </div>
-
-            <!-- MAIN CONTENT -->
+            </div><!-- MAIN CONTENT -->
             <div class="col-md-9 col-lg-10 main-content">
 
                 <!-- Header -->
@@ -1282,6 +1283,65 @@
                     </div>
                 </div>
 
+                <!-- VOUCHERS SECTION -->
+                <div id="section-vouchers" style="display:none;">
+                    <div class="stat-card">
+                        <div class="stats-grid" id="voucherStatsGrid">
+                            <div class="stat-item">
+                                <div class="number" id="statTotalVouchers">0</div>
+                                <div class="label">Total Vouchers</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-success" id="statAvailableVouchers">0</div>
+                                <div class="label">Available</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-danger" id="statUsedVouchers">0</div>
+                                <div class="label">Used</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="number text-warning" id="statTotalVoucherValue">₦0</div>
+                                <div class="label">Total Value</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+                            <h5>All Vouchers</h5>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="text" id="voucherSearch" class="form-control form-control-sm section-search" placeholder="Search vouchers...">
+                                <select id="voucherStatusFilter" class="form-select form-select-sm" style="width: 150px;">
+                                    <option value="all">All Status</option>
+                                    <option value="available">Available</option>
+                                    <option value="used">Used</option>
+                                </select>
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addVoucherModal">
+                                    <i class="bi bi-plus-circle"></i> Add Voucher
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Used By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allVouchersTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">Loading vouchers...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -1705,6 +1765,41 @@
         </div>
     </div>
 
+    <!-- ADD VOUCHER MODAL -->
+    <div class="modal fade" id="addVoucherModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-ticket-perforated text-success"></i> Add New Voucher</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVoucherForm">
+                        <div class="mb-3">
+                            <label class="form-label">Voucher Code</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="voucherCode" placeholder="e.g. BLACK26" required>
+                                <button class="btn btn-outline-secondary" type="button" id="generateVoucherCode">
+                                    <i class="bi bi-shuffle"></i> Generate
+                                </button>
+                            </div>
+                            <div class="form-text text-muted small">Uppercase letters and numbers. No spaces.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount (₦)</label>
+                            <input type="number" class="form-control" id="voucherAmount" placeholder="e.g. 5000" required min="100">
+                        </div>
+                        <div id="addVoucherMsg"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="saveVoucherBtn">Save Voucher</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -1712,9 +1807,7 @@
     </script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-    <!-- ============================================================
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><!-- ============================================================
          THEME TOGGLE SCRIPT (Auto + Manual)
          ============================================================ -->
     <script>
@@ -1948,7 +2041,8 @@
                     services: '⚙️ Services',
                     shop: '🛒 Shop Management',
                     analytics: '📈 Analytics',
-                    transactions: '💳 Transactions'
+                    transactions: '💳 Transactions',
+                    vouchers: '🎫 Vouchers'
                 };
                 document.getElementById('sectionTitle').textContent = titles[section] || 'Dashboard';
 
@@ -1967,6 +2061,7 @@
             if (section === 'shop') loadAllProducts();
             if (section === 'analytics') loadAnalytics();
             if (section === 'transactions') loadAllTransactions();
+            if (section === 'vouchers') loadAllVouchers();
         }
 
         // ============================================================
@@ -3547,6 +3642,153 @@
         }
 
         // ============================================================
+        // VOUCHERS
+        // ============================================================
+        function loadAllVouchers() {
+            database.ref('vouchers').once('value', (snapshot) => {
+                const data = snapshot.val();
+                const tbody = document.getElementById('allVouchersTable');
+                if (!data) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No vouchers found</td></tr>';
+                    updateVoucherStats({});
+                    return;
+                }
+                const searchTerm = document.getElementById('voucherSearch')?.value?.toLowerCase() || '';
+                const statusFilter = document.getElementById('voucherStatusFilter')?.value || 'all';
+                let vouchers = Object.entries(data);
+                updateVoucherStats(data);
+                if (searchTerm) {
+                    vouchers = vouchers.filter(([key, v]) => {
+                        const code = (v.code || key).toLowerCase();
+                        return code.includes(searchTerm);
+                    });
+                }
+                if (statusFilter === 'available') {
+                    vouchers = vouchers.filter(([key, v]) => !v.isUsed);
+                } else if (statusFilter === 'used') {
+                    vouchers = vouchers.filter(([key, v]) => v.isUsed);
+                }
+                if (vouchers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No vouchers match your filters</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = vouchers
+                    .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+                    .map(([key, v]) => {
+                        const isUsed = v.isUsed === true;
+                        const statusBadge = isUsed
+                            ? '<span class="badge bg-danger">Used</span>'
+                            : '<span class="badge bg-success">Available</span>';
+                        const usedByDisplay = v.usedBy
+                            ? `<code class="uid-code">${String(v.usedBy).slice(0, 10)}...</code>`
+                            : '<span class="text-muted">—</span>';
+                        return `
+                            <tr>
+                                <td><code><strong>${v.code || key}</strong></code></td>
+                                <td class="text-success fw-bold">${formatNaira(v.amount)}</td>
+                                <td>${statusBadge}</td>
+                                <td>${formatDate(v.createdAt)}</td>
+                                <td>${usedByDisplay}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-danger delete-voucher-btn" data-voucher-key="${key}" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                tbody.querySelectorAll('.delete-voucher-btn').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const key = btn.dataset.voucherKey;
+                        if (confirm(`Delete voucher "${key}" permanently?`)) {
+                            try {
+                                await database.ref('vouchers/' + key).remove();
+                                showToast('🗑️ Voucher deleted', 'info');
+                                loadAllVouchers();
+                            } catch (error) {
+                                showToast('❌ Failed: ' + error.message, 'error');
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        function updateVoucherStats(data) {
+            let total = 0, available = 0, used = 0, totalValue = 0;
+            if (data) {
+                Object.values(data).forEach(v => {
+                    total++;
+                    if (v.isUsed === true) used++;
+                    else available++;
+                    totalValue += Number(v.amount || 0);
+                });
+            }
+            document.getElementById('statTotalVouchers').textContent = total;
+            document.getElementById('statAvailableVouchers').textContent = available;
+            document.getElementById('statUsedVouchers').textContent = used;
+            document.getElementById('statTotalVoucherValue').textContent = formatNaira(totalValue);
+        }
+
+        document.getElementById('generateVoucherCode')?.addEventListener('click', () => {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('voucherCode').value = code;
+        });
+
+        document.getElementById('saveVoucherBtn')?.addEventListener('click', async function() {
+            const code = document.getElementById('voucherCode').value.trim().toUpperCase();
+            const amount = parseInt(document.getElementById('voucherAmount').value) || 0;
+            const msgDiv = document.getElementById('addVoucherMsg');
+            if (!code || code.length < 3) {
+                msgDiv.innerHTML = '<div class="alert alert-danger py-2">Please enter a valid code (min 3 chars).</div>';
+                return;
+            }
+            if (!code.match(/^[A-Z0-9]+$/)) {
+                msgDiv.innerHTML = '<div class="alert alert-danger py-2">Code can only contain letters and numbers.</div>';
+                return;
+            }
+            if (amount < 100) {
+                msgDiv.innerHTML = '<div class="alert alert-danger py-2">Amount must be at least ₦100.</div>';
+                return;
+            }
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
+            msgDiv.innerHTML = '<div class="alert alert-info py-2">Saving...</div>';
+            try {
+                const existing = await database.ref('vouchers/' + code).once('value');
+                if (existing.exists()) {
+                    throw new Error('A voucher with this code already exists.');
+                }
+                await database.ref('vouchers/' + code).set({
+                    code: code,
+                    amount: amount,
+                    createdAt: Date.now(),
+                    createdBy: currentUser ? currentUser.uid : 'admin',
+                    isUsed: false
+                });
+                msgDiv.innerHTML = '<div class="alert alert-success py-2">✅ Voucher created!</div>';
+                showToast(`✅ Voucher "${code}" created`, 'success');
+                setTimeout(() => {
+                    msgDiv.innerHTML = '';
+                    document.querySelector('#addVoucherModal .btn-close').click();
+                    document.getElementById('addVoucherForm').reset();
+                    loadAllVouchers();
+                }, 1200);
+            } catch (error) {
+                msgDiv.innerHTML = `<div class="alert alert-danger py-2">❌ ${error.message}</div>`;
+            } finally {
+                this.disabled = false;
+                this.innerHTML = 'Save Voucher';
+            }
+        });
+
+        // ============================================================
         // SEARCH EVENT LISTENERS
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
@@ -3570,6 +3812,8 @@
                 document.getElementById('transactionSearch').value = '';
                 loadAllTransactions();
             });
+            document.getElementById('voucherSearch')?.addEventListener('input', loadAllVouchers);
+            document.getElementById('voucherStatusFilter')?.addEventListener('change', loadAllVouchers);
         });
 
         console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
