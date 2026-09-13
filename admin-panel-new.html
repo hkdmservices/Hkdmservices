@@ -1271,11 +1271,12 @@
                                         <th>Amount</th>
                                         <th>Status</th>
                                         <th>Date</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="allTransactionsTable">
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted">Loading...</td>
+                                        <td colspan="7" class="text-center text-muted">Loading...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1800,37 +1801,85 @@
         </div>
     </div>
 
-    <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- VIEW VOUCHER MODAL -->
+    <div class="modal fade" id="viewVoucherModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-ticket-perforated text-success"></i> Voucher Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewVoucherBody">
+                    <div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <!-- VIEW USER MODAL -->
+    <div class="modal fade" id="viewUserModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-person-circle text-success"></i> User Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewUserBody">
+                    <div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW TRANSACTION MODAL -->
+    <div class="modal fade" id="viewTransactionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-receipt text-success"></i> Transaction Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewTransactionBody">
+                    <div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><!-- ============================================================
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- ============================================================
          THEME TOGGLE SCRIPT (Auto + Manual)
          ============================================================ -->
     <script>
     (function() {
-        // Get the theme toggle elements
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
         const autoIndicator = document.getElementById('autoIndicator');
         const brandText = document.getElementById('brandText');
 
-        // Check for saved preference, default to 'auto'
         let savedPreference = localStorage.getItem('adminTheme') || 'auto';
         let currentTheme = 'light';
         let isAutoMode = true;
 
-        // Function to determine theme based on time
         function getTimeBasedTheme() {
             const hour = new Date().getHours();
-            // Dark mode from 6 PM (18) to 6 AM (6)
             return (hour >= 18 || hour < 6) ? 'dark' : 'light';
         }
 
-        // Function to apply theme
         function applyTheme(theme, isAuto) {
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -1842,12 +1891,10 @@
                 currentTheme = 'light';
             }
 
-            // Update brand text color for visibility
             if (brandText) {
                 brandText.style.color = theme === 'dark' ? '#f1f3f5' : '#212529';
             }
 
-            // Update auto indicator
             if (autoIndicator) {
                 if (isAuto) {
                     autoIndicator.style.display = 'flex';
@@ -1858,7 +1905,6 @@
                 }
             }
 
-            // Update button title
             if (themeToggle) {
                 const mode = theme === 'dark' ? 'Dark' : 'Light';
                 const autoText = isAuto ? ' (Auto: ON)' : ' (Manual)';
@@ -1869,7 +1915,6 @@
             localStorage.setItem('adminTheme', isAuto ? 'auto' : theme);
         }
 
-        // Function to handle auto-switch
         function handleAutoSwitch() {
             if (isAutoMode) {
                 const timeBasedTheme = getTimeBasedTheme();
@@ -1877,57 +1922,42 @@
             }
         }
 
-        // Initialize theme
         function initTheme() {
             const preference = localStorage.getItem('adminTheme');
-
             if (!preference || preference === 'auto') {
-                // Auto mode
-                const timeBasedTheme = getTimeBasedTheme();
-                applyTheme(timeBasedTheme, true);
+                applyTheme(getTimeBasedTheme(), true);
             } else {
-                // Manual mode (light or dark)
                 applyTheme(preference, false);
             }
         }
 
-        // Toggle on button click
         if (themeToggle) {
             themeToggle.addEventListener('click', function() {
                 if (isAutoMode) {
-                    // If auto mode is ON, turn it OFF and switch to opposite of current time theme
                     const currentTimeTheme = getTimeBasedTheme();
                     const newTheme = currentTimeTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 } else {
-                    // Manual mode: toggle between light and dark
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 }
             });
 
-            // Double-click to re-enable auto mode
             themeToggle.addEventListener('dblclick', function() {
-                const timeBasedTheme = getTimeBasedTheme();
-                applyTheme(timeBasedTheme, true);
+                applyTheme(getTimeBasedTheme(), true);
                 showToast('🔄 Auto mode re-enabled!', 'info');
             });
         }
 
-        // Auto-switch every minute (check time)
         setInterval(handleAutoSwitch, 60000);
 
-        // Also check on page visibility change (user returns to tab)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 handleAutoSwitch();
             }
         });
 
-        // Initialize
         initTheme();
-
-        console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
     })();
     </script>
 
@@ -1935,9 +1965,6 @@
          FIREBASE & ADMIN SCRIPTS
          ============================================================ -->
     <script>
-        // ============================================================
-        // FIREBASE CONFIG
-        // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
             authDomain: "hkdmservices-7d59f.firebaseapp.com",
@@ -1956,9 +1983,6 @@
         let currentOrderFilter = 'all';
         let selectedOrders = new Set();
 
-        // ============================================================
-        // CHECK ADMIN ACCESS
-        // ============================================================
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'admin-login.html';
@@ -1980,9 +2004,6 @@
             loadDashboard();
         });
 
-        // ============================================================
-        // LOGOUT
-        // ============================================================
         document.getElementById('adminLogout').addEventListener('click', async function(e) {
             e.preventDefault();
             try {
@@ -1993,14 +2014,10 @@
                 sessionStorage.clear();
                 window.location.href = 'admin-login.html';
             } catch (error) {
-                console.error('Logout error:', error);
                 window.location.href = 'admin-login.html';
             }
         });
 
-        // ============================================================
-        // REFRESH DATA
-        // ============================================================
         document.getElementById('refreshData').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -2009,12 +2026,10 @@
             try {
                 const activeSection = document.querySelector('.sidebar .nav-link.active');
                 if (activeSection) {
-                    const section = activeSection.dataset.section;
-                    await loadSection(section);
+                    await loadSection(activeSection.dataset.section);
                 }
                 showToast('✅ Data refreshed!', 'success');
             } catch (error) {
-                console.error('Refresh error:', error);
                 showToast('❌ Failed to refresh data', 'error');
             } finally {
                 btn.innerHTML = originalHtml;
@@ -2022,9 +2037,6 @@
             }
         });
 
-        // ============================================================
-        // SECTION SWITCHING
-        // ============================================================
         document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(link => {
             link.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
@@ -2064,9 +2076,6 @@
             if (section === 'vouchers') loadAllVouchers();
         }
 
-        // ============================================================
-        // TOAST NOTIFICATIONS
-        // ============================================================
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -2080,9 +2089,6 @@
             }, 4000);
         }
 
-        // ============================================================
-        // FORMAT FUNCTIONS
-        // ============================================================
         function formatNaira(amount) {
             return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
@@ -2105,9 +2111,6 @@
             return `<span class="badge bg-${color}">${status || 'pending'}</span>`;
         }
 
-        // ============================================================
-        // DASHBOARD OVERVIEW
-        // ============================================================
         function loadDashboard() {
             const ordersRef = database.ref('orders');
             ordersRef.once('value', (snapshot) => {
@@ -2158,22 +2161,15 @@
             });
         }
 
-        // ============================================================
-        // ORDERS FILTER
-        // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove(
-                    'active-filter'));
+                document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove('active-filter'));
                 btn.classList.add('active-filter');
                 currentOrderFilter = btn.dataset.filter;
                 loadAllOrders();
             });
         });
 
-        // ============================================================
-        // ALL ORDERS
-        // ============================================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
             ordersRef.once('value', (snapshot) => {
@@ -2200,16 +2196,14 @@
                         const service = (order.serviceName || '').toLowerCase();
                         const platform = (order.platform || '').toLowerCase();
                         const uid = (order.uid || '').toLowerCase();
-                        return orderId.includes(searchTerm) || service.includes(searchTerm) || platform.includes(
-                            searchTerm) || uid.includes(searchTerm);
+                        return orderId.includes(searchTerm) || service.includes(searchTerm) || platform.includes(searchTerm) || uid.includes(searchTerm);
                     });
                 }
 
                 updateOrderStats(data);
 
                 if (orders.length === 0) {
-                    tbody.innerHTML =
-                        `<tr><td colspan="10" class="text-center text-muted">No ${currentOrderFilter} orders found</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">No ${currentOrderFilter} orders found</td></tr>`;
                     return;
                 }
 
@@ -2217,36 +2211,22 @@
                 document.getElementById('selectedOrdersCount').textContent = '0 selected';
 
                 tbody.innerHTML = orders.map(([key, order]) => {
-                    const isRefundable = order.status !== 'refunded' && order.status !== 'cancelled' && order.status !==
-                        'failed';
+                    const isRefundable = order.status !== 'refunded' && order.status !== 'cancelled' && order.status !== 'failed';
                     const orderId = order.orderId || key;
                     const displayStatus = order.status || 'pending';
 
                     let actionButtons = `
-                            <button class="btn btn-sm btn-outline-light view-order-btn" 
-                                data-order-key="${key}"
-                                data-order-id="${orderId}"
-                                title="View order details">
+                            <button class="btn btn-sm btn-outline-light view-order-btn" data-order-key="${key}" data-order-id="${orderId}" title="View order details">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-light update-status-btn" 
-                                data-order-key="${key}"
-                                data-order-id="${orderId}"
-                                data-current-status="${displayStatus}"
-                                title="Update status">
+                            <button class="btn btn-sm btn-outline-light update-status-btn" data-order-key="${key}" data-order-id="${orderId}" data-current-status="${displayStatus}" title="Update status">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         `;
 
                     if (isRefundable && (displayStatus === 'pending' || displayStatus === 'processing')) {
                         actionButtons += `
-                                <button class="btn btn-sm btn-refund cancel-refund-btn" 
-                                    data-order-key="${key}"
-                                    data-order-id="${orderId}"
-                                    data-service="${order.serviceName || 'N/A'}"
-                                    data-amount="${order.total || 0}"
-                                    data-uid="${order.uid || ''}"
-                                    title="Cancel and refund">
+                                <button class="btn btn-sm btn-refund cancel-refund-btn" data-order-key="${key}" data-order-id="${orderId}" data-service="${order.serviceName || 'N/A'}" data-amount="${order.total || 0}" data-uid="${order.uid || ''}" title="Cancel and refund">
                                     <i class="bi bi-x-circle"></i>
                                 </button>
                             `;
@@ -2258,10 +2238,7 @@
 
                     return `
                             <tr>
-                                <td>
-                                    <input type="checkbox" class="order-checkbox" data-order-key="${key}" 
-                                        ${selectedOrders.has(key) ? 'checked' : ''}>
-                                </td>
+                                <td><input type="checkbox" class="order-checkbox" data-order-key="${key}" ${selectedOrders.has(key) ? 'checked' : ''}></td>
                                 <td><code class="id-code">${orderId}</code></td>
                                 <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
                                 <td>${order.serviceName || 'N/A'}</td>
@@ -2275,14 +2252,12 @@
                         `;
                 }).join('');
 
-                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
-                // Attach checkbox events
                 document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -2295,66 +2270,42 @@
                     });
                 });
 
-                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
                         document.getElementById('statusOrderId').value = btn.dataset.orderId;
                         document.getElementById('newOrderStatus').value = btn.dataset.currentStatus;
                         document.getElementById('updateStatusMsg').innerHTML = '';
-                        const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-                        modal.show();
+                        new bootstrap.Modal(document.getElementById('updateStatusModal')).show();
                     });
                 });
 
-                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
                         document.getElementById('cancelServiceDisplay').textContent = btn.dataset.service;
-                        document.getElementById('cancelAmountDisplay').textContent = formatNaira(btn.dataset
-                            .amount);
-                        document.getElementById('cancelUserDisplay').textContent = btn.dataset.uid.slice(0,
-                            10) + '...';
+                        document.getElementById('cancelAmountDisplay').textContent = formatNaira(btn.dataset.amount);
+                        document.getElementById('cancelUserDisplay').textContent = btn.dataset.uid.slice(0, 10) + '...';
                         document.getElementById('confirmCancelBtn').dataset.orderKey = btn.dataset.orderKey;
                         document.getElementById('confirmCancelBtn').dataset.orderId = btn.dataset.orderId;
                         document.getElementById('cancelMsg').innerHTML = '';
-                        const modal = new bootstrap.Modal(document.getElementById('confirmCancelModal'));
-                        modal.show();
+                        new bootstrap.Modal(document.getElementById('confirmCancelModal')).show();
                     });
                 });
             });
         }
 
-        // ============================================================
-        // ORDER UTILITIES
-        // ============================================================
         function updateOrderStats(data) {
-            let total = 0,
-                pending = 0,
-                processing = 0,
-                completed = 0,
-                cancelled = 0,
-                refunded = 0;
+            let total = 0, pending = 0, processing = 0, completed = 0, cancelled = 0, refunded = 0;
             if (data) {
                 Object.values(data).forEach(order => {
                     total++;
                     switch (order.status) {
-                        case 'pending':
-                            pending++;
-                            break;
-                        case 'processing':
-                            processing++;
-                            break;
-                        case 'completed':
-                            completed++;
-                            break;
-                        case 'cancelled':
-                            cancelled++;
-                            break;
-                        case 'refunded':
-                            refunded++;
-                            break;
+                        case 'pending': pending++; break;
+                        case 'processing': processing++; break;
+                        case 'completed': completed++; break;
+                        case 'cancelled': cancelled++; break;
+                        case 'refunded': refunded++; break;
                     }
                 });
             }
@@ -2392,9 +2343,6 @@
             updateSelectedCount();
         });
 
-        // ============================================================
-        // ✅ PATCH 1: BULK ACTION NOW USES PHP ENDPOINT (sends emails)
-        // ============================================================
         document.getElementById('applyBulkAction').addEventListener('click', async function() {
             const action = document.getElementById('bulkOrderAction').value;
             const orderKeys = Array.from(selectedOrders);
@@ -2407,8 +2355,7 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
             try {
-                let success = 0,
-                    failed = 0;
+                let success = 0, failed = 0;
                 const idToken = await currentUser.getIdToken(true);
                 for (const key of orderKeys) {
                     try {
@@ -2427,8 +2374,7 @@
                         failed++;
                     }
                 }
-                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`,
-                    'success');
+                showToast(`✅ Updated ${success} order(s) to "${action}"${failed > 0 ? `, ${failed} failed` : ''}`, 'success');
                 selectedOrders.clear();
                 loadAllOrders();
                 loadDashboard();
@@ -2441,15 +2387,10 @@
             }
         });
 
-        // ============================================================
-        // VIEW ORDER DETAILS
-        // ============================================================
         function viewOrderDetails(orderKey, orderId) {
             const modalBody = document.getElementById('orderDetailsBody');
-            modalBody.innerHTML =
-                `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading order details...</p></div>`;
-            const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-            modal.show();
+            modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading order details...</p></div>`;
+            new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
             database.ref('orders/' + orderKey).once('value', (snapshot) => {
                 const order = snapshot.val();
                 if (!order) {
@@ -2485,9 +2426,6 @@
             });
         }
 
-        // ============================================================
-        // ✅ PATCH 2: UPDATE STATUS NOW USES PHP ENDPOINT (sends email)
-        // ============================================================
         document.getElementById('updateStatusBtn').addEventListener('click', async () => {
             const orderKey = document.getElementById('statusOrderKey').value;
             const orderId = document.getElementById('statusOrderId').value;
@@ -2525,9 +2463,6 @@
             }
         });
 
-        // ============================================================
-        // CONFIRM CANCEL & REFUND
-        // ============================================================
         document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
             const orderKey = this.dataset.orderKey;
             const orderId = this.dataset.orderId;
@@ -2544,8 +2479,7 @@
                 const orderSnapshot = await database.ref('orders/' + orderKey).once('value');
                 const orderData = orderSnapshot.val();
                 if (!orderData) throw new Error('Order not found');
-                if (orderData.status === 'refunded' || orderData.status === 'cancelled') throw new Error(
-                    'This order has already been cancelled or refunded');
+                if (orderData.status === 'refunded' || orderData.status === 'cancelled') throw new Error('This order has already been cancelled or refunded');
                 const uid = orderData.uid;
                 const amount = Number(orderData.total || 0);
                 if (!uid || amount <= 0) throw new Error('Invalid order data for refund');
@@ -2571,8 +2505,7 @@
                     processedBy: currentUser ? currentUser.email : 'admin'
                 };
                 await database.ref('transactions/' + transactionId).set(transactionData);
-                msgDiv.innerHTML =
-                    `<div class="alert alert-success">✅ Refund successful! ${formatNaira(amount)} returned to user's wallet.</div>`;
+                msgDiv.innerHTML = `<div class="alert alert-success">✅ Refund successful! ${formatNaira(amount)} returned to user's wallet.</div>`;
                 showToast(`✅ Refunded ${formatNaira(amount)} for order ${orderId}`, 'success');
                 setTimeout(() => {
                     bootstrap.Modal.getInstance(document.getElementById('confirmCancelModal')).hide();
@@ -2580,7 +2513,6 @@
                     loadDashboard();
                 }, 2000);
             } catch (error) {
-                console.error('Cancel/Refund error:', error);
                 msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed: ${error.message}</div>`;
             } finally {
                 btn.disabled = false;
@@ -2588,9 +2520,6 @@
             }
         });
 
-        // ============================================================
-        // USERS
-        // ============================================================
         function loadAllUsers() {
             const usersRef = database.ref('users');
             usersRef.once('value', (snapshot) => {
@@ -2608,8 +2537,7 @@
                     const name = (user.fullName || '').toLowerCase();
                     const email = (user.email || '').toLowerCase();
                     const uid = key.toLowerCase();
-                    const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || uid.includes(
-                        searchTerm);
+                    const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm) || uid.includes(searchTerm);
                     const userTier = (user.tier || 'regular').toLowerCase();
                     const matchesTier = tierFilter === 'all' || userTier === tierFilter;
                     const userStatus = user.status || 'active';
@@ -2617,17 +2545,12 @@
                     return matchesSearch && matchesTier && matchesStatus;
                 });
                 if (filtered.length === 0) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No users match your filters</td></tr>';
                     return;
                 }
                 tbody.innerHTML = filtered.map(([key, user]) => {
                     const isSuspended = user.status === 'suspended';
-                    const tierColors = {
-                        'reseller': 'danger',
-                        'vip': 'success',
-                        'regular': 'secondary'
-                    };
+                    const tierColors = { 'reseller': 'danger', 'vip': 'success', 'regular': 'secondary' };
                     const tierColor = tierColors[user.tier] || 'secondary';
                     return `
                             <tr class="${isSuspended ? 'text-muted' : ''}">
@@ -2640,6 +2563,7 @@
                                 <td><span class="badge bg-${isSuspended ? 'danger' : 'success'}">${isSuspended ? 'Suspended' : 'Active'}</span></td>
                                 <td>
                                     <div class="d-flex gap-1 flex-wrap user-actions">
+                                        <button class="btn btn-sm btn-outline-light view-user-btn" data-uid="${key}" title="View profile"><i class="bi bi-eye"></i></button>
                                         <button class="btn btn-sm btn-outline-light edit-user-btn" data-uid="${key}" data-fullname="${user.fullName || ''}" data-email="${user.email || ''}" data-tier="${user.tier || 'regular'}" data-status="${user.status || 'active'}"><i class="bi bi-pencil"></i></button>
                                         <button class="btn btn-sm ${isSuspended ? 'btn-success' : 'btn-outline-warning'} toggle-status-btn" data-uid="${key}" data-current="${isSuspended}"><i class="bi bi-${isSuspended ? 'check-circle' : 'pause-circle'}"></i></button>
                                         <button class="btn btn-sm btn-outline-danger delete-user-btn" data-uid="${key}"><i class="bi bi-trash"></i></button>
@@ -2648,6 +2572,13 @@
                             </tr>
                         `;
                 }).join('');
+
+                document.querySelectorAll('.view-user-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        viewUserDetails(btn.dataset.uid);
+                    });
+                });
+
                 document.querySelectorAll('.edit-user-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('editUserUid').value = btn.dataset.uid;
@@ -2656,10 +2587,10 @@
                         document.getElementById('editUserTier').value = btn.dataset.tier;
                         document.getElementById('editUserStatus').value = btn.dataset.status;
                         document.getElementById('editUserMsg').innerHTML = '';
-                        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-                        modal.show();
+                        new bootstrap.Modal(document.getElementById('editUserModal')).show();
                     });
                 });
+
                 document.querySelectorAll('.toggle-status-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const uid = btn.dataset.uid;
@@ -2676,6 +2607,7 @@
                         }
                     });
                 });
+
                 document.querySelectorAll('.delete-user-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const uid = btn.dataset.uid;
@@ -2689,6 +2621,52 @@
                             }
                         }
                     });
+                });
+            });
+        }
+
+        function viewUserDetails(uid) {
+            const modalBody = document.getElementById('viewUserBody');
+            modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
+            new bootstrap.Modal(document.getElementById('viewUserModal')).show();
+
+            database.ref('users/' + uid).once('value', (snapshot) => {
+                const u = snapshot.val();
+                if (!u) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">User not found</div>`;
+                    return;
+                }
+                const isSuspended = u.status === 'suspended';
+                const tierColors = { 'reseller': 'danger', 'vip': 'success', 'regular': 'secondary' };
+                const tierColor = tierColors[u.tier] || 'secondary';
+
+                database.ref('orders').once('value').then(ordersSnap => {
+                    const allOrders = ordersSnap.val() || {};
+                    const userOrders = Object.values(allOrders).filter(o => o.uid === uid);
+
+                    modalBody.innerHTML = `
+                        <div class="mb-3">
+                            <h6 class="text-success">Account Information</h6>
+                            <div class="detail-row"><span class="detail-label">UID</span><span class="detail-value"><code style="font-size:0.7rem;">${uid}</code></span></div>
+                            <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value">${u.fullName || 'N/A'}</span></div>
+                            <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${u.email || 'N/A'}</span></div>
+                            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge bg-${isSuspended ? 'danger' : 'success'}">${isSuspended ? 'Suspended' : 'Active'}</span></span></div>
+                            <div class="detail-row"><span class="detail-label">Tier</span><span class="detail-value"><span class="badge bg-${tierColor}">${(u.tier || 'regular').toUpperCase()}</span></span></div>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-success">Financial Summary</h6>
+                            <div class="detail-row"><span class="detail-label">Wallet Balance</span><span class="detail-value fw-bold text-success">${formatNaira(u.wallet)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Total Spent</span><span class="detail-value">${formatNaira(u.totalSpent)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Total Invested</span><span class="detail-value">${formatNaira(u.totalInvested || 0)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Total Orders</span><span class="detail-value">${userOrders.length}</span></div>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-success">Referral Program</h6>
+                            <div class="detail-row"><span class="detail-label">Referral Code</span><span class="detail-value"><code>${u.referralCode || uid}</code></span></div>
+                            <div class="detail-row"><span class="detail-label">Total Referrals</span><span class="detail-value">${u.totalReferrals || 0}</span></div>
+                            <div class="detail-row"><span class="detail-label">Referral Earnings</span><span class="detail-value">${formatNaira(u.totalReferralEarnings || 0)}</span></div>
+                        </div>
+                    `;
                 });
             });
         }
@@ -2719,18 +2697,10 @@
             }
         });
 
-        // ============================================================
-        // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
-        // ============================================================
-
-        // ============================================================
-        // HELPER: Load services from file (supports both catalogs)
-        // ============================================================
         async function loadServicesFromFile(catalog = 'global') {
             try {
                 const filename = catalog === 'nigeria' ? './nigeria-services-catalogue.js' : './services.js';
                 const module = await import(filename + '?t=' + Date.now());
-                
                 if (catalog === 'nigeria') {
                     return module.hkdmservicesNigeriaServicePriceCatalogue || module.default || [];
                 } else {
@@ -2742,48 +2712,28 @@
             }
         }
 
-        // ============================================================
-        // LOAD SERVICES - BOTH GLOBAL AND NIGERIA
-        // ============================================================
         async function loadAllServices() {
             try {
-                console.log('🔍 Loading services using import()...');
-                
                 let globalServices = [];
                 let nigeriaServices = [];
-                
-                // Load Global services
                 try {
                     const globalModule = await import('./services.js?t=' + Date.now());
                     globalServices = globalModule.hkdmservicesOfficialServicePriceCatalogue || globalModule.default || [];
-                    console.log('✅ Global services loaded:', globalServices.length);
-                } catch (e) {
-                    console.error('❌ Error loading global services:', e);
-                }
-                
-                // Load Nigeria services
+                } catch (e) { console.error('❌ Error loading global services:', e); }
                 try {
                     const nigeriaModule = await import('./nigeria-services-catalogue.js?t=' + Date.now());
                     nigeriaServices = nigeriaModule.hkdmservicesNigeriaServicePriceCatalogue || nigeriaModule.default || [];
-                    console.log('✅ Nigeria services loaded:', nigeriaServices.length);
-                } catch (e) {
-                    console.error('❌ Error loading Nigeria services:', e);
-                }
-                
-                // If both are empty, use embedded fallback
+                } catch (e) { console.error('❌ Error loading Nigeria services:', e); }
                 if (globalServices.length === 0 && nigeriaServices.length === 0) {
-                    console.warn('⚠️ No services loaded, using embedded fallback');
                     globalServices = getEmbeddedServices();
                     nigeriaServices = getEmbeddedNigeriaServices();
                     showToast('⚠️ Using embedded services (import failed)', 'warning');
                 } else {
                     showToast('✅ Loaded ' + globalServices.length + ' Global + ' + nigeriaServices.length + ' Nigeria services', 'success');
                 }
-                
                 renderServicesTable(globalServices, 'globalServicesTable', 'global');
                 renderServicesTable(nigeriaServices, 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(globalServices, nigeriaServices);
-                
             } catch (error) {
                 console.error('❌ Error loading services:', error);
                 const fallback = getEmbeddedServices();
@@ -2791,13 +2741,9 @@
                 renderServicesTable(fallback, 'globalServicesTable', 'global');
                 renderServicesTable(nigeriaFallback, 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(fallback, nigeriaFallback);
-                showToast('⚠️ Using embedded services (error)', 'warning');
             }
         }
 
-        // ============================================================
-        // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
-        // ============================================================
         function getEmbeddedServices() {
             return [
                 { id: "ig_followers", platform: "Instagram", service: "Followers", ratePer1000: 12000, resellerRatePer1000: 9000, vipRatePer1000: 10800, minimumQuantity: 100 },
@@ -2870,9 +2816,6 @@
             ];
         }
 
-        // ============================================================
-        // NIGERIA EMBEDDED SERVICES (FALLBACK ONLY)
-        // ============================================================
         function getEmbeddedNigeriaServices() {
             return [
                 { id: "n1", service: "Followers - Nigeria", platform: "Instagram", ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
@@ -2893,9 +2836,6 @@
             ];
         }
 
-        // ============================================================
-        // RENDER SERVICES TABLE - WITH ONE-TIME SERVICE SUPPORT
-        // ============================================================
         function renderServicesTable(services, tableId, catalog) {
             const tbody = document.getElementById(tableId);
             if (!services || services.length === 0) {
@@ -2909,22 +2849,15 @@
                 const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit', 'linkedin', 'pinterest', 'discord'];
                 const finalClass = validPlatforms.includes(platformClass) ? platformClass : 'custom';
 
-                // ✅ Handle one-time services (fixedPrice) and regular services
                 let rateDisplay = '';
                 let resellerDisplay = '-';
                 let vipDisplay = '-';
-                
+
                 if (service.oneTimePayment === true || service.fixedPrice !== null && service.fixedPrice !== undefined) {
-                    // One-time service with fixed price
                     rateDisplay = `<span class="text-warning">💰 ${formatNaira(service.fixedPrice || service.ratePer1000)}</span>`;
-                    if (service.resellerFixedPrice) {
-                        resellerDisplay = formatNaira(service.resellerFixedPrice);
-                    }
-                    if (service.vipFixedPrice) {
-                        vipDisplay = formatNaira(service.vipFixedPrice);
-                    }
+                    if (service.resellerFixedPrice) resellerDisplay = formatNaira(service.resellerFixedPrice);
+                    if (service.vipFixedPrice) vipDisplay = formatNaira(service.vipFixedPrice);
                 } else if (service.ratePer1000 !== null && service.ratePer1000 !== undefined) {
-                    // Regular per-1000 service
                     rateDisplay = formatNaira(service.ratePer1000);
                     resellerDisplay = service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-';
                     vipDisplay = service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-';
@@ -2932,7 +2865,6 @@
                     rateDisplay = '<span class="text-muted">N/A</span>';
                 }
 
-                // Check if it's a comment service
                 const isComment = service.service && service.service.toLowerCase().includes('comment');
 
                 return `
@@ -2949,25 +2881,13 @@
                         <td>${vipDisplay}</td>
                         <td>${service.minimumQuantity || 100}</td>
                         <td class="service-actions">
-                            <button class="btn btn-outline-success btn-sm edit-service-btn" 
-                                    data-id="${service.id || index}" 
-                                    data-catalog="${catalog}"
-                                    data-service='${JSON.stringify(service).replace(/'/g, "&#39;")}'
-                                    title="Edit service">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm delete-service-btn" 
-                                    data-id="${service.id || index}" 
-                                    data-catalog="${catalog}"
-                                    title="Delete service">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <button class="btn btn-outline-success btn-sm edit-service-btn" data-id="${service.id || index}" data-catalog="${catalog}" data-service='${JSON.stringify(service).replace(/'/g, "&#39;")}' title="Edit service"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-outline-danger btn-sm delete-service-btn" data-id="${service.id || index}" data-catalog="${catalog}" title="Delete service"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>
                 `;
             }).join('');
 
-            // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const service = JSON.parse(btn.dataset.service);
@@ -2975,7 +2895,6 @@
                 });
             });
 
-            // Attach delete event listeners
             tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('Delete this service permanently?')) {
@@ -2985,14 +2904,9 @@
             });
         }
 
-        // ============================================================
-        // UPDATE SERVICE STATS - WITH ONE-TIME SERVICE SUPPORT
-        // ============================================================
         function updateServiceStats(global, nigeria) {
             const all = [...(global || []), ...(nigeria || [])];
             const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
-            
-            // Handle both regular and one-time services
             const rates = all.map(s => {
                 if (s.oneTimePayment === true || s.fixedPrice !== null) {
                     return Number(s.fixedPrice || s.ratePer1000 || 0);
@@ -3014,19 +2928,15 @@
             display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
-        // ============================================================
-        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM & ONE-TIME SUPPORT
-        // ============================================================
         function openEditServiceModal(service, catalog) {
             document.getElementById('editServiceId').value = service.id;
             document.getElementById('editCatalog').value = catalog;
             document.getElementById('editSvcName').value = service.service || '';
-            
-            // Check if platform is in the dropdown list
+
             const platformSelect = document.getElementById('editSvcPlatform');
             const platformOptions = Array.from(platformSelect.options).map(opt => opt.value);
             const platformName = service.platform || 'Instagram';
-            
+
             if (platformOptions.includes(platformName)) {
                 platformSelect.value = platformName;
                 document.getElementById('editCustomPlatformContainer').style.display = 'none';
@@ -3035,11 +2945,10 @@
                 document.getElementById('editCustomPlatformContainer').style.display = 'block';
                 document.getElementById('editSvcCustomPlatform').value = platformName;
             }
-            
-            // Handle one-time services
+
             const isOneTime = service.oneTimePayment === true || (service.fixedPrice !== null && service.fixedPrice !== undefined);
             document.getElementById('editSvcOneTime').checked = isOneTime;
-            
+
             if (isOneTime) {
                 document.getElementById('editSvcRate').value = service.fixedPrice || service.ratePer1000 || 0;
                 document.getElementById('editSvcResellerRate').value = service.resellerFixedPrice || '';
@@ -3051,15 +2960,11 @@
                 document.getElementById('editSvcVipRate').value = service.vipRatePer1000 || '';
                 document.getElementById('editRateLabel').textContent = 'Rate (per 1000) ₦';
             }
-            
+
             document.getElementById('editSvcMinQty').value = service.minimumQuantity || 100;
-            const modal = new bootstrap.Modal(document.getElementById('editServiceModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('editServiceModal')).show();
         }
 
-        // ============================================================
-        // CUSTOM PLATFORM HANDLING - Add Service
-        // ============================================================
         document.getElementById('svcPlatform').addEventListener('change', function() {
             const container = document.getElementById('customPlatformContainer');
             if (this.value === 'other') {
@@ -3072,9 +2977,6 @@
             }
         });
 
-        // ============================================================
-        // CUSTOM PLATFORM HANDLING - Edit Service
-        // ============================================================
         document.getElementById('editSvcPlatform').addEventListener('change', function() {
             const container = document.getElementById('editCustomPlatformContainer');
             if (this.value === 'other') {
@@ -3087,9 +2989,6 @@
             }
         });
 
-        // ============================================================
-        // ONE-TIME SERVICE TOGGLE - Add Service
-        // ============================================================
         document.getElementById('svcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('rateLabel');
             const rateInput = document.getElementById('svcRate');
@@ -3107,9 +3006,6 @@
             }
         });
 
-        // ============================================================
-        // ONE-TIME SERVICE TOGGLE - Edit Service
-        // ============================================================
         document.getElementById('editSvcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('editRateLabel');
             const rateInput = document.getElementById('editSvcRate');
@@ -3127,9 +3023,6 @@
             }
         });
 
-        // ============================================================
-        // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
-        // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -3137,77 +3030,43 @@
             btn.disabled = true;
             try {
                 const catalog = document.getElementById('addCatalog').value;
-                
-                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('svcPlatform').value;
-                const platform = platformValue === 'other' 
-                    ? document.getElementById('svcCustomPlatform').value.trim() 
-                    : platformValue;
-                
+                const platform = platformValue === 'other' ? document.getElementById('svcCustomPlatform').value.trim() : platformValue;
                 if (!platform) {
-                    document.getElementById('addServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">Please enter a platform name.</div>`;
+                    document.getElementById('addServiceMsg').innerHTML = `<div class="alert alert-danger">Please enter a platform name.</div>`;
                     return;
                 }
-                
                 const serviceName = document.getElementById('svcName').value.trim();
                 const isOneTime = document.getElementById('svcOneTime').checked;
                 const rate = parseInt(document.getElementById('svcRate').value) || 0;
                 const resellerRate = parseInt(document.getElementById('svcResellerRate').value) || null;
                 const vipRate = parseInt(document.getElementById('svcVipRate').value) || null;
                 const minQty = parseInt(document.getElementById('svcMinQty').value) || (isOneTime ? 1 : 100);
-                
                 if (!serviceName || !rate) {
-                    document.getElementById('addServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">Please fill in all required fields.</div>`;
+                    document.getElementById('addServiceMsg').innerHTML = `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
-                
-                let newService = {
-                    id: Date.now().toString(),
-                    platform: platform,
-                    service: serviceName,
-                    minimumQuantity: minQty,
-                    createdAt: Date.now()
-                };
-                
+                let newService = { id: Date.now().toString(), platform: platform, service: serviceName, minimumQuantity: minQty, createdAt: Date.now() };
                 if (isOneTime) {
-                    newService.ratePer1000 = null;
-                    newService.resellerRatePer1000 = null;
-                    newService.vipRatePer1000 = null;
-                    newService.fixedPrice = rate;
-                    newService.resellerFixedPrice = resellerRate;
-                    newService.vipFixedPrice = vipRate;
-                    newService.oneTimePayment = true;
-                    newService.minimumQuantity = 1;
+                    newService.ratePer1000 = null; newService.resellerRatePer1000 = null; newService.vipRatePer1000 = null;
+                    newService.fixedPrice = rate; newService.resellerFixedPrice = resellerRate; newService.vipFixedPrice = vipRate;
+                    newService.oneTimePayment = true; newService.minimumQuantity = 1;
                 } else {
-                    newService.ratePer1000 = rate;
-                    newService.resellerRatePer1000 = resellerRate;
-                    newService.vipRatePer1000 = vipRate;
-                    newService.fixedPrice = null;
-                    newService.resellerFixedPrice = null;
-                    newService.vipFixedPrice = null;
+                    newService.ratePer1000 = rate; newService.resellerRatePer1000 = resellerRate; newService.vipRatePer1000 = vipRate;
+                    newService.fixedPrice = null; newService.resellerFixedPrice = null; newService.vipFixedPrice = null;
                     newService.oneTimePayment = false;
                 }
-
-                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
-                if (!services || services.length === 0) {
-                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
-                }
+                if (!services || services.length === 0) services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 services.push(newService);
-
-                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ services: services, catalog: catalog })
                 });
                 const result = await response.json();
-
                 if (result.success) {
-                    document.getElementById('addServiceMsg').innerHTML =
-                        `<div class="alert alert-success">✅ Service added successfully!</div>`;
+                    document.getElementById('addServiceMsg').innerHTML = `<div class="alert alert-success">✅ Service added successfully!</div>`;
                     showToast('✅ Service added to ' + catalog + ' catalog!', 'success');
                     setTimeout(() => {
                         document.querySelector('#addServiceModal .btn-close').click();
@@ -3219,22 +3078,16 @@
                         loadAllServices();
                     }, 1500);
                 } else {
-                    document.getElementById('addServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">❌ PHP error: ${result.message}</div>`;
+                    document.getElementById('addServiceMsg').innerHTML = `<div class="alert alert-danger">❌ PHP error: ${result.message}</div>`;
                 }
             } catch (error) {
-                console.error('Add service error:', error);
-                document.getElementById('addServiceMsg').innerHTML =
-                    `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
+                document.getElementById('addServiceMsg').innerHTML = `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         });
 
-        // ============================================================
-        // UPDATE SERVICE - TO PHP WITH ONE-TIME SUPPORT
-        // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -3243,118 +3096,72 @@
             try {
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
-                
-                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('editSvcPlatform').value;
-                const platform = platformValue === 'other' 
-                    ? document.getElementById('editSvcCustomPlatform').value.trim() 
-                    : platformValue;
-                
+                const platform = platformValue === 'other' ? document.getElementById('editSvcCustomPlatform').value.trim() : platformValue;
                 if (!platform) {
-                    document.getElementById('editServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">Please enter a platform name.</div>`;
+                    document.getElementById('editServiceMsg').innerHTML = `<div class="alert alert-danger">Please enter a platform name.</div>`;
                     return;
                 }
-                
                 const serviceName = document.getElementById('editSvcName').value.trim();
                 const isOneTime = document.getElementById('editSvcOneTime').checked;
                 const rate = parseInt(document.getElementById('editSvcRate').value) || 0;
                 const resellerRate = parseInt(document.getElementById('editSvcResellerRate').value) || null;
                 const vipRate = parseInt(document.getElementById('editSvcVipRate').value) || null;
                 const minQty = parseInt(document.getElementById('editSvcMinQty').value) || (isOneTime ? 1 : 100);
-                
                 if (!serviceName || !rate) {
-                    document.getElementById('editServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">Please fill in all required fields.</div>`;
+                    document.getElementById('editServiceMsg').innerHTML = `<div class="alert alert-danger">Please fill in all required fields.</div>`;
                     return;
                 }
-                
-                let updatedService = {
-                    id: serviceId,
-                    platform: platform,
-                    service: serviceName,
-                    minimumQuantity: minQty,
-                    updatedAt: Date.now()
-                };
-                
+                let updatedService = { id: serviceId, platform: platform, service: serviceName, minimumQuantity: minQty, updatedAt: Date.now() };
                 if (isOneTime) {
-                    updatedService.ratePer1000 = null;
-                    updatedService.resellerRatePer1000 = null;
-                    updatedService.vipRatePer1000 = null;
-                    updatedService.fixedPrice = rate;
-                    updatedService.resellerFixedPrice = resellerRate;
-                    updatedService.vipFixedPrice = vipRate;
-                    updatedService.oneTimePayment = true;
-                    updatedService.minimumQuantity = 1;
+                    updatedService.ratePer1000 = null; updatedService.resellerRatePer1000 = null; updatedService.vipRatePer1000 = null;
+                    updatedService.fixedPrice = rate; updatedService.resellerFixedPrice = resellerRate; updatedService.vipFixedPrice = vipRate;
+                    updatedService.oneTimePayment = true; updatedService.minimumQuantity = 1;
                 } else {
-                    updatedService.ratePer1000 = rate;
-                    updatedService.resellerRatePer1000 = resellerRate;
-                    updatedService.vipRatePer1000 = vipRate;
-                    updatedService.fixedPrice = null;
-                    updatedService.resellerFixedPrice = null;
-                    updatedService.vipFixedPrice = null;
+                    updatedService.ratePer1000 = rate; updatedService.resellerRatePer1000 = resellerRate; updatedService.vipRatePer1000 = vipRate;
+                    updatedService.fixedPrice = null; updatedService.resellerFixedPrice = null; updatedService.vipFixedPrice = null;
                     updatedService.oneTimePayment = false;
                 }
-
-                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
-                if (!services || services.length === 0) {
-                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
-                }
+                if (!services || services.length === 0) services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 const index = services.findIndex(s => s.id === serviceId);
-                if (index === -1) {
-                    throw new Error('Service not found');
-                }
+                if (index === -1) throw new Error('Service not found');
                 services[index] = updatedService;
-
-                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ services: services, catalog: catalog })
                 });
                 const result = await response.json();
-
                 if (result.success) {
-                    document.getElementById('editServiceMsg').innerHTML =
-                        `<div class="alert alert-success">✅ Service updated successfully!</div>`;
+                    document.getElementById('editServiceMsg').innerHTML = `<div class="alert alert-success">✅ Service updated successfully!</div>`;
                     showToast('✅ Service updated!', 'success');
                     setTimeout(() => {
                         document.querySelector('#editServiceModal .btn-close').click();
                         loadAllServices();
                     }, 1500);
                 } else {
-                    document.getElementById('editServiceMsg').innerHTML =
-                        `<div class="alert alert-danger">❌ PHP error: ${result.message}</div>`;
+                    document.getElementById('editServiceMsg').innerHTML = `<div class="alert alert-danger">❌ PHP error: ${result.message}</div>`;
                 }
             } catch (error) {
-                console.error('Update service error:', error);
-                document.getElementById('editServiceMsg').innerHTML =
-                    `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
+                document.getElementById('editServiceMsg').innerHTML = `<div class="alert alert-danger">❌ Error: ${error.message}</div>`;
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         });
 
-        // ============================================================
-        // DELETE SERVICE - FROM PHP
-        // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
                 let services = await loadServicesFromFile(catalog);
-                if (!services || services.length === 0) {
-                    services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
-                }
+                if (!services || services.length === 0) services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 services = services.filter(s => s.id !== serviceId);
-
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ services: services, catalog: catalog })
                 });
                 const result = await response.json();
-
                 if (result.success) {
                     showToast('✅ Service deleted successfully!', 'success');
                     loadAllServices();
@@ -3362,14 +3169,10 @@
                     showToast('❌ PHP error: ' + result.message, 'error');
                 }
             } catch (error) {
-                console.error('Delete service error:', error);
                 showToast('❌ Error deleting service: ' + error.message, 'error');
             }
         }
-
-        // ============================================================
-        // SHOP
-        // ============================================================
+    </script><script>
         function loadAllProducts() {
             const productsRef = database.ref('shop');
             productsRef.once('value', (snapshot) => {
@@ -3388,21 +3191,15 @@
                         const id = key.toLowerCase();
                         const title = (product.title || '').toLowerCase();
                         const platform = (product.platform || '').toLowerCase();
-                        return id.includes(searchTerm) || title.includes(searchTerm) || platform.includes(
-                        searchTerm);
+                        return id.includes(searchTerm) || title.includes(searchTerm) || platform.includes(searchTerm);
                     });
                 }
                 if (products.length === 0) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No products match your search</td></tr>';
                     return;
                 }
                 tbody.innerHTML = products.map(([key, product]) => {
-                    const statusColors = {
-                        'available': 'success',
-                        'sold': 'danger',
-                        'pending': 'warning'
-                    };
+                    const statusColors = { 'available': 'success', 'sold': 'danger', 'pending': 'warning' };
                     const statusColor = statusColors[product.status] || 'secondary';
                     return `
                             <tr>
@@ -3436,23 +3233,14 @@
         }
 
         function updateShopStats(data) {
-            let total = 0,
-                available = 0,
-                sold = 0,
-                pending = 0;
+            let total = 0, available = 0, sold = 0, pending = 0;
             if (data) {
                 Object.values(data).forEach(product => {
                     total++;
                     switch (product.status) {
-                        case 'available':
-                            available++;
-                            break;
-                        case 'sold':
-                            sold++;
-                            break;
-                        case 'pending':
-                            pending++;
-                            break;
+                        case 'available': available++; break;
+                        case 'sold': sold++; break;
+                        case 'pending': pending++; break;
                     }
                 });
             }
@@ -3464,21 +3252,15 @@
 
         function viewShopDetails(productKey) {
             const modalBody = document.getElementById('shopDetailsBody');
-            modalBody.innerHTML =
-                `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading product details...</p></div>`;
-            const modal = new bootstrap.Modal(document.getElementById('shopDetailsModal'));
-            modal.show();
+            modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading product details...</p></div>`;
+            new bootstrap.Modal(document.getElementById('shopDetailsModal')).show();
             database.ref('shop/' + productKey).once('value', (snapshot) => {
                 const product = snapshot.val();
                 if (!product) {
                     modalBody.innerHTML = `<div class="alert alert-danger">Product not found</div>`;
                     return;
                 }
-                const statusColors = {
-                    'available': 'success',
-                    'sold': 'danger',
-                    'pending': 'warning'
-                };
+                const statusColors = { 'available': 'success', 'sold': 'danger', 'pending': 'warning' };
                 const statusColor = statusColors[product.status] || 'secondary';
                 modalBody.innerHTML = `
                         <div class="mb-3"><h6 class="text-success">Product Information</h6>
@@ -3535,30 +3317,20 @@
             }
         });
 
-        // ============================================================
-        // ANALYTICS
-        // ============================================================
         function loadAnalytics() {
             database.ref('orders').once('value', (snapshot) => {
                 const data = snapshot.val();
                 if (!data) {
-                    ['todayRevenue', 'weekRevenue', 'monthRevenue', 'totalRevenueAnalytics'].forEach(id =>
-                        document.getElementById(id).textContent = '₦0');
-                    document.getElementById('serviceRevenueTable').innerHTML =
-                        '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
-                    document.getElementById('platformRevenueTable').innerHTML =
-                        '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                    ['todayRevenue', 'weekRevenue', 'monthRevenue', 'totalRevenueAnalytics'].forEach(id => document.getElementById(id).textContent = '₦0');
+                    document.getElementById('serviceRevenueTable').innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                    document.getElementById('platformRevenueTable').innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
                     return;
                 }
                 const orders = Object.values(data);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                let todayRev = 0,
-                    weekRev = 0,
-                    monthRev = 0,
-                    totalRev = 0;
-                let serviceRevenue = {},
-                    platformRevenue = {};
+                let todayRev = 0, weekRev = 0, monthRev = 0, totalRev = 0;
+                let serviceRevenue = {}, platformRevenue = {};
                 const startOfWeek = new Date(today);
                 startOfWeek.setDate(today.getDate() - today.getDay() + 1);
                 const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -3581,17 +3353,14 @@
                 document.getElementById('totalRevenueAnalytics').textContent = formatNaira(totalRev);
                 const serviceTbody = document.getElementById('serviceRevenueTable');
                 const serviceEntries = Object.entries(serviceRevenue).sort((a, b) => b[1] - a[1]);
-                if (serviceEntries.length === 0) serviceTbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                if (serviceEntries.length === 0) serviceTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
                 else serviceTbody.innerHTML = serviceEntries.map(([name, rev]) => {
-                    const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name)
-                        .length;
+                    const count = orders.filter(o => (o.serviceName || o.service || 'Other') === name).length;
                     return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
                 }).join('');
                 const platformTbody = document.getElementById('platformRevenueTable');
                 const platformEntries = Object.entries(platformRevenue).sort((a, b) => b[1] - a[1]);
-                if (platformEntries.length === 0) platformTbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
+                if (platformEntries.length === 0) platformTbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data</td></tr>';
                 else platformTbody.innerHTML = platformEntries.map(([name, rev]) => {
                     const count = orders.filter(o => (o.platform || 'Other') === name).length;
                     return `<tr><td>${name}</td><td>${count}</td><td>${formatNaira(rev)}</td></tr>`;
@@ -3599,51 +3368,108 @@
             });
         }
 
-        // ============================================================
-        // TRANSACTIONS
-        // ============================================================
         function loadAllTransactions() {
             database.ref('transactions').once('value', (snapshot) => {
                 const data = snapshot.val();
                 const tbody = document.getElementById('allTransactionsTable');
                 if (!data) {
-                    tbody.innerHTML =
-                    '<tr><td colspan="6" class="text-center text-muted">No transactions found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No transactions found</td></tr>';
                     return;
                 }
                 const searchTerm = document.getElementById('transactionSearch')?.value?.toLowerCase() || '';
-                let transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt ||
-                0));
+                let transactions = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
                 if (searchTerm) {
                     transactions = transactions.filter(([key, tx]) => {
                         const id = key.toLowerCase();
                         const description = (tx.description || '').toLowerCase();
                         const uid = (tx.uid || '').toLowerCase();
                         const type = (tx.type || '').toLowerCase();
-                        return id.includes(searchTerm) || description.includes(searchTerm) || uid.includes(
-                            searchTerm) || type.includes(searchTerm);
+                        return id.includes(searchTerm) || description.includes(searchTerm) || uid.includes(searchTerm) || type.includes(searchTerm);
                     });
                 }
                 if (transactions.length === 0) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="6" class="text-center text-muted">No transactions match your search</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No transactions match your search</td></tr>';
                     return;
                 }
-                const typeColors = {
-                    'wallet_funding': 'success',
-                    'order_payment': 'primary',
-                    'refund': 'warning'
-                };
+                const typeColors = { 'wallet_funding': 'success', 'order_payment': 'primary', 'refund': 'warning', 'voucher': 'info', 'reseller_upgrade': 'danger' };
                 tbody.innerHTML = transactions.map(([key, tx]) => {
-                    const isCredit = tx.type === 'wallet_funding' || tx.type === 'refund';
-                    return `<tr><td><code class="id-code">${tx.uid || 'N/A'}</code></td><td><span class="badge bg-${typeColors[tx.type] || 'secondary'}">${tx.type || 'N/A'}</span></td><td>${tx.description || 'N/A'}</td><td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td><td><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></td><td>${formatDate(tx.createdAt)}</td></tr>`;
+                    const isCredit = tx.type === 'wallet_funding' || tx.type === 'refund' || tx.type === 'voucher';
+                    return `<tr>
+                        <td><code class="id-code">${tx.uid || 'N/A'}</code></td>
+                        <td><span class="badge bg-${typeColors[tx.type] || 'secondary'}">${tx.type || 'N/A'}</span></td>
+                        <td>${tx.description || 'N/A'}</td>
+                        <td class="${isCredit ? 'text-success' : 'text-danger'}">${formatNaira(tx.amount)}</td>
+                        <td><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></td>
+                        <td>${formatDate(tx.createdAt)}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn btn-sm btn-outline-light view-transaction-btn" data-tx-key="${key}" title="View details">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>`;
                 }).join('');
+
+                tbody.querySelectorAll('.view-transaction-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        viewTransactionDetails(btn.dataset.txKey);
+                    });
+                });
             });
         }
 
-        // ============================================================
-        // VOUCHERS
-        // ============================================================
+        function viewTransactionDetails(txKey) {
+            const modalBody = document.getElementById('viewTransactionBody');
+            modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
+            new bootstrap.Modal(document.getElementById('viewTransactionModal')).show();
+
+            database.ref('transactions/' + txKey).once('value', (snapshot) => {
+                const tx = snapshot.val();
+                if (!tx) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">Transaction not found</div>`;
+                    return;
+                }
+                const isCredit = tx.type === 'wallet_funding' || tx.type === 'refund' || tx.type === 'voucher';
+                const typeColors = {
+                    'wallet_funding': 'success',
+                    'order_payment': 'primary',
+                    'refund': 'warning',
+                    'voucher': 'info',
+                    'reseller_upgrade': 'danger'
+                };
+                const loadUserInfo = tx.uid
+                    ? database.ref('users/' + tx.uid).once('value').then(s => s.val() || {})
+                    : Promise.resolve(null);
+
+                loadUserInfo.then(userData => {
+                    modalBody.innerHTML = `
+                        <div class="mb-3">
+                            <h6 class="text-success">Transaction Information</h6>
+                            <div class="detail-row"><span class="detail-label">Transaction ID</span><span class="detail-value"><code style="font-size:0.7rem;">${txKey}</code></span></div>
+                            <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value"><span class="badge bg-${typeColors[tx.type] || 'secondary'}">${tx.type || 'N/A'}</span></span></div>
+                            <div class="detail-row"><span class="detail-label">Description</span><span class="detail-value">${tx.description || 'N/A'}</span></div>
+                            <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value ${isCredit ? 'text-success' : 'text-danger'} fw-bold">${formatNaira(tx.amount)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge bg-${tx.status === 'success' ? 'success' : 'danger'}">${tx.status || 'success'}</span></span></div>
+                            <div class="detail-row"><span class="detail-label">Date</span><span class="detail-value">${formatDate(tx.createdAt)}</span></div>
+                            ${tx.reference ? `<div class="detail-row"><span class="detail-label">Reference</span><span class="detail-value"><code style="font-size:0.7rem;">${tx.reference}</code></span></div>` : ''}
+                            ${tx.orderId ? `<div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value"><code style="font-size:0.7rem;">${tx.orderId}</code></span></div>` : ''}
+                        </div>
+                        ${userData ? `
+                            <div class="mb-3">
+                                <h6 class="text-success">User Information</h6>
+                                <div class="detail-row"><span class="detail-label">UID</span><span class="detail-value"><code style="font-size:0.7rem;">${tx.uid || '—'}</code></span></div>
+                                <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${userData.fullName || '—'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${userData.email || '—'}</span></div>
+                                <div class="detail-row"><span class="detail-label">Wallet Balance</span><span class="detail-value">${formatNaira(userData.wallet)}</span></div>
+                                <div class="detail-row"><span class="detail-label">Tier</span><span class="detail-value">${(userData.tier || 'regular').toUpperCase()}</span></div>
+                            </div>
+                        ` : ''}
+                    `;
+                });
+            });
+        }
+
         function loadAllVouchers() {
             database.ref('vouchers').once('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3691,6 +3517,9 @@
                                 <td>${usedByDisplay}</td>
                                 <td>
                                     <div class="action-btns">
+                                        <button class="btn btn-sm btn-outline-light view-voucher-btn" data-voucher-key="${key}" title="View details">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
                                         <button class="btn btn-sm btn-outline-danger delete-voucher-btn" data-voucher-key="${key}" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -3699,6 +3528,13 @@
                             </tr>
                         `;
                     }).join('');
+
+                tbody.querySelectorAll('.view-voucher-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        viewVoucherDetails(btn.dataset.voucherKey);
+                    });
+                });
+
                 tbody.querySelectorAll('.delete-voucher-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const key = btn.dataset.voucherKey;
@@ -3730,6 +3566,58 @@
             document.getElementById('statAvailableVouchers').textContent = available;
             document.getElementById('statUsedVouchers').textContent = used;
             document.getElementById('statTotalVoucherValue').textContent = formatNaira(totalValue);
+        }
+
+        function viewVoucherDetails(voucherKey) {
+            const modalBody = document.getElementById('viewVoucherBody');
+            modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
+            new bootstrap.Modal(document.getElementById('viewVoucherModal')).show();
+
+            database.ref('vouchers/' + voucherKey).once('value', (snapshot) => {
+                const v = snapshot.val();
+                if (!v) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">Voucher not found</div>`;
+                    return;
+                }
+                const isUsed = v.isUsed === true;
+                const statusBadge = isUsed
+                    ? '<span class="badge bg-danger">Used</span>'
+                    : '<span class="badge bg-success">Available</span>';
+
+                const loadUserInfo = v.usedBy
+                    ? database.ref('users/' + v.usedBy).once('value').then(s => s.val() || {})
+                    : Promise.resolve(null);
+
+                loadUserInfo.then(userData => {
+                    modalBody.innerHTML = `
+                        <div class="mb-3">
+                            <h6 class="text-success">Voucher Information</h6>
+                            <div class="detail-row"><span class="detail-label">Code</span><span class="detail-value"><code><strong>${v.code || voucherKey}</strong></code></span></div>
+                            <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value text-success fw-bold">${formatNaira(v.amount)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${statusBadge}</span></div>
+                            <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${formatDate(v.createdAt)}</span></div>
+                            <div class="detail-row"><span class="detail-label">Created By (UID)</span><span class="detail-value"><code style="font-size:0.7rem;">${v.createdBy || '—'}</code></span></div>
+                        </div>
+                        ${isUsed ? `
+                            <div class="mb-3">
+                                <h6 class="text-danger">Redemption Info</h6>
+                                <div class="detail-row"><span class="detail-label">Used By (UID)</span><span class="detail-value"><code style="font-size:0.7rem;">${v.usedBy || '—'}</code></span></div>
+                                ${userData ? `
+                                    <div class="detail-row"><span class="detail-label">Name</span><span class="detail-value">${userData.fullName || '—'}</span></div>
+                                    <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${userData.email || '—'}</span></div>
+                                    <div class="detail-row"><span class="detail-label">Current Wallet</span><span class="detail-value">${formatNaira(userData.wallet)}</span></div>
+                                    <div class="detail-row"><span class="detail-label">Tier</span><span class="detail-value">${(userData.tier || 'regular').toUpperCase()}</span></div>
+                                ` : ''}
+                                <div class="detail-row"><span class="detail-label">Used At</span><span class="detail-value">${formatDate(v.usedAt)}</span></div>
+                            </div>
+                        ` : `
+                            <div class="alert alert-success mb-0">
+                                <i class="bi bi-check-circle-fill"></i> This voucher is still available for redemption.
+                            </div>
+                        `}
+                    `;
+                });
+            });
         }
 
         document.getElementById('generateVoucherCode')?.addEventListener('click', () => {
@@ -3788,9 +3676,6 @@
             }
         });
 
-        // ============================================================
-        // SEARCH EVENT LISTENERS
-        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             ['orderSearch', 'shopSearch', 'transactionSearch', 'userSearch'].forEach(id => {
                 const el = document.getElementById(id);
@@ -3816,10 +3701,7 @@
             document.getElementById('voucherStatusFilter')?.addEventListener('change', loadAllVouchers);
         });
 
-        console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
-        console.log('📊 Using import() to load services from both files.');
-        console.log('📱 Custom platform support added - you can now add new platforms!');
-        console.log('💰 One-time service support added - fixed prices now display correctly!');
+        console.log('✅ Admin dashboard loaded with all features');
     </script>
 </body>
 </html>
