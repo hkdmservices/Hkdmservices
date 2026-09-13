@@ -713,9 +713,10 @@ if (redeemVoucherForm) {
                     );
 
 
+                // ✅ FIXED: Correct endpoint path
                 const response =
                     await fetch(
-                        "/api/redeem-voucher",
+                        "/api-php/redeem-voucher.php",
                         {
                             method:
                                 "POST",
