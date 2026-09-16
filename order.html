@@ -175,7 +175,7 @@
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { getAuth, onAuthStateChanged } from "firebase/auth";
-        import { getDatabase, ref, get } from "firebase/database";
+        import { getDatabase, ref, get, onValue } from "firebase/database";
         import { hkdmservicesOfficialServicePriceCatalogue } from "./services.js";
         import { hkdmservicesNigeriaServicePriceCatalogue } from "./nigeria-services-catalogue.js";
 
@@ -576,6 +576,29 @@
                         window.location.href = "login.html";
                         return;
                     }
+
+                    // ============================================================
+                    // 🚫 SUSPENSION CHECK
+                    // ============================================================
+                    try {
+                        const suspendSnap = await get(ref(database, "users/" + user.uid));
+                        const suspendData = suspendSnap.val() || {};
+                        if ((suspendData.status || "active") === "suspended") {
+                            window.location.href = "suspended.html";
+                            return;
+                        }
+                    } catch (err) {
+                        console.error("Suspension check error:", err);
+                    }
+
+                    // 🚫 Live suspension listener
+                    onValue(ref(database, "users/" + user.uid + "/status"), (snap) => {
+                        if (snap.val() === "suspended") {
+                            window.location.href = "suspended.html";
+                        }
+                    });
+                    // ============================================================
+
                     currentUser = user;
                     await loadUserTier(user);
 
