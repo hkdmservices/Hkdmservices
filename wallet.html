@@ -185,9 +185,53 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
+const auth = firebase.auth();
+const database = firebase.database();
+
+// ============================================================
+// 🚫 SUSPENSION CHECK — runs immediately on load
+// ============================================================
+auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const snap = await database.ref("users/" + user.uid).once("value");
+        const userData = snap.val() || {};
+        if ((userData.status || "active") === "suspended") {
+            window.location.href = "suspended.html";
+            return;
+        }
+    } catch (err) {
+        console.error("Suspension check error:", err);
+    }
+
+    // If not suspended, redirect to the working wallet page logic
+    // (the wallet.js module handles everything else)
+    if (window.location.pathname.endsWith("wallet.html") &&
+        !document.querySelector('script[src*="wallet.js"]')) {
+        const s = document.createElement("script");
+        s.type = "module";
+        s.src = "wallet.js?v=7";
+        document.body.appendChild(s);
+    }
+});
+
+// Also run a live listener so a user suspended WHILE on this page gets redirected
+auth.onAuthStateChanged((user) => {
+    if (!user) return;
+    database.ref("users/" + user.uid + "/status").on("value", (snap) => {
+        if (snap.val() === "suspended") {
+            window.location.href = "suspended.html";
+        }
+    });
+});
 </script>
 
-<script type="module" src="wallet.js?v=6"></script>
+<script type="module" src="wallet.js?v=7"></script>
 
 </body>
 </html>
