@@ -81,6 +81,13 @@ function showToast(message, type = "info") {
     }, 3800);
 }
 
+// Extract email base to catch name+1@x.com / name.1@x.com patterns
+function emailBase(email) {
+    if (!email) return null;
+    const local = String(email).split("@")[0].toLowerCase();
+    return local.split("+")[0].split(".")[0];
+}
+
 // ============================================================
 // AUTH + ROLE CHECK
 // ============================================================
@@ -167,135 +174,157 @@ function renderStats() {
 }
 
 // ============================================================
-// FLAG DETECTION
+// FLAG DETECTION — ALL 14 FLAGS
 // ============================================================
 
 function detectFlags(uid, user) {
     const flags = [];
-
     const history = Object.values(allWalletHistory[uid] || {});
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    const now = Date.now();
 
-    if (history.length === 0) {
-        return flags;
+    if (history.length > 0) {
+        history.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
     }
 
-    // Sort ascending by timestamp
-    history.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+    // 1. Unexplained wallet change (direct write)
+    if (history.length > 0) {
+        const earliestBefore = Number(history[0].before || 0);
+        const currentWallet = Number(user.wallet || 0);
+        let expectedDelta = 0;
+        history.forEach(h => { expectedDelta += Number(h.amount || 0); });
+        const expectedWallet = earliestBefore + expectedDelta;
+        const diff = currentWallet - expectedWallet;
 
-    // ============================================
-    // 1. RECONSTRUCTED WALLET CHECK (direct write detection)
-    // ============================================
-    // Sum all amounts in wallet_history = expected delta
-    // If expected != actual (current - earliest.before), it's suspicious
-    const earliestBefore = Number(history[0].before || 0);
-    const currentWallet = Number(user.wallet || 0);
-
-    let expectedDelta = 0;
-    history.forEach(h => {
-        expectedDelta += Number(h.amount || 0);
-    });
-
-    const expectedWallet = earliestBefore + expectedDelta;
-    const diff = currentWallet - expectedWallet;
-
-    // If difference is more than 1 naira → unexplained wallet change
-    if (Math.abs(diff) > 1) {
-        flags.push({
-            level: "critical",
-            text: diff > 0
-                ? `+₦${Math.round(diff).toLocaleString()} unexplained wallet increase`
-                : `-₦${Math.abs(Math.round(diff)).toLocaleString()} unexplained wallet decrease`
-        });
+        if (Math.abs(diff) > 1) {
+            flags.push({
+                level: "critical",
+                text: diff > 0
+                    ? `+₦${Math.round(diff).toLocaleString()} unexplained wallet increase`
+                    : `-₦${Math.abs(Math.round(diff)).toLocaleString()} unexplained wallet decrease`
+            });
+        }
     }
 
-    // ============================================
-    // 2. REFUND ABUSE
-    // ============================================
+    // 2. Refund abuse
     const refundCount = history.filter(h => h.type === "refund").length;
     if (refundCount >= 3) {
-        flags.push({
-            level: "high",
-            text: `${refundCount} refunds`
-        });
+        flags.push({ level: "high", text: `${refundCount} refunds` });
     }
 
-    // ============================================
-    // 3. RAPID FUNDING (more than 5 fundings in last 24h)
-    // ============================================
-    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+    // 3. Rapid funding (≥5 in 24h)
     const recentFundings = history.filter(h =>
-        h.type === "wallet_funding" &&
-        Number(h.timestamp || 0) >= oneDayAgo
+        h.type === "wallet_funding" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
-
     if (recentFundings >= 5) {
-        flags.push({
-            level: "medium",
-            text: `${recentFundings} fundings in 24h`
-        });
+        flags.push({ level: "medium", text: `${recentFundings} fundings in 24h` });
     }
 
-    // ============================================
-    // 4. RAPID ORDERS (more than 10 orders in 24h)
-    // ============================================
+    // 4. Rapid orders (≥10 in 24h)
     const recentOrders = history.filter(h =>
-        h.type === "order_payment" &&
-        Number(h.timestamp || 0) >= oneDayAgo
+        h.type === "order_payment" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
-
     if (recentOrders >= 10) {
-        flags.push({
-            level: "medium",
-            text: `${recentOrders} orders in 24h`
-        });
+        flags.push({ level: "medium", text: `${recentOrders} orders in 24h` });
     }
 
-    // ============================================
-    // 5. FUNDING + IMMEDIATE REFUND CYCLE (wash trading)
-    // ============================================
+    // 5. Wash trading
     let washCycles = 0;
     for (let i = 1; i < history.length; i++) {
         const prev = history[i - 1];
         const curr = history[i];
         const gap = Number(curr.timestamp || 0) - Number(prev.timestamp || 0);
-
-        if (
-            prev.type === "wallet_funding" &&
-            curr.type === "refund" &&
-            gap < (10 * 60 * 1000)
-        ) {
+        if (prev.type === "wallet_funding" && curr.type === "refund" && gap < (10 * 60 * 1000)) {
             washCycles++;
         }
     }
     if (washCycles >= 2) {
-        flags.push({
-            level: "high",
-            text: `${washCycles} wash-trade cycles`
-        });
+        flags.push({ level: "high", text: `${washCycles} wash-trade cycles` });
     }
 
-    // ============================================
-    // 6. ZERO-BALANCE ORDER (order placed while wallet < order total)
-    // ============================================
-    const orders = Object.values(allUsers[uid]._orders || {});
-
-    // This check uses the wallet history itself
+    // 6. Zero-balance orders
     const orderPayments = history.filter(h => h.type === "order_payment");
     let zeroBalanceOrders = 0;
     orderPayments.forEach(op => {
         const before = Number(op.before || 0);
         const amount = Math.abs(Number(op.amount || 0));
-        // If wallet before order was less than the order amount → suspicious
-        if (before < amount) {
-            zeroBalanceOrders++;
-        }
+        if (before < amount) zeroBalanceOrders++;
     });
-
     if (zeroBalanceOrders >= 1) {
         flags.push({
             level: "critical",
             text: `${zeroBalanceOrders} zero-balance order${zeroBalanceOrders > 1 ? "s" : ""}`
         });
+    }
+
+    // 8. Multiple accounts sharing email base
+    const myBase = emailBase(user.email);
+    if (myBase) {
+        let sameBaseCount = 0;
+        Object.values(allUsers).forEach(other => {
+            if (emailBase(other.email) === myBase) sameBaseCount++;
+        });
+        if (sameBaseCount >= 3) {
+            flags.push({ level: "high", text: `${sameBaseCount} accounts share email base` });
+        }
+    }
+
+    // 9. Voucher abuse (≥5 in 24h)
+    const recentVouchers = history.filter(h =>
+        h.type === "voucher" && Number(h.timestamp || 0) >= oneDayAgo
+    ).length;
+    if (recentVouchers >= 5) {
+        flags.push({ level: "high", text: `${recentVouchers} vouchers in 24h` });
+    }
+
+    // 10. Referral spam
+    const totalRefs = Number(user.totalReferrals || 0);
+    if (totalRefs >= 5) {
+        flags.push({ level: "high", text: `${totalRefs} total referrals` });
+    }
+
+    // 13 (FIXED). Reseller but didn't pay the ₦100,000 fee
+    if ((user.tier || "").toLowerCase() === "reseller") {
+        const invested = Number(user.totalInvested || 0);
+        if (invested < 100000) {
+            flags.push({
+                level: "critical",
+                text: `Reseller but paid only ₦${Math.round(invested).toLocaleString()} (needs ₦100,000)`
+            });
+        }
+    }
+
+    // NEW. VIP tier but low spend (< ₦60,000)
+    if ((user.tier || "").toLowerCase() === "vip") {
+        const spent = Number(user.totalSpent || 0);
+        if (spent < 60000) {
+            flags.push({
+                level: "high",
+                text: `VIP but only ₦${Math.round(spent).toLocaleString()} spent (needs ₦60,000)`
+            });
+        }
+    }
+
+    // 14. Negative wallet
+    if (Number(user.wallet || 0) < 0) {
+        flags.push({ level: "critical", text: `Negative wallet: ${formatNaira(user.wallet)}` });
+    }
+
+    // 15. High refund ratio (> 50% of orders)
+    const orderCount = history.filter(h => h.type === "order_payment").length;
+    if (orderCount >= 2 && refundCount > 0) {
+        const ratio = refundCount / orderCount;
+        if (ratio > 0.5) {
+            flags.push({ level: "critical", text: `${Math.round(ratio * 100)}% refund rate` });
+        }
+    }
+
+    // 18. Self-referral
+    if (user.referralCode && String(user.referralCode) === String(uid)) {
+        flags.push({ level: "critical", text: `Self-referral (own UID)` });
+    }
+    if (user.referredBy && String(user.referredBy) === String(uid)) {
+        flags.push({ level: "critical", text: `Referred by self` });
     }
 
     return flags;
@@ -313,7 +342,6 @@ function renderUserTable() {
 
     let entries = Object.entries(allUsers);
 
-    // Filter
     entries = entries.filter(([uid, user]) => {
         const name = (user.fullName || "").toLowerCase();
         const email = (user.email || "").toLowerCase();
@@ -336,7 +364,6 @@ function renderUserTable() {
         return matchesSearch && matchesStatus && matchesFlag;
     });
 
-    // Sort: flagged first, then by name
     entries.sort((a, b) => {
         const aFlags = detectFlags(a[0], a[1]).length;
         const bFlags = detectFlags(b[0], b[1]).length;
@@ -403,7 +430,6 @@ async function openUserDetail(uid) {
     const modal = new bootstrap.Modal(document.getElementById("userDetailModal"));
     modal.show();
 
-    // Load orders for this user (needed for zero-balance check)
     try {
         const ordersSnap = await database
             .ref("orders")
@@ -423,7 +449,7 @@ async function openUserDetail(uid) {
 function renderUserDetail(uid) {
     const user = allUsers[uid] || {};
     const history = Object.values(allWalletHistory[uid] || {});
-    history.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0)); // desc
+    history.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
 
     const flags = detectFlags(uid, user);
 
@@ -435,9 +461,6 @@ function renderUserDetail(uid) {
         "REGULAR": "bg-secondary"
     }[tier] || "bg-secondary";
 
-    // ============================================
-    // HEADER: account info
-    // ============================================
     let html = `
         <div class="row g-3 mb-4">
             <div class="col-md-6">
@@ -492,9 +515,6 @@ function renderUserDetail(uid) {
         </div>
     `;
 
-    // ============================================
-    // FLAGS
-    // ============================================
     if (flags.length > 0) {
         html += `
             <div class="mb-4 p-3" style="background:rgba(220,53,69,0.1); border-left:4px solid #dc3545; border-radius:6px;">
@@ -508,9 +528,6 @@ function renderUserDetail(uid) {
         `;
     }
 
-    // ============================================
-    // WALLET TIMELINE
-    // ============================================
     html += `
         <div class="section-title">Wallet Timeline (${history.length} entries)</div>
         <div style="max-height:420px; overflow-y:auto; border:1px solid var(--border-card); border-radius:8px;">
@@ -600,7 +617,7 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
         : null;
 
     if (action === "block" && !reason) {
-        return; // cancelled
+        return;
     }
 
     if (!confirm(`Are you sure you want to ${action} this user?`)) {
@@ -623,7 +640,6 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
 
         await database.ref().update(updates);
 
-        // Update local state
         allUsers[currentViewedUid].status = action === "block" ? "suspended" : "active";
 
         showToast(`✅ User ${action}ed successfully`, "success");
@@ -648,7 +664,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============================================================
-// EXPOSE FUNCTIONS GLOBALLY (needed by inline onclick)
+// EXPOSE FUNCTIONS GLOBALLY
 // ============================================================
 
 window.openUserDetail = openUserDetail;
