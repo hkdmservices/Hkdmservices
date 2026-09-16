@@ -174,7 +174,6 @@
             <span class="brand-icon">⬢</span> HKDMservices
         </a>
         <div class="d-flex align-items-center gap-2">
-            <!-- NO THEME TOGGLE — controlled from dashboard -->
             <a href="dashboard.html" class="btn btn-outline-light btn-sm">
                 <i class="bi bi-arrow-left"></i> Dashboard
             </a>
@@ -306,6 +305,26 @@
     let allProducts = [];
     let currentFilter = 'all';
     let selectedProduct = null;
+    let suspensionBlocked = false;
+
+    // ============================================
+    // 🚫 SUSPENSION CHECK (runs FIRST, before everything)
+    // ============================================
+    async function checkSuspension(user) {
+        try {
+            const snap = await get(ref(database, 'users/' + user.uid));
+            const data = snap.val() || {};
+            if ((data.status || 'active') === 'suspended') {
+                suspensionBlocked = true;
+                window.location.href = 'suspended.html';
+                return true;
+            }
+            return false;
+        } catch (err) {
+            console.error('Suspension check error:', err);
+            return false;
+        }
+    }
 
     // ============================================
     // TOAST NOTIFICATIONS
@@ -341,8 +360,13 @@
             window.location.href = 'login.html';
             return;
         }
+
+        // 🚫 SUSPENSION CHECK FIRST
+        const isSuspended = await checkSuspension(user);
+        if (isSuspended) return;
+
         currentUser = user;
-        
+
         const userRef = ref(database, 'users/' + user.uid);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
@@ -350,6 +374,22 @@
             userWallet = userData.wallet || 0;
             walletBalanceEl.textContent = formatNaira(userWallet);
         }
+
+        // Live listener for suspension while on page
+        onValue(ref(database, 'users/' + user.uid + '/status'), (snap) => {
+            if (snap.val() === 'suspended') {
+                window.location.href = 'suspended.html';
+            }
+        });
+
+        // Live wallet listener
+        onValue(ref(database, 'users/' + user.uid + '/wallet'), (snap) => {
+            const val = snap.val();
+            if (val !== null) {
+                userWallet = val;
+                walletBalanceEl.textContent = formatNaira(userWallet);
+            }
+        });
 
         loadProducts();
     });
@@ -446,6 +486,7 @@
     // OPEN PURCHASE MODAL
     // ============================================
     function openPurchaseModal(product) {
+        if (suspensionBlocked) return;
         selectedProduct = product;
         document.getElementById('purchasePlatform').textContent = product.platform || 'N/A';
         document.getElementById('purchaseTitle').textContent = product.title || 'N/A';
@@ -464,6 +505,8 @@
     // CONFIRM PURCHASE
     // ============================================
     document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
+        if (suspensionBlocked) return;
+
         const product = selectedProduct;
         if (!product) return;
 
@@ -474,6 +517,15 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
         try {
+            // 🚫 Re-check suspension right before purchase
+            const freshSnap = await get(ref(database, 'users/' + currentUser.uid));
+            const freshData = freshSnap.val() || {};
+            if ((freshData.status || 'active') === 'suspended') {
+                suspensionBlocked = true;
+                window.location.href = 'suspended.html';
+                return;
+            }
+
             if (userWallet < product.price) {
                 msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
                 btn.disabled = false;
@@ -590,20 +642,6 @@
             btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
         }
     });
-
-    // ============================================
-    // WALLET LISTENER
-    // ============================================
-    if (currentUser) {
-        const userRef = ref(database, 'users/' + currentUser.uid + '/wallet');
-        onValue(userRef, (snapshot) => {
-            const val = snapshot.val();
-            if (val !== null) {
-                userWallet = val;
-                walletBalanceEl.textContent = formatNaira(userWallet);
-            }
-        });
-    }
 
     console.log('✅ Shop page loaded!');
 </script>
