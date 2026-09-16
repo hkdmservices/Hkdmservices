@@ -557,9 +557,15 @@
             const uid = user.uid;
             const userRef = database.ref("users/" + uid);
 
+            // 🚫 SUSPENSION CHECK (runs on every user data change)
             userRef.on("value", (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
+                    if ((data.status || "active") === "suspended") {
+                        window.location.href = "suspended.html";
+                        return;
+                    }
+
                     const wallet = data.wallet || 0;
                     document.getElementById("walletBalance").textContent = formatNaira(wallet);
 
