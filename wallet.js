@@ -147,7 +147,7 @@ payButton.addEventListener(
 
             const response =
                 await fetch(
-                    "/api/create-payment",
+                    "/api-php/create-payment.php",
                     {
 
                         method:"POST",
@@ -311,13 +311,13 @@ redeemButton.addEventListener(
 
 
             const idToken =
-                await currentUser.getIdToken();
+                await currentUser.getIdToken(true);
 
 
 
             const response =
                 await fetch(
-                    "/api/redeem-voucher",
+                    "/api-php/redeem-voucher.php",
                     {
 
                         method:"POST",
