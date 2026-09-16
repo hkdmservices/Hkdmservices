@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Suspended | HKDMservices</title>
+
+    <script src="theme.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <style>
+        html[data-theme="dark"] body {
+            background: #0d1117;
+            color: #f1f3f5;
+        }
+        html[data-theme="dark"] .card {
+            background: #161b22 !important;
+            border-color: #30363d !important;
+            color: #f1f3f5 !important;
+        }
+        html[data-theme="dark"] .text-muted {
+            color: #8b949e !important;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #f5f7fa;
+            transition: background 0.3s ease;
+        }
+
+        .suspended-card {
+            max-width: 520px;
+            width: 100%;
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .suspended-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(220, 53, 69, 0.12);
+            color: #dc3545;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+
+        .suspended-card h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .suspended-card p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        html[data-theme="dark"] .suspended-card p {
+            color: #8b949e;
+        }
+
+        .contact-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #198754;
+            color: #fff !important;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+        .contact-btn:hover {
+            background: #146c43;
+        }
+
+        .home-link {
+            display: block;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .home-link:hover {
+            color: #198754;
+        }
+        html[data-theme="dark"] .home-link {
+            color: #8b949e;
+        }
+
+        .logout-note {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.8rem;
+            color: #8b949e;
+        }
+        html[data-theme="dark"] .logout-note {
+            border-top-color: #30363d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card suspended-card">
+
+        <div class="suspended-icon">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+
+        <h1>Account Suspended</h1>
+
+        <p>
+            Your HKDMservices account has been temporarily suspended.
+            If you believe this is a mistake or you'd like to appeal,
+            please contact our support team directly.
+        </p>
+
+        <a href="https://wa.me/18253635037?text=Hello%20HKDMservices%2C%20my%20account%20has%20been%20suspended.%20Please%20help%20me%20resolve%20this."
+           target="_blank"
+           class="contact-btn">
+            <i class="bi bi-whatsapp"></i>
+            Contact Support
+        </a>
+
+        <a href="index.html" class="home-link">
+            ← Back to Homepage
+        </a>
+
+        <div class="logout-note">
+            <i class="bi bi-info-circle"></i>
+            If you'd like to log out and try a different account,
+            <a href="login.html" style="color:#dc3545;">click here</a>.
+        </div>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Sign out on load so the suspended user doesn't stay logged in
+        // (optional — remove this block if you'd rather keep them logged in)
+        const firebaseConfig = {
+            apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+            authDomain: "hkdmservices-7d59f.firebaseapp.com",
+            databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+            projectId: "hkdmservices-7d59f",
+            storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+            messagingSenderId: "839538334772",
+            appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        // Don't auto-logout — user may want to keep their session to appeal later
+    </script>
+
+</body>
+</html>
