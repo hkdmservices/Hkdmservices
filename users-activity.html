@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Activity Panel | HKDMservices</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #f5f7fa;
+            --bg-card: #ffffff;
+            --border-card: #dee2e6;
+            --text-body: #212529;
+            --text-muted: #6c757d;
+            --bg-input: #ffffff;
+            --border-input: #ced4da;
+        }
+
+        html[data-theme="dark"] {
+            --bg-body: #0d1117;
+            --bg-card: #161b22;
+            --border-card: #30363d;
+            --text-body: #f1f3f5;
+            --text-muted: #8b949e;
+            --bg-input: #0d1117;
+            --border-input: #30363d;
+        }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-body);
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar-custom {
+            background: #080a0c;
+            border-bottom: 1px solid #30363d;
+            padding: 12px 0;
+        }
+
+        .brand {
+            font-weight: 700;
+            color: #198754;
+            font-size: 1.25rem;
+        }
+
+        .card-custom {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .table {
+            color: var(--text-body) !important;
+            --bs-table-bg: transparent !important;
+            --bs-table-hover-bg: rgba(25, 135, 84, 0.08) !important;
+        }
+        .table thead th {
+            border-bottom-color: var(--border-card);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .table td, .table th {
+            border-color: var(--border-card);
+            color: var(--text-body);
+            vertical-align: middle;
+        }
+
+        .btn-refresh {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-body);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+        .btn-refresh:hover {
+            background: rgba(25, 135, 84, 0.1);
+            color: #198754;
+        }
+
+        .flag-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-right: 4px;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+        .flag-critical { background: #dc3545; color: #fff; }
+        .flag-high { background: #fd7e14; color: #fff; }
+        .flag-medium { background: #ffc107; color: #000; }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card .num {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #198754;
+        }
+        .stat-card .lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-row {
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .uid-code {
+            font-size: 0.7rem;
+            background: var(--bg-body);
+            padding: 2px 6px;
+            border-radius: 4px;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 160px;
+        }
+
+        /* Modal dark-mode */
+        html[data-theme="dark"] .modal-content {
+            background: var(--bg-card);
+            color: var(--text-body);
+            border-color: var(--border-card);
+        }
+        html[data-theme="dark"] .modal-header,
+        html[data-theme="dark"] .modal-footer {
+            border-color: var(--border-card);
+        }
+        html[data-theme="dark"] .btn-close {
+            filter: invert(1);
+        }
+
+        /* Wallet timeline */
+        .timeline-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-card);
+            font-size: 0.85rem;
+        }
+        .timeline-entry:last-child {
+            border-bottom: none;
+        }
+        .timeline-entry.credit {
+            background: rgba(25, 135, 84, 0.05);
+        }
+        .timeline-entry.debit {
+            background: rgba(220, 53, 69, 0.05);
+        }
+        .timeline-entry.suspicious {
+            background: rgba(220, 53, 69, 0.15);
+            border-left: 3px solid #dc3545;
+        }
+        .timeline-type {
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .timeline-amount {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .timeline-meta {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .loading-center {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #198754;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #198754;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span class="brand">
+                <i class="bi bi-shield-check"></i> HKDM Users Activity Panel
+            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-refresh" onclick="location.reload()">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+                <span class="text-muted small" id="currentUserEmail">…</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4" id="panelContent" style="display:none;">
+
+        <!-- STATS -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statTotalUsers">0</div>
+                    <div class="lbl">Total Users</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statFlaggedUsers">0</div>
+                    <div class="lbl">Flagged Users</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statSuspendedUsers">0</div>
+                    <div class="lbl">Suspended</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statWalletSum">₦0</div>
+                    <div class="lbl">Total Wallet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="card-custom mb-4">
+            <div class="d-flex gap-2 flex-wrap">
+                <input
+                    type="text"
+                    id="userSearch"
+                    class="form-control"
+                    style="max-width: 260px;"
+                    placeholder="Search by name, email, or UID...">
+
+                <select id="userStatusFilter" class="form-select" style="max-width: 160px;">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+
+                <select id="flagFilter" class="form-select" style="max-width: 180px;">
+                    <option value="all">All Users</option>
+                    <option value="flagged">Flagged Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- USERS TABLE -->
+        <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="section-title">All Users</span>
+                <span class="text-muted small" id="userCount">0 users</span>
+            </div>
+
+            <div style="max-height: 600px; overflow-y: auto;">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>UID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Wallet</th>
+                            <th>Tier</th>
+                            <th>Status</th>
+                            <th>Flags</th>
+                            <th style="width:40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <div class="spinner-border spinner-border-sm text-success"></div> Loading users...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- USER DETAIL MODAL -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-circle text-success"></i>
+                        <span id="modalUserName">User</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="btnBlockUser">
+                        <i class="bi bi-slash-circle"></i> <span id="blockBtnText">Block User</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOASTS -->
+    <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:9999;"></div>
+
+    <!-- BOOTSTRAP + FIREBASE -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Theme apply BEFORE page renders to prevent flash
+        (function(){
+            const saved = localStorage.getItem('adminTheme') || 'auto';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let theme = saved;
+            if (saved === 'auto') {
+                const hour = new Date().getHours();
+                theme = (hour >= 18 || hour < 6) ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+
+    <script type="module" src="users-activity.js"></script>
+
+</body>
+</html>
