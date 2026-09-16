@@ -145,6 +145,11 @@ payButton.addEventListener(
         try {
 
 
+            const idToken =
+                await currentUser.getIdToken(true);
+
+
+
             const response =
                 await fetch(
                     "/api-php/create-payment.php",
@@ -173,7 +178,11 @@ payButton.addEventListener(
 
 
                             email:
-                            currentUser.email
+                            currentUser.email,
+
+
+                            token:
+                            idToken
 
                         })
 
