@@ -5,7 +5,7 @@ import {
 
 
 // ============================================================
-// COMPAT SDK WRAPPERS
+// COMPAT SDK WRAPPERS — match the modular function names used below
 // ============================================================
 
 const onAuthStateChanged = (authInst, cb) => authInst.onAuthStateChanged(cb);
@@ -62,6 +62,15 @@ const recentOrders =
 
 const logoutBtn =
     document.getElementById("logout");
+
+const redeemVoucherForm =
+    document.getElementById("redeemVoucherForm");
+
+const redeemCodeInput =
+    document.getElementById("redeemCodeInput");
+
+const redeemMsg =
+    document.getElementById("redeemMsg");
 
 const referralLinkInput =
     document.getElementById("referralLinkInput");
@@ -477,7 +486,8 @@ if (
 
 
 /* =========================================================
-   LOAD ORDERS
+   LOAD ORDERS (INDEX-QUERY FIX)
+   ✅ FIXED: Uses serviceName instead of service
 ========================================================= */
 
 async function loadRecentOrders(uid) {
@@ -557,6 +567,7 @@ async function loadRecentOrders(uid) {
                         <tbody>
         `;
 
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 10);
 
@@ -580,6 +591,7 @@ async function loadRecentOrders(uid) {
 
         let mobileHtml = `<div class="d-md-none">`;
 
+        // ✅ FIXED: Uses serviceName instead of service
         latestOrders.forEach(order => {
             const shortOrderId = String(order.orderId || "").slice(0, 12);
 
@@ -633,6 +645,200 @@ async function loadRecentOrders(uid) {
         }
 
     }
+
+}
+
+
+
+/* =========================================================
+   REDEEM VOUCHER
+========================================================= */
+
+if (redeemVoucherForm) {
+
+    redeemVoucherForm.addEventListener(
+        "submit",
+        async (e) => {
+
+            e.preventDefault();
+
+
+            if (!redeemCodeInput) {
+
+                return;
+
+            }
+
+
+            const voucherCode =
+                redeemCodeInput.value.trim();
+
+
+            if (!voucherCode) {
+
+                return;
+
+            }
+
+
+            if (redeemMsg) {
+
+                redeemMsg.innerHTML = `
+
+                    <div class="alert alert-info mb-0">
+
+                        Processing voucher...
+
+                    </div>
+
+                `;
+
+            }
+
+
+            try {
+
+                if (!auth.currentUser) {
+
+                    throw new Error(
+                        "You must be logged in to redeem a voucher."
+                    );
+
+                }
+
+
+                const idToken =
+                    await auth.currentUser.getIdToken(
+                        true
+                    );
+
+
+                // ✅ FIXED: Correct endpoint path
+                const response =
+                    await fetch(
+                        "/api-php/redeem-voucher.php",
+                        {
+                            method:
+                                "POST",
+
+                            headers: {
+
+                                "Authorization":
+                                    `Bearer ${idToken}`,
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    voucherCode
+                                })
+
+                        }
+                    );
+
+
+                const textResponse =
+                    await response.text();
+
+
+                let result;
+
+
+                try {
+
+                    result =
+                        JSON.parse(
+                            textResponse
+                        );
+
+                } catch (e) {
+
+                    console.error(
+                        "Non-JSON response received:",
+                        textResponse
+                    );
+
+
+                    throw new Error(
+                        "Server returned an invalid response format."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok ||
+                    !result.success
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Failed to redeem voucher."
+                    );
+
+                }
+
+
+                if (redeemMsg) {
+
+                    redeemMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-success
+                            mb-0"
+                        >
+
+                            ${result.message}
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                redeemVoucherForm.reset();
+
+
+                await loadUserInformation(
+                    auth.currentUser
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "REDEEM VOUCHER ERROR:",
+                    error
+                );
+
+
+                if (redeemMsg) {
+
+                    redeemMsg.innerHTML = `
+
+                        <div
+                            class="alert
+                            alert-danger
+                            mb-0"
+                        >
+
+                            ${error.message}
+
+                        </div>
+
+                    `;
+
+                }
+
+            }
+
+        }
+    );
 
 }
 
@@ -908,6 +1114,9 @@ async function evaluateAndRenderUserTier(
         }
 
 
+        // =========================================================
+        // ✅ FIX APPLIED HERE — try/catch around tierRequests read
+        // =========================================================
         const reqRef =
             ref(
                 database,
@@ -1365,6 +1574,7 @@ if (confirmResellerPaymentBtn) {
                     );
 
 
+                // ✅ FIXED: Correct endpoint path
                 const response =
                     await fetch(
                         "/api-php/unlock-reseller.php",
