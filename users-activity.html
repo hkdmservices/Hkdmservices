@@ -47,22 +47,33 @@
             transition: background 0.3s ease, color 0.3s ease;
             margin: 0;
             padding: 0;
+            overflow-x: hidden;
         }
 
         /* ---------- NAVBAR ---------- */
         .navbar-custom {
             background: #080a0c;
             border-bottom: 1px solid #30363d;
-            padding: 12px 0;
+            padding: 10px 0;
+        }
+
+        .navbar-custom .container {
+            max-width: 100%;
         }
 
         .brand {
             font-weight: 700;
             color: #2ea043;
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+        .brand:hover {
+            color: #3fb950;
         }
 
         .navbar-custom .text-muted,
@@ -305,7 +316,7 @@
             display: inline-block;
         }
 
-        /* Smooth theme transitions across all themed elements */
+        /* Smooth theme transitions */
         .card-custom,
         .stat-card,
         .table,
@@ -340,49 +351,136 @@
         html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
             background: #484f58;
         }
+
+        /* ---------- NAVBAR TOGGLER (mobile) ---------- */
+        .navbar-toggler {
+            border-color: #30363d;
+            padding: 4px 8px;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(46, 160, 67, 0.25);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232ea043' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ---------- MOBILE TWEAKS ---------- */
+        @media (max-width: 575.98px) {
+            .brand {
+                font-size: 0.95rem;
+                gap: 6px;
+            }
+
+            .btn-refresh {
+                padding: 5px 10px;
+                font-size: 0.78rem;
+            }
+
+            .card-custom {
+                padding: 14px;
+            }
+
+            .stat-card {
+                padding: 12px;
+            }
+
+            .stat-card .num {
+                font-size: 1.4rem;
+            }
+
+            .stat-card .lbl {
+                font-size: 0.68rem;
+            }
+
+            .section-title {
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+
+        /* Email always on its own line in collapsed navbar */
+        #currentUserEmail {
+            font-size: 0.72rem;
+            word-break: break-all;
+            line-height: 1.2;
+        }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <nav class="navbar-custom">
-        <div class="container d-flex justify-content-between align-items-center">
-            <span class="brand">
-                <i class="bi bi-shield-check"></i> HKDM Users Activity Panel
-            </span>
-            <div class="d-flex align-items-center gap-2">
+    <!-- ============ NAVBAR ============ -->
+    <nav class="navbar navbar-expand-md navbar-custom" data-bs-theme="dark">
+        <div class="container">
 
-                <!-- THEME TOGGLE -->
-                <div class="dropdown">
-                    <button class="btn-refresh dropdown-toggle" type="button"
-                            data-bs-toggle="dropdown" aria-expanded="false"
-                            title="Change theme">
-                        <i class="bi bi-sun-fill" id="themeIcon"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="#" onclick="setTheme('light'); return false;">
-                                <i class="bi bi-sun-fill me-2"></i>Light
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" onclick="setTheme('dark'); return false;">
-                                <i class="bi bi-moon-fill me-2"></i>Dark
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" onclick="setTheme('auto'); return false;">
-                                <i class="bi bi-circle-half me-2"></i>Auto
-                            </a>
-                        </li>
-                    </ul>
+            <!-- Brand -->
+            <a class="navbar-brand brand" href="#">
+                <i class="bi bi-shield-check"></i>
+                <span>HKDM Panel</span>
+            </a>
+
+            <!-- Mobile toggler -->
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navContent"
+                    aria-controls="navContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible content -->
+            <div class="collapse navbar-collapse" id="navContent">
+                <div class="d-flex flex-column flex-md-row align-items-stretch
+                            align-items-md-center gap-2 ms-md-auto mt-3 mt-md-0 w-100">
+
+                    <!-- Theme dropdown + Refresh -->
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="dropdown">
+                            <button class="btn-refresh dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    title="Change theme">
+                                <i class="bi bi-sun-fill" id="themeIcon"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="#"
+                                       onclick="setTheme('light'); return false;">
+                                        <i class="bi bi-sun-fill me-2"></i>Light
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#"
+                                       onclick="setTheme('dark'); return false;">
+                                        <i class="bi bi-moon-fill me-2"></i>Dark
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#"
+                                       onclick="setTheme('auto'); return false;">
+                                        <i class="bi bi-circle-half me-2"></i>Auto
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button class="btn-refresh" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    <!-- Email (own line on mobile, right-aligned on desktop) -->
+                    <span class="text-muted small text-truncate ms-md-auto"
+                          id="currentUserEmail">…</span>
+
                 </div>
-
-                <button class="btn-refresh" onclick="location.reload()">
-                    <i class="bi bi-arrow-clockwise"></i> Refresh
-                </button>
-                <span class="text-muted small" id="currentUserEmail">…</span>
             </div>
+
         </div>
     </nav>
 
@@ -422,17 +520,19 @@
                 <input
                     type="text"
                     id="userSearch"
-                    class="form-control"
-                    style="max-width: 260px;"
+                    class="form-control flex-grow-1"
+                    style="min-width: 200px;"
                     placeholder="Search by name, email, or UID...">
 
-                <select id="userStatusFilter" class="form-select" style="max-width: 160px;">
+                <select id="userStatusFilter" class="form-select flex-grow-1"
+                        style="min-width: 140px; max-width: 200px;">
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
                     <option value="suspended">Suspended</option>
                 </select>
 
-                <select id="flagFilter" class="form-select" style="max-width: 180px;">
+                <select id="flagFilter" class="form-select flex-grow-1"
+                        style="min-width: 140px; max-width: 200px;">
                     <option value="all">All Users</option>
                     <option value="flagged">Flagged Only</option>
                 </select>
@@ -446,7 +546,7 @@
                 <span class="text-muted small" id="userCount">0 users</span>
             </div>
 
-            <div style="max-height: 600px; overflow-y: auto;">
+            <div style="max-height: 600px; overflow-y: auto; overflow-x: auto;">
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
@@ -475,7 +575,7 @@
 
     <!-- USER DETAIL MODAL -->
     <div class="modal fade" id="userDetailModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -509,7 +609,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
-        // ---------- THEME: apply BEFORE page renders to prevent flash ----------
+        // ---------- THEME: apply BEFORE page renders ----------
         (function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
             let theme = saved;
@@ -550,13 +650,13 @@
             updateThemeIcon(theme);
         }
 
-        // ---------- THEME: init icon once DOM is ready ----------
+        // ---------- THEME: init icon ----------
         document.addEventListener('DOMContentLoaded', function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
             updateThemeIcon(saved);
         });
 
-        // ---------- THEME: react to system theme changes in auto mode ----------
+        // ---------- THEME: react to system changes in auto mode ----------
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)')
                 .addEventListener('change', function () {
