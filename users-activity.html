@@ -11,32 +11,45 @@
 
     <style>
         :root {
-            --bg-body: #f5f7fa;
+            --bg-body: #f8f9fa;
             --bg-card: #ffffff;
             --border-card: #dee2e6;
-            --text-body: #212529;
-            --text-muted: #6c757d;
+            --text-body: #1a1d21;
+            --text-muted: #5a6268;
             --bg-input: #ffffff;
             --border-input: #ced4da;
+            --accent: #198754;
+            --accent-hover: #146c43;
+            --shadow: rgba(0, 0, 0, 0.05);
         }
 
         html[data-theme="dark"] {
             --bg-body: #0d1117;
             --bg-card: #161b22;
             --border-card: #30363d;
-            --text-body: #f1f3f5;
+            --text-body: #e6edf3;
             --text-muted: #8b949e;
             --bg-input: #0d1117;
             --border-input: #30363d;
+            --accent: #2ea043;
+            --accent-hover: #3fb950;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
             background: var(--bg-body);
             color: var(--text-body);
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
             transition: background 0.3s ease, color 0.3s ease;
+            margin: 0;
+            padding: 0;
         }
 
+        /* ---------- NAVBAR ---------- */
         .navbar-custom {
             background: #080a0c;
             border-bottom: 1px solid #30363d;
@@ -45,10 +58,19 @@
 
         .brand {
             font-weight: 700;
-            color: #198754;
+            color: #2ea043;
             font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        .navbar-custom .text-muted,
+        .navbar-custom .small {
+            color: #adb5bd !important;
+        }
+
+        /* ---------- CARDS ---------- */
         .card-custom {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -57,11 +79,15 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
+        /* ---------- TABLE ---------- */
         .table {
             color: var(--text-body) !important;
             --bs-table-bg: transparent !important;
             --bs-table-hover-bg: rgba(25, 135, 84, 0.08) !important;
+            --bs-table-color: var(--text-body) !important;
+            margin-bottom: 0;
         }
+
         .table thead th {
             border-bottom-color: var(--border-card);
             color: var(--text-muted);
@@ -69,26 +95,86 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
-        }
-        .table td, .table th {
-            border-color: var(--border-card);
-            color: var(--text-body);
-            vertical-align: middle;
+            background: transparent;
         }
 
+        .table td,
+        .table th {
+            border-color: var(--border-card);
+            color: var(--text-body) !important;
+            vertical-align: middle;
+            background: transparent;
+        }
+
+        html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: rgba(25, 135, 84, 0.1);
+            color: var(--text-body) !important;
+        }
+
+        /* ---------- BUTTONS ---------- */
         .btn-refresh {
             background: transparent;
             border: 1px solid var(--border-input);
-            color: var(--text-body);
+            color: #e6edf3;
             border-radius: 8px;
             padding: 6px 14px;
             font-size: 0.85rem;
-        }
-        .btn-refresh:hover {
-            background: rgba(25, 135, 84, 0.1);
-            color: #198754;
+            transition: all 0.2s ease;
         }
 
+        .btn-refresh:hover,
+        .btn-refresh:focus {
+            background: rgba(25, 135, 84, 0.15);
+            color: #2ea043;
+            border-color: #2ea043;
+        }
+
+        .btn-refresh.dropdown-toggle::after {
+            margin-left: 6px;
+        }
+
+        /* ---------- DROPDOWN MENU ---------- */
+        .dropdown-menu {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .dropdown-item {
+            color: var(--text-body);
+            transition: background 0.15s ease;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background: rgba(25, 135, 84, 0.12);
+            color: var(--accent);
+        }
+
+        /* ---------- FORMS ---------- */
+        .form-control,
+        .form-select {
+            background: var(--bg-input);
+            border-color: var(--border-input);
+            color: var(--text-body);
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: var(--bg-input);
+            color: var(--text-body);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.2);
+        }
+
+        /* ---------- FLAG BADGES ---------- */
         .flag-badge {
             font-size: 0.7rem;
             padding: 3px 8px;
@@ -98,22 +184,27 @@
             display: inline-block;
             margin-bottom: 3px;
         }
+
         .flag-critical { background: #dc3545; color: #fff; }
         .flag-high { background: #fd7e14; color: #fff; }
         .flag-medium { background: #ffc107; color: #000; }
 
+        /* ---------- STAT CARDS ---------- */
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
             border-radius: 10px;
             padding: 16px;
             text-align: center;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
+
         .stat-card .num {
             font-size: 1.75rem;
             font-weight: 700;
-            color: #198754;
+            color: var(--accent);
         }
+
         .stat-card .lbl {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -121,6 +212,7 @@
             letter-spacing: 0.5px;
         }
 
+        /* ---------- USER ROW ---------- */
         .user-row {
             cursor: pointer;
             transition: background 0.15s ease;
@@ -134,23 +226,28 @@
             word-break: break-all;
             display: inline-block;
             max-width: 160px;
+            color: var(--text-body);
+            border: 1px solid var(--border-card);
         }
 
-        /* Modal dark-mode */
-        html[data-theme="dark"] .modal-content {
+        /* ---------- MODAL ---------- */
+        .modal-content {
             background: var(--bg-card);
             color: var(--text-body);
             border-color: var(--border-card);
-        }
-        html[data-theme="dark"] .modal-header,
-        html[data-theme="dark"] .modal-footer {
-            border-color: var(--border-card);
-        }
-        html[data-theme="dark"] .btn-close {
-            filter: invert(1);
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Wallet timeline */
+        .modal-header,
+        .modal-footer {
+            border-color: var(--border-card);
+        }
+
+        html[data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* ---------- WALLET TIMELINE ---------- */
         .timeline-entry {
             display: flex;
             justify-content: space-between;
@@ -158,33 +255,41 @@
             border-bottom: 1px solid var(--border-card);
             font-size: 0.85rem;
         }
+
         .timeline-entry:last-child {
             border-bottom: none;
         }
+
         .timeline-entry.credit {
-            background: rgba(25, 135, 84, 0.05);
+            background: rgba(25, 135, 84, 0.08);
         }
+
         .timeline-entry.debit {
-            background: rgba(220, 53, 69, 0.05);
+            background: rgba(220, 53, 69, 0.08);
         }
+
         .timeline-entry.suspicious {
-            background: rgba(220, 53, 69, 0.15);
+            background: rgba(220, 53, 69, 0.18);
             border-left: 3px solid #dc3545;
         }
+
         .timeline-type {
             font-weight: 600;
             font-size: 0.75rem;
             text-transform: uppercase;
         }
+
         .timeline-amount {
             font-weight: 700;
             font-size: 0.9rem;
         }
+
         .timeline-meta {
             color: var(--text-muted);
             font-size: 0.7rem;
         }
 
+        /* ---------- MISC ---------- */
         .loading-center {
             text-align: center;
             padding: 40px;
@@ -193,11 +298,47 @@
         .section-title {
             font-size: 1rem;
             font-weight: 700;
-            color: #198754;
+            color: var(--accent);
             margin-bottom: 12px;
             padding-bottom: 6px;
-            border-bottom: 2px solid #198754;
+            border-bottom: 2px solid var(--accent);
             display: inline-block;
+        }
+
+        /* Smooth theme transitions across all themed elements */
+        .card-custom,
+        .stat-card,
+        .table,
+        .table td,
+        .table th,
+        .modal-content,
+        .form-control,
+        .form-select,
+        .btn-refresh,
+        .dropdown-menu,
+        .uid-code {
+            transition: background 0.3s ease,
+                        color 0.3s ease,
+                        border-color 0.3s ease;
+        }
+
+        /* Scrollbar theming for dark mode */
+        html[data-theme="dark"] ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-track {
+            background: var(--bg-body);
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 5px;
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
         }
     </style>
 </head>
@@ -210,6 +351,33 @@
                 <i class="bi bi-shield-check"></i> HKDM Users Activity Panel
             </span>
             <div class="d-flex align-items-center gap-2">
+
+                <!-- THEME TOGGLE -->
+                <div class="dropdown">
+                    <button class="btn-refresh dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            title="Change theme">
+                        <i class="bi bi-sun-fill" id="themeIcon"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="setTheme('light'); return false;">
+                                <i class="bi bi-sun-fill me-2"></i>Light
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="setTheme('dark'); return false;">
+                                <i class="bi bi-moon-fill me-2"></i>Dark
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="setTheme('auto'); return false;">
+                                <i class="bi bi-circle-half me-2"></i>Auto
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
                 <button class="btn-refresh" onclick="location.reload()">
                     <i class="bi bi-arrow-clockwise"></i> Refresh
                 </button>
@@ -341,17 +509,61 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
-        // Theme apply BEFORE page renders to prevent flash
-        (function(){
+        // ---------- THEME: apply BEFORE page renders to prevent flash ----------
+        (function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             let theme = saved;
+
             if (saved === 'auto') {
-                const hour = new Date().getHours();
-                theme = (hour >= 18 || hour < 6) ? 'dark' : 'light';
+                theme = (window.matchMedia &&
+                         window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark'
+                    : 'light';
             }
+
             document.documentElement.setAttribute('data-theme', theme);
         })();
+
+        // ---------- THEME: switching ----------
+        function applyTheme(theme) {
+            let actual = theme;
+            if (theme === 'auto') {
+                actual = (window.matchMedia &&
+                          window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark'
+                    : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', actual);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (!icon) return;
+            if (theme === 'light') icon.className = 'bi bi-sun-fill';
+            else if (theme === 'dark') icon.className = 'bi bi-moon-fill';
+            else icon.className = 'bi bi-circle-half';
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('adminTheme', theme);
+            applyTheme(theme);
+            updateThemeIcon(theme);
+        }
+
+        // ---------- THEME: init icon once DOM is ready ----------
+        document.addEventListener('DOMContentLoaded', function () {
+            const saved = localStorage.getItem('adminTheme') || 'auto';
+            updateThemeIcon(saved);
+        });
+
+        // ---------- THEME: react to system theme changes in auto mode ----------
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)')
+                .addEventListener('change', function () {
+                    const saved = localStorage.getItem('adminTheme') || 'auto';
+                    if (saved === 'auto') applyTheme('auto');
+                });
+        }
     </script>
 
     <script type="module" src="users-activity.js?v=3"></script>
