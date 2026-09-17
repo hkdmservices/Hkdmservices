@@ -12,9 +12,12 @@
     <style>
         :root {
             --bg-body: #f8f9fa;
+            --bg-nav: #ffffff;
             --bg-card: #ffffff;
             --border-card: #dee2e6;
+            --border-nav: #dee2e6;
             --text-body: #1a1d21;
+            --text-nav: #1a1d21;
             --text-muted: #5a6268;
             --bg-input: #ffffff;
             --border-input: #ced4da;
@@ -25,9 +28,12 @@
 
         html[data-theme="dark"] {
             --bg-body: #0d1117;
+            --bg-nav: #080a0c;
             --bg-card: #161b22;
             --border-card: #30363d;
+            --border-nav: #30363d;
             --text-body: #e6edf3;
+            --text-nav: #e6edf3;
             --text-muted: #8b949e;
             --bg-input: #0d1117;
             --border-input: #30363d;
@@ -48,14 +54,15 @@
         }
 
         /* ============================================================
-           NAVBAR — aligned to page gutter
+           NAVBAR — now theme-aware and aligned with page gutter
            ============================================================ */
         .navbar-custom {
-            background: #080a0c;
-            border-bottom: 1px solid #30363d;
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border-nav);
             padding: 10px 12px;
             width: 100%;
             max-width: 100%;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         .navbar-custom .container {
@@ -68,7 +75,7 @@
 
         .brand {
             font-weight: 700;
-            color: #2ea043;
+            color: var(--accent);
             font-size: 1.15rem;
             display: flex;
             align-items: center;
@@ -77,38 +84,79 @@
             margin: 0;
         }
 
-        .brand:hover { color: #3fb950; }
+        .brand:hover { color: var(--accent-hover); }
 
         .navbar-custom .text-muted,
         .navbar-custom .small {
-            color: #adb5bd !important;
+            color: var(--text-muted) !important;
+        }
+
+        /* Theme toggle button adapts to theme */
+        .navbar-custom .btn-refresh {
+            color: var(--text-nav);
+            border-color: var(--border-input);
+        }
+
+        .navbar-custom .btn-refresh:hover,
+        .navbar-custom .btn-refresh:focus {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(25, 135, 84, 0.1);
         }
 
         /* ============================================================
-           DROPDOWN — bulletproof in both themes
+           DROPDOWN — force visible, force correct colors
            ============================================================ */
-        html[data-theme] .navbar-custom .dropdown-menu {
+        .navbar-custom .dropdown-menu {
             background-color: var(--bg-card) !important;
             border: 1px solid var(--border-card) !important;
             box-shadow: 0 6px 16px var(--shadow) !important;
             padding: 6px 0;
             min-width: 160px;
+            margin-top: 6px;
         }
 
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item,
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item i {
+        .navbar-custom .dropdown-menu.show {
+            background-color: var(--bg-card) !important;
+        }
+
+        .navbar-custom .dropdown-menu .dropdown-item {
             color: var(--text-body) !important;
             background-color: transparent !important;
             font-size: 0.88rem;
             padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s ease, color 0.15s ease;
         }
 
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:hover,
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:focus,
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:hover i,
-        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:focus i {
+        .navbar-custom .dropdown-menu .dropdown-item i {
+            color: var(--text-muted) !important;
+            transition: color 0.15s ease;
+        }
+
+        .navbar-custom .dropdown-menu .dropdown-item:hover,
+        .navbar-custom .dropdown-menu .dropdown-item:focus {
             background-color: rgba(25, 135, 84, 0.15) !important;
             color: var(--accent) !important;
+        }
+
+        .navbar-custom .dropdown-menu .dropdown-item:hover i,
+        .navbar-custom .dropdown-menu .dropdown-item:focus i {
+            color: var(--accent) !important;
+        }
+
+        /* Kill Bootstrap's dark-theme override — force our values */
+        .navbar-custom .dropdown-menu {
+            --bs-dropdown-bg: var(--bg-card);
+            --bs-dropdown-color: var(--text-body);
+            --bs-dropdown-link-color: var(--text-body);
+            --bs-dropdown-link-hover-color: var(--accent);
+            --bs-dropdown-link-hover-bg: rgba(25, 135, 84, 0.15);
+            --bs-dropdown-link-active-color: var(--accent);
+            --bs-dropdown-link-active-bg: rgba(25, 135, 84, 0.2);
+            --bs-dropdown-border-color: var(--border-card);
         }
 
         /* ---------- CARDS ---------- */
@@ -155,7 +203,7 @@
         .btn-refresh {
             background: transparent;
             border: 1px solid var(--border-input);
-            color: #e6edf3;
+            color: var(--text-body);
             border-radius: 8px;
             padding: 6px 14px;
             font-size: 0.85rem;
@@ -164,9 +212,9 @@
 
         .btn-refresh:hover,
         .btn-refresh:focus {
-            background: rgba(25, 135, 84, 0.15);
-            color: #2ea043;
-            border-color: #2ea043;
+            background: rgba(25, 135, 84, 0.1);
+            color: var(--accent);
+            border-color: var(--accent);
         }
 
         .btn-refresh.dropdown-toggle::after {
@@ -313,7 +361,7 @@
 
         .card-custom, .stat-card, .table, .table td, .table th,
         .modal-content, .form-control, .form-select, .btn-refresh,
-        .uid-code {
+        .uid-code, .navbar-custom {
             transition: background 0.3s ease,
                         color 0.3s ease,
                         border-color 0.3s ease;
@@ -329,7 +377,7 @@
 
         /* ---------- NAVBAR TOGGLER ---------- */
         .navbar-toggler {
-            border-color: #30363d;
+            border-color: var(--border-input);
             padding: 4px 8px;
         }
 
@@ -338,6 +386,10 @@
         }
 
         .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23198754' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        html[data-theme="dark"] .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232ea043' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
@@ -398,19 +450,19 @@
                                 <li>
                                     <a class="dropdown-item" href="#"
                                        onclick="setTheme('light'); return false;">
-                                        <i class="bi bi-sun-fill me-2"></i>Light
+                                        <i class="bi bi-sun-fill"></i>Light
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="#"
                                        onclick="setTheme('dark'); return false;">
-                                        <i class="bi bi-moon-fill me-2"></i>Dark
+                                        <i class="bi bi-moon-fill"></i>Dark
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="#"
                                        onclick="setTheme('auto'); return false;">
-                                        <i class="bi bi-circle-half me-2"></i>Auto
+                                        <i class="bi bi-circle-half"></i>Auto
                                     </a>
                                 </li>
                             </ul>
