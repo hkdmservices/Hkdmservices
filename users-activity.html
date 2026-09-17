@@ -20,7 +20,7 @@
             --border-input: #ced4da;
             --accent: #198754;
             --accent-hover: #146c43;
-            --shadow: rgba(0, 0, 0, 0.05);
+            --shadow: rgba(0, 0, 0, 0.08);
         }
 
         html[data-theme="dark"] {
@@ -33,7 +33,7 @@
             --border-input: #30363d;
             --accent: #2ea043;
             --accent-hover: #3fb950;
-            --shadow: rgba(0, 0, 0, 0.3);
+            --shadow: rgba(0, 0, 0, 0.4);
         }
 
         * { box-sizing: border-box; }
@@ -45,23 +45,23 @@
             transition: background 0.3s ease, color 0.3s ease;
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
         }
 
         /* ============================================================
-           NAVBAR — fixed alignment + light/dark dropdown support
+           NAVBAR — aligned to page gutter
            ============================================================ */
         .navbar-custom {
             background: #080a0c;
             border-bottom: 1px solid #30363d;
-            padding: 10px 0;
+            padding: 10px 12px;
+            width: 100%;
+            max-width: 100%;
         }
 
-        /* Force navbar container to respect the same gutters as the page */
         .navbar-custom .container {
-            max-width: 1320px;      /* matches Bootstrap's xxl container */
-            padding-left: 12px;
-            padding-right: 12px;
+            max-width: 1320px;
+            padding-left: 0;
+            padding-right: 0;
             margin: 0 auto;
             width: 100%;
         }
@@ -85,48 +85,30 @@
         }
 
         /* ============================================================
-           DROPDOWN — force visible text in BOTH themes
+           DROPDOWN — bulletproof in both themes
            ============================================================ */
-        .navbar-custom .dropdown-menu {
-            background: var(--bg-card) !important;
+        html[data-theme] .navbar-custom .dropdown-menu {
+            background-color: var(--bg-card) !important;
             border: 1px solid var(--border-card) !important;
-            box-shadow: 0 4px 12px var(--shadow);
-            min-width: 160px;
+            box-shadow: 0 6px 16px var(--shadow) !important;
             padding: 6px 0;
-            transition: background 0.3s ease, border-color 0.3s ease;
+            min-width: 160px;
         }
 
-        .navbar-custom .dropdown-item {
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item,
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item i {
             color: var(--text-body) !important;
+            background-color: transparent !important;
             font-size: 0.88rem;
             padding: 8px 14px;
-            transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .navbar-custom .dropdown-item i {
-            color: var(--text-muted);
-            transition: color 0.15s ease;
-        }
-
-        .navbar-custom .dropdown-item:hover,
-        .navbar-custom .dropdown-item:focus {
-            background: rgba(25, 135, 84, 0.15) !important;
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:hover,
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:focus,
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:hover i,
+        html[data-theme] .navbar-custom .dropdown-menu .dropdown-item:focus i {
+            background-color: rgba(25, 135, 84, 0.15) !important;
             color: var(--accent) !important;
-        }
-
-        .navbar-custom .dropdown-item:hover i,
-        .navbar-custom .dropdown-item:focus i {
-            color: var(--accent);
-        }
-
-        /* Kill Bootstrap's dark-theme override on the dropdown */
-        .navbar-custom[data-bs-theme="dark"] .dropdown-menu {
-            --bs-dropdown-bg: var(--bg-card);
-            --bs-dropdown-color: var(--text-body);
-            --bs-dropdown-link-color: var(--text-body);
-            --bs-dropdown-link-hover-color: var(--accent);
-            --bs-dropdown-link-hover-bg: rgba(25, 135, 84, 0.15);
-            --bs-dropdown-border-color: var(--border-card);
         }
 
         /* ---------- CARDS ---------- */
@@ -368,7 +350,7 @@
             .stat-card .num { font-size: 1.4rem; }
             .stat-card .lbl { font-size: 0.68rem; }
             .section-title { font-size: 0.9rem; }
-            .container, .navbar-custom .container {
+            .container {
                 padding-left: 12px;
                 padding-right: 12px;
             }
@@ -384,7 +366,7 @@
 <body>
 
     <!-- ============ NAVBAR ============ -->
-    <nav class="navbar navbar-expand-md navbar-custom" data-bs-theme="dark">
+    <nav class="navbar navbar-expand-md navbar-custom">
         <div class="container">
 
             <a class="navbar-brand brand" href="#">
