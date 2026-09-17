@@ -90,16 +90,7 @@ function emailBase(email) {
 function computeFlagHash(flags) {
     const parts = flags.map(f => (f.reason || "") + "|" + (f.hash || ""));
     parts.sort();
-    const str = parts.join("::");
-
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const chr = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + chr;
-        hash = hash & 0xFFFFFFFF;
-    }
-
-    return Math.abs(hash).toString(16).padStart(16, "0").substring(0, 16);
+    return parts.join("::");
 }
 
 // ============================================================
@@ -189,7 +180,6 @@ function renderStats() {
 
 // ============================================================
 // FLAG DETECTION — ALL 14 FLAGS
-// Each flag has: level, reason, hash, text
 // ============================================================
 
 function detectFlags(uid, user) {
@@ -202,7 +192,7 @@ function detectFlags(uid, user) {
         history.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
     }
 
-    // 1. Unexplained wallet change (direct write)
+    // 1. Unexplained wallet change
     if (history.length > 0) {
         const earliestBefore = Number(history[0].before || 0);
         const currentWallet = Number(user.wallet || 0);
@@ -229,7 +219,7 @@ function detectFlags(uid, user) {
         flags.push({ level: "high", reason: "Refund abuse", hash: "rc:" + refundCount, text: `${refundCount} refunds` });
     }
 
-    // 3. Rapid funding (≥5 in 24h)
+    // 3. Rapid funding
     const recentFundings = history.filter(h =>
         h.type === "wallet_funding" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
@@ -237,7 +227,7 @@ function detectFlags(uid, user) {
         flags.push({ level: "medium", reason: "Rapid funding", hash: "rf:" + recentFundings, text: `${recentFundings} fundings in 24h` });
     }
 
-    // 4. Rapid orders (≥10 in 24h)
+    // 4. Rapid orders
     const recentOrders = history.filter(h =>
         h.type === "order_payment" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
@@ -276,7 +266,7 @@ function detectFlags(uid, user) {
         });
     }
 
-    // 8. Multiple accounts sharing email base
+    // 8. Multiple accounts
     const myBase = emailBase(user.email);
     if (myBase) {
         let sameBaseCount = 0;
@@ -288,7 +278,7 @@ function detectFlags(uid, user) {
         }
     }
 
-    // 9. Voucher abuse (≥5 in 24h)
+    // 9. Voucher abuse
     const recentVouchers = history.filter(h =>
         h.type === "voucher" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
@@ -302,7 +292,7 @@ function detectFlags(uid, user) {
         flags.push({ level: "high", reason: "Referral spam", hash: "rs:" + totalRefs, text: `${totalRefs} total referrals` });
     }
 
-    // 13. Reseller but didn't pay the ₦100,000 fee
+    // 13. Reseller without fee
     if ((user.tier || "").toLowerCase() === "reseller") {
         const invested = Number(user.totalInvested || 0);
         if (invested < 100000) {
@@ -315,7 +305,7 @@ function detectFlags(uid, user) {
         }
     }
 
-    // VIP tier but low spend (< ₦60,000)
+    // VIP low spend
     if ((user.tier || "").toLowerCase() === "vip") {
         const spent = Number(user.totalSpent || 0);
         if (spent < 60000) {
@@ -333,7 +323,7 @@ function detectFlags(uid, user) {
         flags.push({ level: "critical", reason: "Negative wallet", hash: "neg:" + Math.round(Number(user.wallet)), text: `Negative wallet: ${formatNaira(user.wallet)}` });
     }
 
-    // 15. High refund ratio (> 50% of orders)
+    // 15. High refund ratio
     const orderCount = history.filter(h => h.type === "order_payment").length;
     if (orderCount >= 2 && refundCount > 0) {
         const ratio = refundCount / orderCount;
@@ -370,8 +360,7 @@ function renderUserTable() {
         const email = (user.email || "").toLowerCase();
         const userUid = uid.toLowerCase();
 
-        const matchesSearch =
-            !searchTerm ||
+        const matchesSearch = !searchTerm ||
             name.includes(searchTerm) ||
             email.includes(searchTerm) ||
             userUid.includes(searchTerm);
@@ -380,9 +369,7 @@ function renderUserTable() {
         const matchesStatus = statusFilter === "all" || userStatus === statusFilter;
 
         const flags = detectFlags(uid, user);
-        const matchesFlag =
-            flagFilter === "all" ||
-            (flagFilter === "flagged" && flags.length > 0);
+        const matchesFlag = flagFilter === "all" || (flagFilter === "flagged" && flags.length > 0);
 
         return matchesSearch && matchesStatus && matchesFlag;
     });
@@ -404,18 +391,11 @@ function renderUserTable() {
     tbody.innerHTML = entries.map(([uid, user]) => {
         const isSuspended = (user.status || "active") === "suspended";
         const tier = (user.tier || "regular").toUpperCase();
-        const tierClass = {
-            "RESELLER": "bg-danger",
-            "VIP": "bg-success",
-            "REGULAR": "bg-secondary"
-        }[tier] || "bg-secondary";
-
+        const tierClass = { "RESELLER": "bg-danger", "VIP": "bg-success", "REGULAR": "bg-secondary" }[tier] || "bg-secondary";
         const flags = detectFlags(uid, user);
         const flagsHtml = flags.length === 0
             ? `<span class="text-muted small">—</span>`
-            : flags.map(f =>
-                `<span class="flag-badge flag-${f.level}">${escapeHtml(f.text)}</span>`
-              ).join("");
+            : flags.map(f => `<span class="flag-badge flag-${f.level}">${escapeHtml(f.text)}</span>`).join("");
 
         return `
             <tr class="user-row" onclick="openUserDetail('${uid}')">
@@ -424,11 +404,7 @@ function renderUserTable() {
                 <td>${escapeHtml(user.email || "—")}</td>
                 <td class="fw-bold">${formatNaira(user.wallet)}</td>
                 <td><span class="badge ${tierClass}">${tier}</span></td>
-                <td>
-                    <span class="badge ${isSuspended ? 'bg-danger' : 'bg-success'}">
-                        ${isSuspended ? 'Suspended' : 'Active'}
-                    </span>
-                </td>
+                <td><span class="badge ${isSuspended ? 'bg-danger' : 'bg-success'}">${isSuspended ? 'Suspended' : 'Active'}</span></td>
                 <td style="max-width:260px;">${flagsHtml}</td>
                 <td><i class="bi bi-chevron-right text-muted"></i></td>
             </tr>
@@ -442,10 +418,8 @@ function renderUserTable() {
 
 async function openUserDetail(uid) {
     currentViewedUid = uid;
-
     const user = allUsers[uid] || {};
-    document.getElementById("modalUserName").textContent =
-        user.fullName || user.email || uid;
+    document.getElementById("modalUserName").textContent = user.fullName || user.email || uid;
 
     const bodyEl = document.getElementById("modalBody");
     bodyEl.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success"></div></div>`;
@@ -454,11 +428,7 @@ async function openUserDetail(uid) {
     modal.show();
 
     try {
-        const ordersSnap = await database
-            .ref("orders")
-            .orderByChild("uid")
-            .equalTo(uid)
-            .once("value");
+        const ordersSnap = await database.ref("orders").orderByChild("uid").equalTo(uid).once("value");
         user._orders = ordersSnap.val() || {};
         allUsers[uid]._orders = user._orders;
     } catch (err) {
@@ -475,65 +445,27 @@ function renderUserDetail(uid) {
     history.sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0));
 
     const flags = detectFlags(uid, user);
-
     const isSuspended = (user.status || "active") === "suspended";
     const tier = (user.tier || "regular").toUpperCase();
-    const tierClass = {
-        "RESELLER": "bg-danger",
-        "VIP": "bg-success",
-        "REGULAR": "bg-secondary"
-    }[tier] || "bg-secondary";
+    const tierClass = { "RESELLER": "bg-danger", "VIP": "bg-success", "REGULAR": "bg-secondary" }[tier] || "bg-secondary";
 
     let html = `
         <div class="row g-3 mb-4">
             <div class="col-md-6">
                 <div class="section-title">Account Information</div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">UID</span>
-                    <code style="font-size:0.7rem; word-break:break-all;">${escapeHtml(uid)}</code>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Name</span>
-                    <span>${escapeHtml(user.fullName || "—")}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Email</span>
-                    <span>${escapeHtml(user.email || "—")}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Tier</span>
-                    <span class="badge ${tierClass}">${tier}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Status</span>
-                    <span class="badge ${isSuspended ? 'bg-danger' : 'bg-success'}">
-                        ${isSuspended ? 'Suspended' : 'Active'}
-                    </span>
-                </div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">UID</span><code style="font-size:0.7rem; word-break:break-all;">${escapeHtml(uid)}</code></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Name</span><span>${escapeHtml(user.fullName || "—")}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Email</span><span>${escapeHtml(user.email || "—")}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Tier</span><span class="badge ${tierClass}">${tier}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Status</span><span class="badge ${isSuspended ? 'bg-danger' : 'bg-success'}">${isSuspended ? 'Suspended' : 'Active'}</span></div>
             </div>
-
             <div class="col-md-6">
                 <div class="section-title">Financials</div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Wallet</span>
-                    <span class="fw-bold text-success">${formatNaira(user.wallet)}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Total Spent</span>
-                    <span>${formatNaira(user.totalSpent)}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Total Invested</span>
-                    <span>${formatNaira(user.totalInvested)}</span>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Referral Code</span>
-                    <code style="font-size:0.7rem;">${escapeHtml(user.referralCode || uid)}</code>
-                </div>
-                <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted small">Referrals</span>
-                    <span>${user.totalReferrals || 0}</span>
-                </div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Wallet</span><span class="fw-bold text-success">${formatNaira(user.wallet)}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Total Spent</span><span>${formatNaira(user.totalSpent)}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Total Invested</span><span>${formatNaira(user.totalInvested)}</span></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Referral Code</span><code style="font-size:0.7rem;">${escapeHtml(user.referralCode || uid)}</code></div>
+                <div class="d-flex justify-content-between py-1"><span class="text-muted small">Referrals</span><span>${user.totalReferrals || 0}</span></div>
             </div>
         </div>
     `;
@@ -541,17 +473,12 @@ function renderUserDetail(uid) {
     if (flags.length > 0) {
         html += `
             <div class="mb-4 p-3" style="background:rgba(220,53,69,0.1); border-left:4px solid #dc3545; border-radius:6px;">
-                <div class="fw-bold text-danger mb-2">
-                    <i class="bi bi-flag-fill"></i> Suspicious Activity Detected
-                </div>
-                ${flags.map(f => `
-                    <span class="flag-badge flag-${f.level}">${escapeHtml(f.text)}</span>
-                `).join("")}
+                <div class="fw-bold text-danger mb-2"><i class="bi bi-flag-fill"></i> Suspicious Activity Detected</div>
+                ${flags.map(f => `<span class="flag-badge flag-${f.level}">${escapeHtml(f.text)}</span>`).join("")}
             </div>
         `;
     }
 
-    // Show forgiveness status if applicable
     if (user.unblockClearedHash) {
         html += `
             <div class="mb-4 p-2" style="background:rgba(25,135,84,0.1); border-left:4px solid #198754; border-radius:6px; font-size:0.8rem;">
@@ -574,40 +501,26 @@ function renderUserDetail(uid) {
             const amount = Number(h.amount || 0);
             const isCredit = amount > 0;
             const cssClass = isCredit ? "credit" : "debit";
-
-            const typeColors = {
-                "wallet_funding":    "success",
-                "order_payment":     "primary",
-                "voucher":           "info",
-                "refund":            "warning",
-                "reseller_upgrade":  "danger"
-            };
+            const typeColors = { "wallet_funding": "success", "order_payment": "primary", "voucher": "info", "refund": "warning", "reseller_upgrade": "danger" };
             const typeColor = typeColors[h.type] || "secondary";
-
             const meta = [];
-            if (h.reference)   meta.push(`Ref: ${escapeHtml(h.reference)}`);
-            if (h.orderId)     meta.push(`Order: ${escapeHtml(h.orderId)}`);
+            if (h.reference) meta.push(`Ref: ${escapeHtml(h.reference)}`);
+            if (h.orderId) meta.push(`Order: ${escapeHtml(h.orderId)}`);
             if (h.voucherCode) meta.push(`Voucher: ${escapeHtml(h.voucherCode)}`);
-            if (h.service)     meta.push(escapeHtml(h.service));
-            if (h.method)      meta.push(escapeHtml(h.method));
-            if (h.fee)         meta.push(`Fee: ${formatNaira(h.fee)}`);
+            if (h.service) meta.push(escapeHtml(h.service));
+            if (h.method) meta.push(escapeHtml(h.method));
+            if (h.fee) meta.push(`Fee: ${formatNaira(h.fee)}`);
 
             return `
                 <div class="timeline-entry ${cssClass}">
                     <div>
-                        <div class="timeline-type">
-                            <span class="badge bg-${typeColor}" style="font-size:0.7rem;">${escapeHtml(h.type || "—")}</span>
-                        </div>
+                        <div class="timeline-type"><span class="badge bg-${typeColor}" style="font-size:0.7rem;">${escapeHtml(h.type || "—")}</span></div>
                         <div class="timeline-meta">${meta.join(" • ")}</div>
                         <div class="timeline-meta">${formatDate(h.timestamp)}</div>
                     </div>
                     <div class="text-end">
-                        <div class="timeline-amount ${isCredit ? 'text-success' : 'text-danger'}">
-                            ${isCredit ? "+" : ""}${formatNaira(amount)}
-                        </div>
-                        <div class="timeline-meta">
-                            ${formatNaira(h.before)} → ${formatNaira(h.after)}
-                        </div>
+                        <div class="timeline-amount ${isCredit ? 'text-success' : 'text-danger'}">${isCredit ? "+" : ""}${formatNaira(amount)}</div>
+                        <div class="timeline-meta">${formatNaira(h.before)} → ${formatNaira(h.after)}</div>
                     </div>
                 </div>
             `;
@@ -615,7 +528,6 @@ function renderUserDetail(uid) {
     }
 
     html += `</div>`;
-
     document.getElementById("modalBody").innerHTML = html;
 }
 
@@ -644,9 +556,6 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
     const isSuspended = (user.status || "active") === "suspended";
 
     if (isSuspended) {
-        // ============================================
-        // UNBLOCK + FORGIVE current flags
-        // ============================================
         const flags = detectFlags(currentViewedUid, user);
         const currentHash = computeFlagHash(flags);
 
@@ -663,7 +572,6 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
             };
 
             await database.ref().update(updates);
-
             allUsers[currentViewedUid].status = "active";
             allUsers[currentViewedUid].unblockClearedHash = currentHash;
 
@@ -675,11 +583,7 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
             console.error("Unblock error:", err);
             showToast("❌ Failed: " + err.message, "error");
         }
-
     } else {
-        // ============================================
-        // BLOCK manually
-        // ============================================
         const reason = prompt(`Reason for blocking ${user.fullName || user.email || currentViewedUid}:`);
         if (!reason) return;
         if (!confirm(`Are you sure you want to block this user?`)) return;
