@@ -2,6 +2,7 @@
 // HKDMservices — Users Activity Panel
 // Access: requires users/{uid}/role === "moderator" OR "admin"
 // Forgive-once: unblocking stores current flag hash
+// Live updates: panel reacts to Firebase changes automatically
 // ============================================================
 
 const firebaseConfig = {
@@ -133,11 +134,12 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 // ============================================================
-// LOAD USERS + WALLET HISTORY
+// LOAD USERS + WALLET HISTORY (with live updates)
 // ============================================================
 
 async function loadAllData() {
     try {
+        // First load — wait for initial data
         const [usersSnap, historySnap] = await Promise.all([
             database.ref("users").once("value"),
             database.ref("wallet_history").once("value")
@@ -148,6 +150,31 @@ async function loadAllData() {
 
         renderStats();
         renderUserTable();
+
+        // ============================================
+        // LIVE LISTENERS — update on any Firebase change
+        // ============================================
+        database.ref("users").on("value", (snap) => {
+            allUsers = snap.val() || {};
+            renderStats();
+            renderUserTable();
+
+            // If a modal is open, refresh its content too
+            if (currentViewedUid && document.getElementById("userDetailModal").classList.contains("show")) {
+                renderUserDetail(currentViewedUid);
+                updateBlockButton(currentViewedUid);
+            }
+        });
+
+        database.ref("wallet_history").on("value", (snap) => {
+            allWalletHistory = snap.val() || {};
+            renderStats();
+            renderUserTable();
+            if (currentViewedUid && document.getElementById("userDetailModal").classList.contains("show")) {
+                renderUserDetail(currentViewedUid);
+            }
+        });
+
     } catch (err) {
         console.error("Load error:", err);
         showToast("❌ Failed to load data: " + err.message, "error");
