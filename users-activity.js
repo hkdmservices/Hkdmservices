@@ -86,6 +86,7 @@ function emailBase(email) {
 
 // ============================================================
 // HASH FUNCTION — must match computeFlagHash() in flag-monitor.php
+// Returns a readable string, not a hex hash
 // ============================================================
 function computeFlagHash(flags) {
     const parts = flags.map(f => (f.reason || "") + "|" + (f.hash || ""));
