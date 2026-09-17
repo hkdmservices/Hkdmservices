@@ -54,7 +54,7 @@
         }
 
         /* ============================================================
-           NAVBAR — now theme-aware and aligned with page gutter
+           NAVBAR
            ============================================================ */
         .navbar-custom {
             background: var(--bg-nav);
@@ -91,75 +91,128 @@
             color: var(--text-muted) !important;
         }
 
-        /* Theme toggle button adapts to theme */
-        .navbar-custom .btn-refresh {
-            color: var(--text-nav);
-            border-color: var(--border-input);
+        /* ============================================================
+           CUSTOM THEME SWITCHER (no Bootstrap dropdown)
+           ============================================================ */
+        .theme-switcher {
+            position: relative;
         }
 
-        .navbar-custom .btn-refresh:hover,
-        .navbar-custom .btn-refresh:focus {
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-nav);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover,
+        .theme-btn:focus {
+            background: rgba(25, 135, 84, 0.1);
             color: var(--accent);
             border-color: var(--accent);
-            background: rgba(25, 135, 84, 0.1);
+            outline: none;
         }
 
-        /* ============================================================
-           DROPDOWN — force visible, force correct colors
-           ============================================================ */
-        .navbar-custom .dropdown-menu {
-            background-color: var(--bg-card) !important;
-            border: 1px solid var(--border-card) !important;
-            box-shadow: 0 6px 16px var(--shadow) !important;
-            padding: 6px 0;
+        .theme-btn .caret {
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+
+        /* The popup panel — hidden by default */
+        .theme-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
             min-width: 160px;
-            margin-top: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            box-shadow: 0 6px 20px var(--shadow);
+            padding: 6px 0;
+            z-index: 1050;
+            display: none;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
         }
 
-        .navbar-custom .dropdown-menu.show {
-            background-color: var(--bg-card) !important;
+        .theme-menu.open {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .navbar-custom .dropdown-menu .dropdown-item {
-            color: var(--text-body) !important;
-            background-color: transparent !important;
-            font-size: 0.88rem;
-            padding: 8px 14px;
+        .theme-option {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            color: var(--text-body);
+            text-decoration: none;
+            cursor: pointer;
             transition: background 0.15s ease, color 0.15s ease;
         }
 
-        .navbar-custom .dropdown-menu .dropdown-item i {
-            color: var(--text-muted) !important;
+        .theme-option i {
+            color: var(--text-muted);
+            font-size: 0.95rem;
             transition: color 0.15s ease;
         }
 
-        .navbar-custom .dropdown-menu .dropdown-item:hover,
-        .navbar-custom .dropdown-menu .dropdown-item:focus {
-            background-color: rgba(25, 135, 84, 0.15) !important;
-            color: var(--accent) !important;
+        .theme-option:hover,
+        .theme-option:focus {
+            background: rgba(25, 135, 84, 0.15);
+            color: var(--accent);
+            outline: none;
         }
 
-        .navbar-custom .dropdown-menu .dropdown-item:hover i,
-        .navbar-custom .dropdown-menu .dropdown-item:focus i {
-            color: var(--accent) !important;
+        .theme-option:hover i,
+        .theme-option:focus i {
+            color: var(--accent);
         }
 
-        /* Kill Bootstrap's dark-theme override — force our values */
-        .navbar-custom .dropdown-menu {
-            --bs-dropdown-bg: var(--bg-card);
-            --bs-dropdown-color: var(--text-body);
-            --bs-dropdown-link-color: var(--text-body);
-            --bs-dropdown-link-hover-color: var(--accent);
-            --bs-dropdown-link-hover-bg: rgba(25, 135, 84, 0.15);
-            --bs-dropdown-link-active-color: var(--accent);
-            --bs-dropdown-link-active-bg: rgba(25, 135, 84, 0.2);
-            --bs-dropdown-border-color: var(--border-card);
+        .theme-option.active {
+            color: var(--accent);
+            font-weight: 600;
         }
 
-        /* ---------- CARDS ---------- */
+        .theme-option.active i {
+            color: var(--accent);
+        }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .btn-refresh {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-nav);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-refresh:hover,
+        .btn-refresh:focus {
+            background: rgba(25, 135, 84, 0.1);
+            color: var(--accent);
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        /* ============================================================
+           CARDS
+           ============================================================ */
         .card-custom {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -168,7 +221,9 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        /* ---------- TABLE ---------- */
+        /* ============================================================
+           TABLE
+           ============================================================ */
         .table {
             color: var(--text-body) !important;
             --bs-table-bg: transparent !important;
@@ -199,29 +254,9 @@
             color: var(--text-body) !important;
         }
 
-        /* ---------- BUTTONS ---------- */
-        .btn-refresh {
-            background: transparent;
-            border: 1px solid var(--border-input);
-            color: var(--text-body);
-            border-radius: 8px;
-            padding: 6px 14px;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn-refresh:hover,
-        .btn-refresh:focus {
-            background: rgba(25, 135, 84, 0.1);
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .btn-refresh.dropdown-toggle::after {
-            margin-left: 6px;
-        }
-
-        /* ---------- FORMS ---------- */
+        /* ============================================================
+           FORMS
+           ============================================================ */
         .form-control, .form-select {
             background: var(--bg-input);
             border-color: var(--border-input);
@@ -241,7 +276,9 @@
             box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.2);
         }
 
-        /* ---------- FLAG BADGES ---------- */
+        /* ============================================================
+           FLAG BADGES / STAT CARDS / UID
+           ============================================================ */
         .flag-badge {
             font-size: 0.7rem;
             padding: 3px 8px;
@@ -256,7 +293,6 @@
         .flag-high { background: #fd7e14; color: #fff; }
         .flag-medium { background: #ffc107; color: #000; }
 
-        /* ---------- STAT CARDS ---------- */
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -279,7 +315,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ---------- USER ROW ---------- */
         .user-row {
             cursor: pointer;
             transition: background 0.15s ease;
@@ -297,7 +332,9 @@
             border: 1px solid var(--border-card);
         }
 
-        /* ---------- MODAL ---------- */
+        /* ============================================================
+           MODAL
+           ============================================================ */
         .modal-content {
             background: var(--bg-card);
             color: var(--text-body);
@@ -313,7 +350,9 @@
             filter: invert(1) grayscale(100%) brightness(200%);
         }
 
-        /* ---------- WALLET TIMELINE ---------- */
+        /* ============================================================
+           TIMELINE
+           ============================================================ */
         .timeline-entry {
             display: flex;
             justify-content: space-between;
@@ -330,23 +369,13 @@
             border-left: 3px solid #dc3545;
         }
 
-        .timeline-type {
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
+        .timeline-type { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .timeline-amount { font-weight: 700; font-size: 0.9rem; }
+        .timeline-meta { color: var(--text-muted); font-size: 0.7rem; }
 
-        .timeline-amount {
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .timeline-meta {
-            color: var(--text-muted);
-            font-size: 0.7rem;
-        }
-
-        /* ---------- MISC ---------- */
+        /* ============================================================
+           MISC
+           ============================================================ */
         .loading-center { text-align: center; padding: 40px; }
 
         .section-title {
@@ -361,13 +390,12 @@
 
         .card-custom, .stat-card, .table, .table td, .table th,
         .modal-content, .form-control, .form-select, .btn-refresh,
-        .uid-code, .navbar-custom {
+        .uid-code, .navbar-custom, .theme-btn, .theme-menu {
             transition: background 0.3s ease,
                         color 0.3s ease,
                         border-color 0.3s ease;
         }
 
-        /* Scrollbar */
         html[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
         html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg-body); }
         html[data-theme="dark"] ::-webkit-scrollbar-thumb {
@@ -375,7 +403,9 @@
         }
         html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #484f58; }
 
-        /* ---------- NAVBAR TOGGLER ---------- */
+        /* ============================================================
+           NAVBAR TOGGLER
+           ============================================================ */
         .navbar-toggler {
             border-color: var(--border-input);
             padding: 4px 8px;
@@ -393,10 +423,13 @@
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232ea043' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
-        /* ---------- MOBILE TWEAKS ---------- */
+        /* ============================================================
+           MOBILE
+           ============================================================ */
         @media (max-width: 575.98px) {
             .brand { font-size: 0.95rem; gap: 6px; }
-            .btn-refresh { padding: 5px 10px; font-size: 0.78rem; }
+            .btn-refresh,
+            .theme-btn { padding: 5px 10px; font-size: 0.78rem; }
             .card-custom { padding: 14px; }
             .stat-card { padding: 12px; }
             .stat-card .num { font-size: 1.4rem; }
@@ -440,32 +473,35 @@
                             align-items-md-center gap-2 ms-md-auto mt-3 mt-md-0 w-100">
 
                     <div class="d-flex align-items-center gap-2">
-                        <div class="dropdown">
-                            <button class="btn-refresh dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false"
+
+                        <!-- CUSTOM THEME SWITCHER -->
+                        <div class="theme-switcher">
+                            <button class="theme-btn" type="button"
+                                    id="themeBtn"
+                                    onclick="toggleThemeMenu(event)"
                                     title="Change theme">
                                 <i class="bi bi-sun-fill" id="themeIcon"></i>
+                                <span id="themeLabel">Auto</span>
+                                <i class="bi bi-caret-down-fill caret"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="#"
-                                       onclick="setTheme('light'); return false;">
-                                        <i class="bi bi-sun-fill"></i>Light
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#"
-                                       onclick="setTheme('dark'); return false;">
-                                        <i class="bi bi-moon-fill"></i>Dark
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#"
-                                       onclick="setTheme('auto'); return false;">
-                                        <i class="bi bi-circle-half"></i>Auto
-                                    </a>
-                                </li>
-                            </ul>
+
+                            <div class="theme-menu" id="themeMenu">
+                                <a class="theme-option" data-theme="light"
+                                   onclick="setTheme('light'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-sun-fill"></i>
+                                    <span>Light</span>
+                                </a>
+                                <a class="theme-option" data-theme="dark"
+                                   onclick="setTheme('dark'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-moon-fill"></i>
+                                    <span>Dark</span>
+                                </a>
+                                <a class="theme-option" data-theme="auto"
+                                   onclick="setTheme('auto'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-circle-half"></i>
+                                    <span>Auto</span>
+                                </a>
+                            </div>
                         </div>
 
                         <button class="btn-refresh" onclick="location.reload()">
@@ -603,6 +639,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
+        // ---------- THEME: apply BEFORE render ----------
         (function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
             let theme = saved;
@@ -624,25 +661,62 @@
             document.documentElement.setAttribute('data-theme', actual);
         }
 
-        function updateThemeIcon(theme) {
+        function updateThemeUI(theme) {
             const icon = document.getElementById('themeIcon');
-            if (!icon) return;
-            if (theme === 'light') icon.className = 'bi bi-sun-fill';
-            else if (theme === 'dark') icon.className = 'bi bi-moon-fill';
-            else icon.className = 'bi bi-circle-half';
+            const label = document.getElementById('themeLabel');
+            if (icon) {
+                if (theme === 'light') icon.className = 'bi bi-sun-fill';
+                else if (theme === 'dark') icon.className = 'bi bi-moon-fill';
+                else icon.className = 'bi bi-circle-half';
+            }
+            if (label) {
+                label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+            }
+
+            // Highlight the active option
+            document.querySelectorAll('.theme-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.theme === theme);
+            });
         }
 
         function setTheme(theme) {
             localStorage.setItem('adminTheme', theme);
             applyTheme(theme);
-            updateThemeIcon(theme);
+            updateThemeUI(theme);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const saved = localStorage.getItem('adminTheme') || 'auto';
-            updateThemeIcon(saved);
+        function toggleThemeMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('themeMenu');
+            if (!menu) return;
+            menu.classList.toggle('open');
+        }
+
+        function closeThemeMenu() {
+            const menu = document.getElementById('themeMenu');
+            if (menu) menu.classList.remove('open');
+        }
+
+        // Close on outside click
+        document.addEventListener('click', function (e) {
+            const switcher = document.querySelector('.theme-switcher');
+            if (switcher && !switcher.contains(e.target)) {
+                closeThemeMenu();
+            }
         });
 
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeThemeMenu();
+        });
+
+        // Init UI
+        document.addEventListener('DOMContentLoaded', function () {
+            const saved = localStorage.getItem('adminTheme') || 'auto';
+            updateThemeUI(saved);
+        });
+
+        // React to system change in auto mode
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)')
                 .addEventListener('change', function () {
