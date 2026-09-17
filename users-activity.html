@@ -92,7 +92,7 @@
         }
 
         /* ============================================================
-           CUSTOM THEME SWITCHER (no Bootstrap dropdown)
+           CUSTOM THEME SWITCHER
            ============================================================ */
         .theme-switcher {
             position: relative;
@@ -125,7 +125,6 @@
             opacity: 0.7;
         }
 
-        /* The popup panel — hidden by default */
         .theme-menu {
             position: absolute;
             top: calc(100% + 6px);
@@ -456,7 +455,7 @@
 
             <a class="navbar-brand brand" href="#">
                 <i class="bi bi-shield-check"></i>
-                <span>HKDM Panel</span>
+                <span>HKDM-Moderator</span>
             </a>
 
             <button class="navbar-toggler" type="button"
@@ -673,7 +672,6 @@
                 label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
             }
 
-            // Highlight the active option
             document.querySelectorAll('.theme-option').forEach(function (el) {
                 el.classList.toggle('active', el.dataset.theme === theme);
             });
@@ -697,7 +695,6 @@
             if (menu) menu.classList.remove('open');
         }
 
-        // Close on outside click
         document.addEventListener('click', function (e) {
             const switcher = document.querySelector('.theme-switcher');
             if (switcher && !switcher.contains(e.target)) {
@@ -705,18 +702,15 @@
             }
         });
 
-        // Close on Escape
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeThemeMenu();
         });
 
-        // Init UI
         document.addEventListener('DOMContentLoaded', function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
             updateThemeUI(saved);
         });
 
-        // React to system change in auto mode
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)')
                 .addEventListener('change', function () {
