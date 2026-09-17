@@ -1,6 +1,7 @@
 // ============================================================
 // HKDMservices — Users Activity Panel
 // Access: requires users/{uid}/role === "moderator" OR "admin"
+// Forgive-once: unblocking stores current flag hash
 // ============================================================
 
 const firebaseConfig = {
@@ -20,13 +21,9 @@ if (!firebase.apps.length) {
 const auth = firebase.auth();
 const database = firebase.database();
 
-// ============================================================
-// STATE
-// ============================================================
-
 let currentAdminUser = null;
-let allUsers = {};          // { uid: userObject }
-let allWalletHistory = {};  // { uid: { whKey: entry } }
+let allUsers = {};
+let allWalletHistory = {};
 let currentViewedUid = null;
 
 // ============================================================
@@ -81,11 +78,28 @@ function showToast(message, type = "info") {
     }, 3800);
 }
 
-// Extract email base to catch name+1@x.com / name.1@x.com patterns
 function emailBase(email) {
     if (!email) return null;
     const local = String(email).split("@")[0].toLowerCase();
     return local.split("+")[0].split(".")[0];
+}
+
+// ============================================================
+// HASH FUNCTION — must match computeFlagHash() in flag-monitor.php
+// ============================================================
+function computeFlagHash(flags) {
+    const parts = flags.map(f => (f.reason || "") + "|" + (f.hash || ""));
+    parts.sort();
+    const str = parts.join("::");
+
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const chr = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash = hash & 0xFFFFFFFF;
+    }
+
+    return Math.abs(hash).toString(16).padStart(16, "0").substring(0, 16);
 }
 
 // ============================================================
@@ -175,6 +189,7 @@ function renderStats() {
 
 // ============================================================
 // FLAG DETECTION — ALL 14 FLAGS
+// Each flag has: level, reason, hash, text
 // ============================================================
 
 function detectFlags(uid, user) {
@@ -199,6 +214,8 @@ function detectFlags(uid, user) {
         if (Math.abs(diff) > 1) {
             flags.push({
                 level: "critical",
+                reason: "Unexplained wallet change",
+                hash: String(Math.round(diff)),
                 text: diff > 0
                     ? `+₦${Math.round(diff).toLocaleString()} unexplained wallet increase`
                     : `-₦${Math.abs(Math.round(diff)).toLocaleString()} unexplained wallet decrease`
@@ -209,7 +226,7 @@ function detectFlags(uid, user) {
     // 2. Refund abuse
     const refundCount = history.filter(h => h.type === "refund").length;
     if (refundCount >= 3) {
-        flags.push({ level: "high", text: `${refundCount} refunds` });
+        flags.push({ level: "high", reason: "Refund abuse", hash: "rc:" + refundCount, text: `${refundCount} refunds` });
     }
 
     // 3. Rapid funding (≥5 in 24h)
@@ -217,7 +234,7 @@ function detectFlags(uid, user) {
         h.type === "wallet_funding" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
     if (recentFundings >= 5) {
-        flags.push({ level: "medium", text: `${recentFundings} fundings in 24h` });
+        flags.push({ level: "medium", reason: "Rapid funding", hash: "rf:" + recentFundings, text: `${recentFundings} fundings in 24h` });
     }
 
     // 4. Rapid orders (≥10 in 24h)
@@ -225,7 +242,7 @@ function detectFlags(uid, user) {
         h.type === "order_payment" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
     if (recentOrders >= 10) {
-        flags.push({ level: "medium", text: `${recentOrders} orders in 24h` });
+        flags.push({ level: "medium", reason: "Rapid orders", hash: "ro:" + recentOrders, text: `${recentOrders} orders in 24h` });
     }
 
     // 5. Wash trading
@@ -239,7 +256,7 @@ function detectFlags(uid, user) {
         }
     }
     if (washCycles >= 2) {
-        flags.push({ level: "high", text: `${washCycles} wash-trade cycles` });
+        flags.push({ level: "high", reason: "Wash trading", hash: "wt:" + washCycles, text: `${washCycles} wash-trade cycles` });
     }
 
     // 6. Zero-balance orders
@@ -253,6 +270,8 @@ function detectFlags(uid, user) {
     if (zeroBalanceOrders >= 1) {
         flags.push({
             level: "critical",
+            reason: "Zero-balance orders",
+            hash: "zc:" + zeroBalanceOrders,
             text: `${zeroBalanceOrders} zero-balance order${zeroBalanceOrders > 1 ? "s" : ""}`
         });
     }
@@ -265,7 +284,7 @@ function detectFlags(uid, user) {
             if (emailBase(other.email) === myBase) sameBaseCount++;
         });
         if (sameBaseCount >= 3) {
-            flags.push({ level: "high", text: `${sameBaseCount} accounts share email base` });
+            flags.push({ level: "high", reason: "Multiple accounts", hash: "ma:" + sameBaseCount, text: `${sameBaseCount} accounts share email base` });
         }
     }
 
@@ -274,32 +293,36 @@ function detectFlags(uid, user) {
         h.type === "voucher" && Number(h.timestamp || 0) >= oneDayAgo
     ).length;
     if (recentVouchers >= 5) {
-        flags.push({ level: "high", text: `${recentVouchers} vouchers in 24h` });
+        flags.push({ level: "high", reason: "Voucher abuse", hash: "va:" + recentVouchers, text: `${recentVouchers} vouchers in 24h` });
     }
 
     // 10. Referral spam
     const totalRefs = Number(user.totalReferrals || 0);
     if (totalRefs >= 5) {
-        flags.push({ level: "high", text: `${totalRefs} total referrals` });
+        flags.push({ level: "high", reason: "Referral spam", hash: "rs:" + totalRefs, text: `${totalRefs} total referrals` });
     }
 
-    // 13 (FIXED). Reseller but didn't pay the ₦100,000 fee
+    // 13. Reseller but didn't pay the ₦100,000 fee
     if ((user.tier || "").toLowerCase() === "reseller") {
         const invested = Number(user.totalInvested || 0);
         if (invested < 100000) {
             flags.push({
                 level: "critical",
+                reason: "Reseller without fee",
+                hash: "rw:" + Math.round(invested),
                 text: `Reseller but paid only ₦${Math.round(invested).toLocaleString()} (needs ₦100,000)`
             });
         }
     }
 
-    // NEW. VIP tier but low spend (< ₦60,000)
+    // VIP tier but low spend (< ₦60,000)
     if ((user.tier || "").toLowerCase() === "vip") {
         const spent = Number(user.totalSpent || 0);
         if (spent < 60000) {
             flags.push({
                 level: "high",
+                reason: "VIP low spend",
+                hash: "vs:" + Math.round(spent),
                 text: `VIP but only ₦${Math.round(spent).toLocaleString()} spent (needs ₦60,000)`
             });
         }
@@ -307,7 +330,7 @@ function detectFlags(uid, user) {
 
     // 14. Negative wallet
     if (Number(user.wallet || 0) < 0) {
-        flags.push({ level: "critical", text: `Negative wallet: ${formatNaira(user.wallet)}` });
+        flags.push({ level: "critical", reason: "Negative wallet", hash: "neg:" + Math.round(Number(user.wallet)), text: `Negative wallet: ${formatNaira(user.wallet)}` });
     }
 
     // 15. High refund ratio (> 50% of orders)
@@ -315,16 +338,16 @@ function detectFlags(uid, user) {
     if (orderCount >= 2 && refundCount > 0) {
         const ratio = refundCount / orderCount;
         if (ratio > 0.5) {
-            flags.push({ level: "critical", text: `${Math.round(ratio * 100)}% refund rate` });
+            flags.push({ level: "critical", reason: "High refund rate", hash: "hr:" + Math.round(ratio * 100), text: `${Math.round(ratio * 100)}% refund rate` });
         }
     }
 
     // 18. Self-referral
     if (user.referralCode && String(user.referralCode) === String(uid)) {
-        flags.push({ level: "critical", text: `Self-referral (own UID)` });
+        flags.push({ level: "critical", reason: "Self-referral", hash: "sr:code", text: `Self-referral (own UID)` });
     }
     if (user.referredBy && String(user.referredBy) === String(uid)) {
-        flags.push({ level: "critical", text: `Referred by self` });
+        flags.push({ level: "critical", reason: "Self-referral", hash: "sr:by", text: `Referred by self` });
     }
 
     return flags;
@@ -528,6 +551,17 @@ function renderUserDetail(uid) {
         `;
     }
 
+    // Show forgiveness status if applicable
+    if (user.unblockClearedHash) {
+        html += `
+            <div class="mb-4 p-2" style="background:rgba(25,135,84,0.1); border-left:4px solid #198754; border-radius:6px; font-size:0.8rem;">
+                <i class="bi bi-shield-check text-success"></i>
+                <strong>Forgiven:</strong> previous flags were cleared (hash: <code>${escapeHtml(user.unblockClearedHash)}</code>).
+                Will re-block if new flags appear.
+            </div>
+        `;
+    }
+
     html += `
         <div class="section-title">Wallet Timeline (${history.length} entries)</div>
         <div style="max-height:420px; overflow-y:auto; border:1px solid var(--border-card); border-radius:8px;">
@@ -593,12 +627,10 @@ function updateBlockButton(uid) {
     const user = allUsers[uid] || {};
     const isSuspended = (user.status || "active") === "suspended";
     const btn = document.getElementById("btnBlockUser");
-    const btnText = document.getElementById("blockBtnText");
 
     if (isSuspended) {
         btn.className = "btn btn-success";
-        btnText.textContent = "Unblock User";
-        btn.innerHTML = `<i class="bi bi-check-circle"></i> <span id="blockBtnText">Unblock User</span>`;
+        btn.innerHTML = `<i class="bi bi-check-circle"></i> <span id="blockBtnText">Unblock User (Forgive)</span>`;
     } else {
         btn.className = "btn btn-warning";
         btn.innerHTML = `<i class="bi bi-slash-circle"></i> <span id="blockBtnText">Block User</span>`;
@@ -610,46 +642,67 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
 
     const user = allUsers[currentViewedUid] || {};
     const isSuspended = (user.status || "active") === "suspended";
-    const action = isSuspended ? "unblock" : "block";
 
-    const reason = action === "block"
-        ? prompt(`Reason for blocking ${user.fullName || user.email || currentViewedUid}:`)
-        : null;
+    if (isSuspended) {
+        // ============================================
+        // UNBLOCK + FORGIVE current flags
+        // ============================================
+        const flags = detectFlags(currentViewedUid, user);
+        const currentHash = computeFlagHash(flags);
 
-    if (action === "block" && !reason) {
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to ${action} this user?`)) {
-        return;
-    }
-
-    try {
-        const updates = {};
-
-        if (action === "block") {
-            updates["users/" + currentViewedUid + "/status"] = "suspended";
-            updates["users/" + currentViewedUid + "/blockedAt"] = Date.now();
-            updates["users/" + currentViewedUid + "/blockedBy"] = currentAdminUser.email || currentAdminUser.uid;
-            updates["users/" + currentViewedUid + "/blockedReason"] = reason;
-        } else {
-            updates["users/" + currentViewedUid + "/status"] = "active";
-            updates["users/" + currentViewedUid + "/unblockedAt"] = Date.now();
-            updates["users/" + currentViewedUid + "/unblockedBy"] = currentAdminUser.email || currentAdminUser.uid;
+        if (!confirm(`Unblock this user and forgive their current flags?\n\nHash: ${currentHash}\n\nThey will be re-blocked automatically if any new or different flags appear.`)) {
+            return;
         }
 
-        await database.ref().update(updates);
+        try {
+            const updates = {
+                ["users/" + currentViewedUid + "/status"]: "active",
+                ["users/" + currentViewedUid + "/unblockedAt"]: Date.now(),
+                ["users/" + currentViewedUid + "/unblockedBy"]: currentAdminUser.email || currentAdminUser.uid,
+                ["users/" + currentViewedUid + "/unblockClearedHash"]: currentHash,
+            };
 
-        allUsers[currentViewedUid].status = action === "block" ? "suspended" : "active";
+            await database.ref().update(updates);
 
-        showToast(`✅ User ${action}ed successfully`, "success");
+            allUsers[currentViewedUid].status = "active";
+            allUsers[currentViewedUid].unblockClearedHash = currentHash;
 
-        updateBlockButton(currentViewedUid);
-        renderUserTable();
-        renderStats();
-    } catch (err) {
-        console.error("Block/unblock error:", err);
-        showToast("❌ Failed: " + err.message, "error");
+            showToast(`✅ User unblocked. Flags forgiven (hash: ${currentHash}).`, "success");
+            updateBlockButton(currentViewedUid);
+            renderUserTable();
+            renderStats();
+        } catch (err) {
+            console.error("Unblock error:", err);
+            showToast("❌ Failed: " + err.message, "error");
+        }
+
+    } else {
+        // ============================================
+        // BLOCK manually
+        // ============================================
+        const reason = prompt(`Reason for blocking ${user.fullName || user.email || currentViewedUid}:`);
+        if (!reason) return;
+        if (!confirm(`Are you sure you want to block this user?`)) return;
+
+        try {
+            const updates = {
+                ["users/" + currentViewedUid + "/status"]: "suspended",
+                ["users/" + currentViewedUid + "/blockedAt"]: Date.now(),
+                ["users/" + currentViewedUid + "/blockedBy"]: currentAdminUser.email || currentAdminUser.uid,
+                ["users/" + currentViewedUid + "/blockedReason"]: reason,
+            };
+
+            await database.ref().update(updates);
+            allUsers[currentViewedUid].status = "suspended";
+
+            showToast(`✅ User blocked`, "success");
+            updateBlockButton(currentViewedUid);
+            renderUserTable();
+            renderStats();
+        } catch (err) {
+            console.error("Block error:", err);
+            showToast("❌ Failed: " + err.message, "error");
+        }
     }
 });
 
@@ -662,9 +715,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userStatusFilter")?.addEventListener("change", renderUserTable);
     document.getElementById("flagFilter")?.addEventListener("change", renderUserTable);
 });
-
-// ============================================================
-// EXPOSE FUNCTIONS GLOBALLY
-// ============================================================
 
 window.openUserDetail = openUserDetail;
