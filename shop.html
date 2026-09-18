@@ -534,13 +534,32 @@
             }
 
             const newWallet = userWallet - product.price;
+
+            // ✅ FIX: Log to wallet_history BEFORE updating wallet
+            // This prevents the flag monitor from raising a false
+            // "Unexplained wallet change" alert after shop purchases.
+            const historyId = 'WH-' + Date.now();
+            const orderId = 'SHOP-' + Date.now();
+            await set(ref(database, 'wallet_history/' + currentUser.uid + '/' + historyId), {
+                type: 'shop_purchase',
+                amount: -product.price,
+                before: userWallet,
+                after: newWallet,
+                timestamp: Date.now(),
+                service: product.title,
+                platform: product.platform,
+                orderId: orderId
+            });
+
+            // Update wallet
             await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
             userWallet = newWallet;
             walletBalanceEl.textContent = formatNaira(userWallet);
 
+            // Mark product as sold
             await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
 
-            const orderId = 'SHOP-' + Date.now();
+            // Save order record
             const orderData = {
                 uid: currentUser.uid,
                 orderId: orderId,
@@ -554,6 +573,7 @@
             };
             await set(ref(database, 'orders/' + orderId), orderData);
 
+            // Save transaction record
             const transactionId = 'TXN-' + Date.now();
             const transactionData = {
                 uid: currentUser.uid,
@@ -624,6 +644,7 @@
                 showToast(`⚠️ Purchase complete but email failed`, 'warning');
             }
 
+            // Clear credentials from listing (security)
             await set(ref(database, 'shop/' + product.key + '/login'), null);
             await set(ref(database, 'shop/' + product.key + '/password'), null);
             
