@@ -86,7 +86,6 @@
 <section class="py-4">
     <div class="container">
 
-        <!-- Hero -->
         <div class="text-center mb-5">
             <h1 class="fw-bold mb-2">
                 <i class="bi bi-code-square text-success"></i> Build Your Website
@@ -96,7 +95,6 @@
             </p>
         </div>
 
-        <!-- Categories -->
         <h5 class="fw-bold mb-3">
             <i class="bi bi-grid-3x3-gap text-success"></i> Choose a Category
         </h5>
@@ -104,7 +102,6 @@
             <!-- Populated by JS -->
         </div>
 
-        <!-- Form -->
         <div id="formSection" style="display:none;">
             <h5 class="fw-bold mb-3">
                 <i class="bi bi-pencil-square text-success"></i>
@@ -192,7 +189,6 @@
             </div>
         </div>
 
-        <!-- How it works -->
         <div class="card border-secondary mt-5">
             <div class="card-body">
                 <h5 class="fw-bold mb-3">
@@ -239,18 +235,16 @@
     <i class="bi bi-whatsapp"></i>
 </a>
 
-<script type="importmap">
-{
-    "imports": {
-        "firebase/app": "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js",
-        "firebase/database": "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"
-    }
-}
-</script>
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<script type="module" src="website-requests.js"></script>
+<!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Page Logic -->
+<script src="website-requests.js"></script>
 
 </body>
 </html>
