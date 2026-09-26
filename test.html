@@ -2,7 +2,25 @@
 <html>
 <head><title>Test</title></head>
 <body>
-<h1>Hello World!</h1>
-<p>If you see this, the server is working.</p>
+<div id="categoriesGrid" style="border:2px solid red; padding:20px;">Categories will go here</div>
+
+<script>
+    const CATEGORIES = [
+        { id: 'landing', name: 'Landing Page' },
+        { id: 'business', name: 'Business Website' }
+    ];
+
+    const grid = document.getElementById('categoriesGrid');
+    if (grid) {
+        grid.innerHTML = CATEGORIES.map(c => `
+            <div style="background:#0f0; padding:10px; margin:5px;">
+                ${c.name}
+            </div>
+        `).join('');
+        alert('Rendered ' + CATEGORIES.length + ' categories');
+    } else {
+        alert('categoriesGrid not found!');
+    }
+</script>
 </body>
 </html>
