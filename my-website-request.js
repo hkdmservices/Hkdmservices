@@ -231,9 +231,14 @@ onAuthStateChanged(auth, async (user) => {
                         </p>
 
                         <div class="row g-2 small text-muted">
+                            <!-- ✅ CHANGED: show Quoted Price if available, otherwise Starting price -->
                             <div class="col-6 col-md-3">
-                                <strong>Starting:</strong> ${formatNaira(r.basePrice)}
+                                ${r.quotedPrice
+                                    ? `<strong>Quoted Price:</strong> ${formatNaira(r.quotedPrice)}`
+                                    : `<strong>Starting:</strong> ${formatNaira(r.basePrice)}`}
                             </div>
+                            <!-- ✅ CHANGED END -->
+
                             <div class="col-6 col-md-3">
                                 <strong>Timeline:</strong> ${escapeHtml(r.timeline || '—')}
                             </div>
@@ -245,11 +250,7 @@ onAuthStateChanged(auth, async (user) => {
                             </div>
                         </div>
 
-                        ${r.quotedPrice ? `
-                            <div class="alert alert-info mt-3 mb-0">
-                                <strong>Quoted Price:</strong> ${formatNaira(r.quotedPrice)}
-                            </div>
-                        ` : ''}
+                        <!-- ✅ CHANGED: removed duplicate blue "Quoted Price" alert box -->
 
                         ${r.adminNote ? `
                             <div class="alert alert-warning mt-2 mb-0" style="font-size:0.85rem;">
