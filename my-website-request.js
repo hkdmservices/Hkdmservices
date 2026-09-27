@@ -18,7 +18,7 @@ import {
 
 
 // ============================================================
-// YOUR BANK DETAILS — CHANGE THESE IF NEEDED
+// YOUR BANK DETAILS
 // ============================================================
 const BANK_DETAILS = {
     name: 'Sadiq Abdulrauf',
@@ -90,7 +90,7 @@ function statusBadge(status) {
 
 
 /* =========================================================
-   BUILD PAYMENT BLOCK (hidden until user clicks the quote)
+   BUILD PAYMENT BLOCK (hidden until user taps the button)
 ========================================================= */
 function buildPaymentBlock(request) {
     const reqId = request.requestId || request.id;
@@ -157,7 +157,6 @@ onAuthStateChanged(auth, async (user) => {
 
     try {
 
-        /* Only fetch requests that belong to this user */
         const snap = await get(ref(database, 'website_requests'));
         const data = snap.val() || {};
 
@@ -197,19 +196,18 @@ onAuthStateChanged(auth, async (user) => {
             const status = r.status || 'pending';
             const statusLabel = status.replace('-', ' ').toUpperCase();
 
-            const isQuoted = status === 'quoted' && r.quotedPrice;
+            const isQuoted = status === 'quoted' && !!r.quotedPrice;
             const paymentBlock = isQuoted ? buildPaymentBlock(r) : '';
 
-            // Show a hint only when there's a quote the user can act on
-            const clickHint = isQuoted
-                ? `<div class="quote-cta mt-3 text-center text-primary" style="cursor:pointer; font-weight:600;">
-                       <i class="bi bi-hand-index-thumb"></i> Tap to review &amp; pay deposit
-                   </div>`
+            // Real <button> — works on iOS Safari, Android, desktop
+            const quoteButton = isQuoted
+                ? `<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn">
+                       <i class="bi bi-credit-card"></i> Review &amp; Pay Deposit
+                   </button>`
                 : '';
 
             return `
-                <div class="card border-secondary mb-3 ${isQuoted ? 'quoted-card' : ''}"
-                     ${isQuoted ? `data-quote-id="${escapeHtml(r.id)}" style="cursor:pointer;"` : ''}>
+                <div class="card border-secondary mb-3">
                     <div class="card-body">
 
                         <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
@@ -234,7 +232,7 @@ onAuthStateChanged(auth, async (user) => {
                                 <strong>Category Price:</strong> ${formatNaira(r.basePrice)}
                             </div>
 
-                            <!-- Your (quoted) price OR starting price -->
+                            <!-- Your price (quoted) or starting price -->
                             <div class="col-6 col-md-3">
                                 ${r.quotedPrice
                                     ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
@@ -256,9 +254,8 @@ onAuthStateChanged(auth, async (user) => {
                             </div>
                         ` : ''}
 
+                        ${quoteButton}
                         ${paymentBlock}
-
-                        ${clickHint}
 
                     </div>
                 </div>
@@ -266,29 +263,25 @@ onAuthStateChanged(auth, async (user) => {
         }).join('');
 
 
-        /* ---------- CLICK A QUOTED CARD → REVEAL PAYMENT BLOCK ---------- */
-        container.querySelectorAll('.quoted-card').forEach(card => {
+        /* ---------- QUOTE BUTTON → TOGGLE PAYMENT BLOCK ---------- */
+        container.querySelectorAll('.quote-toggle-btn').forEach(btn => {
 
-            card.addEventListener('click', function (e) {
+            btn.addEventListener('click', function () {
 
-                // Ignore clicks on links/buttons inside the block
-                if (e.target.closest('a, button')) return;
+                const card = btn.closest('.card');
+                if (!card) return;
 
                 const block = card.querySelector('.payment-block');
-                const hint  = card.querySelector('.quote-cta');
-
                 if (!block) return;
 
-                const alreadyOpen = block.style.display === 'block';
+                const isOpen = block.style.display === 'block';
 
-                if (alreadyOpen) {
+                if (isOpen) {
                     block.style.display = 'none';
-                    if (hint) hint.style.display = 'block';
+                    btn.innerHTML = '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit';
                 } else {
                     block.style.display = 'block';
-                    if (hint) hint.style.display = 'none';
-
-                    // Smooth-scroll the payment block into view
+                    btn.innerHTML = '<i class="bi bi-x-circle"></i> Hide Payment Details';
                     block.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
