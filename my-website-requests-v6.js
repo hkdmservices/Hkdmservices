@@ -1,14 +1,29 @@
 // ============================================================
-// My Website Requests — with manual deposit payment flow
-// v6 — shows Category Price + Budget (or Your Price when quoted)
+// My Website Requests — v7 (self-contained, no firebase.js)
 // ============================================================
 
-import { auth, database } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-console.log('MY REQUESTS JS LOADED — v6');
+console.log('MY REQUESTS JS LOADED — v7');
 
+// ── Firebase config (inlined) ──
+const firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
+
+// ── Bank & WhatsApp details ──
 const BANK_DETAILS = {
     name: 'Sadiq Abdulrauf',
     account: '8135349371',
@@ -18,6 +33,7 @@ const BANK_DETAILS = {
 const PAYMENT_WHATSAPP = '18253635037';
 const container = document.getElementById('requestsContainer');
 
+// ── Helpers ──
 function formatNaira(amount) {
     return '₦' + Number(amount || 0).toLocaleString('en-NG', {
         minimumFractionDigits: 0,
@@ -105,6 +121,7 @@ function buildPaymentBlock(request) {
     `;
 }
 
+// ── Auth + render ──
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = 'login.html';
@@ -144,8 +161,6 @@ onAuthStateChanged(auth, async (user) => {
             const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
             const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
 
-            console.log('Request:', reqId, 'status:', status, 'hasQuote:', hasQuote, 'isQuoted:', isQuoted);
-
             const paymentBlock = isQuoted ? buildPaymentBlock(r) : '';
 
             const quoteButton = isQuoted
@@ -154,7 +169,6 @@ onAuthStateChanged(auth, async (user) => {
                    </button>`
                 : '';
 
-            // ✅ CHANGED: second column shows Your Price when quoted, otherwise Budget
             const secondColumn = r.quotedPrice
                 ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
                 : `<strong>Budget:</strong> ${escapeHtml(r.budget || '—')}`;
@@ -230,7 +244,7 @@ onAuthStateChanged(auth, async (user) => {
         console.error('MY REQUESTS ERROR:', error);
         container.innerHTML = `
             <div class="alert alert-danger">
-                Failed to load your requests. Please refresh the page.
+                Failed to load your requests: ${escapeHtml(error.message || 'Unknown error')}
             </div>
         `;
     }
