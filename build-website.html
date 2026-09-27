@@ -238,20 +238,7 @@
                                     placeholder="Tell us what you want on your website — pages, features, design style, etc." required></textarea>
                             </div>
 
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Budget Range</label>
-                                <select class="form-select" id="reqBudget" required>
-                                    <option value="">Select budget...</option>
-                                    <option value="under-100k">Under ₦100,000</option>
-                                    <option value="100k-300k">₦100,000 – ₦300,000</option>
-                                    <option value="300k-600k">₦300,000 – ₦600,000</option>
-                                    <option value="600k-1m">₦600,000 – ₦1,000,000</option>
-                                    <option value="1m-plus">₦1,000,000+</option>
-                                    <option value="not-sure">Not sure yet</option>
-                                </select>
-                            </div>
-
-                            <div class="col-12 col-md-6">
+                            <div class="col-12">
                                 <label class="form-label">Timeline</label>
                                 <select class="form-select" id="reqTimeline" required>
                                     <option value="">Select timeline...</option>
@@ -337,7 +324,7 @@
 
 <script>
 // ============================================================
-// Initialize Firebase immediately (before page is ready)
+// Firebase
 // ============================================================
 var firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -356,7 +343,6 @@ var database = firebase.database();
 var currentUser = null;
 var authReady = false;
 
-// Watch auth state — runs as soon as Firebase loads
 auth.onAuthStateChanged(function (user) {
     currentUser = user;
     authReady = true;
@@ -378,7 +364,7 @@ auth.onAuthStateChanged(function (user) {
 });
 
 // ============================================================
-// Category selection + Continue button + Form submit
+// Page logic
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -387,7 +373,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var selectedLabel = document.getElementById('selectedCategoryLabel');
     var formSection = document.getElementById('formSection');
 
-    // --- Category click ---
     cards.forEach(function (card) {
         card.addEventListener('click', function () {
             cards.forEach(function (c) { c.classList.remove('selected'); });
@@ -405,21 +390,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // --- Continue button ---
     document.getElementById('continueBtn').addEventListener('click', function () {
         formSection.style.display = 'block';
         formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    // --- Form submit ---
     var form = document.getElementById('websiteRequestForm');
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
         var formMsg = document.getElementById('formMsg');
 
-        // Wait for auth if it hasn't fired yet
         if (!authReady) {
-            formMsg.innerHTML = '<div class="alert alert-info">Still loading your account… please wait 2 seconds and try again.</div>';
+            formMsg.innerHTML = '<div class="alert alert-info">Still loading… please wait 2 seconds and try again.</div>';
             return;
         }
 
@@ -446,8 +428,8 @@ document.addEventListener('DOMContentLoaded', function () {
             whatsapp: document.getElementById('reqWhatsapp').value.trim(),
             business: document.getElementById('reqBusiness').value.trim(),
             description: document.getElementById('reqDescription').value.trim(),
-            budget: document.getElementById('reqBudget').value,
-            timeline: document.getElementById('reqTimeline').value
+            timeline: document.getElementById('reqTimeline').value,
+            budget: catPrice + ' (from category)'
         };
 
         if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
