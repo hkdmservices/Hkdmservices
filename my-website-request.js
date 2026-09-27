@@ -141,7 +141,6 @@ onAuthStateChanged(auth, async (user) => {
             const status = r.status || 'pending';
             const statusLabel = status.replace('-', ' ').toUpperCase();
 
-            // More robust: show payment block if there's a quote AND status is quoted OR deposit not yet paid
             const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
             const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
 
