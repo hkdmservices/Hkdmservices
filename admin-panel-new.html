@@ -118,6 +118,7 @@
             background: transparent !important;
         }
 
+        /* Fix for table in dark mode */
         html[data-theme="dark"] .table {
             --bs-table-striped-bg: #1a1f26 !important;
             --bs-table-hover-bg: #21262d !important;
@@ -565,9 +566,7 @@
         }
         html[data-theme="dark"] .theme-toggle .auto-indicator {
             border-color: #161b22;
-        }
-
-        /* ============================================================
+        }/* ============================================================
            DARK MODE OVERRIDES
            ============================================================ */
         html[data-theme="dark"] {
@@ -675,10 +674,12 @@
             border-color: #30363d;
         }
 
+        /* Fix for dark mode modal close button */
         html[data-theme="dark"] .btn-close-white {
             filter: invert(1) grayscale(100%) brightness(200%);
         }
 
+        /* Ensure text in alerts is visible */
         html[data-theme="dark"] .alert-success {
             background: #0d2818;
             color: #7ee8a2;
@@ -700,27 +701,32 @@
             border-color: #0d6efd;
         }
 
+        /* Fix for card text in dark mode */
         html[data-theme="dark"] .card-title,
         html[data-theme="dark"] .card-text,
         html[data-theme="dark"] .card-body {
             color: #f1f3f5;
         }
 
+        /* Fix for modal body text */
         html[data-theme="dark"] .modal-body,
         html[data-theme="dark"] .modal-body p,
         html[data-theme="dark"] .modal-body label {
             color: #f1f3f5;
         }
 
+        /* Fix for dropdown options in dark mode */
         html[data-theme="dark"] .form-select option {
             background: #0d1117;
             color: #f1f3f5;
         }
 
+        /* Fix for table hover in dark mode */
         html[data-theme="dark"] .table tbody tr:hover {
             background: #21262d !important;
         }
 
+        /* Fix for pagination or any other text */
         html[data-theme="dark"] .text-secondary {
             color: #8b949e !important;
         }
@@ -728,20 +734,24 @@
             color: #f1f3f5 !important;
         }
 
+        /* Fix for badges in dark mode */
         html[data-theme="dark"] .badge.bg-light {
             background: #21262d !important;
             color: #f1f3f5 !important;
         }
 
+        /* Fix for table striped rows in dark mode */
         html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
             --bs-table-color-type: var(--bs-table-striped-color);
             --bs-table-bg-type: #1a1f26;
         }
 
+        /* Fix for "No orders found" text */
         html[data-theme="dark"] .text-muted {
             color: #8b949e !important;
         }
 
+        /* Fix for code elements */
         html[data-theme="dark"] code,
         html[data-theme="dark"] .id-code,
         html[data-theme="dark"] .uid-code {
@@ -769,6 +779,7 @@
             <div class="col-md-3 col-lg-2 px-0 sidebar">
                 <div class="d-flex align-items-center justify-content-between mb-4 mt-2 px-3">
                     <span class="navbar-brand fw-bold text-success">⬢ HKDM<span id="brandText" style="color: #212529;">admin</span></span>
+                    <!-- THEME TOGGLE with Auto Indicator -->
                     <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode (Auto: ON)">
                         <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
                         <span class="auto-indicator" id="autoIndicator" title="Auto-switch based on time">⏱</span>
@@ -807,8 +818,7 @@
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </nav>
-            </div><!-- MAIN CONTENT -->
-            <div class="col-md-9 col-lg-10 main-content">
+            </div><!-- MAIN CONTENT --><div class="col-md-9 col-lg-10 main-content">
 
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -1014,6 +1024,7 @@
                 <!-- SERVICES SECTION -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
+                        <!-- Service Stats -->
                         <div class="service-stats-grid" id="serviceStatsGrid">
                             <div class="service-stat-item">
                                 <div class="number" id="statTotalServices">0</div>
@@ -1037,6 +1048,7 @@
                             </div>
                         </div>
 
+                        <!-- Tabs: Global + Nigeria -->
                         <ul class="nav nav-tabs service-tabs mb-3" id="serviceCatalogTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="svc-global-tab" data-bs-toggle="tab" data-bs-target="#svc-global" type="button" role="tab">
@@ -1051,6 +1063,7 @@
                         </ul>
 
                         <div class="tab-content">
+                            <!-- Global Catalog -->
                             <div class="tab-pane fade show active" id="svc-global" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                                     <h5>Global Services</h5>
@@ -1083,6 +1096,7 @@
                                 </div>
                             </div>
 
+                            <!-- Nigeria Catalog -->
                             <div class="tab-pane fade" id="svc-nigeria" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                                     <h5>Nigeria Services</h5>
@@ -1116,9 +1130,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- SHOP SECTION -->
+                </div><!-- SHOP SECTION -->
                 <div id="section-shop" style="display:none;">
                     <div class="stat-card">
                         <div class="stats-grid" id="shopStatsGrid">
@@ -1404,9 +1416,7 @@
 
             </div>
         </div>
-    </div>
-
-    <!-- ============================================ -->
+    </div><!-- ============================================ -->
     <!-- MODALS -->
     <!-- ============================================ -->
 
@@ -1915,30 +1925,35 @@
     </div>
 
     <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <div class="toast-container" id="toastContainer"></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
+    <!-- ============================================================
+         THEME TOGGLE SCRIPT (Auto + Manual)
+         ============================================================ -->
     <script>
     (function() {
+        // Get the theme toggle elements
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
         const autoIndicator = document.getElementById('autoIndicator');
         const brandText = document.getElementById('brandText');
 
+        // Check for saved preference, default to 'auto'
         let savedPreference = localStorage.getItem('adminTheme') || 'auto';
         let currentTheme = 'light';
         let isAutoMode = true;
 
+        // Function to determine theme based on time
         function getTimeBasedTheme() {
             const hour = new Date().getHours();
+            // Dark mode from 6 PM (18) to 6 AM (6)
             return (hour >= 18 || hour < 6) ? 'dark' : 'light';
         }
 
+        // Function to apply theme
         function applyTheme(theme, isAuto) {
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -1950,10 +1965,12 @@
                 currentTheme = 'light';
             }
 
+            // Update brand text color for visibility
             if (brandText) {
                 brandText.style.color = theme === 'dark' ? '#f1f3f5' : '#212529';
             }
 
+            // Update auto indicator
             if (autoIndicator) {
                 if (isAuto) {
                     autoIndicator.style.display = 'flex';
@@ -1964,6 +1981,7 @@
                 }
             }
 
+            // Update button title
             if (themeToggle) {
                 const mode = theme === 'dark' ? 'Dark' : 'Light';
                 const autoText = isAuto ? ' (Auto: ON)' : ' (Manual)';
@@ -1974,6 +1992,7 @@
             localStorage.setItem('adminTheme', isAuto ? 'auto' : theme);
         }
 
+        // Function to handle auto-switch
         function handleAutoSwitch() {
             if (isAutoMode) {
                 const timeBasedTheme = getTimeBasedTheme();
@@ -1981,29 +2000,36 @@
             }
         }
 
+        // Initialize theme
         function initTheme() {
             const preference = localStorage.getItem('adminTheme');
 
             if (!preference || preference === 'auto') {
+                // Auto mode
                 const timeBasedTheme = getTimeBasedTheme();
                 applyTheme(timeBasedTheme, true);
             } else {
+                // Manual mode (light or dark)
                 applyTheme(preference, false);
             }
         }
 
+        // Toggle on button click
         if (themeToggle) {
             themeToggle.addEventListener('click', function() {
                 if (isAutoMode) {
+                    // If auto mode is ON, turn it OFF and switch to opposite of current time theme
                     const currentTimeTheme = getTimeBasedTheme();
                     const newTheme = currentTimeTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 } else {
+                    // Manual mode: toggle between light and dark
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 }
             });
 
+            // Double-click to re-enable auto mode
             themeToggle.addEventListener('dblclick', function() {
                 const timeBasedTheme = getTimeBasedTheme();
                 applyTheme(timeBasedTheme, true);
@@ -2011,19 +2037,30 @@
             });
         }
 
+        // Auto-switch every minute (check time)
         setInterval(handleAutoSwitch, 60000);
 
+        // Also check on page visibility change (user returns to tab)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 handleAutoSwitch();
             }
         });
 
+        // Initialize
         initTheme();
+
+        console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
     })();
     </script>
 
+    <!-- ============================================================
+         FIREBASE & ADMIN SCRIPTS
+         ============================================================ -->
     <script>
+        // ============================================================
+        // FIREBASE CONFIG
+        // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
             authDomain: "hkdmservices-7d59f.firebaseapp.com",
@@ -2042,6 +2079,9 @@
         let currentOrderFilter = 'all';
         let selectedOrders = new Set();
 
+        // ============================================================
+        // CHECK ADMIN ACCESS
+        // ============================================================
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'admin-login.html';
@@ -2063,6 +2103,9 @@
             loadDashboard();
         });
 
+        // ============================================================
+        // LOGOUT
+        // ============================================================
         document.getElementById('adminLogout').addEventListener('click', async function(e) {
             e.preventDefault();
             try {
@@ -2078,6 +2121,9 @@
             }
         });
 
+        // ============================================================
+        // REFRESH DATA
+        // ============================================================
         document.getElementById('refreshData').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -2099,6 +2145,9 @@
             }
         });
 
+        // ============================================================
+        // SECTION SWITCHING
+        // ============================================================
         document.querySelectorAll('.sidebar .nav-link[data-section]').forEach(link => {
             link.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
@@ -2140,6 +2189,9 @@
             if (section === 'website-requests') loadAllWebsiteRequests();
         }
 
+        // ============================================================
+        // TOAST NOTIFICATIONS
+        // ============================================================
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -2153,6 +2205,9 @@
             }, 4000);
         }
 
+        // ============================================================
+        // FORMAT FUNCTIONS
+        // ============================================================
         function formatNaira(amount) {
             return '₦' + Number(amount || 0).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
         }
@@ -2173,6 +2228,59 @@
             };
             const color = colors[status] || 'secondary';
             return `<span class="badge bg-${color}">${status || 'pending'}</span>`;
+        }
+
+        // ============================================================
+        // DASHBOARD OVERVIEW
+        // ============================================================
+        function loadDashboard() {
+            const ordersRef = database.ref('orders');
+            ordersRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                let totalOrders = 0;
+                let totalRevenue = 0;
+                let pendingOrders = 0;
+                const ordersList = [];
+
+                if (data) {
+                    Object.values(data).forEach(order => {
+                        totalOrders++;
+                        if (order.status !== 'refunded' && order.status !== 'cancelled' && order.status !== 'failed') {
+                            totalRevenue += Number(order.total || 0);
+                        }
+                        if (order.status === 'pending') pendingOrders++;
+                        ordersList.push(order);
+                    });
+                }
+
+                document.getElementById('totalOrders').textContent = totalOrders;
+                document.getElementById('totalRevenue').textContent = formatNaira(totalRevenue);
+                document.getElementById('pendingOrders').textContent = pendingOrders;
+
+                const sorted = ordersList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
+                const tbody = document.getElementById('adminRecentOrders');
+                if (sorted.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No orders found</td></tr>';
+                } else {
+                    tbody.innerHTML = sorted.map(order => `
+                            <tr>
+                                <td><code class="id-code">${(order.orderId || '').slice(0, 12)}</code></td>
+                                <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
+                                <td>${order.serviceName || 'N/A'}</td>
+                                <td>${formatNaira(order.total)}</td>
+                                <td>${statusBadge(order.status)}</td>
+                                <td>${formatDate(order.createdAt)}</td>
+                            </tr>
+                        `).join('');
+                }
+            });
+
+            database.ref('users').once('value', (snapshot) => {
+                const data = snapshot.val();
+                let count = 0;
+                if (data) count = Object.keys(data).length;
+                document.getElementById('totalUsers').textContent = count;
+            });
         }
 
         // ============================================================
@@ -2415,58 +2523,9 @@
             document.getElementById('refreshWebReq')?.addEventListener('click', loadAllWebsiteRequests);
             document.getElementById('webReqSearch')?.addEventListener('input', loadAllWebsiteRequests);
             document.getElementById('webReqStatusFilter')?.addEventListener('change', loadAllWebsiteRequests);
-        });
-
-        function loadDashboard() {
-            const ordersRef = database.ref('orders');
-            ordersRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                let totalOrders = 0;
-                let totalRevenue = 0;
-                let pendingOrders = 0;
-                const ordersList = [];
-
-                if (data) {
-                    Object.values(data).forEach(order => {
-                        totalOrders++;
-                        if (order.status !== 'refunded' && order.status !== 'cancelled' && order.status !== 'failed') {
-                            totalRevenue += Number(order.total || 0);
-                        }
-                        if (order.status === 'pending') pendingOrders++;
-                        ordersList.push(order);
-                    });
-                }
-
-                document.getElementById('totalOrders').textContent = totalOrders;
-                document.getElementById('totalRevenue').textContent = formatNaira(totalRevenue);
-                document.getElementById('pendingOrders').textContent = pendingOrders;
-
-                const sorted = ordersList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
-                const tbody = document.getElementById('adminRecentOrders');
-                if (sorted.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No orders found</td></tr>';
-                } else {
-                    tbody.innerHTML = sorted.map(order => `
-                            <tr>
-                                <td><code class="id-code">${(order.orderId || '').slice(0, 12)}</code></td>
-                                <td>${order.uid ? order.uid.slice(0, 10) + '...' : 'N/A'}</td>
-                                <td>${order.serviceName || 'N/A'}</td>
-                                <td>${formatNaira(order.total)}</td>
-                                <td>${statusBadge(order.status)}</td>
-                                <td>${formatDate(order.createdAt)}</td>
-                            </tr>
-                        `).join('');
-                }
-            });
-
-            database.ref('users').once('value', (snapshot) => {
-                const data = snapshot.val();
-                let count = 0;
-                if (data) count = Object.keys(data).length;
-                document.getElementById('totalUsers').textContent = count;
-            });
-        }
-
+        });// ============================================================
+        // ORDERS FILTER
+        // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#section-orders .status-filter .btn').forEach(b => b.classList.remove(
@@ -2477,6 +2536,9 @@
             });
         });
 
+        // ============================================================
+        // ALL ORDERS
+        // ============================================================
         function loadAllOrders() {
             const ordersRef = database.ref('orders');
             ordersRef.once('value', (snapshot) => {
@@ -2578,12 +2640,14 @@
                         `;
                 }).join('');
 
+                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
+                // Attach checkbox events
                 document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -2596,6 +2660,7 @@
                     });
                 });
 
+                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -2607,6 +2672,7 @@
                     });
                 });
 
+                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -2625,6 +2691,9 @@
             });
         }
 
+        // ============================================================
+        // ORDER UTILITIES
+        // ============================================================
         function updateOrderStats(data) {
             let total = 0,
                 pending = 0,
@@ -2688,6 +2757,9 @@
             updateSelectedCount();
         });
 
+        // ============================================================
+        // ✅ PATCH 1: BULK ACTION NOW USES PHP ENDPOINT (sends emails)
+        // ============================================================
         document.getElementById('applyBulkAction').addEventListener('click', async function() {
             const action = document.getElementById('bulkOrderAction').value;
             const orderKeys = Array.from(selectedOrders);
@@ -2734,6 +2806,9 @@
             }
         });
 
+        // ============================================================
+        // VIEW ORDER DETAILS
+        // ============================================================
         function viewOrderDetails(orderKey, orderId) {
             const modalBody = document.getElementById('orderDetailsBody');
             modalBody.innerHTML =
@@ -2775,6 +2850,9 @@
             });
         }
 
+        // ============================================================
+        // ✅ PATCH 2: UPDATE STATUS NOW USES PHP ENDPOINT (sends email)
+        // ============================================================
         document.getElementById('updateStatusBtn').addEventListener('click', async () => {
             const orderKey = document.getElementById('statusOrderKey').value;
             const orderId = document.getElementById('statusOrderId').value;
@@ -2812,6 +2890,9 @@
             }
         });
 
+        // ============================================================
+        // CONFIRM CANCEL & REFUND
+        // ============================================================
         document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
             const orderKey = this.dataset.orderKey;
             const orderId = this.dataset.orderId;
@@ -2872,6 +2953,9 @@
             }
         });
 
+        // ============================================================
+        // USERS
+        // ============================================================
         function loadAllUsers() {
             const usersRef = database.ref('users');
             usersRef.once('value', (snapshot) => {
@@ -2931,6 +3015,7 @@
                         `;
                 }).join('');
 
+                // Attach view user events
                 document.querySelectorAll('.view-user-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewUserDetails(btn.dataset.uid);
@@ -2982,6 +3067,9 @@
             });
         }
 
+        // ============================================================
+        // VIEW USER DETAILS
+        // ============================================================
         function viewUserDetails(uid) {
             const modalBody = document.getElementById('viewUserBody');
             modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
@@ -3052,8 +3140,13 @@
             } catch (error) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
             }
-        });
+        });// ============================================================
+        // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
+        // ============================================================
 
+        // ============================================================
+        // HELPER: Load services from file (supports both catalogs)
+        // ============================================================
         async function loadServicesFromFile(catalog = 'global') {
             try {
                 const filename = catalog === 'nigeria' ? './nigeria-services-catalogue.js' : './services.js';
@@ -3070,29 +3163,42 @@
             }
         }
 
+        // ============================================================
+        // LOAD SERVICES - BOTH GLOBAL AND NIGERIA
+        // ============================================================
         async function loadAllServices() {
             try {
+                console.log('🔍 Loading services using import()...');
+                
                 let globalServices = [];
                 let nigeriaServices = [];
                 
+                // Load Global services
                 try {
                     const globalModule = await import('./services.js?t=' + Date.now());
                     globalServices = globalModule.hkdmservicesOfficialServicePriceCatalogue || globalModule.default || [];
+                    console.log('✅ Global services loaded:', globalServices.length);
                 } catch (e) {
                     console.error('❌ Error loading global services:', e);
                 }
                 
+                // Load Nigeria services
                 try {
                     const nigeriaModule = await import('./nigeria-services-catalogue.js?t=' + Date.now());
                     nigeriaServices = nigeriaModule.hkdmservicesNigeriaServicePriceCatalogue || nigeriaModule.default || [];
+                    console.log('✅ Nigeria services loaded:', nigeriaServices.length);
                 } catch (e) {
                     console.error('❌ Error loading Nigeria services:', e);
                 }
                 
+                // If both are empty, use embedded fallback
                 if (globalServices.length === 0 && nigeriaServices.length === 0) {
+                    console.warn('⚠️ No services loaded, using embedded fallback');
                     globalServices = getEmbeddedServices();
                     nigeriaServices = getEmbeddedNigeriaServices();
                     showToast('⚠️ Using embedded services (import failed)', 'warning');
+                } else {
+                    showToast('✅ Loaded ' + globalServices.length + ' Global + ' + nigeriaServices.length + ' Nigeria services', 'success');
                 }
                 
                 renderServicesTable(globalServices, 'globalServicesTable', 'global');
@@ -3106,25 +3212,111 @@
                 renderServicesTable(fallback, 'globalServicesTable', 'global');
                 renderServicesTable(nigeriaFallback, 'nigeriaServicesTable', 'nigeria');
                 updateServiceStats(fallback, nigeriaFallback);
+                showToast('⚠️ Using embedded services (error)', 'warning');
             }
         }
 
+        // ============================================================
+        // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
+        // ============================================================
         function getEmbeddedServices() {
             return [
                 { id: "ig_followers", platform: "Instagram", service: "Followers", ratePer1000: 12000, resellerRatePer1000: 9000, vipRatePer1000: 10800, minimumQuantity: 100 },
                 { id: "ig_likes", platform: "Instagram", service: "Likes", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
                 { id: "ig_views", platform: "Instagram", service: "Views", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
-                { id: "ig_comments", platform: "Instagram", service: "Comments", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 }
+                { id: "ig_comments", platform: "Instagram", service: "Comments", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "ig_live_stream", platform: "Instagram", service: "Live Stream", ratePer1000: 100000, resellerRatePer1000: 75000, vipRatePer1000: 90000, minimumQuantity: 100 },
+                { id: "ig_repost", platform: "Instagram", service: "Repost", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "ig_story_views_impressions", platform: "Instagram", service: "Story Views + Impressions", ratePer1000: 2600, resellerRatePer1000: 1950, vipRatePer1000: 2340, minimumQuantity: 100 },
+                { id: "ig_channel_members", platform: "Instagram", service: "Channel Members", ratePer1000: 5000, resellerRatePer1000: 3750, vipRatePer1000: 4500, minimumQuantity: 100 },
+                { id: "tt_followers", platform: "TikTok", service: "Followers", ratePer1000: 70000, resellerRatePer1000: 52500, vipRatePer1000: 63000, minimumQuantity: 100 },
+                { id: "tt_likes", platform: "TikTok", service: "Likes", ratePer1000: 6750, resellerRatePer1000: 5063, vipRatePer1000: 6075, minimumQuantity: 100 },
+                { id: "tt_views", platform: "TikTok", service: "Views", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
+                { id: "tt_shares", platform: "TikTok", service: "Shares", ratePer1000: 2000, resellerRatePer1000: 1500, vipRatePer1000: 1800, minimumQuantity: 100 },
+                { id: "tt_saves", platform: "TikTok", service: "Saves", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
+                { id: "tt_comments", platform: "TikTok", service: "Comments", ratePer1000: 10000, resellerRatePer1000: 7500, vipRatePer1000: 9000, minimumQuantity: 100 },
+                { id: "tt_story_views", platform: "TikTok", service: "Story Views", ratePer1000: 2000, resellerRatePer1000: 1500, vipRatePer1000: 1800, minimumQuantity: 100 },
+                { id: "tt_video_downloads", platform: "TikTok", service: "Video Downloads", ratePer1000: 5000, resellerRatePer1000: 3750, vipRatePer1000: 4500, minimumQuantity: 100 },
+                { id: "tt_monetization_views", platform: "TikTok", service: "Monetization Views | 100,000 Views |", ratePer1000: null, fixedPrice: 50000, resellerFixedPrice: 37500, vipFixedPrice: 45000, minimumQuantity: 1, oneTimePayment: true },
+                { id: "tt_live_viewers", platform: "TikTok", service: "Livestream Engagement - Viewers", ratePer1000: 100000, resellerRatePer1000: 75000, vipRatePer1000: 90000, minimumQuantity: 100 },
+                { id: "tt_live_likes", platform: "TikTok", service: "Livestream Engagement - Likes", ratePer1000: 2000, resellerRatePer1000: 1500, vipRatePer1000: 1800, minimumQuantity: 100 },
+                { id: "tt_live_comments", platform: "TikTok", service: "Livestream Engagement - Comments", ratePer1000: 5000, resellerRatePer1000: 3750, vipRatePer1000: 4500, minimumQuantity: 100 },
+                { id: "tt_live_shares", platform: "TikTok", service: "Livestream Engagement - Shares", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "yt_subscribers", platform: "YouTube", service: "Subscribers", ratePer1000: 30000, resellerRatePer1000: 22500, vipRatePer1000: 27000, minimumQuantity: 100 },
+                { id: "yt_likes", platform: "YouTube", service: "Likes", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "yt_views", platform: "YouTube", service: "Views", ratePer1000: 2500, resellerRatePer1000: 1875, vipRatePer1000: 2250, minimumQuantity: 100 },
+                { id: "yt_watch_time", platform: "YouTube", service: "Watch Time (4000hr Package)", ratePer1000: null, fixedPrice: 100000, resellerFixedPrice: 75000, vipFixedPrice: 90000, minimumQuantity: 1 },
+                { id: "yt_comments", platform: "YouTube", service: "Comments", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "yt_livestream_views", platform: "YouTube", service: "Livestream Views | 24 Hours |", ratePer1000: 100000, resellerRatePer1000: 75000, vipRatePer1000: 90000, minimumQuantity: 100 },
+                { id: "yt_livestream_chat_comments", platform: "YouTube", service: "Livestream Chat Comments", ratePer1000: 10000, resellerRatePer1000: 7500, vipRatePer1000: 9000, minimumQuantity: 100 },
+                { id: "yt_short_views", platform: "YouTube", service: "Short Views", ratePer1000: 3200, resellerRatePer1000: 2400, vipRatePer1000: 2880, minimumQuantity: 100 },
+                { id: "yt_comment_likes", platform: "YouTube", service: "Comment Likes", ratePer1000: 5200, resellerRatePer1000: 3900, vipRatePer1000: 4680, minimumQuantity: 100 },
+                { id: "yt_social_shares", platform: "YouTube", service: "Social Shares", ratePer1000: 4000, resellerRatePer1000: 3000, vipRatePer1000: 3600, minimumQuantity: 100 },
+                { id: "fb_followers", platform: "Facebook", service: "Followers", ratePer1000: 12000, resellerRatePer1000: 9000, vipRatePer1000: 10800, minimumQuantity: 100 },
+                { id: "fb_post_likes", platform: "Facebook", service: "Post Likes", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "fb_video_views", platform: "Facebook", service: "Video Views", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
+                { id: "fb_comments", platform: "Facebook", service: "Comments", ratePer1000: 10000, resellerRatePer1000: 7500, vipRatePer1000: 9000, minimumQuantity: 100 },
+                { id: "fb_livestream_views", platform: "Facebook", service: "Livestream Views | 6 Hours |", ratePer1000: 100000, resellerRatePer1000: 75000, vipRatePer1000: 90000, minimumQuantity: 100 },
+                { id: "fb_group_members", platform: "Facebook", service: "Group Members", ratePer1000: 5000, resellerRatePer1000: 3750, vipRatePer1000: 4500, minimumQuantity: 100 },
+                { id: "fb_post_reactions", platform: "Facebook", service: "Post Reactions | Random Emojis |", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "fb_page_reviews", platform: "Facebook", service: "Page Reviews | Custom |", ratePer1000: 156800, resellerRatePer1000: 117600, vipRatePer1000: 141120, minimumQuantity: 100 },
+                { id: "tw_followers", platform: "X (Twitter)", service: "Followers", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "tw_likes", platform: "X (Twitter)", service: "Likes", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "tw_retweets", platform: "X (Twitter)", service: "Retweets", ratePer1000: 2500, resellerRatePer1000: 1875, vipRatePer1000: 2250, minimumQuantity: 100 },
+                { id: "tw_views", platform: "X (Twitter)", service: "Views", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
+                { id: "tw_poll_votes", platform: "X (Twitter)", service: "Poll Votes", ratePer1000: 3050, resellerRatePer1000: 2288, vipRatePer1000: 2745, minimumQuantity: 100 },
+                { id: "tw_live_listeners", platform: "X (Twitter)", service: "Live Listeners", ratePer1000: 50000, resellerRatePer1000: 37500, vipRatePer1000: 45000, minimumQuantity: 100 },
+                { id: "tw_comments", platform: "X (Twitter)", service: "Comments", ratePer1000: 10000, resellerRatePer1000: 7500, vipRatePer1000: 9000, minimumQuantity: 100 },
+                { id: "tg_members", platform: "Telegram", service: "Channel / Group Members", ratePer1000: 7000, resellerRatePer1000: 5250, vipRatePer1000: 6300, minimumQuantity: 100 },
+                { id: "tg_views", platform: "Telegram", service: "Post Views", ratePer1000: 1500, resellerRatePer1000: 1125, vipRatePer1000: 1350, minimumQuantity: 100 },
+                { id: "tg_reactions", platform: "Telegram", service: "Reactions", ratePer1000: 3500, resellerRatePer1000: 2625, vipRatePer1000: 3150, minimumQuantity: 100 },
+                { id: "tg_comments", platform: "Telegram", service: "Comments", ratePer1000: 10000, resellerRatePer1000: 7500, vipRatePer1000: 9000, minimumQuantity: 100 },
+                { id: "sp_followers", platform: "Spotify", service: "Followers", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "sp_monthly_listeners", platform: "Spotify", service: "Monthly Listeners", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "sp_plays", platform: "Spotify", service: "Plays", ratePer1000: 8000, resellerRatePer1000: 6000, vipRatePer1000: 7200, minimumQuantity: 100 },
+                { id: "sp_saves", platform: "Spotify", service: "Saves", ratePer1000: 3000, resellerRatePer1000: 2250, vipRatePer1000: 2700, minimumQuantity: 100 },
+                { id: "wa_channel_followers", platform: "WhatsApp", service: "Channel Followers", ratePer1000: 15000, resellerRatePer1000: 11250, vipRatePer1000: 13500, minimumQuantity: 100 },
+                { id: "wa_post_reactions", platform: "WhatsApp", service: "Channel Post Reactions", ratePer1000: 3500, resellerRatePer1000: 2625, vipRatePer1000: 3150, minimumQuantity: 100 },
+                { id: "am_followers", platform: "Apple Music", service: "Followers", ratePer1000: 16000, resellerRatePer1000: 12000, vipRatePer1000: 14400, minimumQuantity: 100 },
+                { id: "am_plays", platform: "Apple Music", service: "Plays", ratePer1000: 9000, resellerRatePer1000: 6750, vipRatePer1000: 8100, minimumQuantity: 100 },
+                { id: "reddit_followers", platform: "Reddit", service: "Followers", ratePer1000: 9600, resellerRatePer1000: 7200, vipRatePer1000: 8640, minimumQuantity: 100 },
+                { id: "reddit_subscribers", platform: "Reddit", service: "Channel Subscribers", ratePer1000: 9600, resellerRatePer1000: 7200, vipRatePer1000: 8640, minimumQuantity: 100 },
+                { id: "reddit_post_upvotes", platform: "Reddit", service: "Post Upvotes", ratePer1000: 76000, resellerRatePer1000: 57000, vipRatePer1000: 68400, minimumQuantity: 100 },
+                { id: "reddit_post_downvotes", platform: "Reddit", service: "Post Downvotes", ratePer1000: 120000, resellerRatePer1000: 90000, vipRatePer1000: 108000, minimumQuantity: 100 },
+                { id: "reddit_comment_upvotes", platform: "Reddit", service: "Comments Upvotes", ratePer1000: 200000, resellerRatePer1000: 150000, vipRatePer1000: 180000, minimumQuantity: 100 },
+                { id: "reddit_views", platform: "Reddit", service: "Views", ratePer1000: 2500, resellerRatePer1000: 1875, vipRatePer1000: 2250, minimumQuantity: 100 },
+                { id: "reddit_shares", platform: "Reddit", service: "Shares", ratePer1000: 2500, resellerRatePer1000: 1875, vipRatePer1000: 2250, minimumQuantity: 100 },
+                { id: "reddit_comments", platform: "Reddit", service: "Comments | Custom |", ratePer1000: 150000, resellerRatePer1000: 112500, vipRatePer1000: 135000, minimumQuantity: 100 },
+                { id: "reddit_community_members", platform: "Reddit", service: "Community Members", ratePer1000: 300000, resellerRatePer1000: 225000, vipRatePer1000: 270000, minimumQuantity: 100 }
             ];
         }
 
+        // ============================================================
+        // NIGERIA EMBEDDED SERVICES (FALLBACK ONLY)
+        // ============================================================
         function getEmbeddedNigeriaServices() {
             return [
                 { id: "n1", service: "Followers - Nigeria", platform: "Instagram", ratePer1000: 3000, resellerRatePer1000: 2500, vipRatePer1000: 2200, minimumQuantity: 100 },
-                { id: "n2", service: "Likes - Nigeria", platform: "Instagram", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 }
+                { id: "n2", service: "Likes - Nigeria", platform: "Instagram", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n3", service: "Comments - Nigeria", platform: "Instagram", ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: "n4", service: "Views - Nigeria", platform: "Instagram", ratePer1000: 1400, resellerRatePer1000: 1100, vipRatePer1000: 900, minimumQuantity: 100 },
+                { id: "n5", service: "Followers - Nigeria", platform: "TikTok", ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+                { id: "n6", service: "Likes - Nigeria", platform: "TikTok", ratePer1000: 2000, resellerRatePer1000: 1600, vipRatePer1000: 1400, minimumQuantity: 100 },
+                { id: "n7", service: "Views - Nigeria", platform: "TikTok", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n8", service: "Subscribers - Nigeria", platform: "YouTube", ratePer1000: 5500, resellerRatePer1000: 4500, vipRatePer1000: 3800, minimumQuantity: 50 },
+                { id: "n9", service: "Views - Nigeria", platform: "YouTube", ratePer1000: 3500, resellerRatePer1000: 2800, vipRatePer1000: 2400, minimumQuantity: 100 },
+                { id: "n10", service: "Followers - Nigeria", platform: "Facebook", ratePer1000: 2500, resellerRatePer1000: 2000, vipRatePer1000: 1700, minimumQuantity: 100 },
+                { id: "n11", service: "Likes - Nigeria", platform: "Facebook", ratePer1000: 1800, resellerRatePer1000: 1500, vipRatePer1000: 1300, minimumQuantity: 100 },
+                { id: "n12", service: "Followers - Nigeria", platform: "Telegram", ratePer1000: 4000, resellerRatePer1000: 3200, vipRatePer1000: 2800, minimumQuantity: 100 },
+                { id: "n13", service: "Followers - Nigeria", platform: "Snapchat", ratePer1000: 3200, resellerRatePer1000: 2600, vipRatePer1000: 2200, minimumQuantity: 100 },
+                { id: "n14", service: "Followers - Nigeria", platform: "Spotify", ratePer1000: 4500, resellerRatePer1000: 3600, vipRatePer1000: 3000, minimumQuantity: 100 },
+                { id: "n15", service: "Followers - Nigeria", platform: "X (Twitter)", ratePer1000: 2800, resellerRatePer1000: 2300, vipRatePer1000: 1900, minimumQuantity: 100 }
             ];
         }
 
+        // ============================================================
+        // RENDER SERVICES TABLE - WITH ONE-TIME SERVICE SUPPORT
+        // ============================================================
         function renderServicesTable(services, tableId, catalog) {
             const tbody = document.getElementById(tableId);
             if (!services || services.length === 0) {
@@ -3138,15 +3330,22 @@
                 const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit', 'linkedin', 'pinterest', 'discord'];
                 const finalClass = validPlatforms.includes(platformClass) ? platformClass : 'custom';
 
+                // ✅ Handle one-time services (fixedPrice) and regular services
                 let rateDisplay = '';
                 let resellerDisplay = '-';
                 let vipDisplay = '-';
                 
                 if (service.oneTimePayment === true || service.fixedPrice !== null && service.fixedPrice !== undefined) {
+                    // One-time service with fixed price
                     rateDisplay = `<span class="text-warning">💰 ${formatNaira(service.fixedPrice || service.ratePer1000)}</span>`;
-                    if (service.resellerFixedPrice) resellerDisplay = formatNaira(service.resellerFixedPrice);
-                    if (service.vipFixedPrice) vipDisplay = formatNaira(service.vipFixedPrice);
+                    if (service.resellerFixedPrice) {
+                        resellerDisplay = formatNaira(service.resellerFixedPrice);
+                    }
+                    if (service.vipFixedPrice) {
+                        vipDisplay = formatNaira(service.vipFixedPrice);
+                    }
                 } else if (service.ratePer1000 !== null && service.ratePer1000 !== undefined) {
+                    // Regular per-1000 service
                     rateDisplay = formatNaira(service.ratePer1000);
                     resellerDisplay = service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-';
                     vipDisplay = service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-';
@@ -3154,6 +3353,7 @@
                     rateDisplay = '<span class="text-muted">N/A</span>';
                 }
 
+                // Check if it's a comment service
                 const isComment = service.service && service.service.toLowerCase().includes('comment');
 
                 return `
@@ -3188,6 +3388,7 @@
                 `;
             }).join('');
 
+            // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const service = JSON.parse(btn.dataset.service);
@@ -3195,6 +3396,7 @@
                 });
             });
 
+            // Attach delete event listeners
             tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('Delete this service permanently?')) {
@@ -3204,10 +3406,14 @@
             });
         }
 
+        // ============================================================
+        // UPDATE SERVICE STATS - WITH ONE-TIME SERVICE SUPPORT
+        // ============================================================
         function updateServiceStats(global, nigeria) {
             const all = [...(global || []), ...(nigeria || [])];
             const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
             
+            // Handle both regular and one-time services
             const rates = all.map(s => {
                 if (s.oneTimePayment === true || s.fixedPrice !== null) {
                     return Number(s.fixedPrice || s.ratePer1000 || 0);
@@ -3229,11 +3435,15 @@
             display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
+        // ============================================================
+        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM & ONE-TIME SUPPORT
+        // ============================================================
         function openEditServiceModal(service, catalog) {
             document.getElementById('editServiceId').value = service.id;
             document.getElementById('editCatalog').value = catalog;
             document.getElementById('editSvcName').value = service.service || '';
             
+            // Check if platform is in the dropdown list
             const platformSelect = document.getElementById('editSvcPlatform');
             const platformOptions = Array.from(platformSelect.options).map(opt => opt.value);
             const platformName = service.platform || 'Instagram';
@@ -3247,6 +3457,7 @@
                 document.getElementById('editSvcCustomPlatform').value = platformName;
             }
             
+            // Handle one-time services
             const isOneTime = service.oneTimePayment === true || (service.fixedPrice !== null && service.fixedPrice !== undefined);
             document.getElementById('editSvcOneTime').checked = isOneTime;
             
@@ -3267,6 +3478,9 @@
             modal.show();
         }
 
+        // ============================================================
+        // CUSTOM PLATFORM HANDLING - Add Service
+        // ============================================================
         document.getElementById('svcPlatform').addEventListener('change', function() {
             const container = document.getElementById('customPlatformContainer');
             if (this.value === 'other') {
@@ -3279,6 +3493,9 @@
             }
         });
 
+        // ============================================================
+        // CUSTOM PLATFORM HANDLING - Edit Service
+        // ============================================================
         document.getElementById('editSvcPlatform').addEventListener('change', function() {
             const container = document.getElementById('editCustomPlatformContainer');
             if (this.value === 'other') {
@@ -3291,6 +3508,9 @@
             }
         });
 
+        // ============================================================
+        // ONE-TIME SERVICE TOGGLE - Add Service
+        // ============================================================
         document.getElementById('svcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('rateLabel');
             const rateInput = document.getElementById('svcRate');
@@ -3308,6 +3528,9 @@
             }
         });
 
+        // ============================================================
+        // ONE-TIME SERVICE TOGGLE - Edit Service
+        // ============================================================
         document.getElementById('editSvcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('editRateLabel');
             const rateInput = document.getElementById('editSvcRate');
@@ -3325,6 +3548,9 @@
             }
         });
 
+        // ============================================================
+        // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
+        // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -3332,6 +3558,8 @@
             btn.disabled = true;
             try {
                 const catalog = document.getElementById('addCatalog').value;
+                
+                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('svcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('svcCustomPlatform').value.trim() 
@@ -3383,12 +3611,14 @@
                     newService.oneTimePayment = false;
                 }
 
+                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
                     services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 }
                 services.push(newService);
 
+                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3423,6 +3653,9 @@
             }
         });
 
+        // ============================================================
+        // UPDATE SERVICE - TO PHP WITH ONE-TIME SUPPORT
+        // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -3431,6 +3664,8 @@
             try {
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
+                
+                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('editSvcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('editSvcCustomPlatform').value.trim() 
@@ -3482,6 +3717,7 @@
                     updatedService.oneTimePayment = false;
                 }
 
+                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
                     services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
@@ -3492,6 +3728,7 @@
                 }
                 services[index] = updatedService;
 
+                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3521,6 +3758,9 @@
             }
         });
 
+        // ============================================================
+        // DELETE SERVICE - FROM PHP
+        // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
                 let services = await loadServicesFromFile(catalog);
@@ -3548,6 +3788,9 @@
             }
         }
 
+        // ============================================================
+        // SHOP
+        // ============================================================
         function loadAllProducts() {
             const productsRef = database.ref('shop');
             productsRef.once('value', (snapshot) => {
@@ -3713,6 +3956,9 @@
             }
         });
 
+        // ============================================================
+        // ANALYTICS
+        // ============================================================
         function loadAnalytics() {
             database.ref('orders').once('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3774,6 +4020,9 @@
             });
         }
 
+        // ============================================================
+        // TRANSACTIONS
+        // ============================================================
         function loadAllTransactions() {
             database.ref('transactions').once('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3835,6 +4084,9 @@
             });
         }
 
+        // ============================================================
+        // VIEW TRANSACTION DETAILS
+        // ============================================================
         function viewTransactionDetails(txKey) {
             const modalBody = document.getElementById('viewTransactionBody');
             modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
@@ -3884,8 +4136,9 @@
                     `;
                 });
             });
-        }
-
+        }// ============================================================
+        // VOUCHERS
+        // ============================================================
         function loadAllVouchers() {
             database.ref('vouchers').once('value', (snapshot) => {
                 const data = snapshot.val();
@@ -3945,12 +4198,14 @@
                         `;
                     }).join('');
 
+                // Attach view voucher events
                 tbody.querySelectorAll('.view-voucher-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewVoucherDetails(btn.dataset.voucherKey);
                     });
                 });
 
+                // Attach delete voucher events
                 tbody.querySelectorAll('.delete-voucher-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const key = btn.dataset.voucherKey;
@@ -3984,6 +4239,9 @@
             document.getElementById('statTotalVoucherValue').textContent = formatNaira(totalValue);
         }
 
+        // ============================================================
+        // VIEW VOUCHER DETAILS
+        // ============================================================
         function viewVoucherDetails(voucherKey) {
             const modalBody = document.getElementById('viewVoucherBody');
             modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
@@ -4092,6 +4350,9 @@
             }
         });
 
+        // ============================================================
+        // SEARCH EVENT LISTENERS
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             ['orderSearch', 'shopSearch', 'transactionSearch', 'userSearch'].forEach(id => {
                 const el = document.getElementById(id);
@@ -4116,6 +4377,13 @@
             document.getElementById('voucherSearch')?.addEventListener('input', loadAllVouchers);
             document.getElementById('voucherStatusFilter')?.addEventListener('change', loadAllVouchers);
         });
+
+        console.log('✅ Admin dashboard loaded with both Global and Nigeria support!');
+        console.log('📊 Using import() to load services from both files.');
+        console.log('📱 Custom platform support added - you can now add new platforms!');
+        console.log('💰 One-time service support added - fixed prices now display correctly!');
+        console.log('👁️ View buttons added for vouchers, transactions, and users!');
+        console.log('🌐 Website Requests admin feature added!');
     </script>
 </body>
 </html>
