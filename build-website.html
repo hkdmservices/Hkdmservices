@@ -185,7 +185,6 @@
 
         </div>
 
-        <!-- Continue button — only shows after selecting a category -->
         <div id="continueSection" class="text-center mb-5" style="display:none;">
             <p class="text-muted mb-2">
                 Selected: <strong id="selectedCategoryLabel">—</strong>
@@ -316,16 +315,12 @@
     <i class="bi bi-whatsapp"></i>
 </a>
 
-<!-- Firebase Compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// ============================================================
-// Firebase
-// ============================================================
 var firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
     authDomain: "hkdmservices-7d59f.firebaseapp.com",
@@ -363,9 +358,6 @@ auth.onAuthStateChanged(function (user) {
     }
 });
 
-// ============================================================
-// Page logic
-// ============================================================
 document.addEventListener('DOMContentLoaded', function () {
 
     var cards = document.querySelectorAll('.category-card');
@@ -429,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function () {
             business: document.getElementById('reqBusiness').value.trim(),
             description: document.getElementById('reqDescription').value.trim(),
             timeline: document.getElementById('reqTimeline').value,
-            budget: catPrice + ' (from category)'
+            budget: catName + ' (₦' + Number(catPrice).toLocaleString('en-NG') + ')'
         };
 
         if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
