@@ -1,13 +1,13 @@
 // ============================================================
 // My Website Requests — with manual deposit payment flow
-// v5 — debug + robust quoted check
+// v6 — shows Category Price + Budget (or Your Price when quoted)
 // ============================================================
 
 import { auth, database } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-console.log('MY REQUESTS JS LOADED — v5');
+console.log('MY REQUESTS JS LOADED — v6');
 
 const BANK_DETAILS = {
     name: 'Sadiq Abdulrauf',
@@ -154,6 +154,11 @@ onAuthStateChanged(auth, async (user) => {
                    </button>`
                 : '';
 
+            // ✅ CHANGED: second column shows Your Price when quoted, otherwise Budget
+            const secondColumn = r.quotedPrice
+                ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
+                : `<strong>Budget:</strong> ${escapeHtml(r.budget || '—')}`;
+
             return `
                 <div class="card border-secondary mb-3">
                     <div class="card-body">
@@ -178,9 +183,7 @@ onAuthStateChanged(auth, async (user) => {
                                 <strong>Category Price:</strong> ${formatNaira(r.basePrice)}
                             </div>
                             <div class="col-6 col-md-3">
-                                ${r.quotedPrice
-                                    ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
-                                    : `<strong>Starting:</strong> ${formatNaira(r.basePrice)}`}
+                                ${secondColumn}
                             </div>
                             <div class="col-6 col-md-3">
                                 <strong>Timeline:</strong> ${escapeHtml(r.timeline || '—')}
