@@ -1,5 +1,5 @@
 // ============================================================
-// My Website Requests — v9 (adds project tracking timeline)
+// My Website Requests — v9 (has project tracking timeline)
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
@@ -31,14 +31,13 @@ const BANK_DETAILS = {
 const PAYMENT_WHATSAPP = '18253635037';
 const container = document.getElementById('requestsContainer');
 
-// ── Milestone definitions (order matters) ──
 const MILESTONES = [
-    { key: 'quote-accepted',  label: 'Quote accepted',       icon: 'bi-file-earmark-check' },
-    { key: 'deposit-paid',    label: 'Deposit paid',         icon: 'bi-cash-coin' },
-    { key: 'design-ready',    label: 'Design mockup ready',  icon: 'bi-palette' },
-    { key: 'development',     label: 'Development',          icon: 'bi-code-slash' },
-    { key: 'revisions',       label: 'Revisions',            icon: 'bi-arrow-repeat' },
-    { key: 'delivered',       label: 'Final delivery',       icon: 'bi-check-circle-fill' }
+    { key: 'quote-accepted',  label: 'Quote accepted' },
+    { key: 'deposit-paid',    label: 'Deposit paid' },
+    { key: 'design-ready',    label: 'Design mockup ready' },
+    { key: 'development',     label: 'Development' },
+    { key: 'revisions',       label: 'Revisions' },
+    { key: 'delivered',       label: 'Final delivery' }
 ];
 
 function formatNaira(amount) {
@@ -88,31 +87,33 @@ function statusBadge(status) {
     return '<span class="badge ' + info.cls + '">' + escapeHtml(info.label) + '</span>';
 }
 
-/* =========================================================
-   BUILD TIMELINE — shown when status is deposit-paid or delivered
-========================================================= */
 function buildTimeline(request) {
     const milestones = request.milestones || {};
     const progress = Number(request.progress || 0);
     const expectedDelivery = request.expectedDelivery;
     const latestNote = request.latestNote;
 
-    // Determine the currently active (in-progress) milestone
     let activeKey = null;
-    for (const m of MILESTONES) {
+    for (let i = 0; i < MILESTONES.length; i++) {
+        const m = MILESTONES[i];
         const data = milestones[m.key];
         if (data && data.done) continue;
         if (data && data.startedAt) { activeKey = m.key; }
         break;
     }
 
-    const steps = MILESTONES.map(m => {
+    let stepsHtml = '';
+    for (let i = 0; i < MILESTONES.length; i++) {
+        const m = MILESTONES[i];
         const data = milestones[m.key] || {};
         const isDone = !!data.done;
         const isActive = m.key === activeKey;
         const at = data.at || data.startedAt;
 
-        let iconColor, iconClass, labelColor;
+        let iconColor = '#adb5bd';
+        let iconClass = 'bi-circle';
+        let labelColor = '#adb5bd';
+
         if (isDone) {
             iconColor = '#198754';
             iconClass = 'bi-check-circle-fill';
@@ -121,67 +122,66 @@ function buildTimeline(request) {
             iconColor = '#0d6efd';
             iconClass = 'bi-arrow-repeat';
             labelColor = '#0d6efd';
-        } else {
-            iconColor = '#adb5bd';
-            iconClass = 'bi-circle';
-            labelColor = '#adb5bd';
         }
 
-        return `
-            <div style="display:flex; align-items:flex-start; gap:12px; padding:8px 0;">
-                <div style="color:${iconColor}; font-size:1.2rem; line-height:1; margin-top:2px;">
-                    <i class="bi ${iconClass}"></i>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-weight:600; color:${labelColor}; font-size:0.9rem;">
-                        ${escapeHtml(m.label)}
-                    </div>
-                    ${at ? `<div style="font-size:0.75rem; color:#6c757d;">${formatDateShort(at)}</div>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
+        stepsHtml += '<div style="display:flex; align-items:flex-start; gap:12px; padding:8px 0;">';
+        stepsHtml += '<div style="color:' + iconColor + '; font-size:1.2rem; line-height:1; margin-top:2px;">';
+        stepsHtml += '<i class="bi ' + iconClass + '"></i>';
+        stepsHtml += '</div>';
+        stepsHtml += '<div style="flex:1;">';
+        stepsHtml += '<div style="font-weight:600; color:' + labelColor + '; font-size:0.9rem;">';
+        stepsHtml += escapeHtml(m.label);
+        stepsHtml += '</div>';
+        if (at) {
+            stepsHtml += '<div style="font-size:0.75rem; color:#6c757d;">' + formatDateShort(at) + '</div>';
+        }
+        stepsHtml += '</div>';
+        stepsHtml += '</div>';
+    }
 
-    const progressBar = progress > 0 ? `
-        <div style="margin:12 px 0 4px;">
-            <0div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#6c757d; margin-bottom:4px;">
-                <)span>Progress</span>
-                <span><strong>${progress} {
-%</strong></span>
-            </div>
-                       <div style="height:8px; background container:#e9ecef; border-radius:4px; overflow:hidden;">
-                <div style="height:100%; width:${Math.min(100, Math.max(0, progress))}%; background:linear-gradient(90deg,#198754,#20c997); transition:width 0.3s;"></div>
-            </div>
-        </div>
-    ` : '';
+    let progressBar = '';
+    if (progress > 0) {
+        const pct = Math.min(100, Math.max(0, progress));
+        progressBar += '<div style="margin:12px 0 4px;">';
+        progressBar += '<div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#6c757d; margin-bottom:4px;">';
+        progressBar += '<span>Progress</span>';
+        progressBar += '<span><strong>' + pct + '%</strong></span>';
+        progressBar += '</div>';
+        progressBar += '<div style="height:8px; background:#e9ecef; border-radius:4px; overflow:hidden;">';
+        progressBar += '<div style="height:100%; width:' + pct + '%; background:linear-gradient(90deg,#198754,#20c997);"></div>';
+        progressBar += '</div>';
+        progressBar += '</div>';
+    }
 
-    const deliveryDate = expectedDelivery ? `
-        <div style="font-size:0.85rem; color:#6c757d; margin-top:12px;">
-            <i class="bi bi-calendar-event"></i>
-            <strong>Expected delivery:</strong> ${formatDateShort(expectedDelivery)}
-        </div>
-    ` : '';
+    let deliveryDate = '';
+    if (expectedDelivery) {
+        deliveryDate += '<div style="font-size:0.85rem; color:#6c757d; margin-top:12px;">';
+        deliveryDate += '<i class="bi bi-calendar-event"></i> <strong>Expected delivery:</strong> ';
+        deliveryDate += formatDateShort(expectedDelivery);
+        deliveryDate += '</div>';
+    }
 
-    const noteBlock = latestNote ? `
-        <div style="margin-top:12px; padding:12px; background:#fff8e1; border-left:3px solid #ffc107; border-radius:6px; font-size:0.85rem;">
-            <div style="font-weight:600; color:#856404; margin-bottom:4px;">
-                <i class="bi bi-chat-left-quote"></i> Latest update from our team
-            </div>
-            <div style="color:#664d03;">${escapeHtml(latestNote)}</div>
-        </div>
-    ` : '';
+    let noteBlock = '';
+    if (latestNote) {
+        noteBlock += '<div style="margin-top:12px; padding:12px; background:#fff8e1; border-left:3px solid #ffc107; border-radius:6px; font-size:0.85rem;">';
+        noteBlock += '<div style="font-weight:600; color:#856404; margin-bottom:4px;">';
+        noteBlock += '<i class="bi bi-chat-left-quote"></i> Latest update from our team';
+        noteBlock += '</div>';
+        noteBlock += '<div style="color:#664d03;">' + escapeHtml(latestNote) + '</div>';
+        noteBlock += '</div>';
+    }
 
-    return `
-        <div style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:8px; border:1px solid #e9ecef;">
-            <div style="font-weight:700; font-size:0.9rem; margin-bottom:8px; color:#495057;">
-                <i class="bi bi-list-task"></i> Project Progress
-            </div>
-            ${progressBar}
-            ${steps}
-            ${deliveryDate}
-            ${noteBlock}
-        </div>
-    `;
+    let html = '';
+    html += '<div style="margin-top:16px; padding:16px; background:#f8f9fa; border-radius:8px; border:1px solid #e9ecef;">';
+    html += '<div style="font-weight:700; font-size:0.9rem; margin-bottom:8px; color:#495057;">';
+    html += '<i class="bi bi-list-task"></i> Project Progress';
+    html += '</div>';
+    html += progressBar;
+    html += stepsHtml;
+    html += deliveryDate;
+    html += noteBlock;
+    html += '</div>';
+    return html;
 }
 
 function buildPaymentBlock(request) {
@@ -202,35 +202,33 @@ function buildPaymentBlock(request) {
 
     const waLink = 'https://wa.me/' + PAYMENT_WHATSAPP + '?text=' + encodeURIComponent(waText);
 
-    return `
-        <div class="payment-block" style="display:none; margin-top: 16px; padding: 16px; background: rgba(13,110,253,0.06); border-left: 4px solid #0d6efd; border-radius: 8px;">
-            <div style="font-weight: 700; color: #0d6efd; margin-bottom: 8px;">
-                <i class="bi bi-credit-card-fill"></i> Payment Required
-            </div>
-            <div style="font-size: 0.9rem; margin-bottom: 4px;">
-                <strong>Quoted Price:</strong> ${formatNaira(quotedPrice)}
-            </div>
-            <div style="font-size: 0.9rem; margin-bottom: 12px;">
-                <strong>Deposit Required (${depositPercent}%):</strong>
-                <span style="color: #198754; font-weight: 700;">${formatNaira(depositAmount)}</span>
-            </div>
-            <div style="background: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: #6c757d; margin-bottom: 6px;">
-                    Bank Transfer Details
-                </div>
-                <div style="font-size: 0.9rem; line-height: 1.6;">
-                    <div><strong>Bank:</strong> ${escapeHtml(BANK_DETAILS.bank)}</div>
-                    <div><strong>Account Number:</strong> ${escapeHtml(BANK_DETAILS.account)}</div>
-                    <div><strong>Account Name:</strong> ${escapeHtml(BANK_DETAILS.name)}</div>
-                    <div style="margin-top: 6px;"><strong>Amount:</strong> ${formatNaira(depositAmount)}</div>
-                    <div><strong>Reference:</strong> <code>${escapeHtml(reqId)}</code></div>
-                </div>
-            </div>
-            <a href="${waLink}" target="_blank" class="btn btn-success w-100">
-                <i class="bi bi-whatsapp"></i> Send Payment Proof on WhatsApp
-            </a>
-        </div>
-    `;
+    let html = '';
+    html += '<div class="payment-block" style="display:none; margin-top:16px; padding:16px; background:rgba(13,110,253,0.06); border-left:4px solid #0d6efd; border-radius:8px;">';
+    html += '<div style="font-weight:700; color:#0d6efd; margin-bottom:8px;">';
+    html += '<i class="bi bi-credit-card-fill"></i> Payment Required';
+    html += '</div>';
+    html += '<div style="font-size:0.9rem; margin-bottom:4px;">';
+    html += '<strong>Quoted Price:</strong> ' + formatNaira(quotedPrice);
+    html += '</div>';
+    html += '<div style="font-size:0.9rem; margin-bottom:12px;">';
+    html += '<strong>Deposit Required (' + depositPercent + '%):</strong> ';
+    html += '<span style="color:#198754; font-weight:700;">' + formatNaira(depositAmount) + '</span>';
+    html += '</div>';
+    html += '<div style="background:#ffffff; border:1px solid #dee2e6; border-radius:8px; padding:12px; margin-bottom:12px;">';
+    html += '<div style="font-size:0.75rem; text-transform:uppercase; color:#6c757d; margin-bottom:6px;">Bank Transfer Details</div>';
+    html += '<div style="font-size:0.9rem; line-height:1.6;">';
+    html += '<div><strong>Bank:</strong> ' + escapeHtml(BANK_DETAILS.bank) + '</div>';
+    html += '<div><strong>Account Number:</strong> ' + escapeHtml(BANK_DETAILS.account) + '</div>';
+    html += '<div><strong>Account Name:</strong> ' + escapeHtml(BANK_DETAILS.name) + '</div>';
+    html += '<div style="margin-top:6px;"><strong>Amount:</strong> ' + formatNaira(depositAmount) + '</div>';
+    html += '<div><strong>Reference:</strong> <code>' + escapeHtml(reqId) + '</code></div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<a href="' + waLink + '" target="_blank" class="btn btn-success w-100">';
+    html += '<i class="bi bi-whatsapp"></i> Send Payment Proof on WhatsApp';
+    html += '</a>';
+    html += '</div>';
+    return html;
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -244,98 +242,86 @@ onAuthStateChanged(auth, async (user) => {
         const data = snap.val() || {};
 
         const myRequests = Object.entries(data)
-            .map(([id, r]) => Object.assign({ id }, r))
+            .map(([id, r]) => Object.assign({ id: id }, r))
             .filter(r => r.uid === user.uid)
             .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
         console.log('My requests loaded:', myRequests.length);
 
-        if (myRequests.length ===.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="bi bi-code-square" style="font-size:4rem;color:#ccc;"></i>
-                    <h4 class="mt-3">No Requests Yet</h4>
-                    <p class="text-muted">Submit a request to build your dream website.</p>
-                    <a href="build-website.html" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Build Your Website
-                    </a>
-                </div>
-            `;
+        if (myRequests.length === 0) {
+            container.innerHTML =
+                '<div class="text-center py-5">' +
+                    '<i class="bi bi-code-square" style="font-size:4rem;color:#ccc;"></i>' +
+                    '<h4 class="mt-3">No Requests Yet</h4>' +
+                    '<p class="text-muted">Submit a request to build your dream website.</p>' +
+                    '<a href="build-website.html" class="btn btn-success">' +
+                        '<i class="bi bi-plus-circle"></i> Build Your Website' +
+                    '</a>' +
+                '</div>';
             return;
         }
 
-        container.innerHTML = myRequests.map(r => {
+        let cardsHtml = '';
+        for (let i = 0; i < myRequests.length; i++) {
+            const r = myRequests[i];
             const reqId = r.requestId || r.id;
             const status = r.status || 'pending';
-            const statusLabel = status.replace('-', ' ').toUpperCase();
 
             const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
             const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
-
-            // Timeline shows once deposit is paid
             const showTimeline = status === 'deposit-paid' || status === 'delivered';
-            const timeline = showTimeline ? buildTimeline(r) : '';
 
+            const timeline = showTimeline ? buildTimeline(r) : '';
             const paymentBlock = isQuoted ? buildPaymentBlock(r) : '';
 
             const quoteButton = isQuoted
-                ? `<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn">
-                       <i class="bi bi-credit-card"></i> Review &amp; Pay Deposit
-                   </button>`
+                ? '<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn">' +
+                      '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit' +
+                  '</button>'
                 : '';
 
             const secondColumn = r.quotedPrice
-                ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
-                : `<strong>Budget:</strong> ${escapeHtml(r.budget || '—')}`;
+                ? '<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">' + formatNaira(r.quotedPrice) + '</span>'
+                : '<strong>Budget:</strong> ' + escapeHtml(r.budget || '—');
 
-            return `
-                <div class="card border-secondary mb-3">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
-                            <div>
-                                <h5 class="fw-bold mb-1">${escapeHtml(r.categoryName || 'Website')}</h5>
-                                <small class="text-muted">
-                                    Reference: <code>${escapeHtml(reqId)}</code>
-                                </small>
-                            </div>
-                            <div>${statusBadge(status)}</div>
-                        </div>
+            const adminNote = r.adminNote
+                ? '<div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">' +
+                      '<strong><i class="bi bi-chat-left-quote"></i> Note from our team:</strong>' +
+                      '<div style="margin-top:4px;">' + escapeHtml(r.adminNote) + '</div>' +
+                  '</div>'
+                : '';
 
-                        <p class="mb-2">
-                            <strong>Description:</strong>
-                            ${escapeHtml((r.description || '').slice(0, 180))}
-                            ${(r.description || '').length > 180 ? '…' : ''}
-                        </p>
+            cardsHtml += '<div class="card border-secondary mb-3">';
+            cardsHtml += '<div class="card-body">';
+            cardsHtml += '<div class="d-flex justify-content-between align-items-start flex-wrap mb-2">';
+            cardsHtml += '<div>';
+            cardsHtml += '<h5 class="fw-bold mb-1">' + escapeHtml(r.categoryName || 'Website') + '</h5>';
+            cardsHtml += '<small class="text-muted">Reference: <code>' + escapeHtml(reqId) + '</code></small>';
+            cardsHtml += '</div>';
+            cardsHtml += '<div>' + statusBadge(status) + '</div>';
+            cardsHtml += '</div>';
+            cardsHtml += '<p class="mb-2">';
+            cardsHtml += '<strong>Description:</strong> ' + escapeHtml((r.description || '').slice(0, 180));
+            if ((r.description || '').length > 180) cardsHtml += '…';
+            cardsHtml += '</p>';
+            cardsHtml += '<div class="row g-2 small text-muted">';
+            cardsHtml += '<div class="col-6 col-md-3"><strong>Category Price:</strong> ' + formatNaira(r.basePrice) + '</div>';
+            cardsHtml += '<div class="col-6 col-md-3">' + secondColumn + '</div>';
+            cardsHtml += '<div class="col-6 col-md-3"><strong>Timeline:</strong> ' + escapeHtml(r.timeline || '—') + '</div>';
+            cardsHtml += '<div class="col-6 col-md-3"><strong>Submitted:</strong> ' + formatDate(r.createdAt) + '</div>';
+            cardsHtml += '</div>';
+            cardsHtml += adminNote;
+            cardsHtml += quoteButton;
+            cardsHtml += paymentBlock;
+            cardsHtml += timeline;
+            cardsHtml += '</div>';
+            cardsHtml += '</div>';
+        }
 
-                        <div class="row g-2 small text-muted">
-                            <div class="col-6 col-md-3">
-                                <strong>Category Price:</strong> ${formatNaira(r.basePrice)}
-                            </div>
-                            <div class="col-6 col-md-3">${secondColumn}</div>
-                            <div class="col-6 col-md-3">
-                                <strong>Timeline:</strong> ${escapeHtml(r.timeline || '—')}
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <strong>Submitted:</strong> ${formatDate(r.createdAt)}
-                            </div>
-                        </div>
+        container.innerHTML = cardsHtml;
 
-                        ${r.adminNote ? `
-                            <div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">
-                                <strong><i class="bi bi-chat-left-quote"></i> Note from our team:</strong>
-                                <div style="margin-top:4px;">${escapeHtml(r.adminNote)}</div>
-                            </div>
-                        ` : ''}
-
-                        ${quoteButton}
-                        ${paymentBlock}
-                        ${timeline}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        container.querySelectorAll('.quote-toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
+        container.querySelectorAll('.quote-toggle-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
                 const card = btn.closest('.card');
                 if (!card) return;
                 const block = card.querySelector('.payment-block');
@@ -355,10 +341,9 @@ onAuthStateChanged(auth, async (user) => {
 
     } catch (error) {
         console.error('MY REQUESTS ERROR:', error);
-        container.innerHTML = `
-            <div class="alert alert-danger">
-                Failed to load your requests: ${escapeHtml(error.message || 'Unknown error')}
-            </div>
-        `;
+        container.innerHTML =
+            '<div class="alert alert-danger">Failed to load your requests: ' +
+            escapeHtml(error.message || 'Unknown error') +
+            '</div>';
     }
 });
