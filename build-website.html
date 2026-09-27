@@ -44,18 +44,47 @@
             border-radius: 12px;
             font-size: 0.7rem;
             font-weight: bold;
+            z-index: 10;
         }
         html[data-theme="dark"] .category-card.selected {
             background: rgba(25,135,84,0.15);
         }
         .category-card .price {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #198754;
+            margin: 12px 0 10px;
         }
         .category-icon {
             font-size: 2.5rem;
             color: #198754;
+        }
+        .feature-list {
+            text-align: left;
+            font-size: 0.82rem;
+            color: #6c757d;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+            margin-bottom: 0;
+        }
+        html[data-theme="dark"] .feature-list {
+            color: #99a1ab;
+            border-top-color: #30363d;
+        }
+        .feature-list li {
+            padding: 3px 0;
+            line-height: 1.4;
+        }
+        .feature-list .bi-check2 {
+            color: #198754;
+            margin-right: 6px;
+        }
+        .feature-list .bi-telegram,
+        .feature-list .bi-envelope-check,
+        .feature-list .bi-shield-fill-check {
+            color: #0d6efd;
+            margin-right: 6px;
         }
         .whatsapp-float {
             position: fixed;
@@ -117,74 +146,164 @@
 
         <div class="row g-3 mb-4" id="categoriesGrid">
 
+            <!-- LANDING PAGE — excluded from notifications/security -->
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary position-relative" data-cat-id="landing" data-cat-name="Landing Page" data-cat-price="50000">
-                    <div class="card-body text-center">
+                <div class="card category-card border-secondary position-relative" data-cat-id="landing" data-cat-name="Landing Page" data-cat-price="100000">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-file-earmark-richtext"></i></div>
                         <h5 class="fw-bold mb-1">Landing Page</h5>
-                        <p class="text-muted small mb-2">1-page site for ads and campaigns</p>
-                        <div class="price">From ₦50,000</div>
+                        <p class="text-muted small mb-1">1-page site for ads and campaigns</p>
+                        <div class="price">₦100,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> Custom-designed page</li>
+                            <li><i class="bi bi-check2"></i> Mobile responsive</li>
+                            <li><i class="bi bi-check2"></i> Contact form</li>
+                            <li><i class="bi bi-check2"></i> WhatsApp chat button</li>
+                            <li><i class="bi bi-check2"></i> Basic SEO setup</li>
+                            <li><i class="bi bi-check2"></i> Admin access to edit content</li>
+                            <li><i class="bi bi-check2"></i> 5–7 day delivery</li>
+                            <li><i class="bi bi-check2"></i> 1 revision round</li>
+                            <li><i class="bi bi-check2"></i> Hosting setup guidance</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
+            <!-- BUSINESS WEBSITE — full features -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card category-card border-secondary position-relative" data-cat-id="business" data-cat-name="Business Website" data-cat-price="300000">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-briefcase"></i></div>
                         <h5 class="fw-bold mb-1">Business Website</h5>
-                        <p class="text-muted small mb-2">5-8 pages, SEO, contact form</p>
-                        <div class="price">From ₦300,000</div>
+                        <p class="text-muted small mb-1">5–8 pages, SEO, contact form</p>
+                        <div class="price">₦300,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> 5–8 custom-designed pages</li>
+                            <li><i class="bi bi-check2"></i> Mobile responsive</li>
+                            <li><i class="bi bi-check2"></i> About, Services, Contact, Home</li>
+                            <li><i class="bi bi-check2"></i> Contact form + WhatsApp</li>
+                            <li><i class="bi bi-check2"></i> Google Analytics</li>
+                            <li><i class="bi bi-check2"></i> Basic SEO + meta tags</li>
+                            <li><i class="bi bi-check2"></i> Full admin dashboard</li>
+                            <li><i class="bi bi-telegram"></i> Telegram order notifications</li>
+                            <li><i class="bi bi-envelope-check"></i> Customer email notifications</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Security + auto-suspension for suspicious orders</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Protection from cyber attacks</li>
+                            <li><i class="bi bi-check2"></i> 10–14 day delivery</li>
+                            <li><i class="bi bi-check2"></i> 3 revision rounds</li>
+                            <li><i class="bi bi-check2"></i> Free domain + hosting setup</li>
+                            <li><i class="bi bi-check2"></i> 1 month free support</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
+            <!-- E-COMMERCE STORE — full features -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card category-card border-secondary position-relative" data-cat-id="ecommerce" data-cat-name="E-commerce Store" data-cat-price="600000">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-cart3"></i></div>
                         <h5 class="fw-bold mb-1">E-commerce Store</h5>
-                        <p class="text-muted small mb-2">Products, cart, payment integration</p>
-                        <div class="price">From ₦600,000</div>
+                        <p class="text-muted small mb-1">Products, cart, payment integration</p>
+                        <div class="price">₦600,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> Full online store</li>
+                            <li><i class="bi bi-check2"></i> Product catalogue</li>
+                            <li><i class="bi bi-check2"></i> Shopping cart</li>
+                            <li><i class="bi bi-check2"></i> Paystack / Flutterwave integration</li>
+                            <li><i class="bi bi-check2"></i> Admin dashboard — products, orders, customers</li>
+                            <li><i class="bi bi-check2"></i> Customer accounts</li>
+                            <li><i class="bi bi-telegram"></i> Telegram order notifications</li>
+                            <li><i class="bi bi-envelope-check"></i> Customer email notifications</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Security + auto-suspension for suspicious orders</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Protection from cyber attacks</li>
+                            <li><i class="bi bi-check2"></i> Mobile responsive</li>
+                            <li><i class="bi bi-check2"></i> 21–30 day delivery</li>
+                            <li><i class="bi bi-check2"></i> 5 revision rounds</li>
+                            <li><i class="bi bi-check2"></i> 1 month free support</li>
+                            <li><i class="bi bi-check2"></i> Training session included</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
+            <!-- CUSTOM WEB APP — full features -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card category-card border-secondary position-relative" data-cat-id="custom" data-cat-name="Custom Web App" data-cat-price="1500000">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-code-slash"></i></div>
                         <h5 class="fw-bold mb-1">Custom Web App</h5>
-                        <p class="text-muted small mb-2">Dashboards, logins, unique features</p>
-                        <div class="price">From ₦1,500,000</div>
+                        <p class="text-muted small mb-1">Dashboards, logins, unique features</p>
+                        <div class="price">₦1,500,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> Fully custom build</li>
+                            <li><i class="bi bi-check2"></i> User authentication</li>
+                            <li><i class="bi bi-check2"></i> Full admin panel with custom controls</li>
+                            <li><i class="bi bi-check2"></i> Database design</li>
+                            <li><i class="bi bi-check2"></i> API integrations</li>
+                            <li><i class="bi bi-telegram"></i> Telegram order notifications</li>
+                            <li><i class="bi bi-envelope-check"></i> Customer email notifications</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Security + auto-suspension for suspicious orders</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Protection from cyber attacks</li>
+                            <li><i class="bi bi-check2"></i> 60–90 day development</li>
+                            <li><i class="bi bi-check2"></i> Weekly progress updates</li>
+                            <li><i class="bi bi-check2"></i> 3 months free support</li>
+                            <li><i class="bi bi-check2"></i> Full source code handover</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
+            <!-- SECURITY AUDIT — full features -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card category-card border-secondary position-relative" data-cat-id="security-audit" data-cat-name="Security Audit" data-cat-price="40000">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-shield-check"></i></div>
                         <h5 class="fw-bold mb-1">Security Audit</h5>
-                        <p class="text-muted small mb-2">Find vulnerabilities in your site</p>
-                        <div class="price">From ₦40,000</div>
+                        <p class="text-muted small mb-1">Find vulnerabilities in your site</p>
+                        <div class="price">₦40,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> Full vulnerability scan</li>
+                            <li><i class="bi bi-check2"></i> Detailed report with findings</li>
+                            <li><i class="bi bi-check2"></i> Risk severity levels</li>
+                            <li><i class="bi bi-check2"></i> Fix recommendations</li>
+                            <li><i class="bi bi-telegram"></i> Telegram order notifications</li>
+                            <li><i class="bi bi-envelope-check"></i> Customer email notifications</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Protection from cyber attacks</li>
+                            <li><i class="bi bi-check2"></i> 5–7 day delivery</li>
+                            <li><i class="bi bi-check2"></i> Follow-up call</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
+            <!-- SECURITY FIX — full features -->
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="card category-card border-secondary position-relative" data-cat-id="security-fix" data-cat-name="Security Fix" data-cat-price="80000">
-                    <div class="card-body text-center">
+                    <div class="card-body text-center d-flex flex-column">
                         <div class="category-icon mb-2"><i class="bi bi-shield-lock"></i></div>
                         <h5 class="fw-bold mb-1">Security Fix</h5>
-                        <p class="text-muted small mb-2">Fix issues found in a security audit</p>
-                        <div class="price">From ₦80,000</div>
+                        <p class="text-muted small mb-1">Fix issues found in a security audit</p>
+                        <div class="price">₦80,000</div>
+                        <ul class="feature-list list-unstyled">
+                            <li><i class="bi bi-check2"></i> Fix all critical vulnerabilities</li>
+                            <li><i class="bi bi-check2"></i> Install security monitoring</li>
+                            <li><i class="bi bi-check2"></i> Firewall configuration</li>
+                            <li><i class="bi bi-check2"></i> Backup system setup</li>
+                            <li><i class="bi bi-check2"></i> SSL certificate check</li>
+                            <li><i class="bi bi-telegram"></i> Telegram order notifications</li>
+                            <li><i class="bi bi-envelope-check"></i> Customer email notifications</li>
+                            <li><i class="bi bi-shield-fill-check"></i> Protection from cyber attacks</li>
+                            <li><i class="bi bi-check2"></i> 7–10 day delivery</li>
+                            <li><i class="bi bi-check2"></i> 30-day recheck</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
         </div>
 
+        <!-- Continue button -->
         <div id="continueSection" class="text-center mb-5" style="display:none;">
             <p class="text-muted mb-2">
                 Selected: <strong id="selectedCategoryLabel">—</strong>
@@ -374,8 +493,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('selectedCategoryName').value = card.dataset.catName;
             document.getElementById('selectedPrice').value = card.dataset.catPrice;
 
-            selectedLabel.textContent = card.dataset.catName + ' (from ₦' +
-                Number(card.dataset.catPrice).toLocaleString('en-NG') + ')';
+            selectedLabel.textContent = card.dataset.catName + ' — ₦' +
+                Number(card.dataset.catPrice).toLocaleString('en-NG');
             continueSection.style.display = 'block';
             formSection.style.display = 'none';
             continueSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -421,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
             business: document.getElementById('reqBusiness').value.trim(),
             description: document.getElementById('reqDescription').value.trim(),
             timeline: document.getElementById('reqTimeline').value,
-            budget: catName + ' (₦' + Number(catPrice).toLocaleString('en-NG') + ')'
+            budget: catName + ' — ₦' + Number(catPrice).toLocaleString('en-NG')
         };
 
         if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
