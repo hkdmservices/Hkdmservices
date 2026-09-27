@@ -771,7 +771,6 @@
     </style>
 </head>
 <body>
-
     <div class="container-fluid">
         <div class="row">
 
@@ -1419,7 +1418,6 @@
     </div><!-- ============================================ -->
     <!-- MODALS -->
     <!-- ============================================ -->
-
     <!-- ADD SERVICE MODAL -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1587,7 +1585,6 @@
             </div>
         </div>
     </div>
-
     <!-- ADD PRODUCT MODAL -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -1789,7 +1786,6 @@
             </div>
         </div>
     </div>
-
     <!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -2053,7 +2049,6 @@
         console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
     })();
     </script>
-
     <!-- ============================================================
          FIREBASE & ADMIN SCRIPTS
          ============================================================ -->
@@ -2381,7 +2376,6 @@
             document.getElementById('statQuotedRequests').textContent = quoted;
             document.getElementById('statDeliveredRequests').textContent = delivered;
         }
-
         function viewWebsiteRequest(reqKey) {
             const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
             const modalBody = document.getElementById('orderDetailsBody');
@@ -2421,6 +2415,59 @@
                         <div style="background: var(--bg-detail-code); padding: 12px; border-radius: 8px;">
                             ${(r.description || 'N/A').replace(/\n/g, '<br>')}
                         </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="text-success mb-3">📊 Project Tracking</h6>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Expected Delivery Date</label>
+                            <input type="date" class="form-control" id="adminReqExpectedDelivery"
+                                   value="${r.expectedDelivery ? new Date(r.expectedDelivery).toISOString().split('T')[0] : ''}">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Progress: <span id="progressDisplay">${r.progress || 0}%</span></label>
+                            <input type="range" class="form-range" id="adminReqProgress" min="0" max="100" step="5"
+                                   value="${r.progress || 0}"
+                                   oninput="document.getElementById('progressDisplay').textContent = this.value + '%'">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Milestones (tick completed stages)</label>
+                        <div class="row g-2">
+                            ${[
+                                { key: 'quote-accepted', label: 'Quote accepted' },
+                                { key: 'deposit-paid',   label: 'Deposit paid' },
+                                { key: 'design-ready',   label: 'Design mockup ready' },
+                                { key: 'development',    label: 'Development' },
+                                { key: 'revisions',      label: 'Revisions' },
+                                { key: 'delivered',      label: 'Final delivery' }
+                            ].map(m => {
+                                const mData = (r.milestones && r.milestones[m.key]) || {};
+                                return `
+                                    <div class="col-12 col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input milestone-check" type="checkbox"
+                                                   id="ms-${m.key}" data-key="${m.key}"
+                                                   ${mData.done ? 'checked' : ''}>
+                                            <label class="form-check-label" for="ms-${m.key}">
+                                                ${m.label}
+                                                ${mData.done && mData.at ? '<small class="text-muted d-block">' + formatDate(mData.at) + '</small>' : ''}
+                                            </label>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Latest Note (shown in customer timeline)</label>
+                        <textarea class="form-control" id="adminReqLatestNote" rows="2"
+                                  placeholder="e.g. Homepage done — 3 pages to go.">${r.latestNote || ''}</textarea>
                     </div>
 
                     <hr>
@@ -2481,6 +2528,23 @@
                     const adminNote = document.getElementById('adminReqNote').value.trim();
                     const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
 
+                    // ✅ Collect tracking data
+                    const milestones = {};
+                    const now = Date.now();
+                    document.querySelectorAll('.milestone-check').forEach(cb => {
+                        const key = cb.dataset.key;
+                        const existing = (r.milestones && r.milestones[key]) || {};
+                        if (cb.checked) {
+                            milestones[key] = { done: true, at: existing.at || now };
+                        } else {
+                            milestones[key] = { done: false };
+                        }
+                    });
+                    const progress = parseInt(document.getElementById('adminReqProgress').value) || 0;
+                    const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
+                    const expectedDelivery = expectedDeliveryInput ? new Date(expectedDeliveryInput).getTime() : null;
+                    const latestNote = document.getElementById('adminReqLatestNote').value.trim();
+
                     btn.disabled = true;
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
                     msgDiv.innerHTML = '';
@@ -2499,7 +2563,11 @@
                                 quotedPrice,
                                 depositPercent,
                                 adminNote,
-                                sendEmail
+                                sendEmail,
+                                milestones,
+                                progress,
+                                expectedDelivery,
+                                latestNote
                             })
                         });
 
@@ -2523,7 +2591,8 @@
             document.getElementById('refreshWebReq')?.addEventListener('click', loadAllWebsiteRequests);
             document.getElementById('webReqSearch')?.addEventListener('input', loadAllWebsiteRequests);
             document.getElementById('webReqStatusFilter')?.addEventListener('change', loadAllWebsiteRequests);
-        });// ============================================================
+        });
+        // ============================================================
         // ORDERS FILTER
         // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
@@ -3140,7 +3209,8 @@
             } catch (error) {
                 msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
             }
-        });// ============================================================
+        });
+        // ============================================================
         // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
         // ============================================================
 
@@ -4136,7 +4206,9 @@
                     `;
                 });
             });
-        }// ============================================================
+        }
+
+        // ============================================================
         // VOUCHERS
         // ============================================================
         function loadAllVouchers() {
