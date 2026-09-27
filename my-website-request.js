@@ -90,7 +90,7 @@ function statusBadge(status) {
 
 
 /* =========================================================
-   BUILD PAYMENT BLOCK (shown when status = "quoted")
+   BUILD PAYMENT BLOCK (hidden until user clicks the quote)
 ========================================================= */
 function buildPaymentBlock(request) {
     const reqId = request.requestId || request.id;
@@ -111,7 +111,7 @@ function buildPaymentBlock(request) {
     const waLink = 'https://wa.me/' + PAYMENT_WHATSAPP + '?text=' + encodeURIComponent(waText);
 
     return `
-        <div class="payment-block" style="margin-top: 16px; padding: 16px; background: rgba(13,110,253,0.06); border-left: 4px solid #0d6efd; border-radius: 8px;">
+        <div class="payment-block" style="display:none; margin-top: 16px; padding: 16px; background: rgba(13,110,253,0.06); border-left: 4px solid #0d6efd; border-radius: 8px;">
             <div style="font-weight: 700; color: #0d6efd; margin-bottom: 8px;">
                 <i class="bi bi-credit-card-fill"></i> Payment Required
             </div>
@@ -137,18 +137,9 @@ function buildPaymentBlock(request) {
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary proceed-payment-btn w-100" data-req-key="${escapeHtml(request.id || reqId)}">
-                <i class="bi bi-check-circle"></i> Proceed with Payment
-            </button>
-
-            <div class="proof-block mt-3" style="display: none;">
-                <div class="alert alert-success mb-2">
-                    <strong>💡 Next step:</strong> After making the transfer, tap the button below to send your payment proof to us on WhatsApp.
-                </div>
-                <a href="${waLink}" target="_blank" class="btn btn-success w-100">
-                    <i class="bi bi-whatsapp"></i> Send Payment Proof on WhatsApp
-                </a>
-            </div>
+            <a href="${waLink}" target="_blank" class="btn btn-success w-100">
+                <i class="bi bi-whatsapp"></i> Send Payment Proof on WhatsApp
+            </a>
         </div>
     `;
 }
@@ -206,12 +197,19 @@ onAuthStateChanged(auth, async (user) => {
             const status = r.status || 'pending';
             const statusLabel = status.replace('-', ' ').toUpperCase();
 
-            const paymentBlock =
-                status === 'quoted' ? buildPaymentBlock(r) : '';
+            const isQuoted = status === 'quoted' && r.quotedPrice;
+            const paymentBlock = isQuoted ? buildPaymentBlock(r) : '';
 
+            // Show a hint only when there's a quote the user can act on
+            const clickHint = isQuoted
+                ? `<div class="quote-cta mt-3 text-center text-primary" style="cursor:pointer; font-weight:600;">
+                       <i class="bi bi-hand-index-thumb"></i> Tap to review &amp; pay deposit
+                   </div>`
+                : '';
 
             return `
-                <div class="card border-secondary mb-3">
+                <div class="card border-secondary mb-3 ${isQuoted ? 'quoted-card' : ''}"
+                     ${isQuoted ? `data-quote-id="${escapeHtml(r.id)}" style="cursor:pointer;"` : ''}>
                     <div class="card-body">
 
                         <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
@@ -231,13 +229,17 @@ onAuthStateChanged(auth, async (user) => {
                         </p>
 
                         <div class="row g-2 small text-muted">
-                            <!-- ✅ CHANGED: show Quoted Price if available, otherwise Starting price -->
+                            <!-- Category price -->
+                            <div class="col-6 col-md-3">
+                                <strong>Category Price:</strong> ${formatNaira(r.basePrice)}
+                            </div>
+
+                            <!-- Your (quoted) price OR starting price -->
                             <div class="col-6 col-md-3">
                                 ${r.quotedPrice
-                                    ? `<strong>Quoted Price:</strong> ${formatNaira(r.quotedPrice)}`
+                                    ? `<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">${formatNaira(r.quotedPrice)}</span>`
                                     : `<strong>Starting:</strong> ${formatNaira(r.basePrice)}`}
                             </div>
-                            <!-- ✅ CHANGED END -->
 
                             <div class="col-6 col-md-3">
                                 <strong>Timeline:</strong> ${escapeHtml(r.timeline || '—')}
@@ -245,15 +247,10 @@ onAuthStateChanged(auth, async (user) => {
                             <div class="col-6 col-md-3">
                                 <strong>Submitted:</strong> ${formatDate(r.createdAt)}
                             </div>
-                            <div class="col-6 col-md-3">
-                                <strong>Status:</strong> ${escapeHtml(statusLabel)}
-                            </div>
                         </div>
 
-                        <!-- ✅ CHANGED: removed duplicate blue "Quoted Price" alert box -->
-
                         ${r.adminNote ? `
-                            <div class="alert alert-warning mt-2 mb-0" style="font-size:0.85rem;">
+                            <div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">
                                 <strong><i class="bi bi-chat-left-quote"></i> Note from our team:</strong>
                                 <div style="margin-top:4px;">${escapeHtml(r.adminNote)}</div>
                             </div>
@@ -261,34 +258,38 @@ onAuthStateChanged(auth, async (user) => {
 
                         ${paymentBlock}
 
+                        ${clickHint}
+
                     </div>
                 </div>
             `;
         }).join('');
 
 
-        /* ---------- ATTACH PROCEED-BUTTON LISTENERS ---------- */
-        container.querySelectorAll('.proceed-payment-btn').forEach(btn => {
+        /* ---------- CLICK A QUOTED CARD → REVEAL PAYMENT BLOCK ---------- */
+        container.querySelectorAll('.quoted-card').forEach(card => {
 
-            btn.addEventListener('click', function () {
+            card.addEventListener('click', function (e) {
 
-                const block = btn.closest('.payment-block');
+                // Ignore clicks on links/buttons inside the block
+                if (e.target.closest('a, button')) return;
+
+                const block = card.querySelector('.payment-block');
+                const hint  = card.querySelector('.quote-cta');
+
                 if (!block) return;
 
-                const proofBlock = block.querySelector('.proof-block');
-                if (proofBlock) {
-                    proofBlock.style.display = 'block';
-                }
+                const alreadyOpen = block.style.display === 'block';
 
-                /* Hide the proceed button */
-                btn.style.display = 'none';
+                if (alreadyOpen) {
+                    block.style.display = 'none';
+                    if (hint) hint.style.display = 'block';
+                } else {
+                    block.style.display = 'block';
+                    if (hint) hint.style.display = 'none';
 
-                /* Scroll to proof block for visibility */
-                if (proofBlock) {
-                    proofBlock.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
+                    // Smooth-scroll the payment block into view
+                    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         });
