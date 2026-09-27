@@ -29,8 +29,24 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         .category-card.selected {
-            border-color: #198754;
-            box-shadow: 0 0 0 3px rgba(25,135,84,0.15);
+            border-color: #198754 !important;
+            box-shadow: 0 0 0 3px rgba(25,135,84,0.25);
+            background: rgba(25,135,84,0.05);
+        }
+        .category-card.selected::after {
+            content: "✓ Selected";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #198754;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        html[data-theme="dark"] .category-card.selected {
+            background: rgba(25,135,84,0.15);
         }
         .category-card .price {
             font-size: 1.1rem;
@@ -99,11 +115,10 @@
             <i class="bi bi-grid-3x3-gap text-success"></i> Choose a Category
         </h5>
 
-        <!-- HARDCODED CATEGORIES — no JS needed to show them -->
-        <div class="row g-3 mb-5" id="categoriesGrid">
+        <div class="row g-3 mb-4" id="categoriesGrid">
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="landing" data-cat-name="Landing Page" data-cat-price="50000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="landing" data-cat-name="Landing Page" data-cat-price="50000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-file-earmark-richtext"></i></div>
                         <h5 class="fw-bold mb-1">Landing Page</h5>
@@ -114,7 +129,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="business" data-cat-name="Business Website" data-cat-price="300000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="business" data-cat-name="Business Website" data-cat-price="300000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-briefcase"></i></div>
                         <h5 class="fw-bold mb-1">Business Website</h5>
@@ -125,7 +140,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="ecommerce" data-cat-name="E-commerce Store" data-cat-price="600000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="ecommerce" data-cat-name="E-commerce Store" data-cat-price="600000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-cart3"></i></div>
                         <h5 class="fw-bold mb-1">E-commerce Store</h5>
@@ -136,7 +151,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="custom" data-cat-name="Custom Web App" data-cat-price="1500000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="custom" data-cat-name="Custom Web App" data-cat-price="1500000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-code-slash"></i></div>
                         <h5 class="fw-bold mb-1">Custom Web App</h5>
@@ -147,7 +162,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="security-audit" data-cat-name="Security Audit" data-cat-price="40000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="security-audit" data-cat-name="Security Audit" data-cat-price="40000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-shield-check"></i></div>
                         <h5 class="fw-bold mb-1">Security Audit</h5>
@@ -158,7 +173,7 @@
             </div>
 
             <div class="col-12 col-md-6 col-lg-4">
-                <div class="card category-card border-secondary" data-cat-id="security-fix" data-cat-name="Security Fix" data-cat-price="80000">
+                <div class="card category-card border-secondary position-relative" data-cat-id="security-fix" data-cat-name="Security Fix" data-cat-price="80000">
                     <div class="card-body text-center">
                         <div class="category-icon mb-2"><i class="bi bi-shield-lock"></i></div>
                         <h5 class="fw-bold mb-1">Security Fix</h5>
@@ -169,7 +184,16 @@
             </div>
 
         </div>
-        <!-- END HARDCODED CATEGORIES -->
+
+        <!-- Continue button — only shows after selecting a category -->
+        <div id="continueSection" class="text-center mb-5" style="display:none;">
+            <p class="text-muted mb-2">
+                Selected: <strong id="selectedCategoryLabel">—</strong>
+            </p>
+            <button type="button" id="continueBtn" class="btn btn-success btn-lg px-5">
+                <i class="bi bi-arrow-right-circle"></i> Continue to Form
+            </button>
+        </div>
 
         <div id="formSection" style="display:none;">
             <h5 class="fw-bold mb-3">
@@ -268,29 +292,29 @@
                     <div class="col-12 col-md-3">
                         <div class="text-center">
                             <div class="category-icon mb-2"><i class="bi bi-1-circle"></i></div>
-                            <h6 class="fw-bold">Submit Request</h6>
-                            <small class="text-muted">Fill the form in 2 minutes. No payment yet.</small>
+                            <h6 class="fw-bold">Pick a Category</h6>
+                            <small class="text-muted">Choose the type of website you want.</small>
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
                         <div class="text-center">
                             <div class="category-icon mb-2"><i class="bi bi-2-circle"></i></div>
-                            <h6 class="fw-bold">Get Contacted</h6>
-                            <small class="text-muted">Our tech boss reaches out via WhatsApp within 24 hours.</small>
+                            <h6 class="fw-bold">Fill the Form</h6>
+                            <small class="text-muted">Tell us about your project in 2 minutes.</small>
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
                         <div class="text-center">
                             <div class="category-icon mb-2"><i class="bi bi-3-circle"></i></div>
-                            <h6 class="fw-bold">Approve Quote</h6>
-                            <small class="text-muted">You get a clear quote. Pay from your wallet when ready.</small>
+                            <h6 class="fw-bold">Get Contacted</h6>
+                            <small class="text-muted">Our tech boss reaches out on WhatsApp.</small>
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
                         <div class="text-center">
                             <div class="category-icon mb-2"><i class="bi bi-4-circle"></i></div>
                             <h6 class="fw-bold">Get Delivered</h6>
-                            <small class="text-muted">Site built and delivered in the agreed timeline.</small>
+                            <small class="text-muted">Site built and delivered on time.</small>
                         </div>
                     </div>
                 </div>
@@ -305,11 +329,184 @@
     <i class="bi bi-whatsapp"></i>
 </a>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-<script src="website-requests.js?v=4"></script>
+<script>
+(function () {
+    'use strict';
+
+    // ─────────────────────────────────────────
+    // STEP 1: Category selection (pure JS, no Firebase needed)
+    // ─────────────────────────────────────────
+    var cards = document.querySelectorAll('.category-card');
+    var continueSection = document.getElementById('continueSection');
+    var selectedCategoryLabel = document.getElementById('selectedCategoryLabel');
+    var formSection = document.getElementById('formSection');
+
+    cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+            // Clear all selections
+            cards.forEach(function (c) { c.classList.remove('selected'); });
+
+            // Mark this one selected
+            card.classList.add('selected');
+
+            // Store the selection
+            document.getElementById('selectedCategory').value = card.dataset.catId;
+            document.getElementById('selectedCategoryName').value = card.dataset.catName;
+            document.getElementById('selectedPrice').value = card.dataset.catPrice;
+
+            // Show the Continue button
+            selectedCategoryLabel.textContent = card.dataset.catName + ' (from ₦' +
+                Number(card.dataset.catPrice).toLocaleString('en-NG') + ')';
+            continueSection.style.display = 'block';
+
+            // Hide the form (in case it was already showing from a previous selection)
+            formSection.style.display = 'none';
+
+            // Scroll to the Continue button
+            continueSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+
+    // ─────────────────────────────────────────
+    // STEP 2: Continue button reveals form
+    // ─────────────────────────────────────────
+    document.getElementById('continueBtn').addEventListener('click', function () {
+        formSection.style.display = 'block';
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // ─────────────────────────────────────────
+    // STEP 3: Firebase — form submission
+    // ─────────────────────────────────────────
+    var currentUser = null;
+
+    window.addEventListener('load', function () {
+
+        if (typeof firebase === 'undefined') {
+            console.warn('Firebase not loaded.');
+            return;
+        }
+
+        var firebaseConfig = {
+            apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+            authDomain: "hkdmservices-7d59f.firebaseapp.com",
+            databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+            projectId: "hkdmservices-7d59f",
+            storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+            messagingSenderId: "839538334772",
+            appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        var auth = firebase.auth();
+        var database = firebase.database();
+
+        auth.onAuthStateChanged(function (user) {
+            if (!user) return;
+            currentUser = user;
+
+            var emailInput = document.getElementById('reqEmail');
+            if (emailInput) emailInput.value = user.email || '';
+
+            database.ref('users/' + user.uid).once('value').then(function (snap) {
+                var data = snap.val() || {};
+                var nameInput = document.getElementById('reqName');
+                if (nameInput && data.fullName) nameInput.value = data.fullName;
+            }).catch(function (err) { console.warn('Prefill failed:', err); });
+        });
+
+        // Form submit
+        var form = document.getElementById('websiteRequestForm');
+        if (!form) return;
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            var formMsg = document.getElementById('formMsg');
+
+            if (!currentUser) {
+                formMsg.innerHTML = '<div class="alert alert-danger">Please log in first.</div>';
+                return;
+            }
+
+            var catId    = document.getElementById('selectedCategory').value;
+            var catName  = document.getElementById('selectedCategoryName').value;
+            var catPrice = document.getElementById('selectedPrice').value;
+
+            if (!catId) {
+                formMsg.innerHTML = '<div class="alert alert-danger">Please select a category above.</div>';
+                return;
+            }
+
+            var payload = {
+                category:     catId,
+                categoryName: catName,
+                basePrice:    Number(catPrice),
+                name:         document.getElementById('reqName').value.trim(),
+                email:        document.getElementById('reqEmail').value.trim(),
+                whatsapp:     document.getElementById('reqWhatsapp').value.trim(),
+                business:     document.getElementById('reqBusiness').value.trim(),
+                description:  document.getElementById('reqDescription').value.trim(),
+                budget:       document.getElementById('reqBudget').value,
+                timeline:     document.getElementById('reqTimeline').value
+            };
+
+            if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
+                formMsg.innerHTML = '<div class="alert alert-danger">Please fill in all required fields.</div>';
+                return;
+            }
+
+            var submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+
+            try {
+                var idToken = await currentUser.getIdToken(true);
+
+                var response = await fetch('/api-php/send-website-request.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + idToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                var result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Failed to submit request.');
+                }
+
+                formMsg.innerHTML =
+                    '<div class="alert alert-success">' +
+                        '<h5><i class="bi bi-check-circle-fill"></i> Request Submitted!</h5>' +
+                        '<p class="mb-1">Reference: <strong>' + result.requestId + '</strong></p>' +
+                        '<p class="mb-0">Our tech boss will contact you on WhatsApp within 24 hours.</p>' +
+                        '<a href="my-website-requests.html" class="btn btn-success btn-sm mt-3">' +
+                            '<i class="bi bi-list-check"></i> View My Requests' +
+                        '</a>' +
+                    '</div>';
+
+                form.reset();
+                cards.forEach(function (c) { c.classList.remove('selected'); });
+                continueSection.style.display = 'none';
+                formSection.style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                formMsg.innerHTML = '<div class="alert alert-danger">' + err.message + '</div>';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-send"></i> Submit Request';
+            }
+        });
+    });
+})();
+</script>
 
 </body>
 </html>
