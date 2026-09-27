@@ -329,183 +329,179 @@
     <i class="bi bi-whatsapp"></i>
 </a>
 
-<script>
-(function () {
-    'use strict';
+<!-- Firebase Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-    // ─────────────────────────────────────────
-    // STEP 1: Category selection (pure JS, no Firebase needed)
-    // ─────────────────────────────────────────
+<script>
+// ============================================================
+// Initialize Firebase immediately (before page is ready)
+// ============================================================
+var firebaseConfig = {
+    apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+    authDomain: "hkdmservices-7d59f.firebaseapp.com",
+    databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+    projectId: "hkdmservices-7d59f",
+    storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+    messagingSenderId: "839538334772",
+    appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+
+var auth = firebase.auth();
+var database = firebase.database();
+var currentUser = null;
+var authReady = false;
+
+// Watch auth state — runs as soon as Firebase loads
+auth.onAuthStateChanged(function (user) {
+    currentUser = user;
+    authReady = true;
+
+    if (user) {
+        var emailInput = document.getElementById('reqEmail');
+        if (emailInput) emailInput.value = user.email || '';
+
+        database.ref('users/' + user.uid).once('value').then(function (snap) {
+            var data = snap.val() || {};
+            var nameInput = document.getElementById('reqName');
+            if (nameInput && data.fullName) nameInput.value = data.fullName;
+            if (data.whatsapp) {
+                var waInput = document.getElementById('reqWhatsapp');
+                if (waInput && !waInput.value) waInput.value = data.whatsapp;
+            }
+        }).catch(function (err) { console.warn('Prefill:', err); });
+    }
+});
+
+// ============================================================
+// Category selection + Continue button + Form submit
+// ============================================================
+document.addEventListener('DOMContentLoaded', function () {
+
     var cards = document.querySelectorAll('.category-card');
     var continueSection = document.getElementById('continueSection');
-    var selectedCategoryLabel = document.getElementById('selectedCategoryLabel');
+    var selectedLabel = document.getElementById('selectedCategoryLabel');
     var formSection = document.getElementById('formSection');
 
+    // --- Category click ---
     cards.forEach(function (card) {
         card.addEventListener('click', function () {
-            // Clear all selections
             cards.forEach(function (c) { c.classList.remove('selected'); });
-
-            // Mark this one selected
             card.classList.add('selected');
 
-            // Store the selection
             document.getElementById('selectedCategory').value = card.dataset.catId;
             document.getElementById('selectedCategoryName').value = card.dataset.catName;
             document.getElementById('selectedPrice').value = card.dataset.catPrice;
 
-            // Show the Continue button
-            selectedCategoryLabel.textContent = card.dataset.catName + ' (from ₦' +
+            selectedLabel.textContent = card.dataset.catName + ' (from ₦' +
                 Number(card.dataset.catPrice).toLocaleString('en-NG') + ')';
             continueSection.style.display = 'block';
-
-            // Hide the form (in case it was already showing from a previous selection)
             formSection.style.display = 'none';
-
-            // Scroll to the Continue button
             continueSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     });
 
-    // ─────────────────────────────────────────
-    // STEP 2: Continue button reveals form
-    // ─────────────────────────────────────────
+    // --- Continue button ---
     document.getElementById('continueBtn').addEventListener('click', function () {
         formSection.style.display = 'block';
         formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    // ─────────────────────────────────────────
-    // STEP 3: Firebase — form submission
-    // ─────────────────────────────────────────
-    var currentUser = null;
+    // --- Form submit ---
+    var form = document.getElementById('websiteRequestForm');
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var formMsg = document.getElementById('formMsg');
 
-    window.addEventListener('load', function () {
-
-        if (typeof firebase === 'undefined') {
-            console.warn('Firebase not loaded.');
+        // Wait for auth if it hasn't fired yet
+        if (!authReady) {
+            formMsg.innerHTML = '<div class="alert alert-info">Still loading your account… please wait 2 seconds and try again.</div>';
             return;
         }
 
-        var firebaseConfig = {
-            apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
-            authDomain: "hkdmservices-7d59f.firebaseapp.com",
-            databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
-            projectId: "hkdmservices-7d59f",
-            storageBucket: "hkdmservices-7d59f.firebasestorage.app",
-            messagingSenderId: "839538334772",
-            appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
-        };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        if (!currentUser) {
+            formMsg.innerHTML = '<div class="alert alert-danger">You are not logged in. Please <a href="login.html">log in</a> and try again.</div>';
+            return;
         }
 
-        var auth = firebase.auth();
-        var database = firebase.database();
+        var catId = document.getElementById('selectedCategory').value;
+        var catName = document.getElementById('selectedCategoryName').value;
+        var catPrice = document.getElementById('selectedPrice').value;
 
-        auth.onAuthStateChanged(function (user) {
-            if (!user) return;
-            currentUser = user;
+        if (!catId) {
+            formMsg.innerHTML = '<div class="alert alert-danger">Please select a category above.</div>';
+            return;
+        }
 
-            var emailInput = document.getElementById('reqEmail');
-            if (emailInput) emailInput.value = user.email || '';
+        var payload = {
+            category: catId,
+            categoryName: catName,
+            basePrice: Number(catPrice),
+            name: document.getElementById('reqName').value.trim(),
+            email: document.getElementById('reqEmail').value.trim(),
+            whatsapp: document.getElementById('reqWhatsapp').value.trim(),
+            business: document.getElementById('reqBusiness').value.trim(),
+            description: document.getElementById('reqDescription').value.trim(),
+            budget: document.getElementById('reqBudget').value,
+            timeline: document.getElementById('reqTimeline').value
+        };
 
-            database.ref('users/' + user.uid).once('value').then(function (snap) {
-                var data = snap.val() || {};
-                var nameInput = document.getElementById('reqName');
-                if (nameInput && data.fullName) nameInput.value = data.fullName;
-            }).catch(function (err) { console.warn('Prefill failed:', err); });
-        });
+        if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
+            formMsg.innerHTML = '<div class="alert alert-danger">Please fill in all required fields.</div>';
+            return;
+        }
 
-        // Form submit
-        var form = document.getElementById('websiteRequestForm');
-        if (!form) return;
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+        formMsg.innerHTML = '<div class="alert alert-info">Submitting your request…</div>';
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        try {
+            var idToken = await currentUser.getIdToken(true);
 
-            var formMsg = document.getElementById('formMsg');
+            var response = await fetch('/api-php/send-website-request.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + idToken
+                },
+                body: JSON.stringify(payload)
+            });
 
-            if (!currentUser) {
-                formMsg.innerHTML = '<div class="alert alert-danger">Please log in first.</div>';
-                return;
+            var result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to submit');
             }
 
-            var catId    = document.getElementById('selectedCategory').value;
-            var catName  = document.getElementById('selectedCategoryName').value;
-            var catPrice = document.getElementById('selectedPrice').value;
+            formMsg.innerHTML =
+                '<div class="alert alert-success">' +
+                    '<h5><i class="bi bi-check-circle-fill"></i> Request Submitted!</h5>' +
+                    '<p class="mb-1">Reference: <strong>' + result.requestId + '</strong></p>' +
+                    '<p class="mb-0">Our tech boss will contact you soon.</p>' +
+                    '<a href="my-website-requests.html" class="btn btn-success btn-sm mt-3">' +
+                        '<i class="bi bi-list-check"></i> View My Requests' +
+                    '</a>' +
+                '</div>';
 
-            if (!catId) {
-                formMsg.innerHTML = '<div class="alert alert-danger">Please select a category above.</div>';
-                return;
-            }
+            form.reset();
+            cards.forEach(function (c) { c.classList.remove('selected'); });
+            continueSection.style.display = 'none';
+            formSection.style.display = 'none';
 
-            var payload = {
-                category:     catId,
-                categoryName: catName,
-                basePrice:    Number(catPrice),
-                name:         document.getElementById('reqName').value.trim(),
-                email:        document.getElementById('reqEmail').value.trim(),
-                whatsapp:     document.getElementById('reqWhatsapp').value.trim(),
-                business:     document.getElementById('reqBusiness').value.trim(),
-                description:  document.getElementById('reqDescription').value.trim(),
-                budget:       document.getElementById('reqBudget').value,
-                timeline:     document.getElementById('reqTimeline').value
-            };
-
-            if (!payload.name || !payload.email || !payload.whatsapp || !payload.description) {
-                formMsg.innerHTML = '<div class="alert alert-danger">Please fill in all required fields.</div>';
-                return;
-            }
-
-            var submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
-
-            try {
-                var idToken = await currentUser.getIdToken(true);
-
-                var response = await fetch('/api-php/send-website-request.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + idToken
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                var result = await response.json();
-
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'Failed to submit request.');
-                }
-
-                formMsg.innerHTML =
-                    '<div class="alert alert-success">' +
-                        '<h5><i class="bi bi-check-circle-fill"></i> Request Submitted!</h5>' +
-                        '<p class="mb-1">Reference: <strong>' + result.requestId + '</strong></p>' +
-                        '<p class="mb-0">Our tech boss will contact you on WhatsApp within 24 hours.</p>' +
-                        '<a href="my-website-requests.html" class="btn btn-success btn-sm mt-3">' +
-                            '<i class="bi bi-list-check"></i> View My Requests' +
-                        '</a>' +
-                    '</div>';
-
-                form.reset();
-                cards.forEach(function (c) { c.classList.remove('selected'); });
-                continueSection.style.display = 'none';
-                formSection.style.display = 'none';
-
-            } catch (err) {
-                console.error(err);
-                formMsg.innerHTML = '<div class="alert alert-danger">' + err.message + '</div>';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="bi bi-send"></i> Submit Request';
-            }
-        });
+        } catch (err) {
+            console.error('Submit error:', err);
+            formMsg.innerHTML = '<div class="alert alert-danger">❌ ' + err.message + '</div>';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-send"></i> Submit Request';
+        }
     });
-})();
+});
 </script>
 
 </body>
