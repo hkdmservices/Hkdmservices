@@ -768,7 +768,6 @@
         .request-status-deposit-paid { background: #198754; color: #fff; }
         .request-status-delivered { background: #198754; color: #fff; }
         .request-status-cancelled { background: #dc3545; color: #fff; }
-        /* ✅ NEW */
         .request-status-fully-paid { background: #198754; color: #fff; }
     </style>
 </head>
@@ -1585,8 +1584,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- ADD PRODUCT MODAL -->
+    </div><!-- ADD PRODUCT MODAL -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1650,6 +1648,7 @@
             </div>
         </div>
     </div>
+
     <!-- UPDATE STATUS MODAL -->
     <div class="modal fade" id="updateStatusModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -2373,8 +2372,7 @@
             document.getElementById('statPendingRequests').textContent = pending;
             document.getElementById('statQuotedRequests').textContent = quoted;
             document.getElementById('statDeliveredRequests').textContent = delivered;
-        }
-        function viewWebsiteRequest(reqKey) {
+        }function viewWebsiteRequest(reqKey) {
             const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
             const modalBody = document.getElementById('orderDetailsBody');
             modalBody.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success"></div></div>';
@@ -2468,8 +2466,7 @@
                                   placeholder="e.g. Homepage done — 3 pages to go.">${r.latestNote || ''}</textarea>
                     </div>
 
-                    <hr>
-                    <h6 class="text-success mb-3">Admin Actions</h6>
+                    <hr><h6 class="text-success mb-3">Admin Actions</h6>
 
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
@@ -2526,11 +2523,12 @@
                     const adminNote = document.getElementById('adminReqNote').value.trim();
                     const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
 
-                    // ✅ Collect tracking data
+                    // Collect tracking data
                     const milestones = {};
                     const now = Date.now();
-                    document.querySelectorAll('.milestone-check').forEach(cb => {
+                    document.querySelectorAll('#orderDetailsBody .milestone-check').forEach(cb => {
                         const key = cb.dataset.key;
+                        if (!key) return;
                         const existing = (r.milestones && r.milestones[key]) || {};
                         if (cb.checked) {
                             milestones[key] = { done: true, at: existing.at || now };
@@ -2538,9 +2536,21 @@
                             milestones[key] = { done: false };
                         }
                     });
-                    const progress = parseInt(document.getElementById('adminReqProgress').value) || 0;
+
+                    // Guard progress
+                    const progressRaw = document.getElementById('adminReqProgress').value;
+                    const progress = isNaN(parseInt(progressRaw)) ? 0 : Math.max(0, Math.min(100, parseInt(progressRaw)));
+
+                    // Guard expected delivery date
                     const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
-                    const expectedDelivery = expectedDeliveryInput ? new Date(expectedDeliveryInput).getTime() : null;
+                    let expectedDelivery = null;
+                    if (expectedDeliveryInput) {
+                        const d = new Date(expectedDeliveryInput);
+                        if (!isNaN(d.getTime())) {
+                            expectedDelivery = d.getTime();
+                        }
+                    }
+
                     const latestNote = document.getElementById('adminReqLatestNote').value.trim();
 
                     btn.disabled = true;
@@ -2589,8 +2599,7 @@
             document.getElementById('refreshWebReq')?.addEventListener('click', loadAllWebsiteRequests);
             document.getElementById('webReqSearch')?.addEventListener('input', loadAllWebsiteRequests);
             document.getElementById('webReqStatusFilter')?.addEventListener('change', loadAllWebsiteRequests);
-        });
-        // ============================================================
+        });// ============================================================
         // ORDERS FILTER
         // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
@@ -3018,8 +3027,7 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
             }
-        });
-        // ============================================================
+        });// ============================================================
         // USERS
         // ============================================================
         function loadAllUsers() {
@@ -3282,8 +3290,7 @@
                 updateServiceStats(fallback, nigeriaFallback);
                 showToast('⚠️ Using embedded services (error)', 'warning');
             }
-        }
-        // ============================================================
+        }// ============================================================
         // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
         // ============================================================
         function getEmbeddedServices() {
@@ -3397,13 +3404,11 @@
                 const validPlatforms = ['instagram', 'tiktok', 'youtube', 'facebook', 'twitter', 'snapchat', 'telegram', 'spotify', 'twitch', 'whatsapp', 'applemusic', 'reddit', 'linkedin', 'pinterest', 'discord'];
                 const finalClass = validPlatforms.includes(platformClass) ? platformClass : 'custom';
 
-                // ✅ Handle one-time services (fixedPrice) and regular services
                 let rateDisplay = '';
                 let resellerDisplay = '-';
                 let vipDisplay = '-';
                 
                 if (service.oneTimePayment === true || service.fixedPrice !== null && service.fixedPrice !== undefined) {
-                    // One-time service with fixed price
                     rateDisplay = `<span class="text-warning">💰 ${formatNaira(service.fixedPrice || service.ratePer1000)}</span>`;
                     if (service.resellerFixedPrice) {
                         resellerDisplay = formatNaira(service.resellerFixedPrice);
@@ -3412,7 +3417,6 @@
                         vipDisplay = formatNaira(service.vipFixedPrice);
                     }
                 } else if (service.ratePer1000 !== null && service.ratePer1000 !== undefined) {
-                    // Regular per-1000 service
                     rateDisplay = formatNaira(service.ratePer1000);
                     resellerDisplay = service.resellerRatePer1000 ? formatNaira(service.resellerRatePer1000) : '-';
                     vipDisplay = service.vipRatePer1000 ? formatNaira(service.vipRatePer1000) : '-';
@@ -3420,7 +3424,6 @@
                     rateDisplay = '<span class="text-muted">N/A</span>';
                 }
 
-                // Check if it's a comment service
                 const isComment = service.service && service.service.toLowerCase().includes('comment');
 
                 return `
@@ -3455,7 +3458,6 @@
                 `;
             }).join('');
 
-            // Attach edit event listeners
             tbody.querySelectorAll('.edit-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const service = JSON.parse(btn.dataset.service);
@@ -3463,7 +3465,6 @@
                 });
             });
 
-            // Attach delete event listeners
             tbody.querySelectorAll('.delete-service-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (confirm('Delete this service permanently?')) {
@@ -3480,7 +3481,6 @@
             const all = [...(global || []), ...(nigeria || [])];
             const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
             
-            // Handle both regular and one-time services
             const rates = all.map(s => {
                 if (s.oneTimePayment === true || s.fixedPrice !== null) {
                     return Number(s.fixedPrice || s.ratePer1000 || 0);
@@ -3510,7 +3510,6 @@
             document.getElementById('editCatalog').value = catalog;
             document.getElementById('editSvcName').value = service.service || '';
             
-            // Check if platform is in the dropdown list
             const platformSelect = document.getElementById('editSvcPlatform');
             const platformOptions = Array.from(platformSelect.options).map(opt => opt.value);
             const platformName = service.platform || 'Instagram';
@@ -3524,7 +3523,6 @@
                 document.getElementById('editSvcCustomPlatform').value = platformName;
             }
             
-            // Handle one-time services
             const isOneTime = service.oneTimePayment === true || (service.fixedPrice !== null && service.fixedPrice !== undefined);
             document.getElementById('editSvcOneTime').checked = isOneTime;
             
@@ -3613,8 +3611,7 @@
                 minQty.value = 100;
                 minQty.readOnly = false;
             }
-        });
-        // ============================================================
+        });// ============================================================
         // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
         // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
@@ -3625,7 +3622,6 @@
             try {
                 const catalog = document.getElementById('addCatalog').value;
                 
-                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('svcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('svcCustomPlatform').value.trim() 
@@ -3677,14 +3673,12 @@
                     newService.oneTimePayment = false;
                 }
 
-                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
                     services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
                 }
                 services.push(newService);
 
-                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3731,7 +3725,6 @@
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
                 
-                // Get platform value (supporting custom platform)
                 const platformValue = document.getElementById('editSvcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('editSvcCustomPlatform').value.trim() 
@@ -3783,7 +3776,6 @@
                     updatedService.oneTimePayment = false;
                 }
 
-                // Get current services from the correct file
                 let services = await loadServicesFromFile(catalog);
                 if (!services || services.length === 0) {
                     services = catalog === 'nigeria' ? getEmbeddedNigeriaServices() : getEmbeddedServices();
@@ -3794,7 +3786,6 @@
                 }
                 services[index] = updatedService;
 
-                // Save to PHP
                 const response = await fetch('api-php/save-services.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -4266,14 +4257,12 @@
                         `;
                     }).join('');
 
-                // Attach view voucher events
                 tbody.querySelectorAll('.view-voucher-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewVoucherDetails(btn.dataset.voucherKey);
                     });
                 });
 
-                // Attach delete voucher events
                 tbody.querySelectorAll('.delete-voucher-btn').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const key = btn.dataset.voucherKey;
