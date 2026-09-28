@@ -3,7 +3,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
 console.log('MY REQUESTS JS LOADED v11');
 
@@ -423,7 +423,7 @@ onAuthStateChanged(auth, function(user) {
 
     currentUser = user;
 
-    database.ref('users/' + user.uid + '/wallet').on('value', function(snap) {
+    onValue(ref(database, 'users/' + user.uid + '/wallet'), function(snap) {
         walletBalance = Number(snap.val() || 0);
         console.log('Wallet balance:', walletBalance);
     });
