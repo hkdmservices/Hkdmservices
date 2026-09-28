@@ -1,12 +1,11 @@
-// ============================================================
-// My Website Requests — v10 (wallet pay + balance after delivery)
+// My Website Requests v10
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-console.log('MY REQUESTS JS LOADED — v10');
+console.log('MY REQUESTS JS LOADED v10');
 
 const firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -47,14 +46,14 @@ const MILESTONES = [
 ];
 
 function formatNaira(amount) {
-    return '₦' + Number(amount || 0).toLocaleString('en-NG', {
+    return '\u20A6' + Number(amount || 0).toLocaleString('en-NG', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     });
 }
 
 function formatDate(ts) {
-    if (!ts) return '—';
+    if (!ts) return 'N/A';
     return new Date(Number(ts)).toLocaleString('en-NG', {
         dateStyle: 'medium',
         timeStyle: 'short'
@@ -192,7 +191,6 @@ function buildTimeline(request) {
 }
 
 function buildPaymentBlock(request, type) {
-    // type: 'deposit' or 'balance'
     const reqId = request.requestId || request.id;
     const quotedPrice = Number(request.quotedPrice || 0);
     const depositPercent = Number(request.depositPercent || 50);
@@ -201,7 +199,7 @@ function buildPaymentBlock(request, type) {
 
     const amount = type === 'balance' ? balanceAmount : depositAmount;
     const title = type === 'balance' ? 'Balance Payment Required' : 'Payment Required';
-    const label = type === 'balance' ? 'Remaining Balance (100%)' : 'Deposit Required (' + depositPercent + '%)';
+    const label = type === 'balance' ? 'Remaining Balance' : 'Deposit Required (' + depositPercent + '%)';
     const canPayFromWallet = walletBalance >= amount;
     const walletBtnClass = canPayFromWallet ? 'btn-success' : 'btn-outline-secondary';
     const walletEndpoint = type === 'balance' ? PAY_BALANCE_ENDPOINT : PAY_DEPOSIT_ENDPOINT;
@@ -210,11 +208,11 @@ function buildPaymentBlock(request, type) {
         : 'Insufficient wallet balance (' + formatNaira(walletBalance) + ')';
 
     const waText =
-        'Hi, I\'ve made the ' + (type === 'balance' ? 'balance' : 'deposit') + ' payment for my website request.\n\n' +
+        'Hi, I have made the ' + (type === 'balance' ? 'balance' : 'deposit') + ' payment for my website request.\n\n' +
         'Reference: ' + reqId + '\n' +
         'Service: ' + (request.categoryName || '') + '\n' +
-        'Quoted Price: ₦' + quotedPrice.toLocaleString('en-NG') + '\n' +
-        (type === 'balance' ? 'Balance Paid: ₦' : 'Deposit Paid: ₦') + amount.toLocaleString('en-NG') + '\n' +
+        'Quoted Price: N' + quotedPrice.toLocaleString('en-NG') + '\n' +
+        (type === 'balance' ? 'Balance Paid: N' : 'Deposit Paid: N') + amount.toLocaleString('en-NG') + '\n' +
         'Name: ' + (request.name || 'Customer') + '\n\n' +
         'Please find my payment proof attached.';
 
@@ -233,7 +231,6 @@ function buildPaymentBlock(request, type) {
     html += '<span style="color:#198754; font-weight:700;">' + formatNaira(amount) + '</span>';
     html += '</div>';
 
-    // Wallet button
     html += '<button type="button" class="btn ' + walletBtnClass + ' w-100 mb-3 wallet-pay-btn" ';
     html += 'data-req-id="' + escapeHtml(reqId) + '" ';
     html += 'data-amount="' + amount + '" ';
@@ -245,7 +242,7 @@ function buildPaymentBlock(request, type) {
     html += '</button>';
 
     html += '<div style="text-align:center; font-size:0.8rem; color:#6c757d; margin:8px 0;">';
-    html += '— OR pay via bank transfer —';
+    html += 'OR pay via bank transfer';
     html += '</div>';
 
     html += '<div style="background:#ffffff; border:1px solid #dee2e6; border-radius:8px; padding:12px; margin-bottom:12px;">';
@@ -272,11 +269,11 @@ function renderCard(r) {
 
     const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
     const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
-    const isDepositPaid = status === 'deposit-paid' || status === 'delivered';
+    const isDepositPaid = status === 'deposit-paid' || status === 'delivered' || status === 'fully-paid';
     const isDelivered = status === 'delivered';
     const isFullyPaid = status === 'fully-paid';
 
-    const showTimeline = isDepositPaid || isFullyPaid;
+    const showTimeline = isDepositPaid;
     const timeline = showTimeline ? buildTimeline(r) : '';
 
     const depositBlock = isQuoted ? buildPaymentBlock(r, 'deposit') : '';
@@ -284,7 +281,7 @@ function renderCard(r) {
 
     const depositBtn = isQuoted
         ? '<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn" data-target="deposit">' +
-              '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit' +
+              '<i class="bi bi-credit-card"></i> Review and Pay Deposit' +
           '</button>'
         : '';
 
@@ -296,7 +293,7 @@ function renderCard(r) {
 
     const secondColumn = r.quotedPrice
         ? '<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">' + formatNaira(r.quotedPrice) + '</span>'
-        : '<strong>Budget:</strong> ' + escapeHtml(r.budget || '—');
+        : '<strong>Budget:</strong> ' + escapeHtml(r.budget || 'N/A');
 
     const adminNote = r.adminNote
         ? '<div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">' +
@@ -324,12 +321,12 @@ function renderCard(r) {
     html += '</div>';
     html += '<p class="mb-2">';
     html += '<strong>Description:</strong> ' + escapeHtml((r.description || '').slice(0, 180));
-    if ((r.description || '').length > 180) html += '…';
+    if ((r.description || '').length > 180) html += '...';
     html += '</p>';
     html += '<div class="row g-2 small text-muted">';
     html += '<div class="col-6 col-md-3"><strong>Category Price:</strong> ' + formatNaira(r.basePrice) + '</div>';
     html += '<div class="col-6 col-md-3">' + secondColumn + '</div>';
-    html += '<div class="col-6 col-md-3"><strong>Timeline:</strong> ' + escapeHtml(r.timeline || '—') + '</div>';
+    html += '<div class="col-6 col-md-3"><strong>Timeline:</strong> ' + escapeHtml(r.timeline || 'N/A') + '</div>';
     html += '<div class="col-6 col-md-3"><strong>Submitted:</strong> ' + formatDate(r.createdAt) + '</div>';
     html += '</div>';
     html += adminNote;
@@ -345,14 +342,12 @@ function renderCard(r) {
 }
 
 function attachHandlers() {
-    // Toggle buttons
     container.querySelectorAll('.quote-toggle-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const card = btn.closest('.card');
             if (!card) return;
             const target = btn.dataset.target;
 
-            // Find the matching block within this card
             const blockIndex = target === 'balance' ? 1 : 0;
             const blocks = card.querySelectorAll('.payment-block');
             const block = blocks[blockIndex];
@@ -363,7 +358,7 @@ function attachHandlers() {
                 block.style.display = 'none';
                 btn.innerHTML = target === 'balance'
                     ? '<i class="bi bi-cash-stack"></i> Pay Remaining Balance'
-                    : '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit';
+                    : '<i class="bi bi-credit-card"></i> Review and Pay Deposit';
             } else {
                 block.style.display = 'block';
                 btn.innerHTML = '<i class="bi bi-x-circle"></i> Hide Payment Details';
@@ -372,7 +367,6 @@ function attachHandlers() {
         });
     });
 
-    // Wallet pay buttons
     container.querySelectorAll('.wallet-pay-btn').forEach(function(btn) {
         btn.addEventListener('click', async function() {
             if (btn.disabled) return;
@@ -408,12 +402,12 @@ function attachHandlers() {
                     throw new Error(result.message || 'Payment failed');
                 }
 
-                alert('✅ Payment successful!\n\nNew wallet balance: ' + formatNaira(result.newBalance));
+                alert('Payment successful!\n\nNew wallet balance: ' + formatNaira(result.newBalance));
                 window.location.reload();
 
             } catch (err) {
                 console.error('WALLET PAY ERROR:', err);
-                alert('❌ ' + err.message);
+                alert('Failed: ' + err.message);
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
@@ -429,13 +423,11 @@ onAuthStateChanged(auth, function(user) {
 
     currentUser = user;
 
-    // Live wallet balance
     database.ref('users/' + user.uid + '/wallet').on('value', function(snap) {
         walletBalance = Number(snap.val() || 0);
         console.log('Wallet balance:', walletBalance);
     });
 
-    // Load requests
     get(ref(database, 'website_requests')).then(function(snap) {
         const data = snap.val() || {};
 
