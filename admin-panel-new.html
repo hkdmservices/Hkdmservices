@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | HKDMservices</title><script>
+    <title>Admin Dashboard | HKDMservices</title>
+    <script>
     window.addEventListener('error', function(e) {
         alert('JS ERROR: ' + e.message + '\n\nFILE: ' + e.filename + '\nLINE: ' + e.lineno);
     });
@@ -90,7 +91,9 @@
         .stat-card h3 {
             font-size: 2rem;
             margin: 0;
-        }/* ============================================================
+        }
+
+        /* ============================================================
            TABLE STYLES - FIXED FOR BOTH MODES
            ============================================================ */
         .table {
@@ -323,7 +326,9 @@
         }
         .search-wrapper .form-control {
             min-width: 200px;
-        }/* Order Details */
+        }
+
+        /* Order Details */
         .detail-row {
             display: flex;
             justify-content: space-between;
@@ -528,7 +533,9 @@
         .platform-badge.custom { background: #6f42c1; }
         .platform-badge.linkedin { background: #0A66C2; }
         .platform-badge.pinterest { background: #E60023; }
-        .platform-badge.discord { background: #5865F2; }/* ============================================================
+        .platform-badge.discord { background: #5865F2; }
+
+        /* ============================================================
            THEME TOGGLE BUTTON
            ============================================================ */
         .theme-toggle {
@@ -778,7 +785,6 @@
             <div class="col-md-3 col-lg-2 px-0 sidebar">
                 <div class="d-flex align-items-center justify-content-between mb-4 mt-2 px-3">
                     <span class="navbar-brand fw-bold text-success">⬢ HKDM<span id="brandText" style="color: #212529;">admin</span></span>
-                    <!-- THEME TOGGLE with Auto Indicator -->
                     <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode (Auto: ON)">
                         <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
                         <span class="auto-indicator" id="autoIndicator" title="Auto-switch based on time">⏱</span>
@@ -817,9 +823,10 @@
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </nav>
-            </div><!-- MAIN CONTENT --><div class="col-md-9 col-lg-10 main-content">
+            </div>
 
-                <!-- Header -->
+            <div class="col-md-9 col-lg-10 main-content">
+
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1 id="sectionTitle">📊 Overview</h1>
                     <div>
@@ -1021,7 +1028,6 @@
                 </div><!-- SERVICES SECTION -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
-                        <!-- Service Stats -->
                         <div class="service-stats-grid" id="serviceStatsGrid">
                             <div class="service-stat-item">
                                 <div class="number" id="statTotalServices">0</div>
@@ -1045,7 +1051,6 @@
                             </div>
                         </div>
 
-                        <!-- Tabs: Global + Nigeria -->
                         <ul class="nav nav-tabs service-tabs mb-3" id="serviceCatalogTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="svc-global-tab" data-bs-toggle="tab" data-bs-target="#svc-global" type="button" role="tab">
@@ -1060,7 +1065,6 @@
                         </ul>
 
                         <div class="tab-content">
-                            <!-- Global Catalog -->
                             <div class="tab-pane fade show active" id="svc-global" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                                     <h5>Global Services</h5>
@@ -1093,7 +1097,6 @@
                                 </div>
                             </div>
 
-                            <!-- Nigeria Catalog -->
                             <div class="tab-pane fade" id="svc-nigeria" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
                                     <h5>Nigeria Services</h5>
@@ -1584,7 +1587,9 @@
                 </div>
             </div>
         </div>
-    </div><!-- ADD PRODUCT MODAL -->
+    </div>
+
+    <!-- ADD PRODUCT MODAL -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1693,7 +1698,7 @@
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to <strong class="text-danger">cancel and refund</strong> this order?</p>
-                    <div id="cancelOrderDetails" class="bg-light p-3 rounded mb-3" style="html[data-theme='dark'] & { background: #0d1117 !important; }">
+                    <div id="cancelOrderDetails" class="bg-light p-3 rounded mb-3">
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Order ID:</span>
                             <span id="cancelOrderIdDisplay">-</span>
@@ -1784,9 +1789,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- EDIT USER MODAL -->
+    </div><!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1930,25 +1933,20 @@
          ============================================================ -->
     <script>
     (function() {
-        // Get the theme toggle elements
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
         const autoIndicator = document.getElementById('autoIndicator');
         const brandText = document.getElementById('brandText');
 
-        // Check for saved preference, default to 'auto'
         let savedPreference = localStorage.getItem('adminTheme') || 'auto';
         let currentTheme = 'light';
         let isAutoMode = true;
 
-        // Function to determine theme based on time
         function getTimeBasedTheme() {
             const hour = new Date().getHours();
-            // Dark mode from 6 PM (18) to 6 AM (6)
             return (hour >= 18 || hour < 6) ? 'dark' : 'light';
         }
 
-        // Function to apply theme
         function applyTheme(theme, isAuto) {
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -1960,12 +1958,10 @@
                 currentTheme = 'light';
             }
 
-            // Update brand text color for visibility
             if (brandText) {
                 brandText.style.color = theme === 'dark' ? '#f1f3f5' : '#212529';
             }
 
-            // Update auto indicator
             if (autoIndicator) {
                 if (isAuto) {
                     autoIndicator.style.display = 'flex';
@@ -1976,7 +1972,6 @@
                 }
             }
 
-            // Update button title
             if (themeToggle) {
                 const mode = theme === 'dark' ? 'Dark' : 'Light';
                 const autoText = isAuto ? ' (Auto: ON)' : ' (Manual)';
@@ -1987,7 +1982,6 @@
             localStorage.setItem('adminTheme', isAuto ? 'auto' : theme);
         }
 
-        // Function to handle auto-switch
         function handleAutoSwitch() {
             if (isAutoMode) {
                 const timeBasedTheme = getTimeBasedTheme();
@@ -1995,36 +1989,29 @@
             }
         }
 
-        // Initialize theme
         function initTheme() {
             const preference = localStorage.getItem('adminTheme');
 
             if (!preference || preference === 'auto') {
-                // Auto mode
                 const timeBasedTheme = getTimeBasedTheme();
                 applyTheme(timeBasedTheme, true);
             } else {
-                // Manual mode (light or dark)
                 applyTheme(preference, false);
             }
         }
 
-        // Toggle on button click
         if (themeToggle) {
             themeToggle.addEventListener('click', function() {
                 if (isAutoMode) {
-                    // If auto mode is ON, turn it OFF and switch to opposite of current time theme
                     const currentTimeTheme = getTimeBasedTheme();
                     const newTheme = currentTimeTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 } else {
-                    // Manual mode: toggle between light and dark
                     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
                     applyTheme(newTheme, false);
                 }
             });
 
-            // Double-click to re-enable auto mode
             themeToggle.addEventListener('dblclick', function() {
                 const timeBasedTheme = getTimeBasedTheme();
                 applyTheme(timeBasedTheme, true);
@@ -2032,17 +2019,14 @@
             });
         }
 
-        // Auto-switch every minute (check time)
         setInterval(handleAutoSwitch, 60000);
 
-        // Also check on page visibility change (user returns to tab)
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
                 handleAutoSwitch();
             }
         });
 
-        // Initialize
         initTheme();
 
         console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
@@ -2518,51 +2502,63 @@
                 `;
 
                 document.getElementById('saveWebReqBtn').addEventListener('click', async function() {
-                    const btn = this;
-                    const msgDiv = document.getElementById('adminReqMsg');
-                    const newStatus = document.getElementById('adminReqStatus').value;
-                    const quotedPrice = parseFloat(document.getElementById('adminReqQuote').value) || null;
-                    const depositPercent = parseInt(document.getElementById('adminReqDepositPct').value);
-                    const adminNote = document.getElementById('adminReqNote').value.trim();
-                    const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
-
-                    // ✅ Collect tracking data - SCOPED to this modal only
-                    const milestones = {};
-                    const now = Date.now();
-                    const modalEl = document.getElementById('orderDetailsModal');
-                    modalEl.querySelectorAll('.milestone-check').forEach(cb => {
-                        const key = cb.dataset.key;
-                        if (!key) return;
-                        const existing = (r.milestones && r.milestones[key]) || {};
-                        if (cb.checked) {
-                            milestones[key] = { done: true, at: existing.at || now };
-                        } else {
-                            milestones[key] = { done: false };
-                        }
-                    });
-
-                    // ✅ Guard progress slider
-                    const progressRaw = document.getElementById('adminReqProgress').value;
-                    const progressParsed = parseInt(progressRaw);
-                    const progress = isNaN(progressParsed) ? 0 : Math.max(0, Math.min(100, progressParsed));
-
-                    // ✅ Guard expected delivery date
-                    const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
-                    let expectedDelivery = null;
-                    if (expectedDeliveryInput) {
-                        const d = new Date(expectedDeliveryInput);
-                        if (!isNaN(d.getTime())) {
-                            expectedDelivery = d.getTime();
-                        }
-                    }
-
-                    const latestNote = document.getElementById('adminReqLatestNote').value.trim();
-
-                    btn.disabled = true;
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
-                    msgDiv.innerHTML = '';
-
                     try {
+                        const btn = this;
+                        const msgDiv = document.getElementById('adminReqMsg');
+                        const newStatus = document.getElementById('adminReqStatus').value;
+                        const quotedPrice = parseFloat(document.getElementById('adminReqQuote').value) || null;
+                        const depositPercent = parseInt(document.getElementById('adminReqDepositPct').value);
+                        const adminNote = document.getElementById('adminReqNote').value.trim();
+                        const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
+
+                        const milestones = {};
+                        const now = Date.now();
+                        const modalEl = document.getElementById('orderDetailsModal');
+                        modalEl.querySelectorAll('.milestone-check').forEach(cb => {
+                            const key = cb.dataset.key;
+                            if (!key) return;
+                            const existing = (r.milestones && r.milestones[key]) || {};
+                            if (cb.checked) {
+                                milestones[key] = { done: true, at: existing.at || now };
+                            } else {
+                                milestones[key] = { done: false };
+                            }
+                        });
+
+                        const progressRaw = document.getElementById('adminReqProgress').value;
+                        const progressParsed = parseInt(progressRaw);
+                        const progress = isNaN(progressParsed) ? 0 : Math.max(0, Math.min(100, progressParsed));
+
+                        const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
+                        let expectedDelivery = null;
+                        if (expectedDeliveryInput) {
+                            const d = new Date(expectedDeliveryInput);
+                            if (!isNaN(d.getTime())) {
+                                expectedDelivery = d.getTime();
+                            }
+                        }
+
+                        const latestNote = document.getElementById('adminReqLatestNote').value.trim();
+
+                        // DEBUG: Show what we're about to send
+                        const debugPayload = {
+                            requestId: reqKey,
+                            newStatus,
+                            quotedPrice,
+                            depositPercent,
+                            adminNote,
+                            sendEmail,
+                            milestones,
+                            progress,
+                            expectedDelivery,
+                            latestNote
+                        };
+                        alert('PAYLOAD PREVIEW:\n' + JSON.stringify(debugPayload, null, 2).slice(0, 1500));
+
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+                        msgDiv.innerHTML = '';
+
                         const idToken = await currentUser.getIdToken(true);
                         const response = await fetch('/api-php/admin-update-website-request.php', {
                             method: 'POST',
@@ -2570,18 +2566,7 @@
                                 'Content-Type': 'application/json',
                                 'Authorization': 'Bearer ' + idToken
                             },
-                            body: JSON.stringify({
-                                requestId: reqKey,
-                                newStatus,
-                                quotedPrice,
-                                depositPercent,
-                                adminNote,
-                                sendEmail,
-                                milestones,
-                                progress,
-                                expectedDelivery,
-                                latestNote
-                            })
+                            body: JSON.stringify(debugPayload)
                         });
 
                         const result = await response.json();
@@ -2591,10 +2576,17 @@
                         showToast('✅ Request updated' + (result.emailSent ? ' (email sent)' : ''), 'success');
                         loadAllWebsiteRequests();
                     } catch (err) {
-                        msgDiv.innerHTML = '<div class="alert alert-danger">❌ ' + err.message + '</div>';
+                        alert('CATCH ERROR: ' + err.message);
+                        const msgDiv = document.getElementById('adminReqMsg');
+                        if (msgDiv) {
+                            msgDiv.innerHTML = '<div class="alert alert-danger">❌ ' + err.message + '</div>';
+                        }
                     } finally {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
+                        const btn = document.getElementById('saveWebReqBtn');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
+                        }
                     }
                 });
             });
@@ -2721,12 +2713,14 @@
                         `;
                 }).join('');
 
+                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
+                // Attach checkbox events
                 document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -2739,6 +2733,7 @@
                     });
                 });
 
+                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -2750,6 +2745,7 @@
                     });
                 });
 
+                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -2835,7 +2831,7 @@
         });
 
         // ============================================================
-        // ✅ PATCH 1: BULK ACTION NOW USES PHP ENDPOINT (sends emails)
+        // BULK ACTION
         // ============================================================
         document.getElementById('applyBulkAction').addEventListener('click', async function() {
             const action = document.getElementById('bulkOrderAction').value;
@@ -2928,7 +2924,7 @@
         }
 
         // ============================================================
-        // ✅ PATCH 2: UPDATE STATUS NOW USES PHP ENDPOINT (sends email)
+        // UPDATE ORDER STATUS
         // ============================================================
         document.getElementById('updateStatusBtn').addEventListener('click', async () => {
             const orderKey = document.getElementById('statusOrderKey').value;
@@ -3028,9 +3024,7 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
             }
-        });
-
-        // ============================================================
+        });// ============================================================
         // USERS
         // ============================================================
         function loadAllUsers() {
@@ -3219,9 +3213,8 @@
         });
 
         // ============================================================
-        // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
+        // SERVICE MANAGEMENT
         // ============================================================
-
         async function loadServicesFromFile(catalog = 'global') {
             try {
                 const filename = catalog === 'nigeria' ? './nigeria-services-catalogue.js' : './services.js';
@@ -3382,7 +3375,7 @@
         }
 
         // ============================================================
-        // RENDER SERVICES TABLE - WITH ONE-TIME SERVICE SUPPORT
+        // RENDER SERVICES TABLE
         // ============================================================
         function renderServicesTable(services, tableId, catalog) {
             const tbody = document.getElementById(tableId);
@@ -3467,9 +3460,6 @@
             });
         }
 
-        // ============================================================
-        // UPDATE SERVICE STATS - WITH ONE-TIME SERVICE SUPPORT
-        // ============================================================
         function updateServiceStats(global, nigeria) {
             const all = [...(global || []), ...(nigeria || [])];
             const platforms = [...new Set(all.map(s => s.platform || s.category || 'General').filter(Boolean))];
@@ -3495,9 +3485,6 @@
             display.textContent = catalog === 'global' ? 'Global Catalog' : 'Nigeria Catalog';
         }
 
-        // ============================================================
-        // OPEN EDIT SERVICE MODAL - WITH CUSTOM PLATFORM & ONE-TIME SUPPORT
-        // ============================================================
         function openEditServiceModal(service, catalog) {
             document.getElementById('editServiceId').value = service.id;
             document.getElementById('editCatalog').value = catalog;
@@ -3592,12 +3579,7 @@
                 minQty.value = 100;
                 minQty.readOnly = false;
             }
-        });
-
-        // ============================================================
-        // SAVE NEW SERVICE
-        // ============================================================
-        document.getElementById('saveServiceBtn').addEventListener('click', async function() {
+        });document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
@@ -3695,9 +3677,6 @@
             }
         });
 
-        // ============================================================
-        // UPDATE SERVICE
-        // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
             const originalHtml = btn.innerHTML;
@@ -3989,9 +3968,7 @@
             } catch (error) {
                 msgDiv.innerHTML = `<div class="alert alert-danger">❌ Failed: ${error.message}</div>`;
             }
-        });
-
-        // ============================================================
+        });// ============================================================
         // ANALYTICS
         // ============================================================
         function loadAnalytics() {
@@ -4379,6 +4356,9 @@
             }
         });
 
+        // ============================================================
+        // SEARCH EVENT LISTENERS
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             ['orderSearch', 'shopSearch', 'transactionSearch', 'userSearch'].forEach(id => {
                 const el = document.getElementById(id);
