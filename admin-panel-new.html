@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | HKDMservices</title>
-    <script>
-    window.addEventListener('error', function(e) {
-        alert('JS ERROR: ' + e.message + '\n\nFILE: ' + e.filename + '\nLINE: ' + e.lineno);
-    });
-    window.addEventListener('unhandledrejection', function(e) {
-        alert('PROMISE ERROR: ' + (e.reason && e.reason.message ? e.reason.message : e.reason) + '\n\nSTACK: ' + (e.reason && e.reason.stack ? e.reason.stack.slice(0, 300) : 'no stack'));
-    });
-    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -126,7 +118,6 @@
             background: transparent !important;
         }
 
-        /* Fix for table in dark mode */
         html[data-theme="dark"] .table {
             --bs-table-striped-bg: #1a1f26 !important;
             --bs-table-hover-bg: #21262d !important;
@@ -328,7 +319,6 @@
             min-width: 200px;
         }
 
-        /* Order Details */
         .detail-row {
             display: flex;
             justify-content: space-between;
@@ -407,7 +397,6 @@
             cursor: pointer;
         }
 
-        /* Service & Shop Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -506,7 +495,6 @@
             font-size: 0.8rem;
         }
 
-        /* Platform Badges */
         .platform-badge {
             display: inline-block;
             padding: 3px 10px;
@@ -535,9 +523,6 @@
         .platform-badge.pinterest { background: #E60023; }
         .platform-badge.discord { background: #5865F2; }
 
-        /* ============================================================
-           THEME TOGGLE BUTTON
-           ============================================================ */
         .theme-toggle {
             width: 42px;
             height: 42px;
@@ -574,9 +559,8 @@
         }
         html[data-theme="dark"] .theme-toggle .auto-indicator {
             border-color: #161b22;
-        }/* ============================================================
-           DARK MODE OVERRIDES
-           ============================================================ */
+        }
+
         html[data-theme="dark"] {
             --bg-body: #0d1117;
             --text-body: #f1f3f5;
@@ -682,12 +666,10 @@
             border-color: #30363d;
         }
 
-        /* Fix for dark mode modal close button */
         html[data-theme="dark"] .btn-close-white {
             filter: invert(1) grayscale(100%) brightness(200%);
         }
 
-        /* Ensure text in alerts is visible */
         html[data-theme="dark"] .alert-success {
             background: #0d2818;
             color: #7ee8a2;
@@ -709,32 +691,27 @@
             border-color: #0d6efd;
         }
 
-        /* Fix for card text in dark mode */
         html[data-theme="dark"] .card-title,
         html[data-theme="dark"] .card-text,
         html[data-theme="dark"] .card-body {
             color: #f1f3f5;
         }
 
-        /* Fix for modal body text */
         html[data-theme="dark"] .modal-body,
         html[data-theme="dark"] .modal-body p,
         html[data-theme="dark"] .modal-body label {
             color: #f1f3f5;
         }
 
-        /* Fix for dropdown options in dark mode */
         html[data-theme="dark"] .form-select option {
             background: #0d1117;
             color: #f1f3f5;
         }
 
-        /* Fix for table hover in dark mode */
         html[data-theme="dark"] .table tbody tr:hover {
             background: #21262d !important;
         }
 
-        /* Fix for pagination or any other text */
         html[data-theme="dark"] .text-secondary {
             color: #8b949e !important;
         }
@@ -742,24 +719,20 @@
             color: #f1f3f5 !important;
         }
 
-        /* Fix for badges in dark mode */
         html[data-theme="dark"] .badge.bg-light {
             background: #21262d !important;
             color: #f1f3f5 !important;
         }
 
-        /* Fix for table striped rows in dark mode */
         html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
             --bs-table-color-type: var(--bs-table-striped-color);
             --bs-table-bg-type: #1a1f26;
         }
 
-        /* Fix for "No orders found" text */
         html[data-theme="dark"] .text-muted {
             color: #8b949e !important;
         }
 
-        /* Fix for code elements */
         html[data-theme="dark"] code,
         html[data-theme="dark"] .id-code,
         html[data-theme="dark"] .uid-code {
@@ -767,9 +740,6 @@
             background: #0d1117;
         }
 
-        /* ============================================================
-           WEBSITE REQUESTS
-           ============================================================ */
         .request-status-pending { background: #ffc107; color: #000; }
         .request-status-contacted { background: #0dcaf0; color: #000; }
         .request-status-quoted { background: #0d6efd; color: #fff; }
@@ -823,9 +793,7 @@
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </nav>
-            </div>
-
-            <div class="col-md-9 col-lg-10 main-content">
+            </div><div class="col-md-9 col-lg-10 main-content">
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1 id="sectionTitle">📊 Overview</h1>
@@ -1588,7 +1556,6 @@
             </div>
         </div>
     </div>
-
     <!-- ADD PRODUCT MODAL -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -2502,63 +2469,48 @@
                 `;
 
                 document.getElementById('saveWebReqBtn').addEventListener('click', async function() {
-                    try {
-                        const btn = this;
-                        const msgDiv = document.getElementById('adminReqMsg');
-                        const newStatus = document.getElementById('adminReqStatus').value;
-                        const quotedPrice = parseFloat(document.getElementById('adminReqQuote').value) || null;
-                        const depositPercent = parseInt(document.getElementById('adminReqDepositPct').value);
-                        const adminNote = document.getElementById('adminReqNote').value.trim();
-                        const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
+                    const btn = this;
+                    const msgDiv = document.getElementById('adminReqMsg');
+                    const newStatus = document.getElementById('adminReqStatus').value;
+                    const quotedPrice = parseFloat(document.getElementById('adminReqQuote').value) || null;
+                    const depositPercent = parseInt(document.getElementById('adminReqDepositPct').value);
+                    const adminNote = document.getElementById('adminReqNote').value.trim();
+                    const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
 
-                        const milestones = {};
-                        const now = Date.now();
-                        const modalEl = document.getElementById('orderDetailsModal');
-                        modalEl.querySelectorAll('.milestone-check').forEach(cb => {
-                            const key = cb.dataset.key;
-                            if (!key) return;
-                            const existing = (r.milestones && r.milestones[key]) || {};
-                            if (cb.checked) {
-                                milestones[key] = { done: true, at: existing.at || now };
-                            } else {
-                                milestones[key] = { done: false };
-                            }
-                        });
-
-                        const progressRaw = document.getElementById('adminReqProgress').value;
-                        const progressParsed = parseInt(progressRaw);
-                        const progress = isNaN(progressParsed) ? 0 : Math.max(0, Math.min(100, progressParsed));
-
-                        const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
-                        let expectedDelivery = null;
-                        if (expectedDeliveryInput) {
-                            const d = new Date(expectedDeliveryInput);
-                            if (!isNaN(d.getTime())) {
-                                expectedDelivery = d.getTime();
-                            }
+                    const milestones = {};
+                    const now = Date.now();
+                    const modalEl = document.getElementById('orderDetailsModal');
+                    modalEl.querySelectorAll('.milestone-check').forEach(cb => {
+                        const key = cb.dataset.key;
+                        if (!key) return;
+                        const existing = (r.milestones && r.milestones[key]) || {};
+                        if (cb.checked) {
+                            milestones[key] = { done: true, at: existing.at || now };
+                        } else {
+                            milestones[key] = { done: false };
                         }
+                    });
 
-                        const latestNote = document.getElementById('adminReqLatestNote').value.trim();
+                    const progressRaw = document.getElementById('adminReqProgress').value;
+                    const progressParsed = parseInt(progressRaw);
+                    const progress = isNaN(progressParsed) ? 0 : Math.max(0, Math.min(100, progressParsed));
 
-                        // DEBUG: Show what we're about to send
-                        const debugPayload = {
-                            requestId: reqKey,
-                            newStatus,
-                            quotedPrice,
-                            depositPercent,
-                            adminNote,
-                            sendEmail,
-                            milestones,
-                            progress,
-                            expectedDelivery,
-                            latestNote
-                        };
-                        alert('PAYLOAD PREVIEW:\n' + JSON.stringify(debugPayload, null, 2).slice(0, 1500));
+                    const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
+                    let expectedDelivery = null;
+                    if (expectedDeliveryInput) {
+                        const d = new Date(expectedDeliveryInput);
+                        if (!isNaN(d.getTime())) {
+                            expectedDelivery = d.getTime();
+                        }
+                    }
 
-                        btn.disabled = true;
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
-                        msgDiv.innerHTML = '';
+                    const latestNote = document.getElementById('adminReqLatestNote').value.trim();
 
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving...';
+                    msgDiv.innerHTML = '';
+
+                    try {
                         const idToken = await currentUser.getIdToken(true);
                         const response = await fetch('/api-php/admin-update-website-request.php', {
                             method: 'POST',
@@ -2566,7 +2518,18 @@
                                 'Content-Type': 'application/json',
                                 'Authorization': 'Bearer ' + idToken
                             },
-                            body: JSON.stringify(debugPayload)
+                            body: JSON.stringify({
+                                requestId: reqKey,
+                                newStatus,
+                                quotedPrice,
+                                depositPercent,
+                                adminNote,
+                                sendEmail,
+                                milestones,
+                                progress,
+                                expectedDelivery,
+                                latestNote
+                            })
                         });
 
                         const result = await response.json();
@@ -2576,17 +2539,10 @@
                         showToast('✅ Request updated' + (result.emailSent ? ' (email sent)' : ''), 'success');
                         loadAllWebsiteRequests();
                     } catch (err) {
-                        alert('CATCH ERROR: ' + err.message);
-                        const msgDiv = document.getElementById('adminReqMsg');
-                        if (msgDiv) {
-                            msgDiv.innerHTML = '<div class="alert alert-danger">❌ ' + err.message + '</div>';
-                        }
+                        msgDiv.innerHTML = '<div class="alert alert-danger">❌ ' + err.message + '</div>';
                     } finally {
-                        const btn = document.getElementById('saveWebReqBtn');
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
-                        }
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="bi bi-check-circle"></i> Save Changes';
                     }
                 });
             });
@@ -2713,14 +2669,12 @@
                         `;
                 }).join('');
 
-                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
-                // Attach checkbox events
                 document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -2733,7 +2687,6 @@
                     });
                 });
 
-                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -2745,7 +2698,6 @@
                     });
                 });
 
-                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
