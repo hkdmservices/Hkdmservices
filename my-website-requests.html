@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Website Requests | HKDMservices</title>
+    <script>
+    (function() {
+        function showError(msg) {
+            var div = document.createElement('div');
+            div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:16px;font-size:13px;z-index:99999;word-break:break-all;';
+            div.textContent = 'ERROR: ' + msg;
+            document.body.appendChild(div);
+        }
+        window.addEventListener('error', function(e) {
+            showError((e.message || 'unknown') + ' | ' + (e.filename || '') + ':' + (e.lineno || '?'));
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            showError('Promise: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+        });
+    })();
+    </script>
     <script src="theme.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
