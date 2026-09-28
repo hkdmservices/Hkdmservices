@@ -1,12 +1,12 @@
 // ============================================================
-// My Website Requests — v9 (has project tracking timeline)
+// My Website Requests — v10 (wallet pay + balance after delivery)
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
-console.log('MY REQUESTS JS LOADED — v9');
+console.log('MY REQUESTS JS LOADED — v10');
 
 const firebaseConfig = {
     apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
@@ -29,7 +29,13 @@ const BANK_DETAILS = {
 };
 
 const PAYMENT_WHATSAPP = '18253635037';
+const PAY_DEPOSIT_ENDPOINT = '/api-php/pay-website-deposit.php';
+const PAY_BALANCE_ENDPOINT = '/api-php/pay-website-balance.php';
+
 const container = document.getElementById('requestsContainer');
+
+let currentUser = null;
+let walletBalance = 0;
 
 const MILESTONES = [
     { key: 'quote-accepted',  label: 'Quote accepted' },
@@ -79,7 +85,8 @@ function statusBadge(status) {
         'contacted':     { cls: 'bg-info text-dark',    label: 'Contacted' },
         'quoted':        { cls: 'bg-primary',           label: 'Quoted' },
         'deposit-paid':  { cls: 'bg-success',           label: 'In Progress' },
-        'delivered':     { cls: 'bg-success',           label: 'Delivered' },
+        'delivered':     { cls: 'bg-info',              label: 'Awaiting Balance' },
+        'fully-paid':    { cls: 'bg-success',           label: 'Fully Paid' },
         'cancelled':     { cls: 'bg-danger',            label: 'Cancelled' }
     };
     const s = String(status || 'pending').toLowerCase();
@@ -184,20 +191,31 @@ function buildTimeline(request) {
     return html;
 }
 
-function buildPaymentBlock(request) {
+function buildPaymentBlock(request, type) {
+    // type: 'deposit' or 'balance'
     const reqId = request.requestId || request.id;
     const quotedPrice = Number(request.quotedPrice || 0);
     const depositPercent = Number(request.depositPercent || 50);
     const depositAmount = Number(request.quotedDeposit || Math.round(quotedPrice * (depositPercent / 100)));
-    const customerName = request.name || 'Customer';
+    const balanceAmount = quotedPrice - depositAmount;
+
+    const amount = type === 'balance' ? balanceAmount : depositAmount;
+    const title = type === 'balance' ? 'Balance Payment Required' : 'Payment Required';
+    const label = type === 'balance' ? 'Remaining Balance (100%)' : 'Deposit Required (' + depositPercent + '%)';
+    const canPayFromWallet = walletBalance >= amount;
+    const walletBtnClass = canPayFromWallet ? 'btn-success' : 'btn-outline-secondary';
+    const walletEndpoint = type === 'balance' ? PAY_BALANCE_ENDPOINT : PAY_DEPOSIT_ENDPOINT;
+    const walletLabel = canPayFromWallet
+        ? 'Pay ' + formatNaira(amount) + ' from Wallet'
+        : 'Insufficient wallet balance (' + formatNaira(walletBalance) + ')';
 
     const waText =
-        'Hi, I\'ve made the deposit payment for my website request.\n\n' +
+        'Hi, I\'ve made the ' + (type === 'balance' ? 'balance' : 'deposit') + ' payment for my website request.\n\n' +
         'Reference: ' + reqId + '\n' +
         'Service: ' + (request.categoryName || '') + '\n' +
         'Quoted Price: ₦' + quotedPrice.toLocaleString('en-NG') + '\n' +
-        'Deposit Paid: ₦' + depositAmount.toLocaleString('en-NG') + '\n' +
-        'Name: ' + customerName + '\n\n' +
+        (type === 'balance' ? 'Balance Paid: ₦' : 'Deposit Paid: ₦') + amount.toLocaleString('en-NG') + '\n' +
+        'Name: ' + (request.name || 'Customer') + '\n\n' +
         'Please find my payment proof attached.';
 
     const waLink = 'https://wa.me/' + PAYMENT_WHATSAPP + '?text=' + encodeURIComponent(waText);
@@ -205,25 +223,42 @@ function buildPaymentBlock(request) {
     let html = '';
     html += '<div class="payment-block" style="display:none; margin-top:16px; padding:16px; background:rgba(13,110,253,0.06); border-left:4px solid #0d6efd; border-radius:8px;">';
     html += '<div style="font-weight:700; color:#0d6efd; margin-bottom:8px;">';
-    html += '<i class="bi bi-credit-card-fill"></i> Payment Required';
+    html += '<i class="bi bi-credit-card-fill"></i> ' + title;
     html += '</div>';
     html += '<div style="font-size:0.9rem; margin-bottom:4px;">';
     html += '<strong>Quoted Price:</strong> ' + formatNaira(quotedPrice);
     html += '</div>';
     html += '<div style="font-size:0.9rem; margin-bottom:12px;">';
-    html += '<strong>Deposit Required (' + depositPercent + '%):</strong> ';
-    html += '<span style="color:#198754; font-weight:700;">' + formatNaira(depositAmount) + '</span>';
+    html += '<strong>' + label + ':</strong> ';
+    html += '<span style="color:#198754; font-weight:700;">' + formatNaira(amount) + '</span>';
     html += '</div>';
+
+    // Wallet button
+    html += '<button type="button" class="btn ' + walletBtnClass + ' w-100 mb-3 wallet-pay-btn" ';
+    html += 'data-req-id="' + escapeHtml(reqId) + '" ';
+    html += 'data-amount="' + amount + '" ';
+    html += 'data-type="' + type + '" ';
+    html += 'data-endpoint="' + walletEndpoint + '" ';
+    if (!canPayFromWallet) html += 'disabled ';
+    html += '>';
+    html += '<i class="bi bi-wallet2"></i> ' + walletLabel;
+    html += '</button>';
+
+    html += '<div style="text-align:center; font-size:0.8rem; color:#6c757d; margin:8px 0;">';
+    html += '— OR pay via bank transfer —';
+    html += '</div>';
+
     html += '<div style="background:#ffffff; border:1px solid #dee2e6; border-radius:8px; padding:12px; margin-bottom:12px;">';
     html += '<div style="font-size:0.75rem; text-transform:uppercase; color:#6c757d; margin-bottom:6px;">Bank Transfer Details</div>';
     html += '<div style="font-size:0.9rem; line-height:1.6;">';
     html += '<div><strong>Bank:</strong> ' + escapeHtml(BANK_DETAILS.bank) + '</div>';
     html += '<div><strong>Account Number:</strong> ' + escapeHtml(BANK_DETAILS.account) + '</div>';
     html += '<div><strong>Account Name:</strong> ' + escapeHtml(BANK_DETAILS.name) + '</div>';
-    html += '<div style="margin-top:6px;"><strong>Amount:</strong> ' + formatNaira(depositAmount) + '</div>';
+    html += '<div style="margin-top:6px;"><strong>Amount:</strong> ' + formatNaira(amount) + '</div>';
     html += '<div><strong>Reference:</strong> <code>' + escapeHtml(reqId) + '</code></div>';
     html += '</div>';
     html += '</div>';
+
     html += '<a href="' + waLink + '" target="_blank" class="btn btn-success w-100">';
     html += '<i class="bi bi-whatsapp"></i> Send Payment Proof on WhatsApp';
     html += '</a>';
@@ -231,20 +266,183 @@ function buildPaymentBlock(request) {
     return html;
 }
 
-onAuthStateChanged(auth, async (user) => {
+function renderCard(r) {
+    const reqId = r.requestId || r.id;
+    const status = r.status || 'pending';
+
+    const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
+    const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
+    const isDepositPaid = status === 'deposit-paid' || status === 'delivered';
+    const isDelivered = status === 'delivered';
+    const isFullyPaid = status === 'fully-paid';
+
+    const showTimeline = isDepositPaid || isFullyPaid;
+    const timeline = showTimeline ? buildTimeline(r) : '';
+
+    const depositBlock = isQuoted ? buildPaymentBlock(r, 'deposit') : '';
+    const balanceBlock = isDelivered ? buildPaymentBlock(r, 'balance') : '';
+
+    const depositBtn = isQuoted
+        ? '<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn" data-target="deposit">' +
+              '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit' +
+          '</button>'
+        : '';
+
+    const balanceBtn = isDelivered
+        ? '<button type="button" class="btn btn-warning w-100 mt-3 quote-toggle-btn" data-target="balance">' +
+              '<i class="bi bi-cash-stack"></i> Pay Remaining Balance' +
+          '</button>'
+        : '';
+
+    const secondColumn = r.quotedPrice
+        ? '<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">' + formatNaira(r.quotedPrice) + '</span>'
+        : '<strong>Budget:</strong> ' + escapeHtml(r.budget || '—');
+
+    const adminNote = r.adminNote
+        ? '<div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">' +
+              '<strong><i class="bi bi-chat-left-quote"></i> Note from our team:</strong>' +
+              '<div style="margin-top:4px;">' + escapeHtml(r.adminNote) + '</div>' +
+          '</div>'
+        : '';
+
+    const completedBanner = isFullyPaid
+        ? '<div class="alert alert-success mt-3 mb-0" style="font-size:0.9rem;">' +
+              '<strong><i class="bi bi-check-circle-fill"></i> Project Complete!</strong>' +
+              '<div style="margin-top:4px;">Final files will be delivered to your email shortly.</div>' +
+          '</div>'
+        : '';
+
+    let html = '';
+    html += '<div class="card border-secondary mb-3">';
+    html += '<div class="card-body">';
+    html += '<div class="d-flex justify-content-between align-items-start flex-wrap mb-2">';
+    html += '<div>';
+    html += '<h5 class="fw-bold mb-1">' + escapeHtml(r.categoryName || 'Website') + '</h5>';
+    html += '<small class="text-muted">Reference: <code>' + escapeHtml(reqId) + '</code></small>';
+    html += '</div>';
+    html += '<div>' + statusBadge(status) + '</div>';
+    html += '</div>';
+    html += '<p class="mb-2">';
+    html += '<strong>Description:</strong> ' + escapeHtml((r.description || '').slice(0, 180));
+    if ((r.description || '').length > 180) html += '…';
+    html += '</p>';
+    html += '<div class="row g-2 small text-muted">';
+    html += '<div class="col-6 col-md-3"><strong>Category Price:</strong> ' + formatNaira(r.basePrice) + '</div>';
+    html += '<div class="col-6 col-md-3">' + secondColumn + '</div>';
+    html += '<div class="col-6 col-md-3"><strong>Timeline:</strong> ' + escapeHtml(r.timeline || '—') + '</div>';
+    html += '<div class="col-6 col-md-3"><strong>Submitted:</strong> ' + formatDate(r.createdAt) + '</div>';
+    html += '</div>';
+    html += adminNote;
+    html += completedBanner;
+    html += depositBtn;
+    html += balanceBtn;
+    html += depositBlock;
+    html += balanceBlock;
+    html += timeline;
+    html += '</div>';
+    html += '</div>';
+    return html;
+}
+
+function attachHandlers() {
+    // Toggle buttons
+    container.querySelectorAll('.quote-toggle-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const card = btn.closest('.card');
+            if (!card) return;
+            const target = btn.dataset.target;
+
+            // Find the matching block within this card
+            const blockIndex = target === 'balance' ? 1 : 0;
+            const blocks = card.querySelectorAll('.payment-block');
+            const block = blocks[blockIndex];
+            if (!block) return;
+
+            const isOpen = block.style.display === 'block';
+            if (isOpen) {
+                block.style.display = 'none';
+                btn.innerHTML = target === 'balance'
+                    ? '<i class="bi bi-cash-stack"></i> Pay Remaining Balance'
+                    : '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit';
+            } else {
+                block.style.display = 'block';
+                btn.innerHTML = '<i class="bi bi-x-circle"></i> Hide Payment Details';
+                block.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    });
+
+    // Wallet pay buttons
+    container.querySelectorAll('.wallet-pay-btn').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+            if (btn.disabled) return;
+            if (!currentUser) return;
+
+            const reqId = btn.dataset.reqId;
+            const amount = Number(btn.dataset.amount);
+            const type = btn.dataset.type;
+            const endpoint = btn.dataset.endpoint;
+
+            const confirmed = confirm('Pay ' + formatNaira(amount) + ' from your wallet?\n\nRequest: ' + reqId);
+            if (!confirmed) return;
+
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            try {
+                const idToken = await currentUser.getIdToken(true);
+
+                const resp = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + idToken
+                    },
+                    body: JSON.stringify({ requestId: reqId, amount: amount })
+                });
+
+                const result = await resp.json();
+
+                if (!resp.ok || !result.success) {
+                    throw new Error(result.message || 'Payment failed');
+                }
+
+                alert('✅ Payment successful!\n\nNew wallet balance: ' + formatNaira(result.newBalance));
+                window.location.reload();
+
+            } catch (err) {
+                console.error('WALLET PAY ERROR:', err);
+                alert('❌ ' + err.message);
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        });
+    });
+}
+
+onAuthStateChanged(auth, function(user) {
     if (!user) {
         window.location.href = 'login.html';
         return;
     }
 
-    try {
-        const snap = await get(ref(database, 'website_requests'));
+    currentUser = user;
+
+    // Live wallet balance
+    database.ref('users/' + user.uid + '/wallet').on('value', function(snap) {
+        walletBalance = Number(snap.val() || 0);
+        console.log('Wallet balance:', walletBalance);
+    });
+
+    // Load requests
+    get(ref(database, 'website_requests')).then(function(snap) {
         const data = snap.val() || {};
 
         const myRequests = Object.entries(data)
-            .map(([id, r]) => Object.assign({ id: id }, r))
-            .filter(r => r.uid === user.uid)
-            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+            .map(function(entry) { return Object.assign({ id: entry[0] }, entry[1]); })
+            .filter(function(r) { return r.uid === user.uid; })
+            .sort(function(a, b) { return Number(b.createdAt || 0) - Number(a.createdAt || 0); });
 
         console.log('My requests loaded:', myRequests.length);
 
@@ -263,87 +461,17 @@ onAuthStateChanged(auth, async (user) => {
 
         let cardsHtml = '';
         for (let i = 0; i < myRequests.length; i++) {
-            const r = myRequests[i];
-            const reqId = r.requestId || r.id;
-            const status = r.status || 'pending';
-
-            const hasQuote = !!r.quotedPrice && Number(r.quotedPrice) > 0;
-            const isQuoted = hasQuote && (status === 'quoted' || status === 'pending' || status === 'contacted');
-            const showTimeline = status === 'deposit-paid' || status === 'delivered';
-
-            const timeline = showTimeline ? buildTimeline(r) : '';
-            const paymentBlock = isQuoted ? buildPaymentBlock(r) : '';
-
-            const quoteButton = isQuoted
-                ? '<button type="button" class="btn btn-primary w-100 mt-3 quote-toggle-btn">' +
-                      '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit' +
-                  '</button>'
-                : '';
-
-            const secondColumn = r.quotedPrice
-                ? '<strong>Your Price:</strong> <span style="color:#198754;font-weight:700;">' + formatNaira(r.quotedPrice) + '</span>'
-                : '<strong>Budget:</strong> ' + escapeHtml(r.budget || '—');
-
-            const adminNote = r.adminNote
-                ? '<div class="alert alert-warning mt-3 mb-0" style="font-size:0.85rem;">' +
-                      '<strong><i class="bi bi-chat-left-quote"></i> Note from our team:</strong>' +
-                      '<div style="margin-top:4px;">' + escapeHtml(r.adminNote) + '</div>' +
-                  '</div>'
-                : '';
-
-            cardsHtml += '<div class="card border-secondary mb-3">';
-            cardsHtml += '<div class="card-body">';
-            cardsHtml += '<div class="d-flex justify-content-between align-items-start flex-wrap mb-2">';
-            cardsHtml += '<div>';
-            cardsHtml += '<h5 class="fw-bold mb-1">' + escapeHtml(r.categoryName || 'Website') + '</h5>';
-            cardsHtml += '<small class="text-muted">Reference: <code>' + escapeHtml(reqId) + '</code></small>';
-            cardsHtml += '</div>';
-            cardsHtml += '<div>' + statusBadge(status) + '</div>';
-            cardsHtml += '</div>';
-            cardsHtml += '<p class="mb-2">';
-            cardsHtml += '<strong>Description:</strong> ' + escapeHtml((r.description || '').slice(0, 180));
-            if ((r.description || '').length > 180) cardsHtml += '…';
-            cardsHtml += '</p>';
-            cardsHtml += '<div class="row g-2 small text-muted">';
-            cardsHtml += '<div class="col-6 col-md-3"><strong>Category Price:</strong> ' + formatNaira(r.basePrice) + '</div>';
-            cardsHtml += '<div class="col-6 col-md-3">' + secondColumn + '</div>';
-            cardsHtml += '<div class="col-6 col-md-3"><strong>Timeline:</strong> ' + escapeHtml(r.timeline || '—') + '</div>';
-            cardsHtml += '<div class="col-6 col-md-3"><strong>Submitted:</strong> ' + formatDate(r.createdAt) + '</div>';
-            cardsHtml += '</div>';
-            cardsHtml += adminNote;
-            cardsHtml += quoteButton;
-            cardsHtml += paymentBlock;
-            cardsHtml += timeline;
-            cardsHtml += '</div>';
-            cardsHtml += '</div>';
+            cardsHtml += renderCard(myRequests[i]);
         }
 
         container.innerHTML = cardsHtml;
+        attachHandlers();
 
-        container.querySelectorAll('.quote-toggle-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const card = btn.closest('.card');
-                if (!card) return;
-                const block = card.querySelector('.payment-block');
-                if (!block) return;
-
-                const isOpen = block.style.display === 'block';
-                if (isOpen) {
-                    block.style.display = 'none';
-                    btn.innerHTML = '<i class="bi bi-credit-card"></i> Review &amp; Pay Deposit';
-                } else {
-                    block.style.display = 'block';
-                    btn.innerHTML = '<i class="bi bi-x-circle"></i> Hide Payment Details';
-                    block.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            });
-        });
-
-    } catch (error) {
+    }).catch(function(error) {
         console.error('MY REQUESTS ERROR:', error);
         container.innerHTML =
             '<div class="alert alert-danger">Failed to load your requests: ' +
             escapeHtml(error.message || 'Unknown error') +
             '</div>';
-    }
+    });
 });
