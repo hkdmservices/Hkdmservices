@@ -768,10 +768,11 @@
         .request-status-deposit-paid { background: #198754; color: #fff; }
         .request-status-delivered { background: #198754; color: #fff; }
         .request-status-cancelled { background: #dc3545; color: #fff; }
+        /* ✅ NEW */
+        .request-status-fully-paid { background: #198754; color: #fff; }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
+<body><div class="container-fluid">
         <div class="row">
 
             <!-- SIDEBAR -->
@@ -1383,6 +1384,7 @@
                                     <option value="quoted">Quoted</option>
                                     <option value="deposit-paid">Deposit Paid</option>
                                     <option value="delivered">Delivered</option>
+                                    <option value="fully-paid">Fully Paid</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>
                                 <button class="btn btn-sm btn-success" id="refreshWebReq"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
@@ -1417,8 +1419,7 @@
         </div>
     </div><!-- ============================================ -->
     <!-- MODALS -->
-    <!-- ============================================ -->
-    <!-- ADD SERVICE MODAL -->
+    <!-- ============================================ --><!-- ADD SERVICE MODAL -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -1649,7 +1650,6 @@
             </div>
         </div>
     </div>
-
     <!-- UPDATE STATUS MODAL -->
     <div class="modal fade" id="updateStatusModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -1785,8 +1785,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    <!-- EDIT USER MODAL -->
+    </div><!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -2048,8 +2047,7 @@
 
         console.log('✅ Admin theme toggle loaded. Mode:', isAutoMode ? 'Auto (time-based)' : 'Manual', 'Theme:', currentTheme);
     })();
-    </script>
-    <!-- ============================================================
+    </script><!-- ============================================================
          FIREBASE & ADMIN SCRIPTS
          ============================================================ -->
     <script>
@@ -2471,7 +2469,6 @@
                     </div>
 
                     <hr>
-
                     <h6 class="text-success mb-3">Admin Actions</h6>
 
                     <div class="row g-3">
@@ -2483,6 +2480,7 @@
                                 <option value="quoted" ${status==='quoted'?'selected':''}>Quoted</option>
                                 <option value="deposit-paid" ${status==='deposit-paid'?'selected':''}>Deposit Paid</option>
                                 <option value="delivered" ${status==='delivered'?'selected':''}>Delivered</option>
+                                <option value="fully-paid" ${status==='fully-paid'?'selected':''}>Fully Paid</option>
                                 <option value="cancelled" ${status==='cancelled'?'selected':''}>Cancelled</option>
                             </select>
                         </div>
@@ -3021,7 +3019,6 @@
                 btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
             }
         });
-
         // ============================================================
         // USERS
         // ============================================================
@@ -3210,6 +3207,7 @@
                 msgDiv.innerHTML = '<div class="alert alert-danger">❌ Failed: ' + error.message + '</div>';
             }
         });
+
         // ============================================================
         // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
         // ============================================================
@@ -3285,7 +3283,6 @@
                 showToast('⚠️ Using embedded services (error)', 'warning');
             }
         }
-
         // ============================================================
         // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
         // ============================================================
@@ -3617,7 +3614,6 @@
                 minQty.readOnly = false;
             }
         });
-
         // ============================================================
         // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
         // ============================================================
