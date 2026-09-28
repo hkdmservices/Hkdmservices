@@ -219,7 +219,7 @@ function buildPaymentBlock(request, type) {
     const waLink = 'https://wa.me/' + PAYMENT_WHATSAPP + '?text=' + encodeURIComponent(waText);
 
     let html = '';
-    html += '<div class="payment-block" style="display:none; margin-top:16px; padding:16px; background:rgba(13,110,253,0.06); border-left:4px solid #0d6efd; border-radius:8px;">';
+    html += '<div class="payment-block" data-block-type="' + type + '" style="display:none; margin-top:16px; padding:16px; background:rgba(13,110,253,0.06); border-left:4px solid #0d6efd; border-radius:8px;">';
     html += '<div style="font-weight:700; color:#0d6efd; margin-bottom:8px;">';
     html += '<i class="bi bi-credit-card-fill"></i> ' + title;
     html += '</div>';
@@ -348,10 +348,13 @@ function attachHandlers() {
             if (!card) return;
             const target = btn.dataset.target;
 
-            const blockIndex = target === 'balance' ? 1 : 0;
-            const blocks = card.querySelectorAll('.payment-block');
-            const block = blocks[blockIndex];
-            if (!block) return;
+            // Find the payment block with the matching data-block-type
+            const block = card.querySelector('.payment-block[data-block-type="' + target + '"]');
+
+            if (!block) {
+                console.warn('No payment block found for target:', target);
+                return;
+            }
 
             const isOpen = block.style.display === 'block';
             if (isOpen) {
