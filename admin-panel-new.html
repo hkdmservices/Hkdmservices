@@ -83,9 +83,7 @@
         .stat-card h3 {
             font-size: 2rem;
             margin: 0;
-        }
-
-        /* ============================================================
+        }/* ============================================================
            TABLE STYLES - FIXED FOR BOTH MODES
            ============================================================ */
         .table {
@@ -318,9 +316,7 @@
         }
         .search-wrapper .form-control {
             min-width: 200px;
-        }
-
-        /* Order Details */
+        }/* Order Details */
         .detail-row {
             display: flex;
             justify-content: space-between;
@@ -525,9 +521,7 @@
         .platform-badge.custom { background: #6f42c1; }
         .platform-badge.linkedin { background: #0A66C2; }
         .platform-badge.pinterest { background: #E60023; }
-        .platform-badge.discord { background: #5865F2; }
-
-        /* ============================================================
+        .platform-badge.discord { background: #5865F2; }/* ============================================================
            THEME TOGGLE BUTTON
            ============================================================ */
         .theme-toggle {
@@ -768,7 +762,6 @@
         .request-status-deposit-paid { background: #198754; color: #fff; }
         .request-status-delivered { background: #198754; color: #fff; }
         .request-status-cancelled { background: #dc3545; color: #fff; }
-        .request-status-fully-paid { background: #198754; color: #fff; }
     </style>
 </head>
 <body><div class="container-fluid">
@@ -1018,9 +1011,7 @@
                             </table>
                         </div>
                     </div>
-                </div>
-
-                <!-- SERVICES SECTION -->
+                </div><!-- SERVICES SECTION -->
                 <div id="section-services" style="display:none;">
                     <div class="stat-card">
                         <!-- Service Stats -->
@@ -1418,7 +1409,9 @@
         </div>
     </div><!-- ============================================ -->
     <!-- MODALS -->
-    <!-- ============================================ --><!-- ADD SERVICE MODAL -->
+    <!-- ============================================ -->
+
+    <!-- ADD SERVICE MODAL -->
     <div class="modal fade" id="addServiceModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -1784,7 +1777,9 @@
                 </div>
             </div>
         </div>
-    </div><!-- EDIT USER MODAL -->
+    </div>
+
+    <!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1919,12 +1914,11 @@
     </div>
 
     <!-- TOAST CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-    <!-- ============================================================
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><!-- ============================================================
          THEME TOGGLE SCRIPT (Auto + Manual)
          ============================================================ -->
     <script>
@@ -2466,7 +2460,9 @@
                                   placeholder="e.g. Homepage done — 3 pages to go.">${r.latestNote || ''}</textarea>
                     </div>
 
-                    <hr><h6 class="text-success mb-3">Admin Actions</h6>
+                    <hr>
+
+                    <h6 class="text-success mb-3">Admin Actions</h6>
 
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
@@ -2523,10 +2519,11 @@
                     const adminNote = document.getElementById('adminReqNote').value.trim();
                     const sendEmail = document.getElementById('adminReqSendEmail').value === 'true';
 
-                    // Collect tracking data
+                    // ✅ Collect tracking data - SCOPED to this modal only
                     const milestones = {};
                     const now = Date.now();
-                    document.querySelectorAll('#orderDetailsBody .milestone-check').forEach(cb => {
+                    const modalEl = document.getElementById('orderDetailsModal');
+                    modalEl.querySelectorAll('.milestone-check').forEach(cb => {
                         const key = cb.dataset.key;
                         if (!key) return;
                         const existing = (r.milestones && r.milestones[key]) || {};
@@ -2537,11 +2534,12 @@
                         }
                     });
 
-                    // Guard progress
+                    // ✅ Guard progress slider
                     const progressRaw = document.getElementById('adminReqProgress').value;
-                    const progress = isNaN(parseInt(progressRaw)) ? 0 : Math.max(0, Math.min(100, parseInt(progressRaw)));
+                    const progressParsed = parseInt(progressRaw);
+                    const progress = isNaN(progressParsed) ? 0 : Math.max(0, Math.min(100, progressParsed));
 
-                    // Guard expected delivery date
+                    // ✅ Guard expected delivery date
                     const expectedDeliveryInput = document.getElementById('adminReqExpectedDelivery').value;
                     let expectedDelivery = null;
                     if (expectedDeliveryInput) {
@@ -2716,14 +2714,12 @@
                         `;
                 }).join('');
 
-                // Attach view order events
                 document.querySelectorAll('.view-order-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewOrderDetails(btn.dataset.orderKey, btn.dataset.orderId);
                     });
                 });
 
-                // Attach checkbox events
                 document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         if (this.checked) {
@@ -2736,7 +2732,6 @@
                     });
                 });
 
-                // Attach update status events
                 document.querySelectorAll('.update-status-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('statusOrderKey').value = btn.dataset.orderKey;
@@ -2748,7 +2743,6 @@
                     });
                 });
 
-                // Attach cancel/refund events
                 document.querySelectorAll('.cancel-refund-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.getElementById('cancelOrderIdDisplay').textContent = btn.dataset.orderId;
@@ -3027,7 +3021,9 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
             }
-        });// ============================================================
+        });
+
+        // ============================================================
         // USERS
         // ============================================================
         function loadAllUsers() {
@@ -3089,7 +3085,6 @@
                         `;
                 }).join('');
 
-                // Attach view user events
                 document.querySelectorAll('.view-user-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         viewUserDetails(btn.dataset.uid);
@@ -3220,9 +3215,6 @@
         // SERVICE MANAGEMENT - LOAD BOTH GLOBAL AND NIGERIA
         // ============================================================
 
-        // ============================================================
-        // HELPER: Load services from file (supports both catalogs)
-        // ============================================================
         async function loadServicesFromFile(catalog = 'global') {
             try {
                 const filename = catalog === 'nigeria' ? './nigeria-services-catalogue.js' : './services.js';
@@ -3239,9 +3231,6 @@
             }
         }
 
-        // ============================================================
-        // LOAD SERVICES - BOTH GLOBAL AND NIGERIA
-        // ============================================================
         async function loadAllServices() {
             try {
                 console.log('🔍 Loading services using import()...');
@@ -3249,7 +3238,6 @@
                 let globalServices = [];
                 let nigeriaServices = [];
                 
-                // Load Global services
                 try {
                     const globalModule = await import('./services.js?t=' + Date.now());
                     globalServices = globalModule.hkdmservicesOfficialServicePriceCatalogue || globalModule.default || [];
@@ -3258,7 +3246,6 @@
                     console.error('❌ Error loading global services:', e);
                 }
                 
-                // Load Nigeria services
                 try {
                     const nigeriaModule = await import('./nigeria-services-catalogue.js?t=' + Date.now());
                     nigeriaServices = nigeriaModule.hkdmservicesNigeriaServicePriceCatalogue || nigeriaModule.default || [];
@@ -3267,7 +3254,6 @@
                     console.error('❌ Error loading Nigeria services:', e);
                 }
                 
-                // If both are empty, use embedded fallback
                 if (globalServices.length === 0 && nigeriaServices.length === 0) {
                     console.warn('⚠️ No services loaded, using embedded fallback');
                     globalServices = getEmbeddedServices();
@@ -3543,9 +3529,6 @@
             modal.show();
         }
 
-        // ============================================================
-        // CUSTOM PLATFORM HANDLING - Add Service
-        // ============================================================
         document.getElementById('svcPlatform').addEventListener('change', function() {
             const container = document.getElementById('customPlatformContainer');
             if (this.value === 'other') {
@@ -3558,9 +3541,6 @@
             }
         });
 
-        // ============================================================
-        // CUSTOM PLATFORM HANDLING - Edit Service
-        // ============================================================
         document.getElementById('editSvcPlatform').addEventListener('change', function() {
             const container = document.getElementById('editCustomPlatformContainer');
             if (this.value === 'other') {
@@ -3573,9 +3553,6 @@
             }
         });
 
-        // ============================================================
-        // ONE-TIME SERVICE TOGGLE - Add Service
-        // ============================================================
         document.getElementById('svcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('rateLabel');
             const rateInput = document.getElementById('svcRate');
@@ -3593,9 +3570,6 @@
             }
         });
 
-        // ============================================================
-        // ONE-TIME SERVICE TOGGLE - Edit Service
-        // ============================================================
         document.getElementById('editSvcOneTime').addEventListener('change', function() {
             const rateLabel = document.getElementById('editRateLabel');
             const rateInput = document.getElementById('editSvcRate');
@@ -3611,8 +3585,10 @@
                 minQty.value = 100;
                 minQty.readOnly = false;
             }
-        });// ============================================================
-        // SAVE NEW SERVICE - TO PHP WITH ONE-TIME SUPPORT
+        });
+
+        // ============================================================
+        // SAVE NEW SERVICE
         // ============================================================
         document.getElementById('saveServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -3621,7 +3597,6 @@
             btn.disabled = true;
             try {
                 const catalog = document.getElementById('addCatalog').value;
-                
                 const platformValue = document.getElementById('svcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('svcCustomPlatform').value.trim() 
@@ -3714,7 +3689,7 @@
         });
 
         // ============================================================
-        // UPDATE SERVICE - TO PHP WITH ONE-TIME SUPPORT
+        // UPDATE SERVICE
         // ============================================================
         document.getElementById('updateServiceBtn').addEventListener('click', async function() {
             const btn = this;
@@ -3724,7 +3699,6 @@
             try {
                 const catalog = document.getElementById('editCatalog').value;
                 const serviceId = document.getElementById('editServiceId').value;
-                
                 const platformValue = document.getElementById('editSvcPlatform').value;
                 const platform = platformValue === 'other' 
                     ? document.getElementById('editSvcCustomPlatform').value.trim() 
@@ -3815,9 +3789,6 @@
             }
         });
 
-        // ============================================================
-        // DELETE SERVICE - FROM PHP
-        // ============================================================
         async function deleteService(serviceId, catalog) {
             try {
                 let services = await loadServicesFromFile(catalog);
@@ -4141,9 +4112,6 @@
             });
         }
 
-        // ============================================================
-        // VIEW TRANSACTION DETAILS
-        // ============================================================
         function viewTransactionDetails(txKey) {
             const modalBody = document.getElementById('viewTransactionBody');
             modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
@@ -4296,9 +4264,6 @@
             document.getElementById('statTotalVoucherValue').textContent = formatNaira(totalValue);
         }
 
-        // ============================================================
-        // VIEW VOUCHER DETAILS
-        // ============================================================
         function viewVoucherDetails(voucherKey) {
             const modalBody = document.getElementById('viewVoucherBody');
             modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>`;
@@ -4407,9 +4372,6 @@
             }
         });
 
-        // ============================================================
-        // SEARCH EVENT LISTENERS
-        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             ['orderSearch', 'shopSearch', 'transactionSearch', 'userSearch'].forEach(id => {
                 const el = document.getElementById(id);
