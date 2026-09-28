@@ -1,8 +1,6 @@
 // My Website Requests v11
 // ============================================================
 
-try {
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
@@ -469,11 +467,3 @@ onAuthStateChanged(auth, function(user) {
             '</div>';
     });
 });
-
-} catch (topLevelError) {
-    var errDiv = document.createElement('div');
-    errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:16px;font-size:13px;z-index:99999;';
-    errDiv.textContent = 'TOP LEVEL ERROR: ' + (topLevelError.message || topLevelError);
-    document.body.appendChild(errDiv);
-    console.error('TOP LEVEL ERROR:', topLevelError);
-}
