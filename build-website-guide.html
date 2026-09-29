@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HKDM Services — Build Website Guide</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f1115;
+    color: #e9ecef;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+    color: #20c997;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    color: #adb5bd;
+    margin-bottom: 20px;
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 20px;
+    background: #198754;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 14px rgba(25, 135, 84, 0.35);
+  }
+  .copy-btn:hover { background: #157347; transform: translateY(-1px); }
+  .copy-btn:active { transform: translateY(0); }
+  .copy-btn.copied { background: #20c997; }
+  .copy-btn svg { width: 18px; height: 18px; }
+  .preview-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c757d;
+    margin-bottom: 8px;
+  }
+  .preview {
+    background: #1a1d23;
+    border: 1px solid #2c3038;
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: #ced4da;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #198754;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>HKDM Services — Build Website Guide</h1>
+  <p class="subtitle">Tap the button below to copy the full WhatsApp message, then paste it in your chat.</p>
+
+  <button class="copy-btn" id="copyBtn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <span id="btnText">Copy WhatsApp Message</span>
+  </button>
+
+  <div class="preview-label">Preview</div>
+  <div class="preview" id="preview">Loading...</div>
+</div>
+
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<script>
+const MESSAGE = `Hi 👋
+
+Here's a quick breakdown of our website services and what each package includes:
+
+🟢 *Landing Page — ₦100,000*
+Perfect for ads, campaigns, or launching a new idea.
+• 1-page conversion-focused design
+• Mobile responsive
+• Contact form + WhatsApp button
+• Facebook / TikTok Pixel
+• Email capture + Google Analytics
+• Speed optimized (PageSpeed 90+)
+• Free SSL + hosting setup guidance
+• 5–7 day delivery | 1 revision round
+
+🏢 *Business Website — ₦300,000*
+For businesses that need a professional multi-page site.
+• 5–8 custom-designed pages
+• Custom logo design
+• Blog + gallery + testimonials + FAQ
+• Live chat widget + newsletter signup
+• Google Maps + social media integration
+• Facebook / TikTok Pixel + Google Analytics
+• Full admin dashboard
+• 1 year free domain + free SSL
+• Admin training video
+• 10–14 day delivery | 3 revision rounds | 1 month free support
+
+🛒 *E-commerce Store — ₦600,000*
+For selling products online at scale.
+• Unlimited products + variants (size, color)
+• Shopping cart + wishlist
+• Paystack + Flutterwave integration
+• WhatsApp checkout option
+• Discount codes + abandoned cart recovery
+• Order tracking + inventory management
+• Bulk product upload (CSV)
+• Admin dashboard + sales analytics
+• Multiple staff accounts
+• 1 year free domain + free SSL
+• Admin training video
+• 21–30 day delivery | 5 revision rounds | 1 month free support
+
+🛡️ *Security Audit — ₦40,000*
+A full scan of your site to find weaknesses before hackers do.
+• Up to 15 pages scanned
+• OWASP Top 10 + SQL injection + XSS testing
+• Malware scan + Google Safe Browsing check
+• SSL / TLS verification
+• Risk severity report + fix recommendations
+• PDF report + 30-min consultation call
+• 5–7 day delivery
+
+🔧 *Security Fix — ₦80,000*
+We clean, fix, and lock down your site.
+• Fix all critical vulnerabilities
+• Malware removal
+• Security plugin + firewall setup
+• Failed login protection + DDoS protection
+• Daily automated backups
+• 1-month monitoring + emergency contact
+• 7–10 day delivery | 30-day recheck
+
+*Quick summary:*
+• Landing Page — ₦100,000 (5–7 days)
+• Security Audit — ₦40,000 (5–7 days)
+• Security Fix — ₦80,000 (7–10 days)
+• Business Website — ₦300,000 (10–14 days)
+• E-commerce Store — ₦600,000 (21–30 days)
+
+Which one fits what you're trying to do? I can answer any questions or help you pick the right one. 🙌`;
+
+document.getElementById('preview').textContent = MESSAGE;
+
+const btn = document.getElementById('copyBtn');
+const btnText = document.getElementById('btnText');
+const toast = document.getElementById('toast');
+
+btn.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(MESSAGE);
+    btn.classList.add('copied');
+    btnText.textContent = '✅ Copied!';
+    toast.classList.add('show');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btnText.textContent = 'Copy WhatsApp Message';
+      toast.classList.remove('show');
+    }, 2000);
+  } catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = MESSAGE;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      btn.classList.add('copied');
+      btnText.textContent = '✅ Copied!';
+      toast.classList.add('show');
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btnText.textContent = 'Copy WhatsApp Message';
+        toast.classList.remove('show');
+      }, 2000);
+    } catch (e) {
+      alert('Copy failed. Please select the text manually.');
+    }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body>
+</html>
