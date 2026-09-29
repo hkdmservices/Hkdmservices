@@ -14,16 +14,8 @@
     line-height: 1.6;
   }
   .container { max-width: 720px; margin: 0 auto; }
-  h1 {
-    font-size: 1.4rem;
-    margin-bottom: 6px;
-    color: #20c997;
-  }
-  .subtitle {
-    font-size: 0.85rem;
-    color: #adb5bd;
-    margin-bottom: 24px;
-  }
+  h1 { font-size: 1.4rem; margin-bottom: 6px; color: #20c997; }
+  .subtitle { font-size: 0.85rem; color: #adb5bd; margin-bottom: 24px; }
   .section { margin-bottom: 28px; }
   .section-title {
     font-size: 0.8rem;
@@ -53,6 +45,10 @@
   .copy-btn.secondary {
     background: #0d6efd;
     box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
+  }
+  .copy-btn.pdf {
+    background: #dc3545;
+    box-shadow: 0 4px 14px rgba(220, 53, 69, 0.35);
   }
   .copy-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
   .copy-btn:active { transform: translateY(0); }
@@ -91,12 +87,75 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+
+  /* Hidden printable PDF area */
+  #pdfArea {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #ffffff;
+    color: #111;
+    padding: 40px 50px;
+    width: 800px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.6;
+  }
+  #pdfArea h1 {
+    color: #198754;
+    font-size: 26px;
+    margin-bottom: 8px;
+    border-bottom: 3px solid #198754;
+    padding-bottom: 10px;
+  }
+  #pdfArea .pdf-sub {
+    color: #555;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  #pdfArea h2 {
+    color: #198754;
+    font-size: 18px;
+    margin-top: 22px;
+    margin-bottom: 6px;
+    border-left: 4px solid #198754;
+    padding-left: 10px;
+  }
+  #pdfArea h3 {
+    color: #0d6efd;
+    font-size: 14px;
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  #pdfArea p { font-size: 12.5px; margin-bottom: 6px; color: #222; }
+  #pdfArea ul { margin: 6px 0 12px 20px; }
+  #pdfArea li { font-size: 12.5px; margin-bottom: 4px; color: #222; }
+  #pdfArea .price { color: #198754; font-weight: 700; font-size: 16px; }
+  #pdfArea .summary {
+    background: #f1f8f4;
+    border: 1px solid #b6e0c4;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 24px;
+  }
+  #pdfArea .summary h2 {
+    border: none;
+    padding: 0;
+    margin-top: 0;
+  }
+  #pdfArea .footer {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 1px solid #ccc;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>HKDM Services — Build Website Guide</h1>
-  <p class="subtitle">Choose the version you want to copy, then paste it into WhatsApp.</p>
+  <p class="subtitle">Copy the version you want, or download a PDF to send to customers.</p>
 
   <!-- FULL VERSION -->
   <div class="section">
@@ -123,10 +182,126 @@
     </button>
     <div class="preview" id="previewShort">Loading...</div>
   </div>
+
+  <!-- PDF DOWNLOAD -->
+  <div class="section">
+    <div class="section-title">Send to customers</div>
+    <button class="copy-btn pdf" id="downloadPdf">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span id="pdfBtnText">Download as PDF</span>
+    </button>
+  </div>
 </div>
 
 <div class="toast" id="toast">✅ Copied to clipboard!</div>
 
+<!-- Hidden PDF content -->
+<div id="pdfArea">
+  <h1>HKDM Services — Website Packages</h1>
+  <p class="pdf-sub">Everything you need to launch, grow, and protect your online presence.</p>
+
+  <h2>🟢 Landing Page — <span class="price">₦100,000</span></h2>
+  <p><strong>What it is:</strong> A single, powerful page built to turn visitors into customers.</p>
+  <p><strong>Who it's for:</strong> Anyone running ads, launching a new product, or testing a business idea.</p>
+  <h3>What's included (and why it matters):</h3>
+  <ul>
+    <li><strong>Conversion-focused design</strong> — Every section pushes visitors toward one action: buying, signing up, or messaging you.</li>
+    <li><strong>Mobile responsive</strong> — Looks perfect on phones, tablets, and desktops.</li>
+    <li><strong>Contact form + WhatsApp button</strong> — Two easy ways for visitors to reach you instantly.</li>
+    <li><strong>Facebook / TikTok Pixel</strong> — Tracks who visits from your ads, so you know what's working.</li>
+    <li><strong>Email capture + Google Analytics</strong> — Builds your email list and shows you your traffic.</li>
+    <li><strong>Speed optimized (PageSpeed 90+)</strong> — Loads in under 2 seconds.</li>
+    <li><strong>Free SSL + hosting setup guidance</strong> — Secure padlock plus help getting it live.</li>
+    <li><strong>5–7 day delivery | 1 revision round</strong> — Fast turnaround.</li>
+  </ul>
+
+  <h2>🏢 Business Website — <span class="price">₦300,000</span></h2>
+  <p><strong>What it is:</strong> A full, professional website that makes your business look credible online.</p>
+  <p><strong>Who it's for:</strong> Established businesses that need more than one page.</p>
+  <h3>What's included (and why it matters):</h3>
+  <ul>
+    <li><strong>5–8 custom-designed pages</strong> — Not a template. Designed around your brand.</li>
+    <li><strong>Custom logo design</strong> — A unique logo that looks professional everywhere.</li>
+    <li><strong>Blog + gallery + testimonials + FAQ</strong> — Rank on Google, show your work, build trust.</li>
+    <li><strong>Live chat + newsletter signup</strong> — Chat in real time and grow your email list.</li>
+    <li><strong>Google Maps + social media integration</strong> — Customers can find and connect with you.</li>
+    <li><strong>Facebook / TikTok Pixel + Google Analytics</strong> — Track ad performance and traffic.</li>
+    <li><strong>Full admin dashboard</strong> — Edit content yourself, no coding needed.</li>
+    <li><strong>1 year free domain + free SSL</strong> — Your own web address plus secure padlock.</li>
+    <li><strong>Admin training video</strong> — Walkthrough on managing everything after launch.</li>
+    <li><strong>10–14 day delivery | 3 revisions | 1 month free support</strong></li>
+  </ul>
+
+  <h2>🛒 E-commerce Store — <span class="price">₦600,000</span></h2>
+  <p><strong>What it is:</strong> A complete online store where customers can browse, add to cart, and pay you directly.</p>
+  <p><strong>Who it's for:</strong> Businesses ready to sell products online at scale.</p>
+  <h3>What's included (and why it matters):</h3>
+  <ul>
+    <li><strong>Unlimited products + variants</strong> — List as many products as you want, with size and color options.</li>
+    <li><strong>Shopping cart + wishlist</strong> — Customers save items and come back to buy later.</li>
+    <li><strong>Paystack + Flutterwave integration</strong> — Accept card and bank payments automatically.</li>
+    <li><strong>WhatsApp checkout option</strong> — Customers who prefer chatting can order via WhatsApp.</li>
+    <li><strong>Discount codes + abandoned cart recovery</strong> — Run promos and remind unfinished buyers.</li>
+    <li><strong>Order tracking + inventory management</strong> — Customers see status, stock updates automatically.</li>
+    <li><strong>Bulk product upload (CSV)</strong> — Add hundreds of products at once.</li>
+    <li><strong>Admin dashboard + sales analytics</strong> — Manage products, orders, customers in one place.</li>
+    <li><strong>Multiple staff accounts</strong> — Give your team their own logins.</li>
+    <li><strong>1 year free domain + free SSL</strong> — Your store address plus secure checkout.</li>
+    <li><strong>Admin training video</strong> — Full walkthrough on running your store.</li>
+    <li><strong>21–30 day delivery | 5 revisions | 1 month free support</strong></li>
+  </ul>
+
+  <h2>🛡️ Security Audit — <span class="price">₦40,000</span></h2>
+  <p><strong>What it is:</strong> A full scan of your website to find weaknesses before hackers do.</p>
+  <p><strong>Who it's for:</strong> Anyone with an existing site worried about hacks or Google warnings.</p>
+  <h3>What's included (and why it matters):</h3>
+  <ul>
+    <li><strong>Up to 15 pages scanned</strong> — Covers most small to medium websites.</li>
+    <li><strong>OWASP Top 10 + SQL injection + XSS testing</strong> — Tests against the most common attacks.</li>
+    <li><strong>Malware scan + Google Safe Browsing check</strong> — Confirms Google isn't flagging your site.</li>
+    <li><strong>SSL / TLS verification</strong> — Confirms your security certificate is valid.</li>
+    <li><strong>Risk severity report + fix recommendations</strong> — Tells you what's critical and how to fix it.</li>
+    <li><strong>PDF report + 30-min consultation call</strong> — A document you keep plus a walkthrough.</li>
+    <li><strong>5–7 day delivery</strong> — Fast turnaround.</li>
+  </ul>
+
+  <h2>🔧 Security Fix — <span class="price">₦80,000</span></h2>
+  <p><strong>What it is:</strong> We clean the problems, fix them, and lock your site down.</p>
+  <p><strong>Who it's for:</strong> Sites that have been hacked, flagged, or want peace of mind.</p>
+  <h3>What's included (and why it matters):</h3>
+  <ul>
+    <li><strong>Fix all critical vulnerabilities</strong> — We patch every dangerous hole found in the audit.</li>
+    <li><strong>Malware removal</strong> — We clean out any infections on your site.</li>
+    <li><strong>Security plugin + firewall setup</strong> — Blocks attacks before they reach your site.</li>
+    <li><strong>Failed login + DDoS protection</strong> — Blocks brute-force attempts and keeps your site online.</li>
+    <li><strong>Daily automated backups</strong> — Your data is saved every day, easy to restore.</li>
+    <li><strong>1-month monitoring + emergency contact</strong> — We watch your site and you have a direct line.</li>
+    <li><strong>30-day recheck</strong> — We scan again after 30 days to confirm it's clean.</li>
+    <li><strong>7–10 day delivery</strong> — Includes the fix, setup, and monitoring.</li>
+  </ul>
+
+  <div class="summary">
+    <h2>Quick Summary</h2>
+    <ul>
+      <li><strong>Landing Page</strong> — ₦100,000 (5–7 days)</li>
+      <li><strong>Security Audit</strong> — ₦40,000 (5–7 days)</li>
+      <li><strong>Security Fix</strong> — ₦80,000 (7–10 days)</li>
+      <li><strong>Business Website</strong> — ₦300,000 (10–14 days)</li>
+      <li><strong>E-commerce Store</strong> — ₦600,000 (21–30 days)</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    HKDM Services — hkdmservices.xyz<br>
+    Ready to get started? Message us on WhatsApp.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const FULL_MESSAGE = `Hi 👋
 
@@ -142,13 +317,13 @@ Here's a complete breakdown of our website services — what each package is, wh
 
 *What's included (and why it matters):*
 • *Conversion-focused design* — Every section is laid out to push visitors toward one action: buying, signing up, or messaging you.
-• *Mobile responsive* — Looks perfect on phones, tablets, and desktops. Most visitors come from phones, so this is essential.
-• *Contact form + WhatsApp button* — Gives visitors two easy ways to reach you instantly.
-• *Facebook / TikTok Pixel* — Tracks who visits from your ads, so you know which ads are working.
+• *Mobile responsive* — Looks perfect on phones, tablets, and desktops.
+• *Contact form + WhatsApp button* — Two easy ways for visitors to reach you instantly.
+• *Facebook / TikTok Pixel* — Tracks who visits from your ads, so you know what's working.
 • *Email capture + Google Analytics* — Builds your email list and shows you exactly how many people visit.
-• *Speed optimized (PageSpeed 90+)* — Loads in under 2 seconds. Slow pages lose visitors.
+• *Speed optimized (PageSpeed 90+)* — Loads in under 2 seconds.
 • *Free SSL + hosting setup guidance* — Secure padlock plus help getting it live.
-• *5–7 day delivery | 1 revision round* — Fast turnaround, one round of changes.
+• *5–7 day delivery | 1 revision round*
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -159,16 +334,16 @@ Here's a complete breakdown of our website services — what each package is, wh
 *Who it's for:* Established businesses that need more than one page.
 
 *What's included (and why it matters):*
-• *5–8 custom-designed pages* — Not a template. Designed around your brand and services.
+• *5–8 custom-designed pages* — Not a template. Designed around your brand.
 • *Custom logo design* — A unique logo that looks professional everywhere.
 • *Blog + gallery + testimonials + FAQ* — Rank on Google, show your work, build trust.
-• *Live chat widget + newsletter signup* — Chat in real time, grow your email list.
-• *Google Maps + social media integration* — Customers can find you and connect with you.
+• *Live chat + newsletter signup* — Chat in real time, grow your email list.
+• *Google Maps + social media integration* — Customers can find and connect with you.
 • *Facebook / TikTok Pixel + Google Analytics* — Track ad performance and traffic.
-• *Full admin dashboard* — Edit text, images, and pages yourself — no coding.
+• *Full admin dashboard* — Edit content yourself, no coding needed.
 • *1 year free domain + free SSL* — Your own web address plus secure padlock.
-• *Admin training video* — A walkthrough on managing everything after launch.
-• *10–14 day delivery | 3 revision rounds | 1 month free support* — Fast build, more changes, plus post-launch help.
+• *Admin training video* — Walkthrough on managing everything after launch.
+• *10–14 day delivery | 3 revisions | 1 month free support*
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -176,21 +351,21 @@ Here's a complete breakdown of our website services — what each package is, wh
 
 *What it is:* A complete online store where customers can browse, add to cart, and pay you directly.
 
-*Who it's for:* Businesses ready to sell products online — from a few items to hundreds.
+*Who it's for:* Businesses ready to sell products online at scale.
 
 *What's included (and why it matters):*
 • *Unlimited products + variants* — List as many products as you want, with size and color options.
 • *Shopping cart + wishlist* — Customers save items and come back to buy later.
 • *Paystack + Flutterwave integration* — Accept card and bank payments automatically.
 • *WhatsApp checkout option* — Customers who prefer chatting can order via WhatsApp.
-• *Discount codes + abandoned cart recovery* — Run promos, remind customers who didn't finish.
-• *Order tracking + inventory management* — Customers see their order status, stock updates automatically.
+• *Discount codes + abandoned cart recovery* — Run promos, remind unfinished buyers.
+• *Order tracking + inventory management* — Customers see status, stock updates automatically.
 • *Bulk product upload (CSV)* — Add hundreds of products at once.
 • *Admin dashboard + sales analytics* — Manage everything in one place.
 • *Multiple staff accounts* — Give your team their own logins.
 • *1 year free domain + free SSL* — Your store address plus secure checkout.
 • *Admin training video* — Full walkthrough on running your store.
-• *21–30 day delivery | 5 revision rounds | 1 month free support* — Full build time, plenty of changes, plus post-launch help.
+• *21–30 day delivery | 5 revisions | 1 month free support*
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -203,29 +378,29 @@ Here's a complete breakdown of our website services — what each package is, wh
 *What's included (and why it matters):*
 • *Up to 15 pages scanned* — Covers most small to medium websites.
 • *OWASP Top 10 + SQL injection + XSS testing* — Tests against the most common attacks.
-• *Malware scan + Google Safe Browsing check* — Finds hidden malicious code, confirms Google isn't flagging you.
+• *Malware scan + Google Safe Browsing check* — Confirms Google isn't flagging your site.
 • *SSL / TLS verification* — Confirms your security certificate is valid.
 • *Risk severity report + fix recommendations* — Tells you what's critical and how to fix it.
-• *PDF report + 30-min consultation call* — A document you keep plus a walkthrough call.
-• *5–7 day delivery* — Fast turnaround.
+• *PDF report + 30-min consultation call* — A document you keep plus a walkthrough.
+• *5–7 day delivery*
 
 ━━━━━━━━━━━━━━━━━━
 
 🔧 *Security Fix — ₦80,000*
 
-*What it is:* We don't just find the problems — we clean them, fix them, and lock your site down.
+*What it is:* We clean the problems, fix them, and lock your site down.
 
-*Who it's for:* Sites that have been hacked, flagged by Google, or owners who want peace of mind.
+*Who it's for:* Sites that have been hacked, flagged, or want peace of mind.
 
 *What's included (and why it matters):*
 • *Fix all critical vulnerabilities* — We patch every dangerous hole found in the audit.
-• *Malware removal* — We clean out infections already on your site.
+• *Malware removal* — We clean out any infections on your site.
 • *Security plugin + firewall setup* — Blocks attacks before they reach your site.
 • *Failed login + DDoS protection* — Blocks brute-force attempts and keeps your site online.
 • *Daily automated backups* — Your data is saved every day, easy to restore.
 • *1-month monitoring + emergency contact* — We watch your site and you have a direct line.
 • *30-day recheck* — We scan again after 30 days to confirm it's clean.
-• *7–10 day delivery* — Includes the fix, setup, and monitoring.
+• *7–10 day delivery*
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -236,7 +411,7 @@ Here's a complete breakdown of our website services — what each package is, wh
 • Business Website — ₦300,000 (10–14 days)
 • E-commerce Store — ₦600,000 (21–30 days)
 
-Which one fits what you're trying to do? I can answer any questions or help you pick the right one. 🙌`;
+Which one fits what you're trying to do? I can help you pick the right one. 🙌`;
 
 const SHORT_MESSAGE = `Hi 👋
 
@@ -261,7 +436,7 @@ For businesses that need a professional multi-page site.
 • Full admin dashboard
 • 1 year free domain + free SSL
 • Admin training video
-• 10–14 day delivery | 3 revision rounds | 1 month free support
+• 10–14 day delivery | 3 revisions | 1 month free support
 
 🛒 *E-commerce Store — ₦600,000*
 For selling products online at scale.
@@ -272,7 +447,7 @@ For selling products online at scale.
 • Admin dashboard + sales analytics
 • 1 year free domain + free SSL
 • Admin training video
-• 21–30 day delivery | 5 revision rounds | 1 month free support
+• 21–30 day delivery | 5 revisions | 1 month free support
 
 🛡️ *Security Audit — ₦40,000*
 A full scan of your site to find weaknesses before hackers do.
@@ -350,6 +525,37 @@ document.getElementById('copyFull').addEventListener('click', () => {
 
 document.getElementById('copyShort').addEventListener('click', () => {
   copyText(SHORT_MESSAGE, 'copyShort', 'shortBtnText', 'Copy Short Version');
+});
+
+// PDF Download
+document.getElementById('downloadPdf').addEventListener('click', async function() {
+  const btn = this;
+  const btnText = document.getElementById('pdfBtnText');
+  const original = btnText.textContent;
+
+  btnText.textContent = 'Generating PDF...';
+  btn.disabled = true;
+
+  try {
+    const element = document.getElementById('pdfArea');
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: 'HKDM-Services-Website-Packages.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    await html2pdf().set(opt).from(element).save();
+    btnText.textContent = '✅ Downloaded!';
+    setTimeout(() => { btnText.textContent = original; }, 2000);
+  } catch (err) {
+    console.error('PDF error:', err);
+    alert('PDF generation failed: ' + err.message);
+    btnText.textContent = original;
+  } finally {
+    btn.disabled = false;
+  }
 });
 </script>
 </body>
