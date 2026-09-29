@@ -88,17 +88,20 @@
     transform: translateX(-50%) translateY(0);
   }
 
-  /* Hidden printable PDF area */
+  /* PDF area — kept on-screen but invisible so html2canvas can capture it */
   #pdfArea {
-    position: absolute;
-    left: -9999px;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 800px;
     background: #ffffff;
     color: #111;
     padding: 40px 50px;
-    width: 800px;
     font-family: 'Segoe UI', Arial, sans-serif;
     line-height: 1.6;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
   }
   #pdfArea h1 {
     color: #198754;
@@ -536,17 +539,32 @@ document.getElementById('downloadPdf').addEventListener('click', async function(
   btnText.textContent = 'Generating PDF...';
   btn.disabled = true;
 
+  const element = document.getElementById('pdfArea');
+
+  // Make the element briefly "visible" so the renderer paints it
+  element.style.opacity = '1';
+  element.style.zIndex = '99999';
+  element.style.pointerEvents = 'none';
+
   try {
-    const element = document.getElementById('pdfArea');
     const opt = {
       margin: [10, 10, 10, 10],
       filename: 'HKDM-Services-Website-Packages.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 800
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak: { mode: ['css', 'legacy'] }
     };
+
     await html2pdf().set(opt).from(element).save();
+
     btnText.textContent = '✅ Downloaded!';
     setTimeout(() => { btnText.textContent = original; }, 2000);
   } catch (err) {
@@ -554,6 +572,9 @@ document.getElementById('downloadPdf').addEventListener('click', async function(
     alert('PDF generation failed: ' + err.message);
     btnText.textContent = original;
   } finally {
+    // Hide again
+    element.style.opacity = '0';
+    element.style.zIndex = '-1';
     btn.disabled = false;
   }
 });
