@@ -13,10 +13,7 @@
     padding: 20px;
     line-height: 1.6;
   }
-  .container {
-    max-width: 720px;
-    margin: 0 auto;
-  }
+  .container { max-width: 720px; margin: 0 auto; }
   h1 {
     font-size: 1.4rem;
     margin-bottom: 6px;
@@ -25,7 +22,15 @@
   .subtitle {
     font-size: 0.85rem;
     color: #adb5bd;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+  }
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c757d;
+    margin-bottom: 10px;
   }
   .copy-btn {
     display: flex;
@@ -42,30 +47,27 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     box-shadow: 0 4px 14px rgba(25, 135, 84, 0.35);
   }
-  .copy-btn:hover { background: #157347; transform: translateY(-1px); }
-  .copy-btn:active { transform: translateY(0); }
-  .copy-btn.copied { background: #20c997; }
-  .copy-btn svg { width: 18px; height: 18px; }
-  .preview-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #6c757d;
-    margin-bottom: 8px;
+  .copy-btn.secondary {
+    background: #0d6efd;
+    box-shadow: 0 4px 14px rgba(13, 110, 253, 0.35);
   }
+  .copy-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .copy-btn:active { transform: translateY(0); }
+  .copy-btn.copied { background: #20c997 !important; }
+  .copy-btn svg { width: 18px; height: 18px; }
   .preview {
     background: #1a1d23;
     border: 1px solid #2c3038;
     border-radius: 10px;
     padding: 18px;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     line-height: 1.7;
     white-space: pre-wrap;
     color: #ced4da;
-    max-height: 60vh;
+    max-height: 45vh;
     overflow-y: auto;
   }
   .toast {
@@ -94,35 +96,158 @@
 <body>
 <div class="container">
   <h1>HKDM Services — Build Website Guide</h1>
-  <p class="subtitle">Tap the button below to copy the full WhatsApp message, then paste it in your chat.</p>
+  <p class="subtitle">Choose the version you want to copy, then paste it into WhatsApp.</p>
 
-  <button class="copy-btn" id="copyBtn">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-    </svg>
-    <span id="btnText">Copy WhatsApp Message</span>
-  </button>
+  <!-- FULL VERSION -->
+  <div class="section">
+    <div class="section-title">Full version (with explanations)</div>
+    <button class="copy-btn" id="copyFull">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span id="fullBtnText">Copy Full Version</span>
+    </button>
+    <div class="preview" id="previewFull">Loading...</div>
+  </div>
 
-  <div class="preview-label">Preview</div>
-  <div class="preview" id="preview">Loading...</div>
+  <!-- SHORT VERSION -->
+  <div class="section">
+    <div class="section-title">Short version (quick reply)</div>
+    <button class="copy-btn secondary" id="copyShort">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span id="shortBtnText">Copy Short Version</span>
+    </button>
+    <div class="preview" id="previewShort">Loading...</div>
+  </div>
 </div>
 
 <div class="toast" id="toast">✅ Copied to clipboard!</div>
 
 <script>
-const MESSAGE = `Hi 👋
+const FULL_MESSAGE = `Hi 👋
 
-Here's a quick breakdown of our website services and what each package includes:
+Here's a complete breakdown of our website services — what each package is, who it's for, and exactly what every feature does.
+
+━━━━━━━━━━━━━━━━━━
+
+🟢 *Landing Page — ₦100,000*
+
+*What it is:* A single, powerful page built to turn visitors into customers.
+
+*Who it's for:* Anyone running ads, launching a new product, or testing a business idea.
+
+*What's included (and why it matters):*
+• *Conversion-focused design* — Every section is laid out to push visitors toward one action: buying, signing up, or messaging you.
+• *Mobile responsive* — Looks perfect on phones, tablets, and desktops. Most visitors come from phones, so this is essential.
+• *Contact form + WhatsApp button* — Gives visitors two easy ways to reach you instantly.
+• *Facebook / TikTok Pixel* — Tracks who visits from your ads, so you know which ads are working.
+• *Email capture + Google Analytics* — Builds your email list and shows you exactly how many people visit.
+• *Speed optimized (PageSpeed 90+)* — Loads in under 2 seconds. Slow pages lose visitors.
+• *Free SSL + hosting setup guidance* — Secure padlock plus help getting it live.
+• *5–7 day delivery | 1 revision round* — Fast turnaround, one round of changes.
+
+━━━━━━━━━━━━━━━━━━
+
+🏢 *Business Website — ₦300,000*
+
+*What it is:* A full, professional website that makes your business look credible online.
+
+*Who it's for:* Established businesses that need more than one page.
+
+*What's included (and why it matters):*
+• *5–8 custom-designed pages* — Not a template. Designed around your brand and services.
+• *Custom logo design* — A unique logo that looks professional everywhere.
+• *Blog + gallery + testimonials + FAQ* — Rank on Google, show your work, build trust.
+• *Live chat widget + newsletter signup* — Chat in real time, grow your email list.
+• *Google Maps + social media integration* — Customers can find you and connect with you.
+• *Facebook / TikTok Pixel + Google Analytics* — Track ad performance and traffic.
+• *Full admin dashboard* — Edit text, images, and pages yourself — no coding.
+• *1 year free domain + free SSL* — Your own web address plus secure padlock.
+• *Admin training video* — A walkthrough on managing everything after launch.
+• *10–14 day delivery | 3 revision rounds | 1 month free support* — Fast build, more changes, plus post-launch help.
+
+━━━━━━━━━━━━━━━━━━
+
+🛒 *E-commerce Store — ₦600,000*
+
+*What it is:* A complete online store where customers can browse, add to cart, and pay you directly.
+
+*Who it's for:* Businesses ready to sell products online — from a few items to hundreds.
+
+*What's included (and why it matters):*
+• *Unlimited products + variants* — List as many products as you want, with size and color options.
+• *Shopping cart + wishlist* — Customers save items and come back to buy later.
+• *Paystack + Flutterwave integration* — Accept card and bank payments automatically.
+• *WhatsApp checkout option* — Customers who prefer chatting can order via WhatsApp.
+• *Discount codes + abandoned cart recovery* — Run promos, remind customers who didn't finish.
+• *Order tracking + inventory management* — Customers see their order status, stock updates automatically.
+• *Bulk product upload (CSV)* — Add hundreds of products at once.
+• *Admin dashboard + sales analytics* — Manage everything in one place.
+• *Multiple staff accounts* — Give your team their own logins.
+• *1 year free domain + free SSL* — Your store address plus secure checkout.
+• *Admin training video* — Full walkthrough on running your store.
+• *21–30 day delivery | 5 revision rounds | 1 month free support* — Full build time, plenty of changes, plus post-launch help.
+
+━━━━━━━━━━━━━━━━━━
+
+🛡️ *Security Audit — ₦40,000*
+
+*What it is:* A full scan of your website to find weaknesses before hackers do.
+
+*Who it's for:* Anyone with an existing site worried about hacks or Google warnings.
+
+*What's included (and why it matters):*
+• *Up to 15 pages scanned* — Covers most small to medium websites.
+• *OWASP Top 10 + SQL injection + XSS testing* — Tests against the most common attacks.
+• *Malware scan + Google Safe Browsing check* — Finds hidden malicious code, confirms Google isn't flagging you.
+• *SSL / TLS verification* — Confirms your security certificate is valid.
+• *Risk severity report + fix recommendations* — Tells you what's critical and how to fix it.
+• *PDF report + 30-min consultation call* — A document you keep plus a walkthrough call.
+• *5–7 day delivery* — Fast turnaround.
+
+━━━━━━━━━━━━━━━━━━
+
+🔧 *Security Fix — ₦80,000*
+
+*What it is:* We don't just find the problems — we clean them, fix them, and lock your site down.
+
+*Who it's for:* Sites that have been hacked, flagged by Google, or owners who want peace of mind.
+
+*What's included (and why it matters):*
+• *Fix all critical vulnerabilities* — We patch every dangerous hole found in the audit.
+• *Malware removal* — We clean out infections already on your site.
+• *Security plugin + firewall setup* — Blocks attacks before they reach your site.
+• *Failed login + DDoS protection* — Blocks brute-force attempts and keeps your site online.
+• *Daily automated backups* — Your data is saved every day, easy to restore.
+• *1-month monitoring + emergency contact* — We watch your site and you have a direct line.
+• *30-day recheck* — We scan again after 30 days to confirm it's clean.
+• *7–10 day delivery* — Includes the fix, setup, and monitoring.
+
+━━━━━━━━━━━━━━━━━━
+
+*Quick summary:*
+• Landing Page — ₦100,000 (5–7 days)
+• Security Audit — ₦40,000 (5–7 days)
+• Security Fix — ₦80,000 (7–10 days)
+• Business Website — ₦300,000 (10–14 days)
+• E-commerce Store — ₦600,000 (21–30 days)
+
+Which one fits what you're trying to do? I can answer any questions or help you pick the right one. 🙌`;
+
+const SHORT_MESSAGE = `Hi 👋
+
+Here's a quick breakdown of our website services:
 
 🟢 *Landing Page — ₦100,000*
 Perfect for ads, campaigns, or launching a new idea.
 • 1-page conversion-focused design
-• Mobile responsive
 • Contact form + WhatsApp button
 • Facebook / TikTok Pixel
 • Email capture + Google Analytics
-• Speed optimized (PageSpeed 90+)
 • Free SSL + hosting setup guidance
 • 5–7 day delivery | 1 revision round
 
@@ -131,8 +256,7 @@ For businesses that need a professional multi-page site.
 • 5–8 custom-designed pages
 • Custom logo design
 • Blog + gallery + testimonials + FAQ
-• Live chat widget + newsletter signup
-• Google Maps + social media integration
+• Live chat + newsletter signup
 • Facebook / TikTok Pixel + Google Analytics
 • Full admin dashboard
 • 1 year free domain + free SSL
@@ -141,15 +265,11 @@ For businesses that need a professional multi-page site.
 
 🛒 *E-commerce Store — ₦600,000*
 For selling products online at scale.
-• Unlimited products + variants (size, color)
-• Shopping cart + wishlist
+• Unlimited products + variants
 • Paystack + Flutterwave integration
 • WhatsApp checkout option
-• Discount codes + abandoned cart recovery
 • Order tracking + inventory management
-• Bulk product upload (CSV)
 • Admin dashboard + sales analytics
-• Multiple staff accounts
 • 1 year free domain + free SSL
 • Admin training video
 • 21–30 day delivery | 5 revision rounds | 1 month free support
@@ -159,8 +279,6 @@ A full scan of your site to find weaknesses before hackers do.
 • Up to 15 pages scanned
 • OWASP Top 10 + SQL injection + XSS testing
 • Malware scan + Google Safe Browsing check
-• SSL / TLS verification
-• Risk severity report + fix recommendations
 • PDF report + 30-min consultation call
 • 5–7 day delivery
 
@@ -169,7 +287,6 @@ We clean, fix, and lock down your site.
 • Fix all critical vulnerabilities
 • Malware removal
 • Security plugin + firewall setup
-• Failed login protection + DDoS protection
 • Daily automated backups
 • 1-month monitoring + emergency contact
 • 7–10 day delivery | 30-day recheck
@@ -181,47 +298,58 @@ We clean, fix, and lock down your site.
 • Business Website — ₦300,000 (10–14 days)
 • E-commerce Store — ₦600,000 (21–30 days)
 
-Which one fits what you're trying to do? I can answer any questions or help you pick the right one. 🙌`;
+Which one fits what you're trying to do? I can help you pick the right one. 🙌`;
 
-document.getElementById('preview').textContent = MESSAGE;
+// Render previews
+document.getElementById('previewFull').textContent = FULL_MESSAGE;
+document.getElementById('previewShort').textContent = SHORT_MESSAGE;
 
-const btn = document.getElementById('copyBtn');
-const btnText = document.getElementById('btnText');
-const toast = document.getElementById('toast');
+// Copy helper
+function copyText(text, btnId, textId, defaultLabel) {
+  const btn = document.getElementById(btnId);
+  const btnText = document.getElementById(textId);
+  const toast = document.getElementById('toast');
 
-btn.addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(MESSAGE);
+  const showSuccess = () => {
     btn.classList.add('copied');
     btnText.textContent = '✅ Copied!';
     toast.classList.add('show');
     setTimeout(() => {
       btn.classList.remove('copied');
-      btnText.textContent = 'Copy WhatsApp Message';
+      btnText.textContent = defaultLabel;
       toast.classList.remove('show');
     }, 2000);
-  } catch (err) {
+  };
+
+  const fallbackCopy = () => {
     const ta = document.createElement('textarea');
-    ta.value = MESSAGE;
+    ta.value = text;
     ta.style.position = 'fixed';
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
     try {
       document.execCommand('copy');
-      btn.classList.add('copied');
-      btnText.textContent = '✅ Copied!';
-      toast.classList.add('show');
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btnText.textContent = 'Copy WhatsApp Message';
-        toast.classList.remove('show');
-      }, 2000);
+      showSuccess();
     } catch (e) {
       alert('Copy failed. Please select the text manually.');
     }
     document.body.removeChild(ta);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(showSuccess).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
   }
+}
+
+document.getElementById('copyFull').addEventListener('click', () => {
+  copyText(FULL_MESSAGE, 'copyFull', 'fullBtnText', 'Copy Full Version');
+});
+
+document.getElementById('copyShort').addEventListener('click', () => {
+  copyText(SHORT_MESSAGE, 'copyShort', 'shortBtnText', 'Copy Short Version');
 });
 </script>
 </body>
