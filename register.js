@@ -27,39 +27,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!form) { console.error("registerForm not found"); return; }
 
     // ------------------------------------------------------------
-    // Create initial wallet_history entry (via PHP)
-    // Robust: waits for auth, retries token, verifies write
+    // Create initial wallet_history entry — DEBUG VERSION
     // ------------------------------------------------------------
-    async function createInitialWalletHistory(uid) {
+    async function createInitialWalletHistory() {
         try {
-            // Wait for auth.currentUser
-            let attempts = 0;
-            while (!auth.currentUser && attempts < 10) {
-                await new Promise(r => setTimeout(r, 200));
-                attempts++;
-            }
+            console.log("createInitialWalletHistory called");
+
             if (!auth.currentUser) {
-                console.warn("No auth.currentUser after 2s");
-                return false;
+                alert("DEBUG: No auth.currentUser");
+                return;
             }
+            console.log("auth uid:", auth.currentUser.uid);
 
-            // Get ID token with retries
-            let idToken = null;
-            for (let i = 0; i < 5; i++) {
-                try {
-                    idToken = await auth.currentUser.getIdToken(true);
-                    if (idToken) break;
-                } catch (e) {
-                    console.warn("Token attempt " + (i + 1) + " failed:", e.message);
-                }
-                await new Promise(r => setTimeout(r, 300));
-            }
+            const idToken = await auth.currentUser.getIdToken(true);
             if (!idToken) {
-                console.warn("Could not get ID token");
-                return false;
+                alert("DEBUG: No ID token");
+                return;
             }
+            console.log("Token obtained, length:", idToken.length);
 
-            // Call PHP
             const resp = await fetch("/api-php/create-initial-history.php", {
                 method: "POST",
                 headers: {
@@ -68,24 +54,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 body: JSON.stringify({ action: "init" })
             });
+
+            console.log("Response status:", resp.status);
             const result = await resp.json();
-            console.log("createInitialWalletHistory result:", result);
+            console.log("Response body:", result);
+            alert("PHP says: " + JSON.stringify(result));
 
-            // Verify the entry exists in Firebase
-            if (uid) {
-                await new Promise(r => setTimeout(r, 500));
-                const verifySnap = await get(ref(database, "wallet_history/" + uid + "/initial"));
-                if (!verifySnap.exists()) {
-                    console.warn("⚠️ Initial history NOT confirmed in Firebase");
-                    return false;
-                }
-                console.log("✅ Initial wallet_history confirmed");
-            }
-
-            return result.success === true;
         } catch (err) {
-            console.error("Initial history error:", err);
-            return false;
+            console.error("createInitialWalletHistory error:", err);
+            alert("DEBUG Error: " + err.message);
         }
     }
 
@@ -134,13 +111,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 createdAt: Date.now()
             });
 
-            // Create initial wallet_history, retry once if needed
-            let ok = await createInitialWalletHistory(uid);
-            if (!ok) {
-                console.warn("Retrying initial wallet_history...");
-                await new Promise(r => setTimeout(r, 800));
-                ok = await createInitialWalletHistory(uid);
-            }
+            alert("DEBUG: About to call createInitialWalletHistory");
+            await createInitialWalletHistory();
+            alert("DEBUG: After createInitialWalletHistory");
 
             window.location.href = "dashboard.html";
 
@@ -167,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                const userRef = ref(database, "users/" + user.uid);
+                const userRef = ref(database, "users/" + is user.uid);
                 const snapshot = await get(userRef);
 
                 if (!snapshot.exists()) {
@@ -184,11 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         createdAt: Date.now()
                     });
 
-                    let ok = await createInitialWalletHistory(user.uid);
-                    if (!ok) {
-                        await new Promise(r => setTimeout(r, 800));
-                        await createInitialWalletHistory(user.uid);
-                    }
+                    await createInitialWalletHistory();
                 }
 
                 window.location.href = "dashboard.html";
