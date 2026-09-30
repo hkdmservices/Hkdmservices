@@ -24,31 +24,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const message = document.getElementById("message");
     const googleRegisterBtn = document.getElementById("googleRegisterBtn");
 
-    if (!form) {
-        console.error("registerForm not found");
-        return;
-    }
+    if (!form) { console.error("registerForm not found"); return; }
 
-    // ------------------------------------------------------------
-    // Helper: create initial wallet_history entry for new account
-    // ------------------------------------------------------------
-    async function createInitialWalletHistory(uid) {
+    async function createInitialWalletHistory() {
         try {
-            await set(ref(database, "wallet_history/" + uid + "/initial"), {
-                type: "account_created",
-                amount: 0,
-                before: 0,
-                after: 0,
-                timestamp: Date.now()
+            const idToken = await auth.currentUser.getIdToken(true);
+            const resp = await fetch("/api-php/create-initial-history.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + idToken
+                },
+                body: JSON.stringify({ action: "init" })
             });
+            const result = await resp.json();
+            if (!result.success) {
+                console.warn("Initial history not created:", result.message);
+            }
         } catch (err) {
-            console.error("Failed to create initial wallet_history:", err);
+            console.warn("Initial history error:", err);
         }
     }
 
-    // ------------------------------------------------------------
-    // Email / Password Signup
-    // ------------------------------------------------------------
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -91,8 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 createdAt: Date.now()
             });
 
-            // ✅ NEW: create initial wallet_history entry
-            await createInitialWalletHistory(uid);
+            await createInitialWalletHistory();
 
             window.location.href = "dashboard.html";
 
@@ -107,9 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ------------------------------------------------------------
-    // Google Signup
-    // ------------------------------------------------------------
     if (googleRegisterBtn) {
         googleRegisterBtn.addEventListener("click", async () => {
             message.classList.add("d-none");
@@ -136,8 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         createdAt: Date.now()
                     });
 
-                    // ✅ NEW: create initial wallet_history entry
-                    await createInitialWalletHistory(user.uid);
+                    await createInitialWalletHistory();
                 }
 
                 window.location.href = "dashboard.html";
