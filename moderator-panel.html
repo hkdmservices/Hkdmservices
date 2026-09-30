@@ -179,6 +179,35 @@
             outline: none;
         }
 
+        .btn-logout {
+            background: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover,
+        .btn-logout:focus {
+            background: #dc3545;
+            color: #fff;
+            outline: none;
+        }
+
+        html[data-theme="dark"] .btn-logout {
+            border-color: #f85149;
+            color: #f85149;
+        }
+
+        html[data-theme="dark"] .btn-logout:hover,
+        html[data-theme="dark"] .btn-logout:focus {
+            background: #f85149;
+            color: #fff;
+        }
+
         .card-custom {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -324,7 +353,7 @@
 
         .card-custom, .stat-card, .table, .table td, .table th,
         .modal-content, .form-control, .form-select, .btn-refresh,
-        .uid-code, .navbar-custom, .theme-btn, .theme-menu {
+        .btn-logout, .uid-code, .navbar-custom, .theme-btn, .theme-menu {
             transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
@@ -353,6 +382,7 @@
         @media (max-width: 575.98px) {
             .brand { font-size: 0.95rem; gap: 6px; }
             .btn-refresh,
+            .btn-logout,
             .theme-btn { padding: 5px 10px; font-size: 0.78rem; }
             .card-custom { padding: 14px; }
             .stat-card { padding: 12px; }
@@ -371,6 +401,7 @@
 </head>
 <body>
 
+    <!-- ============ NAVBAR ============ -->
     <nav class="navbar navbar-expand-md navbar-custom">
         <div class="container">
 
@@ -392,8 +423,9 @@
                 <div class="d-flex flex-column flex-md-row align-items-stretch
                             align-items-md-center gap-2 ms-md-auto mt-3 mt-md-0 w-100">
 
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
 
+                        <!-- CUSTOM THEME SWITCHER -->
                         <div class="theme-switcher">
                             <button class="theme-btn" type="button"
                                     id="themeBtn"
@@ -426,6 +458,10 @@
                         <button class="btn-refresh" onclick="location.reload()">
                             <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
+
+                        <button class="btn-logout" id="modLogoutBtn">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
                     </div>
 
                     <span class="text-muted small text-truncate ms-md-auto"
@@ -439,6 +475,7 @@
 
     <div class="container py-4" id="panelContent" style="display:none;">
 
+        <!-- STATS -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
                 <div class="stat-card">
@@ -466,6 +503,7 @@
             </div>
         </div>
 
+        <!-- FILTERS -->
         <div class="card-custom mb-4">
             <div class="d-flex gap-2 flex-wrap">
                 <input type="text" id="userSearch"
@@ -488,6 +526,7 @@
             </div>
         </div>
 
+        <!-- USERS TABLE -->
         <div class="card-custom">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="section-title">All Users</span>
@@ -521,6 +560,7 @@
 
     </div>
 
+    <!-- USER DETAIL MODAL -->
     <div class="modal fade" id="userDetailModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
@@ -554,6 +594,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <script>
+        // ---------- THEME: apply BEFORE render ----------
         (function () {
             const saved = localStorage.getItem('adminTheme') || 'auto';
             let theme = saved;
@@ -586,6 +627,7 @@
             if (label) {
                 label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
             }
+
             document.querySelectorAll('.theme-option').forEach(function (el) {
                 el.classList.toggle('active', el.dataset.theme === theme);
             });
@@ -632,6 +674,27 @@
                     if (saved === 'auto') applyTheme('auto');
                 });
         }
+
+        // ---------- LOGOUT HANDLER ----------
+        document.getElementById('modLogoutBtn')?.addEventListener('click', async function () {
+            if (!confirm('Log out of the moderator panel?')) return;
+
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            try {
+                await firebase.auth().signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'moderator-login.html';
+            } catch (err) {
+                console.error('Logout error:', err);
+                alert('Failed to log out: ' + err.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-box-arrow-right"></i> Logout';
+            }
+        });
     </script>
 
     <script type="module" src="users-activity.js?v=4"></script>
