@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderator Panel | HKDMservices</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-body: #f8f9fa;
+            --bg-nav: #ffffff;
+            --bg-card: #ffffff;
+            --border-card: #dee2e6;
+            --border-nav: #dee2e6;
+            --text-body: #1a1d21;
+            --text-nav: #1a1d21;
+            --text-muted: #5a6268;
+            --bg-input: #ffffff;
+            --border-input: #ced4da;
+            --accent: #198754;
+            --accent-hover: #146c43;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        html[data-theme="dark"] {
+            --bg-body: #0d1117;
+            --bg-nav: #080a0c;
+            --bg-card: #161b22;
+            --border-card: #30363d;
+            --border-nav: #30363d;
+            --text-body: #e6edf3;
+            --text-nav: #e6edf3;
+            --text-muted: #8b949e;
+            --bg-input: #0d1117;
+            --border-input: #30363d;
+            --accent: #2ea043;
+            --accent-hover: #3fb950;
+            --shadow: rgba(0, 0, 0, 0.4);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg-body);
+            color: var(--text-body);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            transition: background 0.3s ease, color 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-custom {
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border-nav);
+            padding: 10px 12px;
+            width: 100%;
+            max-width: 100%;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .navbar-custom .container {
+            max-width: 1320px;
+            padding-left: 0;
+            padding-right: 0;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .brand {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            margin: 0;
+        }
+
+        .brand:hover { color: var(--accent-hover); }
+
+        .navbar-custom .text-muted,
+        .navbar-custom .small {
+            color: var(--text-muted) !important;
+        }
+
+        .theme-switcher { position: relative; }
+
+        .theme-btn {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-nav);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover,
+        .theme-btn:focus {
+            background: rgba(25, 135, 84, 0.1);
+            color: var(--accent);
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .theme-btn .caret { font-size: 0.65rem; opacity: 0.7; }
+
+        .theme-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 160px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            box-shadow: 0 6px 20px var(--shadow);
+            padding: 6px 0;
+            z-index: 1050;
+            display: none;
+            opacity: 0;
+            transform: translateY(-6px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .theme-menu.open { display: block; opacity: 1; transform: translateY(0); }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 14px;
+            font-size: 0.88rem;
+            color: var(--text-body);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .theme-option i { color: var(--text-muted); font-size: 0.95rem; }
+
+        .theme-option:hover,
+        .theme-option:focus {
+            background: rgba(25, 135, 84, 0.15);
+            color: var(--accent);
+            outline: none;
+        }
+
+        .theme-option:hover i,
+        .theme-option:focus i { color: var(--accent); }
+
+        .theme-option.active { color: var(--accent); font-weight: 600; }
+        .theme-option.active i { color: var(--accent); }
+
+        .btn-refresh {
+            background: transparent;
+            border: 1px solid var(--border-input);
+            color: var(--text-nav);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-refresh:hover,
+        .btn-refresh:focus {
+            background: rgba(25, 135, 84, 0.1);
+            color: var(--accent);
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .card-custom {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 12px;
+            padding: 20px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .table {
+            color: var(--text-body) !important;
+            --bs-table-bg: transparent !important;
+            --bs-table-hover-bg: rgba(25, 135, 84, 0.08) !important;
+            --bs-table-color: var(--text-body) !important;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            border-bottom-color: var(--border-card);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            background: transparent;
+        }
+
+        .table td, .table th {
+            border-color: var(--border-card);
+            color: var(--text-body) !important;
+            vertical-align: middle;
+            background: transparent;
+        }
+
+        html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: rgba(25, 135, 84, 0.1);
+            color: var(--text-body) !important;
+        }
+
+        .form-control, .form-select {
+            background: var(--bg-input);
+            border-color: var(--border-input);
+            color: var(--text-body);
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .form-control::placeholder { color: var(--text-muted); opacity: 0.7; }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--bg-input);
+            color: var(--text-body);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.2);
+        }
+
+        .flag-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-right: 4px;
+            display: inline-block;
+            margin-bottom: 3px;
+        }
+
+        .flag-critical { background: #dc3545; color: #fff; }
+        .flag-high { background: #fd7e14; color: #fff; }
+        .flag-medium { background: #ffc107; color: #000; }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card .num {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-card .lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .user-row { cursor: pointer; transition: background 0.15s ease; }
+
+        .uid-code {
+            font-size: 0.7rem;
+            background: var(--bg-body);
+            padding: 2px 6px;
+            border-radius: 4px;
+            word-break: break-all;
+            display: inline-block;
+            max-width: 160px;
+            color: var(--text-body);
+            border: 1px solid var(--border-card);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            color: var(--text-body);
+            border-color: var(--border-card);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .modal-header, .modal-footer { border-color: var(--border-card); }
+
+        html[data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .timeline-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-card);
+            font-size: 0.85rem;
+        }
+
+        .timeline-entry:last-child { border-bottom: none; }
+        .timeline-entry.credit { background: rgba(25, 135, 84, 0.08); }
+        .timeline-entry.debit { background: rgba(220, 53, 69, 0.08); }
+
+        .timeline-type { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+        .timeline-amount { font-weight: 700; font-size: 0.9rem; }
+        .timeline-meta { color: var(--text-muted); font-size: 0.7rem; }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--accent);
+            display: inline-block;
+        }
+
+        .card-custom, .stat-card, .table, .table td, .table th,
+        .modal-content, .form-control, .form-select, .btn-refresh,
+        .uid-code, .navbar-custom, .theme-btn, .theme-menu {
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        html[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+        html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg-body); }
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 5px; }
+        html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+        .navbar-toggler {
+            border-color: var(--border-input);
+            padding: 4px 8px;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.2rem rgba(46, 160, 67, 0.25);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23198754' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        html[data-theme="dark"] .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%232ea043' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        @media (max-width: 575.98px) {
+            .brand { font-size: 0.95rem; gap: 6px; }
+            .btn-refresh,
+            .theme-btn { padding: 5px 10px; font-size: 0.78rem; }
+            .card-custom { padding: 14px; }
+            .stat-card { padding: 12px; }
+            .stat-card .num { font-size: 1.4rem; }
+            .stat-card .lbl { font-size: 0.68rem; }
+            .section-title { font-size: 0.9rem; }
+            .container { padding-left: 12px; padding-right: 12px; }
+        }
+
+        #currentUserEmail {
+            font-size: 0.72rem;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-md navbar-custom">
+        <div class="container">
+
+            <a class="navbar-brand brand" href="#">
+                <i class="bi bi-shield-check"></i>
+                <span>HKDM-Moderator</span>
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navContent"
+                    aria-controls="navContent"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <div class="d-flex flex-column flex-md-row align-items-stretch
+                            align-items-md-center gap-2 ms-md-auto mt-3 mt-md-0 w-100">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <div class="theme-switcher">
+                            <button class="theme-btn" type="button"
+                                    id="themeBtn"
+                                    onclick="toggleThemeMenu(event)"
+                                    title="Change theme">
+                                <i class="bi bi-sun-fill" id="themeIcon"></i>
+                                <span id="themeLabel">Auto</span>
+                                <i class="bi bi-caret-down-fill caret"></i>
+                            </button>
+
+                            <div class="theme-menu" id="themeMenu">
+                                <a class="theme-option" data-theme="light"
+                                   onclick="setTheme('light'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-sun-fill"></i>
+                                    <span>Light</span>
+                                </a>
+                                <a class="theme-option" data-theme="dark"
+                                   onclick="setTheme('dark'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-moon-fill"></i>
+                                    <span>Dark</span>
+                                </a>
+                                <a class="theme-option" data-theme="auto"
+                                   onclick="setTheme('auto'); closeThemeMenu(); return false;">
+                                    <i class="bi bi-circle-half"></i>
+                                    <span>Auto</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <button class="btn-refresh" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    <span class="text-muted small text-truncate ms-md-auto"
+                          id="currentUserEmail">…</span>
+
+                </div>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container py-4" id="panelContent" style="display:none;">
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statTotalUsers">0</div>
+                    <div class="lbl">Total Users</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statFlaggedUsers">0</div>
+                    <div class="lbl">Flagged Users</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statSuspendedUsers">0</div>
+                    <div class="lbl">Suspended</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card">
+                    <div class="num" id="statWalletSum">₦0</div>
+                    <div class="lbl">Total Wallet</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-custom mb-4">
+            <div class="d-flex gap-2 flex-wrap">
+                <input type="text" id="userSearch"
+                       class="form-control flex-grow-1"
+                       style="min-width: 200px;"
+                       placeholder="Search by name, email, or UID...">
+
+                <select id="userStatusFilter" class="form-select flex-grow-1"
+                        style="min-width: 140px; max-width: 200px;">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+
+                <select id="flagFilter" class="form-select flex-grow-1"
+                        style="min-width: 140px; max-width: 200px;">
+                    <option value="all">All Users</option>
+                    <option value="flagged">Flagged Only</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="section-title">All Users</span>
+                <span class="text-muted small" id="userCount">0 users</span>
+            </div>
+
+            <div style="max-height: 600px; overflow-y: auto; overflow-x: auto;">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>UID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Wallet</th>
+                            <th>Tier</th>
+                            <th>Status</th>
+                            <th>Flags</th>
+                            <th style="width:40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <div class="spinner-border spinner-border-sm text-success"></div> Loading users...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="userDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-circle text-success"></i>
+                        <span id="modalUserName">User</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-success"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="btnBlockUser">
+                        <i class="bi bi-slash-circle"></i> <span id="blockBtnText">Block User</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" style="position:fixed; bottom:20px; right:20px; z-index:9999;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        (function () {
+            const saved = localStorage.getItem('adminTheme') || 'auto';
+            let theme = saved;
+            if (saved === 'auto') {
+                theme = (window.matchMedia &&
+                         window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+
+        function applyTheme(theme) {
+            let actual = theme;
+            if (theme === 'auto') {
+                actual = (window.matchMedia &&
+                          window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', actual);
+        }
+
+        function updateThemeUI(theme) {
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+            if (icon) {
+                if (theme === 'light') icon.className = 'bi bi-sun-fill';
+                else if (theme === 'dark') icon.className = 'bi bi-moon-fill';
+                else icon.className = 'bi bi-circle-half';
+            }
+            if (label) {
+                label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+            }
+            document.querySelectorAll('.theme-option').forEach(function (el) {
+                el.classList.toggle('active', el.dataset.theme === theme);
+            });
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('adminTheme', theme);
+            applyTheme(theme);
+            updateThemeUI(theme);
+        }
+
+        function toggleThemeMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('themeMenu');
+            if (!menu) return;
+            menu.classList.toggle('open');
+        }
+
+        function closeThemeMenu() {
+            const menu = document.getElementById('themeMenu');
+            if (menu) menu.classList.remove('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            const switcher = document.querySelector('.theme-switcher');
+            if (switcher && !switcher.contains(e.target)) {
+                closeThemeMenu();
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeThemeMenu();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const saved = localStorage.getItem('adminTheme') || 'auto';
+            updateThemeUI(saved);
+        });
+
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)')
+                .addEventListener('change', function () {
+                    const saved = localStorage.getItem('adminTheme') || 'auto';
+                    if (saved === 'auto') applyTheme('auto');
+                });
+        }
+    </script>
+
+    <script type="module" src="users-activity.js?v=4"></script>
+
+</body>
+</html>
