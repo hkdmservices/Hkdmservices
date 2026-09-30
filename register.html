@@ -14,9 +14,6 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* =====================================================
-           DARK MODE OVERRIDES
-        ===================================================== */
         html[data-theme="dark"] body.auth-body { background: #101418 !important; }
         html[data-theme="dark"] .auth-card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
         html[data-theme="dark"] .auth-card .text-light { color: #adb5bd !important; }
@@ -29,22 +26,9 @@
         html[data-theme="dark"] .bg-body { background-color: #181d22 !important; color: #adb5bd !important; }
         html[data-theme="dark"] hr { border-color: #30363d !important; }
 
-        /* Alert visibility in dark mode */
-        html[data-theme="dark"] .alert-danger {
-            background: #2d0f14;
-            color: #f8a5a5;
-            border-color: #dc3545;
-        }
-        html[data-theme="dark"] .alert-success {
-            background: #0d2818;
-            color: #7ee8a2;
-            border-color: #198754;
-        }
-        html[data-theme="dark"] .alert-info {
-            background: #0d1a2d;
-            color: #8ab8f5;
-            border-color: #0d6efd;
-        }
+        html[data-theme="dark"] .alert-danger { background: #2d0f14; color: #f8a5a5; border-color: #dc3545; }
+        html[data-theme="dark"] .alert-success { background: #0d2818; color: #7ee8a2; border-color: #198754; }
+        html[data-theme="dark"] .alert-info { background: #0d1a2d; color: #8ab8f5; border-color: #0d6efd; }
 
         .btn-google-outline { border: 1px solid #ced4da; color: #212529; font-weight: 500; }
         .btn-google-outline:hover { background: #f8f9fa; }
@@ -52,8 +36,6 @@
 </head>
 
 <body class="auth-body">
-
-    <!-- NO THEME TOGGLE — controlled from dashboard -->
 
     <div class="container">
         <div class="row justify-content-center align-items-center min-vh-100">
@@ -114,9 +96,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ============================================================
-    FIREBASE AUTH
-    ============================================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -151,6 +130,40 @@
         const googleBtn = document.getElementById("googleRegisterBtn");
 
         console.log("✅ Register page loaded!");
+
+        // ------------------------------------------------------------
+        // Create initial wallet_history entry (via PHP)
+        // ------------------------------------------------------------
+        async function createInitialWalletHistory(uid) {
+            try {
+                if (!auth.currentUser) {
+                    console.warn("No auth.currentUser");
+                    return false;
+                }
+
+                const idToken = await auth.currentUser.getIdToken(true);
+                if (!idToken) {
+                    console.warn("No ID token");
+                    return false;
+                }
+
+                const resp = await fetch("/api-php/create-initial-history.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + idToken
+                    },
+                    body: JSON.stringify({ action: "init" })
+                });
+
+                const result = await resp.json();
+                console.log("create-initial-history result:", result);
+                return result.success === true;
+            } catch (err) {
+                console.error("createInitialWalletHistory error:", err);
+                return false;
+            }
+        }
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -188,6 +201,9 @@
                     status: "active",
                     createdAt: Date.now()
                 });
+
+                // ✅ Create initial wallet_history via PHP
+                await createInitialWalletHistory(user.uid);
 
                 try {
                     const response = await fetch('https://hkdmservices.xyz/api-php/send-verification.php', {
@@ -238,6 +254,9 @@
                             status: "active",
                             createdAt: Date.now()
                         });
+
+                        // ✅ Create initial wallet_history via PHP
+                        await createInitialWalletHistory(user.uid);
                     }
 
                     message.className = "alert alert-success mt-3";
