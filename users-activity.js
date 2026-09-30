@@ -87,7 +87,6 @@ function emailBase(email) {
 
 // ============================================================
 // HASH FUNCTION — must match computeFlagHash() in flag-monitor.php
-// Returns a readable string, not a hex hash
 // ============================================================
 function computeFlagHash(flags) {
     const parts = flags.map(f => (f.reason || "") + "|" + (f.hash || ""));
@@ -129,7 +128,12 @@ auth.onAuthStateChanged(async (user) => {
         await loadAllData();
     } catch (err) {
         console.error("Auth check error:", err);
-        window.location.href = "admin-login.html";
+        alert(
+            "AUTH ERROR\n\n" +
+            "Message: " + (err && err.message ? err.message : String(err)) + "\n" +
+            "Code: " + (err && err.code ? err.code : "—")
+        );
+        // window.location.href = "admin-login.html";
     }
 });
 
@@ -139,7 +143,6 @@ auth.onAuthStateChanged(async (user) => {
 
 async function loadAllData() {
     try {
-        // First load — wait for initial data
         const [usersSnap, historySnap] = await Promise.all([
             database.ref("users").once("value"),
             database.ref("wallet_history").once("value")
@@ -151,15 +154,11 @@ async function loadAllData() {
         renderStats();
         renderUserTable();
 
-        // ============================================
-        // LIVE LISTENERS — update on any Firebase change
-        // ============================================
         database.ref("users").on("value", (snap) => {
             allUsers = snap.val() || {};
             renderStats();
             renderUserTable();
 
-            // If a modal is open, refresh its content too
             if (currentViewedUid && document.getElementById("userDetailModal").classList.contains("show")) {
                 renderUserDetail(currentViewedUid);
                 updateBlockButton(currentViewedUid);
