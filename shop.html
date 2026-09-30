@@ -9,9 +9,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <style>
-        /* =====================================================
-           DARK MODE OVERRIDES
-        ===================================================== */
         html[data-theme="dark"] body { background: #101418; color: #f1f3f5; }
         html[data-theme="dark"] nav.navbar { background: #080a0c !important; }
         html[data-theme="dark"] .card { background: #181d22 !important; border-color: #30363d !important; color: #f1f3f5 !important; }
@@ -21,153 +18,40 @@
         html[data-theme="dark"] .bg-dark { background: #0d1117 !important; }
         html[data-theme="dark"] .modal-content { background: #181d22; color: #f1f3f5; border-color: #30363d; }
         html[data-theme="dark"] .modal-header, html[data-theme="dark"] .modal-footer { border-color: #30363d; }
-
-        /* =====================================================
-           PRODUCT CARDS
-        ===================================================== */
-        .product-card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            height: 100%;
-        }
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        html[data-theme="dark"] .product-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-        .product-card .platform-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 0.7rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-        .product-card .price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #198754;
-        }
-        .product-card .status-badge {
-            font-size: 0.7rem;
-            padding: 3px 10px;
-            border-radius: 20px;
-        }
-
-        /* =====================================================
-           FILTER SECTION
-        ===================================================== */
-        .filter-section {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .filter-section .btn {
-            font-size: 0.8rem;
-            padding: 4px 16px;
-            border-radius: 20px;
-        }
-        .filter-section .btn.active-filter {
-            background: #198754;
-            color: #fff;
-            border-color: #198754;
-        }
-
-        /* =====================================================
-           WALLET DISPLAY
-        ===================================================== */
-        .wallet-display {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 12px 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            transition: background 0.4s ease, border-color 0.4s ease;
-        }
-        .wallet-display .balance {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #198754;
-        }
-        html[data-theme="dark"] .wallet-display {
-            background: #161b22;
-            border-color: #30363d;
-        }
-
-        /* =====================================================
-           EMPTY STATE
-        ===================================================== */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        .empty-state i {
-            font-size: 4rem;
-            color: #ced4da;
-        }
-        .empty-state h3 {
-            margin-top: 20px;
-            color: #212529;
-        }
-        .empty-state p {
-            color: #6c757d;
-        }
+        .product-card { transition: transform 0.2s ease, box-shadow 0.2s ease; height: 100%; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        html[data-theme="dark"] .product-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        .product-card .platform-badge { position: absolute; top: 12px; right: 12px; font-size: 0.7rem; padding: 4px 12px; border-radius: 20px; }
+        .product-card .price { font-size: 1.5rem; font-weight: bold; color: #198754; }
+        .product-card .status-badge { font-size: 0.7rem; padding: 3px 10px; border-radius: 20px; }
+        .filter-section { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .filter-section .btn { font-size: 0.8rem; padding: 4px 16px; border-radius: 20px; }
+        .filter-section .btn.active-filter { background: #198754; color: #fff; border-color: #198754; }
+        .wallet-display { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 10px; padding: 12px 20px; display: inline-flex; align-items: center; gap: 12px; transition: background 0.4s ease, border-color 0.4s ease; }
+        .wallet-display .balance { font-size: 1.2rem; font-weight: bold; color: #198754; }
+        html[data-theme="dark"] .wallet-display { background: #161b22; border-color: #30363d; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state i { font-size: 4rem; color: #ced4da; }
+        .empty-state h3 { margin-top: 20px; color: #212529; }
+        .empty-state p { color: #6c757d; }
         html[data-theme="dark"] .empty-state i { color: #30363d; }
         html[data-theme="dark"] .empty-state h3 { color: #f1f3f5; }
         html[data-theme="dark"] .empty-state p { color: #8b949e; }
-
-        /* =====================================================
-           TOASTS
-        ===================================================== */
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-        .toast-custom {
-            background: #ffffff;
-            color: #212529;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 16px 20px;
-            margin-top: 10px;
-            min-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+        .toast-custom { background: #ffffff; color: #212529; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px 20px; margin-top: 10px; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .toast-success { border-left: 4px solid #198754; }
         .toast-error { border-left: 4px solid #dc3545; }
         .toast-info { border-left: 4px solid #0d6efd; }
         .toast-warning { border-left: 4px solid #fd7e14; }
-        html[data-theme="dark"] .toast-custom {
-            background: #161b22;
-            color: #f1f3f5;
-            border-color: #30363d;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-
-        /* =====================================================
-           MODAL DETAIL ROWS
-        ===================================================== */
-        .modal-body .bg-dark {
-            background: #f8f9fa !important;
-            color: #212529;
-        }
+        html[data-theme="dark"] .toast-custom { background: #161b22; color: #f1f3f5; border-color: #30363d; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .modal-body .bg-dark { background: #f8f9fa !important; color: #212529; }
         .modal-body .bg-dark .text-muted { color: #6c757d !important; }
-        html[data-theme="dark"] .modal-body .bg-dark {
-            background: #0d1117 !important;
-            color: #f1f3f5;
-        }
+        html[data-theme="dark"] .modal-body .bg-dark { background: #0d1117 !important; color: #f1f3f5; }
         html[data-theme="dark"] .modal-body .bg-dark .text-muted { color: #8b949e !important; }
     </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-dark bg-dark">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="navbar-brand fw-bold" href="dashboard.html">
@@ -181,11 +65,8 @@
     </div>
 </nav>
 
-<!-- MAIN CONTENT -->
 <section class="py-4">
     <div class="container">
-
-        <!-- Header -->
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
             <div>
                 <h1 class="fw-bold"><i class="bi bi-shop text-success"></i> Social Accounts Shop</h1>
@@ -198,7 +79,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
         <div class="filter-section">
             <button class="btn btn-outline-secondary active-filter" data-filter="all">All</button>
             <button class="btn btn-outline-secondary" data-filter="TikTok">TikTok</button>
@@ -210,18 +90,15 @@
             <button class="btn btn-outline-secondary" data-filter="Telegram">Telegram</button>
         </div>
 
-        <!-- Products Grid -->
         <div class="row g-4" id="productsGrid">
             <div class="col-12 text-center py-5">
                 <div class="spinner-border text-success" role="status"></div>
                 <p class="mt-3 text-muted">Loading products...</p>
             </div>
         </div>
-
     </div>
 </section>
 
-<!-- PURCHASE CONFIRMATION MODAL -->
 <div class="modal fade" id="confirmPurchaseModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -265,7 +142,6 @@
     </div>
 </div>
 
-<!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script type="importmap">
@@ -283,7 +159,6 @@
     import { getAuth, onAuthStateChanged } from "firebase/auth";
     import { getDatabase, ref, onValue, get, set } from "firebase/database";
 
-    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
         authDomain: "hkdmservices-7d59f.firebaseapp.com",
@@ -307,9 +182,6 @@
     let selectedProduct = null;
     let suspensionBlocked = false;
 
-    // ============================================
-    // 🚫 SUSPENSION CHECK (runs FIRST, before everything)
-    // ============================================
     async function checkSuspension(user) {
         try {
             const snap = await get(ref(database, 'users/' + user.uid));
@@ -326,9 +198,6 @@
         }
     }
 
-    // ============================================
-    // TOAST NOTIFICATIONS
-    // ============================================
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -342,9 +211,6 @@
         }, 4000);
     }
 
-    // ============================================
-    // FORMAT NAIRA
-    // ============================================
     function formatNaira(amount) {
         return '₦' + Number(amount || 0).toLocaleString('en-NG', {
             minimumFractionDigits: 2,
@@ -352,16 +218,12 @@
         });
     }
 
-    // ============================================
-    // AUTH CHECK
-    // ============================================
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = 'login.html';
             return;
         }
 
-        // 🚫 SUSPENSION CHECK FIRST
         const isSuspended = await checkSuspension(user);
         if (isSuspended) return;
 
@@ -375,14 +237,12 @@
             walletBalanceEl.textContent = formatNaira(userWallet);
         }
 
-        // Live listener for suspension while on page
         onValue(ref(database, 'users/' + user.uid + '/status'), (snap) => {
             if (snap.val() === 'suspended') {
                 window.location.href = 'suspended.html';
             }
         });
 
-        // Live wallet listener
         onValue(ref(database, 'users/' + user.uid + '/wallet'), (snap) => {
             const val = snap.val();
             if (val !== null) {
@@ -394,9 +254,6 @@
         loadProducts();
     });
 
-    // ============================================
-    // LOAD PRODUCTS
-    // ============================================
     function loadProducts() {
         const productsRef = ref(database, 'shop');
         onValue(productsRef, (snapshot) => {
@@ -414,9 +271,6 @@
         });
     }
 
-    // ============================================
-    // RENDER PRODUCTS
-    // ============================================
     function renderProducts() {
         let filtered = allProducts;
         if (currentFilter !== 'all') {
@@ -470,9 +324,6 @@
         });
     }
 
-    // ============================================
-    // FILTER BUTTONS
-    // ============================================
     document.querySelectorAll('.filter-section .btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-section .btn').forEach(b => b.classList.remove('active-filter'));
@@ -482,9 +333,6 @@
         });
     });
 
-    // ============================================
-    // OPEN PURCHASE MODAL
-    // ============================================
     function openPurchaseModal(product) {
         if (suspensionBlocked) return;
         selectedProduct = product;
@@ -496,14 +344,10 @@
         document.getElementById('purchaseMsg').innerHTML = '';
         document.getElementById('confirmPurchaseBtn').disabled = false;
         document.getElementById('confirmPurchaseBtn').innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
-        
         const modal = new bootstrap.Modal(document.getElementById('confirmPurchaseModal'));
         modal.show();
     }
 
-    // ============================================
-    // CONFIRM PURCHASE
-    // ============================================
     document.getElementById('confirmPurchaseBtn').addEventListener('click', async function() {
         if (suspensionBlocked) return;
 
@@ -517,7 +361,6 @@
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
 
         try {
-            // 🚫 Re-check suspension right before purchase
             const freshSnap = await get(ref(database, 'users/' + currentUser.uid));
             const freshData = freshSnap.val() || {};
             if ((freshData.status || 'active') === 'suspended') {
@@ -526,128 +369,56 @@
                 return;
             }
 
-            if (userWallet < product.price) {
-                msgDiv.innerHTML = `<div class="alert alert-danger">❌ Insufficient balance. You need ${formatNaira(product.price)} but you have ${formatNaira(userWallet)}.</div>`;
+            const idToken = await currentUser.getIdToken(true);
+            const resp = await fetch('/api-php/shop-purchase.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + idToken
+                },
+                body: JSON.stringify({ productKey: product.key })
+            });
+
+            const result = await resp.json();
+
+            if (!result.success) {
+                msgDiv.innerHTML = `<div class="alert alert-danger">❌ ${result.message}</div>`;
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Purchase';
                 return;
             }
 
-            const newWallet = userWallet - product.price;
-
-            // ✅ FIX: Log to wallet_history BEFORE updating wallet
-            // This prevents the flag monitor from raising a false
-            // "Unexplained wallet change" alert after shop purchases.
-            const historyId = 'WH-' + Date.now();
-            const orderId = 'SHOP-' + Date.now();
-            await set(ref(database, 'wallet_history/' + currentUser.uid + '/' + historyId), {
-                type: 'shop_purchase',
-                amount: -product.price,
-                before: userWallet,
-                after: newWallet,
-                timestamp: Date.now(),
-                service: product.title,
-                platform: product.platform,
-                orderId: orderId
-            });
-
-            // Update wallet
-            await set(ref(database, 'users/' + currentUser.uid + '/wallet'), newWallet);
-            userWallet = newWallet;
+            userWallet = result.newBalance;
             walletBalanceEl.textContent = formatNaira(userWallet);
 
-            // Mark product as sold
-            await set(ref(database, 'shop/' + product.key + '/status'), 'sold');
-
-            // Save order record
-            const orderData = {
-                uid: currentUser.uid,
-                orderId: orderId,
-                type: 'shop_purchase',
-                platform: product.platform,
-                title: product.title,
-                price: product.price,
-                description: product.description,
-                status: 'completed',
-                createdAt: Date.now()
-            };
-            await set(ref(database, 'orders/' + orderId), orderData);
-
-            // Save transaction record
-            const transactionId = 'TXN-' + Date.now();
-            const transactionData = {
-                uid: currentUser.uid,
-                orderId: orderId,
-                type: 'order_payment',
-                amount: -product.price,
-                status: 'success',
-                description: 'Purchase: ' + product.title,
-                createdAt: Date.now()
-            };
-            await set(ref(database, 'transactions/' + transactionId), transactionData);
-
-            try {
-                const emailResponse = await fetch('https://hkdmservices.xyz/api-php/send-credentials.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: currentUser.email,
-                        platform: product.platform || 'N/A',
-                        title: product.title || 'N/A',
-                        login: product.login || 'N/A',
-                        password: product.password || 'N/A',
-                        notes: product.notes || ''
-                    })
-                });
-
-                const emailResult = await emailResponse.json();
-
-                if (emailResult.success) {
-                    msgDiv.innerHTML = `
-                        <div class="alert alert-success">✅ Purchase successful!</div>
-                        <div class="alert alert-info">
-                            <i class="bi bi-envelope"></i> 
-                            <strong>Credentials sent to:</strong> ${currentUser.email}<br>
-                            <small class="text-muted">Please check your inbox (and spam folder).</small>
-                        </div>
-                        <div class="alert alert-warning mt-2">
-                            <i class="bi bi-shield-lock"></i> 
-                            For security, change the password immediately after login.
-                        </div>
-                    `;
-                    showToast(`✅ Credentials sent to ${currentUser.email}`, 'success');
-                } else {
-                    msgDiv.innerHTML = `
-                        <div class="alert alert-success">✅ Purchase successful!</div>
-                        <div class="alert alert-warning">
-                            <i class="bi bi-envelope"></i> 
-                            <strong>Note:</strong> We couldn't send the email to ${currentUser.email}.<br>
-                            <small>Please contact support to receive your credentials.</small>
-                            <br><br>
-                            <strong>Order ID:</strong> ${orderId}
-                        </div>
-                    `;
-                    showToast(`⚠️ Purchase complete but email failed`, 'warning');
-                }
-            } catch (emailError) {
-                console.error('Email error:', emailError);
+            if (result.emailSent) {
+                msgDiv.innerHTML = `
+                    <div class="alert alert-success">✅ Purchase successful!</div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-envelope"></i> 
+                        <strong>Credentials sent to:</strong> ${result.email}<br>
+                        <small class="text-muted">Please check your inbox (and spam folder).</small>
+                    </div>
+                    <div class="alert alert-warning mt-2">
+                        <i class="bi bi-shield-lock"></i> 
+                        For security, change the password immediately after login.
+                    </div>
+                `;
+                showToast(`✅ Credentials sent to ${result.email}`, 'success');
+            } else {
                 msgDiv.innerHTML = `
                     <div class="alert alert-success">✅ Purchase successful!</div>
                     <div class="alert alert-warning">
                         <i class="bi bi-envelope"></i> 
-                        <strong>Note:</strong> We couldn't send the email to ${currentUser.email}.<br>
+                        <strong>Note:</strong> We couldn't send the email to ${result.email}.<br>
                         <small>Please contact support to receive your credentials.</small>
                         <br><br>
-                        <strong>Order ID:</strong> ${orderId}
+                        <strong>Order ID:</strong> ${result.orderId}
                     </div>
                 `;
                 showToast(`⚠️ Purchase complete but email failed`, 'warning');
             }
 
-            // Clear credentials from listing (security)
-            await set(ref(database, 'shop/' + product.key + '/login'), null);
-            await set(ref(database, 'shop/' + product.key + '/password'), null);
-            
             btn.disabled = true;
             btn.innerHTML = '<i class="bi bi-check-circle"></i> Purchased';
 
