@@ -85,9 +85,6 @@ function emailBase(email) {
     return local.split("+")[0].split(".")[0];
 }
 
-// ============================================================
-// HASH FUNCTION — must match computeFlagHash() in flag-monitor.php
-// ============================================================
 function computeFlagHash(flags) {
     const parts = flags.map(f => (f.reason || "") + "|" + (f.hash || ""));
     parts.sort();
@@ -110,10 +107,7 @@ auth.onAuthStateChanged(async (user) => {
 
         const role = (data.role || "").toLowerCase();
         const isAdmin = data.isAdmin === true;
-        const allowed =
-            isAdmin ||
-            role === "admin" ||
-            role === "moderator";
+        const allowed = isAdmin || role === "admin" || role === "moderator";
 
         if (!allowed) {
             await auth.signOut();
@@ -201,117 +195,91 @@ function renderStats() {
 }
 
 // ============================================================
-// FLAG DETECTION — ALL 14 FLAGS
+// FLAG DETECTION — ALL FLAGS
 // ============================================================
 
 function detectFlags(uid, user) {
     const flags = [];
     const history = Object.values(allWalletHistory[uid] || {});
+    const hasHistory = history.length > 0;
     const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-    const now = Date.now();
 
-    if (history.length > 0) {
+    if (hasHistory) {
         history.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
     }
 
-    // 1. Unexplained wallet change
-    if (history.length > 0) {
-        const earliestBefore = Number(history[0].before || 0);
-        const currentWallet = Number(user.wallet || 0);
-        let expectedDelta = 0;
-        history.forEach(h => { expectedDelta += Number(h.amount || 0); });
-        const expectedWallet = earliestBefore + expectedDelta;
-        const diff = currentWallet - expectedWallet;
+    const currentWallet = Number(user.wallet || 0);
+    const myBase = emailBase(user.email);
 
-        if (Math.abs(diff) > 1) {
+    // ============================================
+    // FLAGS THAT FIRE WITHOUT HISTORY
+    // ============================================
+
+    // NEW: Wallet without history
+    if (!hasHistory && currentWallet > 0) {
+        flags.push({
+            level: "critical",
+            reason: "Wallet without history",
+            hash: "wn:" + Math.round(currentWallet),
+            text: `Wallet has ${formatNaira(currentWallet)} but no transaction history`
+        });
+    }
+
+    // 21. Disposable email
+    const DISPOSABLE_DOMAINS = [
+        'mailinator.com', 'tempmail.com', 'guerrillamail.com',
+        '10minutemail.com', 'throwawaymail.com', 'yopmail.com',
+        'temp-mail.org', 'maildrop.cc', 'trashmail.com',
+        'sharklasers.com', 'getnada.com', 'mailnesia.com',
+        'fakeinbox.com', 'dispostable.com', 'mytemp.email',
+        'emailondeck.com', 'moakt.com', 'tempr.email',
+        'mailcatch.com', 'spamgourmet.com'
+    ];
+    if (user.email && user.email.includes("@")) {
+        const domain = user.email.split("@")[1].toLowerCase();
+        if (DISPOSABLE_DOMAINS.includes(domain)) {
             flags.push({
-                level: "critical",
-                reason: "Unexplained wallet change",
-                hash: String(Math.round(diff)),
-                text: diff > 0
-                    ? `+₦${Math.round(diff).toLocaleString()} unexplained wallet increase`
-                    : `-₦${Math.abs(Math.round(diff)).toLocaleString()} unexplained wallet decrease`
+                level: "high",
+                reason: "Disposable email",
+                hash: "de:" + domain,
+                text: `Disposable email: ${domain}`
             });
         }
     }
 
-    // 2. Refund abuse
-    const refundCount = history.filter(h => h.type === "refund").length;
-    if (refundCount >= 3) {
-        flags.push({ level: "high", reason: "Refund abuse", hash: "rc:" + refundCount, text: `${refundCount} refunds` });
+    // 22. Short email base
+    if (myBase && myBase.length < 3) {
+        flags.push({
+            level: "medium",
+            reason: "Short email base",
+            hash: "sb:" + myBase,
+            text: `Email base "${myBase}" too short`
+        });
     }
 
-    // 3. Rapid funding
-    const recentFundings = history.filter(h =>
-        h.type === "wallet_funding" && Number(h.timestamp || 0) >= oneDayAgo
-    ).length;
-    if (recentFundings >= 5) {
-        flags.push({ level: "medium", reason: "Rapid funding", hash: "rf:" + recentFundings, text: `${recentFundings} fundings in 24h` });
-    }
-
-    // 4. Rapid orders
-    const recentOrders = history.filter(h =>
-        h.type === "order_payment" && Number(h.timestamp || 0) >= oneDayAgo
-    ).length;
-    if (recentOrders >= 10) {
-        flags.push({ level: "medium", reason: "Rapid orders", hash: "ro:" + recentOrders, text: `${recentOrders} orders in 24h` });
-    }
-
-    // 5. Wash trading
-    let washCycles = 0;
-    for (let i = 1; i < history.length; i++) {
-        const prev = history[i - 1];
-        const curr = history[i];
-        const gap = Number(curr.timestamp || 0) - Number(prev.timestamp || 0);
-        if (prev.type === "wallet_funding" && curr.type === "refund" && gap < (10 * 60 * 1000)) {
-            washCycles++;
-        }
-    }
-    if (washCycles >= 2) {
-        flags.push({ level: "high", reason: "Wash trading", hash: "wt:" + washCycles, text: `${washCycles} wash-trade cycles` });
-    }
-
-    // 6. Zero-balance orders
-    const orderPayments = history.filter(h => h.type === "order_payment");
-    let zeroBalanceOrders = 0;
-    orderPayments.forEach(op => {
-        const before = Number(op.before || 0);
-        const amount = Math.abs(Number(op.amount || 0));
-        if (before < amount) zeroBalanceOrders++;
-    });
-    if (zeroBalanceOrders >= 1) {
+    // B. Unauthorized role
+    const userRole = String(user.role || "").toLowerCase();
+    const isFlaggedAdmin = userRole === "admin" || userRole === "moderator" || user.isAdmin === true;
+    const isKnownAdmin = user.email && user.email.toLowerCase() === "hipkhalifa6666@gmail.com" ||
+                         user.email && user.email.toLowerCase() === "hipqalifa@gmail.com";
+    if (isFlaggedAdmin && !isKnownAdmin) {
         flags.push({
             level: "critical",
-            reason: "Zero-balance orders",
-            hash: "zc:" + zeroBalanceOrders,
-            text: `${zeroBalanceOrders} zero-balance order${zeroBalanceOrders > 1 ? "s" : ""}`
+            reason: "Unauthorized role",
+            hash: "ur:" + userRole + ":" + (user.isAdmin === true ? "1" : "0"),
+            text: `Role "${userRole || 'isAdmin'}" but not in admin list`
         });
-    }
-
-    // 8. Multiple accounts
-    const myBase = emailBase(user.email);
-    if (myBase) {
-        let sameBaseCount = 0;
-        Object.values(allUsers).forEach(other => {
-            if (emailBase(other.email) === myBase) sameBaseCount++;
-        });
-        if (sameBaseCount >= 3) {
-            flags.push({ level: "high", reason: "Multiple accounts", hash: "ma:" + sameBaseCount, text: `${sameBaseCount} accounts share email base` });
-        }
-    }
-
-    // 9. Voucher abuse
-    const recentVouchers = history.filter(h =>
-        h.type === "voucher" && Number(h.timestamp || 0) >= oneDayAgo
-    ).length;
-    if (recentVouchers >= 5) {
-        flags.push({ level: "high", reason: "Voucher abuse", hash: "va:" + recentVouchers, text: `${recentVouchers} vouchers in 24h` });
     }
 
     // 10. Referral spam
     const totalRefs = Number(user.totalReferrals || 0);
     if (totalRefs >= 5) {
-        flags.push({ level: "high", reason: "Referral spam", hash: "rs:" + totalRefs, text: `${totalRefs} total referrals` });
+        flags.push({
+            level: "high",
+            reason: "Referral spam",
+            hash: "rs:" + totalRefs,
+            text: `${totalRefs} total referrals`
+        });
     }
 
     // 13. Reseller without fee
@@ -322,7 +290,7 @@ function detectFlags(uid, user) {
                 level: "critical",
                 reason: "Reseller without fee",
                 hash: "rw:" + Math.round(invested),
-                text: `Reseller but paid only ₦${Math.round(invested).toLocaleString()} (needs ₦100,000)`
+                text: `Reseller but paid only ${formatNaira(invested)}`
             });
         }
     }
@@ -335,31 +303,231 @@ function detectFlags(uid, user) {
                 level: "high",
                 reason: "VIP low spend",
                 hash: "vs:" + Math.round(spent),
-                text: `VIP but only ₦${Math.round(spent).toLocaleString()} spent (needs ₦60,000)`
+                text: `VIP but only ${formatNaira(spent)} spent`
             });
         }
     }
 
-    // 14. Negative wallet
-    if (Number(user.wallet || 0) < 0) {
-        flags.push({ level: "critical", reason: "Negative wallet", hash: "neg:" + Math.round(Number(user.wallet)), text: `Negative wallet: ${formatNaira(user.wallet)}` });
+    // 15. Negative wallet
+    if (currentWallet < 0) {
+        flags.push({
+            level: "critical",
+            reason: "Negative wallet",
+            hash: "neg:" + Math.round(currentWallet),
+            text: `Negative wallet: ${formatNaira(currentWallet)}`
+        });
     }
 
-    // 15. High refund ratio
-    const orderCount = history.filter(h => h.type === "order_payment").length;
-    if (orderCount >= 2 && refundCount > 0) {
-        const ratio = refundCount / orderCount;
-        if (ratio > 0.5) {
-            flags.push({ level: "critical", reason: "High refund rate", hash: "hr:" + Math.round(ratio * 100), text: `${Math.round(ratio * 100)}% refund rate` });
-        }
-    }
-
-    // 18. Self-referral
+    // 19. Self-referral
     if (user.referralCode && String(user.referralCode) === String(uid)) {
-        flags.push({ level: "critical", reason: "Self-referral", hash: "sr:code", text: `Self-referral (own UID)` });
+        flags.push({
+            level: "critical",
+            reason: "Self-referral",
+            hash: "sr:code",
+            text: `Self-referral (own UID)`
+        });
     }
     if (user.referredBy && String(user.referredBy) === String(uid)) {
-        flags.push({ level: "critical", reason: "Self-referral", hash: "sr:by", text: `Referred by self` });
+        flags.push({
+            level: "critical",
+            reason: "Self-referral",
+            hash: "sr:by",
+            text: `Referred by self`
+        });
+    }
+
+    // ============================================
+    // FLAGS THAT NEED HISTORY
+    // ============================================
+    if (hasHistory) {
+
+        // 1. Unexplained wallet change
+        const earliestBefore = Number(history[0].before || 0);
+        let expectedDelta = 0;
+        history.forEach(h => { expectedDelta += Number(h.amount || 0); });
+        const expectedWallet = earliestBefore + expectedDelta;
+        const diff = currentWallet - expectedWallet;
+
+        if (Math.abs(diff) > 1) {
+            flags.push({
+                level: "critical",
+                reason: "Unexplained wallet change",
+                hash: String(Math.round(diff)),
+                text: diff > 0
+                    ? `+${formatNaira(Math.round(diff))} unexplained increase`
+                    : `-${formatNaira(Math.abs(Math.round(diff)))} unexplained decrease`
+            });
+        }
+
+        // 2. Refund abuse
+        const refundCount = history.filter(h => h.type === "refund").length;
+        if (refundCount >= 3) {
+            flags.push({
+                level: "high",
+                reason: "Refund abuse",
+                hash: "rc:" + refundCount,
+                text: `${refundCount} refunds`
+            });
+        }
+
+        // 3. Rapid funding
+        const recentFundings = history.filter(h =>
+            h.type === "wallet_funding" && Number(h.timestamp || 0) >= oneDayAgo
+        ).length;
+        if (recentFundings >= 5) {
+            flags.push({
+                level: "medium",
+                reason: "Rapid funding",
+                hash: "rf:" + recentFundings,
+                text: `${recentFundings} fundings in 24h`
+            });
+        }
+
+        // 4. Rapid orders
+        const recentOrders = history.filter(h =>
+            h.type === "order_payment" && Number(h.timestamp || 0) >= oneDayAgo
+        ).length;
+        if (recentOrders >= 10) {
+            flags.push({
+                level: "medium",
+                reason: "Rapid orders",
+                hash: "ro:" + recentOrders,
+                text: `${recentOrders} orders in 24h`
+            });
+        }
+
+        // 5. Wash trading
+        let washCycles = 0;
+        for (let i = 1; i < history.length; i++) {
+            const prev = history[i - 1];
+            const curr = history[i];
+            const gap = Number(curr.timestamp || 0) - Number(prev.timestamp || 0);
+            if (prev.type === "wallet_funding" && curr.type === "refund" && gap < 600000) {
+                washCycles++;
+            }
+        }
+        if (washCycles >= 2) {
+            flags.push({
+                level: "high",
+                reason: "Wash trading",
+                hash: "wt:" + washCycles,
+                text: `${washCycles} wash-trade cycles`
+            });
+        }
+
+        // 6. Zero-balance orders
+        const orderPayments = history.filter(h => h.type === "order_payment");
+        let zeroBalanceOrders = 0;
+        orderPayments.forEach(op => {
+            const before = Number(op.before || 0);
+            const amount = Math.abs(Number(op.amount || 0));
+            if (before < amount) zeroBalanceOrders++;
+        });
+        if (zeroBalanceOrders >= 1) {
+            flags.push({
+                level: "critical",
+                reason: "Zero-balance orders",
+                hash: "zc:" + zeroBalanceOrders,
+                text: `${zeroBalanceOrders} zero-balance order${zeroBalanceOrders > 1 ? "s" : ""}`
+            });
+        }
+
+        // 8. Multiple accounts
+        if (myBase) {
+            let sameBaseCount = 0;
+            Object.values(allUsers).forEach(other => {
+                if (emailBase(other.email) === myBase) sameBaseCount++;
+            });
+            if (sameBaseCount >= 3) {
+                flags.push({
+                    level: "high",
+                    reason: "Multiple accounts",
+                    hash: "ma:" + sameBaseCount,
+                    text: `${sameBaseCount} accounts share email base`
+                });
+            }
+        }
+
+        // 9. Voucher abuse
+        const recentVouchers = history.filter(h =>
+            h.type === "voucher" && Number(h.timestamp || 0) >= oneDayAgo
+        ).length;
+        if (recentVouchers >= 5) {
+            flags.push({
+                level: "high",
+                reason: "Voucher abuse",
+                hash: "va:" + recentVouchers,
+                text: `${recentVouchers} vouchers in 24h`
+            });
+        }
+
+        // 16. High refund ratio
+        const orderCount = history.filter(h => h.type === "order_payment").length;
+        if (orderCount >= 2 && refundCount > 0) {
+            const ratio = refundCount / orderCount;
+            if (ratio > 0.5) {
+                flags.push({
+                    level: "critical",
+                    reason: "High refund rate",
+                    hash: "hr:" + Math.round(ratio * 100),
+                    text: `${Math.round(ratio * 100)}% refund rate`
+                });
+            }
+        }
+
+        // 26. Refund re-fund cycle
+        let recycleCount = 0;
+        for (let i = 1; i < history.length; i++) {
+            const prev = history[i - 1];
+            const curr = history[i];
+            const gap = Number(curr.timestamp || 0) - Number(prev.timestamp || 0);
+            if (prev.type === "refund" && curr.type === "wallet_funding" && gap < 300000) {
+                recycleCount++;
+            }
+        }
+        if (recycleCount >= 3) {
+            flags.push({
+                level: "high",
+                reason: "Refund re-fund cycle",
+                hash: "rr:" + recycleCount,
+                text: `${recycleCount} refund→re-fund cycles`
+            });
+        }
+
+        // 32. Wallet never decreased
+        let hasOrder = false, hasFundingOrVoucher = false, firstOrderBefore = null;
+        for (const h of history) {
+            const type = h.type || '';
+            if (type === 'order_payment') {
+                hasOrder = true;
+                if (firstOrderBefore === null) firstOrderBefore = Number(h.before || 0);
+            }
+            if (type === 'wallet_funding' || type === 'voucher') hasFundingOrVoucher = true;
+        }
+        if (hasOrder && !hasFundingOrVoucher && firstOrderBefore !== null && currentWallet >= firstOrderBefore) {
+            flags.push({
+                level: "critical",
+                reason: "Wallet never decreased",
+                hash: "wd:" + Math.round(firstOrderBefore) + ":" + Math.round(currentWallet),
+                text: `Orders placed without funding (${formatNaira(firstOrderBefore)} → ${formatNaira(currentWallet)})`
+            });
+        }
+
+        // A. History tampering
+        let brokenLinks = 0;
+        for (let i = 1; i < history.length; i++) {
+            const prevAfter = Number(history[i-1].after || 0);
+            const currBefore = Number(history[i].before || 0);
+            if (Math.abs(prevAfter - currBefore) > 1) brokenLinks++;
+        }
+        if (brokenLinks >= 1) {
+            flags.push({
+                level: "critical",
+                reason: "History tampering",
+                hash: "ht:" + brokenLinks,
+                text: `${brokenLinks} broken chain link(s) — history may be tampered`
+            });
+        }
     }
 
     return flags;
@@ -506,7 +674,6 @@ function renderUserDetail(uid) {
             <div class="mb-4 p-2" style="background:rgba(25,135,84,0.1); border-left:4px solid #198754; border-radius:6px; font-size:0.8rem;">
                 <i class="bi bi-shield-check text-success"></i>
                 <strong>Forgiven:</strong> previous flags were cleared (hash: <code>${escapeHtml(user.unblockClearedHash)}</code>).
-                Will re-block if new flags appear.
             </div>
         `;
     }
@@ -523,7 +690,7 @@ function renderUserDetail(uid) {
             const amount = Number(h.amount || 0);
             const isCredit = amount > 0;
             const cssClass = isCredit ? "credit" : "debit";
-            const typeColors = { "wallet_funding": "success", "order_payment": "primary", "voucher": "info", "refund": "warning", "reseller_upgrade": "danger" };
+            const typeColors = { "wallet_funding": "success", "order_payment": "primary", "voucher": "info", "refund": "warning", "reseller_upgrade": "danger", "account_created": "secondary" };
             const typeColor = typeColors[h.type] || "secondary";
             const meta = [];
             if (h.reference) meta.push(`Ref: ${escapeHtml(h.reference)}`);
@@ -597,7 +764,7 @@ document.getElementById("btnBlockUser").addEventListener("click", async () => {
             allUsers[currentViewedUid].status = "active";
             allUsers[currentViewedUid].unblockClearedHash = currentHash;
 
-            showToast(`✅ User unblocked. Flags forgiven (hash: ${currentHash}).`, "success");
+            showToast(`✅ User unblocked. Flags forgiven.`, "success");
             updateBlockButton(currentViewedUid);
             renderUserTable();
             renderStats();
