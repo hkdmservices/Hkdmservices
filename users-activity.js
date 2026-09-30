@@ -100,7 +100,7 @@ function computeFlagHash(flags) {
 
 auth.onAuthStateChanged(async (user) => {
     if (!user) {
-        window.location.href = "admin-login.html";
+        window.location.href = "moderator-login.html";
         return;
     }
 
@@ -117,7 +117,7 @@ auth.onAuthStateChanged(async (user) => {
 
         if (!allowed) {
             await auth.signOut();
-            window.location.href = "admin-login.html";
+            window.location.href = "moderator-login.html";
             return;
         }
 
@@ -128,12 +128,7 @@ auth.onAuthStateChanged(async (user) => {
         await loadAllData();
     } catch (err) {
         console.error("Auth check error:", err);
-        alert(
-            "AUTH ERROR\n\n" +
-            "Message: " + (err && err.message ? err.message : String(err)) + "\n" +
-            "Code: " + (err && err.code ? err.code : "—")
-        );
-        // window.location.href = "admin-login.html";
+        window.location.href = "moderator-login.html";
     }
 });
 
