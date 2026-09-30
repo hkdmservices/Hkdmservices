@@ -747,8 +747,7 @@
         .request-status-delivered { background: #198754; color: #fff; }
         .request-status-cancelled { background: #dc3545; color: #fff; }
     </style>
-</head>
-<body><div class="container-fluid">
+</head><body><div class="container-fluid">
         <div class="row">
 
             <!-- SIDEBAR -->
@@ -1098,7 +1097,9 @@
                             </div>
                         </div>
                     </div>
-                </div><!-- SHOP SECTION -->
+                </div>
+
+                <!-- SHOP SECTION -->
                 <div id="section-shop" style="display:none;">
                     <div class="stat-card">
                         <div class="stats-grid" id="shopStatsGrid">
@@ -1556,6 +1557,7 @@
             </div>
         </div>
     </div>
+
     <!-- ADD PRODUCT MODAL -->
     <div class="modal fade" id="addProductModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -1714,9 +1716,7 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- SERVICE DETAILS MODAL -->
+    </div><!-- SERVICE DETAILS MODAL -->
     <div class="modal fade" id="serviceDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1756,7 +1756,9 @@
                 </div>
             </div>
         </div>
-    </div><!-- EDIT USER MODAL -->
+    </div>
+
+    <!-- EDIT USER MODAL -->
     <div class="modal fade" id="editUserModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -2038,7 +2040,17 @@
             const snapshot = await userRef.once('value');
             const userData = snapshot.val();
 
-            if (!userData || !(userData.role === 'admin' || userData.isAdmin === true)) {
+            const role = (userData && userData.role || '').toLowerCase();
+            const isAdmin = userData && userData.isAdmin === true;
+
+            // ✅ Redirect moderators to their own panel
+            if (role === 'moderator') {
+                window.location.href = 'moderator-panel.html';
+                return;
+            }
+
+            // Only admins allowed here
+            if (!userData || !(role === 'admin' || isAdmin)) {
                 await auth.signOut();
                 window.location.href = 'admin-login.html';
                 return;
@@ -2225,9 +2237,7 @@
                 if (data) count = Object.keys(data).length;
                 document.getElementById('totalUsers').textContent = count;
             });
-        }
-
-        // ============================================================
+        }// ============================================================
         // WEBSITE REQUESTS
         // ============================================================
         function loadAllWebsiteRequests() {
@@ -2324,7 +2334,9 @@
             document.getElementById('statPendingRequests').textContent = pending;
             document.getElementById('statQuotedRequests').textContent = quoted;
             document.getElementById('statDeliveredRequests').textContent = delivered;
-        }function viewWebsiteRequest(reqKey) {
+        }
+
+        function viewWebsiteRequest(reqKey) {
             const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
             const modalBody = document.getElementById('orderDetailsBody');
             modalBody.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-success"></div></div>';
@@ -2552,7 +2564,9 @@
             document.getElementById('refreshWebReq')?.addEventListener('click', loadAllWebsiteRequests);
             document.getElementById('webReqSearch')?.addEventListener('input', loadAllWebsiteRequests);
             document.getElementById('webReqStatusFilter')?.addEventListener('change', loadAllWebsiteRequests);
-        });// ============================================================
+        });
+
+        // ============================================================
         // ORDERS FILTER
         // ============================================================
         document.querySelectorAll('#section-orders .status-filter .btn').forEach(btn => {
@@ -2714,9 +2728,7 @@
                     });
                 });
             });
-        }
-
-        // ============================================================
+        }// ============================================================
         // ORDER UTILITIES
         // ============================================================
         function updateOrderStats(data) {
@@ -2976,7 +2988,9 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Yes, Cancel & Refund';
             }
-        });// ============================================================
+        });
+
+        // ============================================================
         // USERS
         // ============================================================
         function loadAllUsers() {
@@ -3087,9 +3101,7 @@
                     });
                 });
             });
-        }
-
-        // ============================================================
+        }// ============================================================
         // VIEW USER DETAILS
         // ============================================================
         function viewUserDetails(uid) {
@@ -3228,7 +3240,9 @@
                 updateServiceStats(fallback, nigeriaFallback);
                 showToast('⚠️ Using embedded services (error)', 'warning');
             }
-        }// ============================================================
+        }
+
+        // ============================================================
         // GLOBAL EMBEDDED SERVICES (FALLBACK ONLY)
         // ============================================================
         function getEmbeddedServices() {
@@ -3301,9 +3315,7 @@
                 { id: "reddit_comments", platform: "Reddit", service: "Comments | Custom |", ratePer1000: 150000, resellerRatePer1000: 112500, vipRatePer1000: 135000, minimumQuantity: 100 },
                 { id: "reddit_community_members", platform: "Reddit", service: "Community Members", ratePer1000: 300000, resellerRatePer1000: 225000, vipRatePer1000: 270000, minimumQuantity: 100 }
             ];
-        }
-
-        // ============================================================
+        }// ============================================================
         // NIGERIA EMBEDDED SERVICES (FALLBACK ONLY)
         // ============================================================
         function getEmbeddedNigeriaServices() {
@@ -3813,7 +3825,9 @@
                 document.querySelectorAll('.delete-product-btn').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         if (confirm('Delete this product?')) {
-                            await database.ref('shop/' + this.dataset.productKey).remove();
+                            const key = this.dataset.productKey;
+                            await database.ref('shop/' + key).remove();
+                            await database.ref('shop_private/' + key).remove().catch(() => {});
                             loadAllProducts();
                             showToast('🗑️ Product deleted', 'info');
                         }
@@ -3867,19 +3881,23 @@
                     'pending': 'warning'
                 };
                 const statusColor = statusColors[product.status] || 'secondary';
-                modalBody.innerHTML = `
+
+                database.ref('shop_private/' + productKey).once('value', (privSnap) => {
+                    const priv = privSnap.val() || {};
+                    modalBody.innerHTML = `
                         <div class="mb-3"><h6 class="text-success">Product Information</h6>
                             <div class="service-detail-row"><span class="service-detail-label">Product Key</span><span class="service-detail-value"><code>${productKey}</code></span></div>
                             <div class="service-detail-row"><span class="service-detail-label">Platform</span><span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span></div>
                             <div class="service-detail-row"><span class="service-detail-label">Title</span><span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span></div>
                             <div class="service-detail-row"><span class="service-detail-label">Price</span><span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span></div>
                             <div class="service-detail-row"><span class="service-detail-label">Status</span><span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span></div>
-                            <div class="service-detail-row"><span class="service-detail-label">Login</span><span class="service-detail-value"><code>${product.login || 'N/A'}</code></span></div>
-                            <div class="service-detail-row"><span class="service-detail-label">Password</span><span class="service-detail-value"><code>${product.password || 'N/A'}</code></span></div>
-                            ${product.notes ? `<div class="service-detail-row"><span class="service-detail-label">Notes</span><span class="service-detail-value">${product.notes}</span></div>` : ''}
+                            <div class="service-detail-row"><span class="service-detail-label">Login</span><span class="service-detail-value"><code>${priv.login || 'N/A'}</code></span></div>
+                            <div class="service-detail-row"><span class="service-detail-label">Password</span><span class="service-detail-value"><code>${priv.password || 'N/A'}</code></span></div>
+                            ${priv.notes ? `<div class="service-detail-row"><span class="service-detail-label">Notes</span><span class="service-detail-value">${priv.notes}</span></div>` : ''}
                             <div class="service-detail-row"><span class="service-detail-label">Description</span><span class="service-detail-value">${product.description || 'N/A'}</span></div>
                         </div>
                     `;
+                });
             });
         }
 
@@ -3899,17 +3917,25 @@
             }
             msgDiv.innerHTML = '<div class="alert alert-info">Adding product...</div>';
             try {
-                await database.ref('shop').push({
+                const newRef = database.ref('shop').push();
+                const productKey = newRef.key;
+
+                await newRef.set({
                     platform,
                     title,
                     price,
                     description,
-                    login,
-                    password,
-                    notes,
                     status: status || 'available',
                     createdAt: Date.now()
                 });
+
+                await database.ref('shop_private/' + productKey).set({
+                    login,
+                    password,
+                    notes,
+                    createdAt: Date.now()
+                });
+
                 msgDiv.innerHTML = '<div class="alert alert-success">✅ Product added!</div>';
                 showToast(`✅ Product "${title}" added`, 'success');
                 setTimeout(() => {
@@ -4342,6 +4368,7 @@
         console.log('💰 One-time service support added - fixed prices now display correctly!');
         console.log('👁️ View buttons added for vouchers, transactions, and users!');
         console.log('🌐 Website Requests admin feature added!');
+        console.log('🔐 Shop credentials moved to shop_private node!');
     </script>
 </body>
 </html>
