@@ -26,9 +26,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!form) { console.error("registerForm not found"); return; }
 
-    async function createInitialWalletHistory() {
+    // ------------------------------------------------------------
+    // Create initial wallet_history entry (via PHP)
+    // Robust: waits for auth, retries token, verifies write
+    // ------------------------------------------------------------
+    async function createInitialWalletHistory(uid) {
         try {
-            const idToken = await auth.currentUser.getIdToken(true);
+            // Wait for auth.currentUser
+            let attempts = 0;
+            while (!auth.currentUser && attempts < 10) {
+                await new Promise(r => setTimeout(r, 200));
+                attempts++;
+            }
+            if (!auth.currentUser) {
+                console.warn("No auth.currentUser after 2s");
+                return false;
+            }
+
+            // Get ID token with retries
+            let idToken = null;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    idToken = await auth.currentUser.getIdToken(true);
+                    if (idToken) break;
+                } catch (e) {
+                    console.warn("Token attempt " + (i + 1) + " failed:", e.message);
+                }
+                await new Promise(r => setTimeout(r, 300));
+            }
+            if (!idToken) {
+                console.warn("Could not get ID token");
+                return false;
+            }
+
+            // Call PHP
             const resp = await fetch("/api-php/create-initial-history.php", {
                 method: "POST",
                 headers: {
@@ -38,14 +69,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 body: JSON.stringify({ action: "init" })
             });
             const result = await resp.json();
-            if (!result.success) {
-                console.warn("Initial history not created:", result.message);
+            console.log("createInitialWalletHistory result:", result);
+
+            // Verify the entry exists in Firebase
+            if (uid) {
+                await new Promise(r => setTimeout(r, 500));
+                const verifySnap = await get(ref(database, "wallet_history/" + uid + "/initial"));
+                if (!verifySnap.exists()) {
+                    console.warn("⚠️ Initial history NOT confirmed in Firebase");
+                    return false;
+                }
+                console.log("✅ Initial wallet_history confirmed");
             }
+
+            return result.success === true;
         } catch (err) {
-            console.warn("Initial history error:", err);
+            console.error("Initial history error:", err);
+            return false;
         }
     }
 
+    // ------------------------------------------------------------
+    // Email / Password Signup
+    // ------------------------------------------------------------
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -88,7 +134,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 createdAt: Date.now()
             });
 
-            await createInitialWalletHistory();
+            // Create initial wallet_history, retry once if needed
+            let ok = await createInitialWalletHistory(uid);
+            if (!ok) {
+                console.warn("Retrying initial wallet_history...");
+                await new Promise(r => setTimeout(r, 800));
+                ok = await createInitialWalletHistory(uid);
+            }
 
             window.location.href = "dashboard.html";
 
@@ -103,6 +155,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // ------------------------------------------------------------
+    // Google Signup
+    // ------------------------------------------------------------
     if (googleRegisterBtn) {
         googleRegisterBtn.addEventListener("click", async () => {
             message.classList.add("d-none");
@@ -129,7 +184,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         createdAt: Date.now()
                     });
 
-                    await createInitialWalletHistory();
+                    let ok = await createInitialWalletHistory(user.uid);
+                    if (!ok) {
+                        await new Promise(r => setTimeout(r, 800));
+                        await createInitialWalletHistory(user.uid);
+                    }
                 }
 
                 window.location.href = "dashboard.html";
