@@ -131,9 +131,6 @@
 
         console.log("✅ Register page loaded!");
 
-        // ------------------------------------------------------------
-        // Create initial wallet_history entry (via PHP)
-        // ------------------------------------------------------------
         async function createInitialWalletHistory(uid) {
             try {
                 if (!auth.currentUser) {
@@ -197,12 +194,13 @@
                     fullName: fullName,
                     email: email,
                     wallet: 0,
+                    totalSpent: 0,
                     role: "customer",
+                    tier: "regular",
                     status: "active",
                     createdAt: Date.now()
                 });
 
-                // ✅ Create initial wallet_history via PHP
                 await createInitialWalletHistory(user.uid);
 
                 try {
@@ -250,12 +248,13 @@
                             fullName: user.displayName || "Google User",
                             email: user.email,
                             wallet: 0,
+                            totalSpent: 0,
                             role: "customer",
+                            tier: "regular",
                             status: "active",
                             createdAt: Date.now()
                         });
 
-                        // ✅ Create initial wallet_history via PHP
                         await createInitialWalletHistory(user.uid);
                     }
 
