@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Test</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 20px; background: #0d1117; color: #f1f3f5; }
+        button { padding: 16px 32px; font-size: 1rem; background: #198754; color: #fff; border: none; border-radius: 8px; width: 100%; }
+        pre { background: #161b22; padding: 20px; margin-top: 20px; white-space: pre-wrap; font-size: 0.9rem; border-radius: 8px; line-height: 1.6; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <h2>🔒 Security Test</h2>
+    <p style="color: #8b949e; font-size: 0.9rem;">Log into your site in this same browser first.</p>
+    <button id="runTest">Run Test</button>
+    <pre id="output">Tap Run Test to begin...</pre>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+            authDomain: "hkdmservices-7d59f.firebaseapp.com",
+            databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+            projectId: "hkdmservices-7d59f",
+            storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+            messagingSenderId: "839538334772",
+            appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+        };
+
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        const output = document.getElementById('output');
+
+        function log(line) { output.textContent += line + '\n'; }
+
+        document.getElementById('runTest').addEventListener('click', async () => {
+            output.textContent = '';
+
+            const user = auth.currentUser;
+            if (!user) {
+                log('❌ Not logged in.');
+                log('');
+                log('Open your site, log in, then come back to this page.');
+                return;
+            }
+
+            log('✅ Logged in as: ' + user.email);
+            log('');
+
+            log('TEST 1 — Write to own wallet');
+            try {
+                await db.ref('users/' + user.uid + '/wallet').set(999999);
+                log('❌ FAIL — wallet write succeeded!');
+            } catch (e) {
+                log('✅ BLOCKED');
+            }
+            log('');
+
+            log('TEST 2 — Write to own totalSpent');
+            try {
+                await db.ref('users/' + user.uid + '/totalSpent').set(999999);
+                log('❌ FAIL — totalSpent write succeeded!');
+            } catch (e) {
+                log('✅ BLOCKED');
+            }
+            log('');
+
+            log('TEST 3 — Read shop_private');
+            try {
+                const snap = await db.ref('shop_private').once('value');
+                log('⚠️  READ SUCCEEDED — ' + (snap.val() ? 'has data' : 'empty'));
+            } catch (e) {
+                log('✅ BLOCKED');
+            }
+            log('');
+
+            log('TEST 4 — Write to shop');
+            try {
+                await db.ref('shop/hacked_test').set({ title: 'hacked' });
+                log('❌ FAIL — shop write succeeded!');
+                await db.ref('shop/hacked_test').remove();
+            } catch (e) {
+                log('✅ BLOCKED');
+            }
+            log('');
+            log('Test complete.');
+        });
+    </script>
+</body>
+</html>
