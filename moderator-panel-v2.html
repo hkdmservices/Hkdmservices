@@ -305,9 +305,12 @@
             background: var(--bg-body);
             padding: 2px 6px;
             border-radius: 4px;
-            word-break: break-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             display: inline-block;
-            max-width: 160px;
+            max-width: 130px;
+            vertical-align: middle;
             color: var(--text-body);
             border: 1px solid var(--border-card);
         }
@@ -396,6 +399,55 @@
             font-size: 0.72rem;
             word-break: break-all;
             line-height: 1.2;
+        }
+
+        /* ============================================================
+           USERS TABLE — mobile scroll container
+           ============================================================ */
+        .table-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .table-scroll table {
+            min-width: 720px;
+        }
+        .table-scroll table th,
+        .table-scroll table td {
+            white-space: nowrap;
+        }
+        .table-scroll table td:nth-child(2),
+        .table-scroll table td:nth-child(3),
+        .table-scroll table th:nth-child(2),
+        .table-scroll table th:nth-child(3) {
+            white-space: normal;
+            min-width: 130px;
+        }
+        @media (max-width: 575.98px) {
+            .table-scroll table { min-width: 640px; }
+            .uid-code { max-width: 100px; }
+        }
+
+        /* UID column — force nowrap, no matter what */
+        .table-scroll table td:first-child,
+        .table-scroll table th:first-child {
+            width: 140px;
+            min-width: 140px;
+            max-width: 140px;
+            white-space: nowrap;
+        }
+        .table-scroll table td:first-child code,
+        .table-scroll table td:first-child .uid-code,
+        .table-scroll table td:first-child code.uid-code {
+            white-space: nowrap;
+            word-break: keep-all;
+            overflow-wrap: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            max-width: 100%;
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -533,7 +585,7 @@
                 <span class="text-muted small" id="userCount">0 users</span>
             </div>
 
-            <div style="max-height: 600px; overflow-y: auto; overflow-x: auto;">
+            <div class="table-scroll">
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
