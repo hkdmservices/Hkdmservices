@@ -1,6 +1,7 @@
 import {
     auth,
-    database
+    database,
+    getUserPrivate
 } from "./firebase.js";
 
 
@@ -237,29 +238,10 @@ async function loadUserInformation(user) {
             await get(userRef);
 
 
-        if (!snapshot.exists()) {
-
-            console.warn(
-                "USER DATA NOT FOUND"
-            );
-
-
-            if (userName) {
-
-                userName.textContent =
-                    user.displayName ||
-                    "User";
-
-            }
-
-
-            return;
-
-        }
-
-
         const data =
-            snapshot.val();
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
 
 
         if (userName) {
@@ -272,12 +254,14 @@ async function loadUserInformation(user) {
         }
 
 
+        const priv =
+            await getUserPrivate(user.uid);
+
+
         if (walletBalance) {
 
             walletBalance.textContent =
-                formatNaira(
-                    data.wallet
-                );
+                formatNaira(priv.wallet);
 
         }
 
@@ -288,9 +272,7 @@ async function loadUserInformation(user) {
         if (totalSpentEl) {
 
             totalSpentEl.textContent =
-                formatNaira(
-                    data.totalSpent || 0
-                );
+                formatNaira(priv.totalSpent);
 
         }
 
@@ -301,9 +283,7 @@ async function loadUserInformation(user) {
         if (totalInvestedEl) {
 
             totalInvestedEl.textContent =
-                formatNaira(
-                    data.totalInvested || 0
-                );
+                formatNaira(priv.totalInvested);
 
         }
 
@@ -771,10 +751,11 @@ async function evaluateAndRenderUserTier(
             ).toLowerCase();
 
 
+        const priv =
+            await getUserPrivate(userId);
+
         const totalSpent =
-            Number(
-                userData.totalSpent || 0
-            );
+            priv.totalSpent;
 
 
         const badgeEl =
@@ -1226,27 +1207,12 @@ if (openResellerModalBtn) {
 
             try {
 
-                const userRef =
-                    ref(
-                        database,
-                        `users/${user.uid}`
-                    );
-
-
-                const snap =
-                    await get(
-                        userRef
-                    );
-
-
-                const data =
-                    snap.val() || {};
+                const priv =
+                    await getUserPrivate(user.uid);
 
 
                 const currentWallet =
-                    Number(
-                        data.wallet || 0
-                    );
+                    priv.wallet;
 
 
                 if (modalWalletBalance) {
@@ -1600,3 +1566,50 @@ if (logoutBtn) {
     );
 
 }
+
+
+
+/* =========================================================
+   EXPOSE WALLET REFRESH FOR dashboard.html's refresh button
+========================================================= */
+
+window.refreshWalletBalance = async function () {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const refreshBtn = document.getElementById("refreshBalanceBtn");
+    const indicator = document.getElementById("walletUpdateIndicator");
+
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    }
+
+    try {
+        const priv = await getUserPrivate(user.uid);
+
+        const walletEl = document.getElementById("walletBalance");
+        if (walletEl) walletEl.textContent = formatNaira(priv.wallet);
+
+        const totalSpentEl = document.getElementById("totalSpent");
+        if (totalSpentEl) totalSpentEl.textContent = formatNaira(priv.totalSpent);
+
+        const totalInvestedEl = document.getElementById("totalInvested");
+        if (totalInvestedEl) totalInvestedEl.textContent = formatNaira(priv.totalInvested);
+
+        const modalWallet = document.getElementById("modalWalletBalance");
+        if (modalWallet) modalWallet.textContent = formatNaira(priv.wallet);
+
+        if (indicator) {
+            indicator.style.opacity = '1';
+            setTimeout(() => { indicator.style.opacity = '0'; }, 3000);
+        }
+    } catch (err) {
+        console.error("Refresh error:", err);
+    } finally {
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+        }
+    }
+};
