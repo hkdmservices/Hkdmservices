@@ -565,13 +565,14 @@
                             <th>Wallet</th>
                             <th>Tier</th>
                             <th>Status</th>
+                            <th>Auto-Block</th>
                             <th>Flags</th>
                             <th style="width:40px;"></th>
                         </tr>
                     </thead>
                     <tbody id="usersTable">
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
+                            <td colspan="9" class="text-center text-muted py-4">
                                 <div class="spinner-border spinner-border-sm text-success"></div> Loading users...
                             </td>
                         </tr>
@@ -600,6 +601,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-success" id="btnSkipAutoBlock" style="display:none;">
+                        <i class="bi bi-shield-slash"></i> <span id="skipBtnText">Skip Auto-Block</span>
+                    </button>
                     <button type="button" class="btn btn-warning" id="btnBlockUser">
                         <i class="bi bi-slash-circle"></i> <span id="blockBtnText">Block User</span>
                     </button>
@@ -719,7 +723,7 @@
         });
     </script>
 
-    <script type="module" src="users-activity.js?v=4"></script>
+    <script type="module" src="users-activity.js?v=5"></script>
 
 </body>
 </html>
