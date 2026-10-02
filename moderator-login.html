@@ -115,7 +115,7 @@
                 const role = (userData.role || '').toLowerCase();
 
                 if (role === 'moderator') {
-                    window.location.href = 'moderator-panel-v2.html';
+                    window.location.href = 'moderator-panel.html';
                 } else {
                     await auth.signOut();
                     showError('Access denied. This login is for moderators only.');
