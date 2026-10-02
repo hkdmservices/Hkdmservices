@@ -97,23 +97,6 @@
         const errorDiv = document.getElementById('loginError');
         const loginBtn = document.getElementById('loginBtn');
 
-        // ── Auto-redirect if already logged in as moderator/admin ──
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) return;
-            try {
-                const snap = await database.ref('users/' + user.uid).once('value');
-                const data = snap.val() || {};
-                const role = (data.role || '').toLowerCase();
-                const isAdmin = data.isAdmin === true;
-
-                if (role === 'moderator' || role === 'admin' || isAdmin) {
-                    window.location.replace('moderator-panel-v2.html');
-                }
-            } catch (e) {
-                // Ignore — fall through to login form
-            }
-        });
-
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('modEmail').value.trim();
