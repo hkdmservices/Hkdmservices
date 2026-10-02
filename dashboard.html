@@ -339,7 +339,6 @@
                 </div>
             </div>
 
-            <!-- Voucher section removed. Voucher redemption lives on wallet.html -->
             <div class="row mt-4 g-4">
                 <div class="col-12">
                     <div class="card p-4 shadow h-100">
@@ -486,7 +485,9 @@
     </script>
 
     <!-- ============================================================
-         FIREBASE LOGIC
+         FIREBASE CONFIG + MINIMAL USER WATCHER
+         Wallet display is handled by dashboard.js (reads user_private)
+         This block only handles: suspension redirect + orders count + refresh hook
     ============================================================ -->
     <script>
         const firebaseConfig = {
@@ -506,50 +507,6 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        function formatNaira(amount) {
-            return "₦" + Number(amount || 0).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function refreshWallet() {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const refreshBtn = document.getElementById('refreshBalanceBtn');
-            const indicator = document.getElementById('walletUpdateIndicator');
-
-            refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-            const userRef = database.ref("users/" + user.uid);
-            userRef.once("value")
-                .then((snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        const wallet = data.wallet || 0;
-                        document.getElementById("walletBalance").textContent = formatNaira(wallet);
-
-                        const totalSpent = data.totalSpent || 0;
-                        document.getElementById("totalSpent").textContent = formatNaira(totalSpent);
-
-                        const totalInvested = data.totalInvested || 0;
-                        document.getElementById("totalInvested").textContent = formatNaira(totalInvested);
-
-                        const modalWallet = document.getElementById("modalWalletBalance");
-                        if (modalWallet) modalWallet.textContent = formatNaira(wallet);
-
-                        indicator.style.opacity = '1';
-                        setTimeout(() => { indicator.style.opacity = '0'; }, 3000);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Refresh error:", error);
-                })
-                .finally(() => {
-                    refreshBtn.disabled = false;
-                    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
-                });
-        }
-
         auth.onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = "login.html";
@@ -557,57 +514,17 @@
             }
 
             const uid = user.uid;
-            const userRef = database.ref("users/" + uid);
 
-            // 🚫 SUSPENSION CHECK (runs on every user data change)
-            userRef.on("value", (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    if ((data.status || "active") === "suspended") {
-                        window.location.href = "suspended.html";
-                        return;
-                    }
-
-                    const wallet = data.wallet || 0;
-                    document.getElementById("walletBalance").textContent = formatNaira(wallet);
-
-                    const totalSpent = data.totalSpent || 0;
-                    document.getElementById("totalSpent").textContent = formatNaira(totalSpent);
-
-                    const totalInvested = data.totalInvested || 0;
-                    const totalInvestedEl = document.getElementById("totalInvested");
-                    if (totalInvestedEl) totalInvestedEl.textContent = formatNaira(totalInvested);
-
-                    const modalWallet = document.getElementById("modalWalletBalance");
-                    if (modalWallet) modalWallet.textContent = formatNaira(wallet);
-
-                    const fullName = data.fullName || user.displayName || "User";
-                    document.getElementById("userName").textContent = fullName;
-
-                    const tier = data.tier || "regular";
-                    const tierBadge = document.getElementById("user-current-tier-badge");
-                    if (tierBadge) {
-                        tierBadge.textContent = tier.toUpperCase();
-                        tierBadge.className = "badge bg-" + (tier === "reseller" ? "success" : tier === "vip" ? "warning" : "secondary");
-                    }
-
-                    const refLinkInput = document.getElementById("referralLinkInput");
-                    if (refLinkInput) {
-                        const baseUrl = window.location.origin + "/register.html?ref=";
-                        refLinkInput.value = baseUrl + uid;
-                    }
-
-                    const totalReferrals = data.totalReferrals || 0;
-                    const totalEarnings = data.totalReferralEarnings || 0;
-                    document.getElementById("totalReferrals").textContent = totalReferrals;
-                    document.getElementById("totalEarnings").textContent = formatNaira(totalEarnings);
+            // Suspension check
+            database.ref("users/" + uid + "/status").on("value", (snapshot) => {
+                const status = snapshot.val() || "active";
+                if (status === "suspended") {
+                    window.location.href = "suspended.html";
                 }
-            }, (error) => {
-                console.error("Database read error:", error);
             });
 
-            const ordersRef = database.ref("orders");
-            ordersRef.on("value", (snapshot) => {
+            // Orders count
+            database.ref("orders").on("value", (snapshot) => {
                 const orders = snapshot.val();
                 let count = 0;
                 if (orders) {
@@ -615,14 +532,19 @@
                         if (order.uid === uid) count++;
                     });
                 }
-                document.getElementById("ordersCount").textContent = count;
+                const el = document.getElementById("ordersCount");
+                if (el) el.textContent = count;
             });
-        });
 
-        document.addEventListener("DOMContentLoaded", function() {
+            // Refresh button — calls the module's refresh
             const refreshBtn = document.getElementById("refreshBalanceBtn");
-            if (refreshBtn) refreshBtn.addEventListener("click", refreshWallet);
-            window.refreshWallet = refreshWallet;
+            if (refreshBtn) {
+                refreshBtn.addEventListener("click", function () {
+                    if (typeof window.refreshWalletBalance === "function") {
+                        window.refreshWalletBalance();
+                    }
+                });
+            }
         });
     </script>
 
