@@ -160,9 +160,21 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        /* Verify debug box */
+        #verifyDebugBox {
+            position:fixed; bottom:10px; left:10px; right:10px;
+            background:#000; color:#0f0; padding:12px; border-radius:8px;
+            font-family:monospace; font-size:11px; max-height:40vh;
+            overflow-y:auto; z-index:99999; white-space:pre-wrap;
+            display:none;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Verify debug box (hidden unless ?success=1) -->
+    <div id="verifyDebugBox"></div>
 
     <!-- Dashboard Side Panel Toggle -->
     <button id="dashboardToggle" class="dashboard-toggle" type="button"
@@ -548,20 +560,38 @@
 
     <!-- ============================================================
          VERIFY RECENT PAYMENT (runs when ?success=1 in URL)
+         DEBUG VERSION — shows on-screen output in black box
     ============================================================ -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        (function () {
             const params = new URLSearchParams(window.location.search);
             if (params.get("success") !== "1") return;
 
-            const amount = params.get("amount") || "";
-            console.log("Detected ?success=1 — verifying recent payment...");
+            const box = document.getElementById("verifyDebugBox");
+            box.style.display = "block";
+            function dbg(msg) {
+                box.textContent += msg + "\n";
+                console.log(msg);
+            }
+
+            dbg("=== verify payment debug ===");
+            dbg("URL params: " + window.location.search);
+            dbg("Waiting for auth...");
 
             firebase.auth().onAuthStateChanged(async function (user) {
-                if (!user) return;
+                if (!user) {
+                    dbg("NO USER — cannot verify");
+                    return;
+                }
+
+                dbg("Logged in as: " + user.email);
+                dbg("UID: " + user.uid);
 
                 try {
                     const idToken = await user.getIdToken(true);
+                    dbg("Got idToken (length=" + idToken.length + ")");
+
+                    dbg("POSTing to /api-php/verify-recent-payment.php ...");
 
                     const res = await fetch("/api-php/verify-recent-payment.php", {
                         method: "POST",
@@ -569,19 +599,36 @@
                         body: JSON.stringify({ token: idToken })
                     });
 
-                    const result = await res.json();
-                    console.log("Verify result:", result);
+                    dbg("HTTP status: " + res.status + " " + res.statusText);
+
+                    const raw = await res.text();
+                    dbg("Raw response: " + raw);
+
+                    let result;
+                    try {
+                        result = JSON.parse(raw);
+                        dbg("Parsed JSON OK");
+                    } catch (e) {
+                        dbg("JSON parse FAILED: " + e.message);
+                        return;
+                    }
+
+                    dbg("Result: " + JSON.stringify(result));
 
                     if (result.success) {
-                        const cleanUrl = window.location.pathname;
-                        window.history.replaceState({}, "", cleanUrl);
-                        window.location.reload();
+                        dbg("SUCCESS — reloading with clean URL...");
+                        setTimeout(() => {
+                            window.history.replaceState({}, "", window.location.pathname);
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        dbg("Verify returned success: false. Stopping.");
                     }
                 } catch (err) {
-                    console.error("Verify error:", err);
+                    dbg("FETCH ERROR: " + (err.message || err));
                 }
             });
-        });
+        })();
     </script>
 
     <!-- ============================================================
