@@ -486,8 +486,6 @@
 
     <!-- ============================================================
          FIREBASE CONFIG + MINIMAL USER WATCHER
-         Wallet display is handled by dashboard.js (reads user_private)
-         This block only handles: suspension redirect + orders count + refresh hook
     ============================================================ -->
     <script>
         const firebaseConfig = {
@@ -536,7 +534,7 @@
                 if (el) el.textContent = count;
             });
 
-            // Refresh button — calls the module's refresh
+            // Refresh button
             const refreshBtn = document.getElementById("refreshBalanceBtn");
             if (refreshBtn) {
                 refreshBtn.addEventListener("click", function () {
@@ -545,6 +543,44 @@
                     }
                 });
             }
+        });
+    </script>
+
+    <!-- ============================================================
+         VERIFY RECENT PAYMENT (runs when ?success=1 in URL)
+    ============================================================ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("success") !== "1") return;
+
+            const amount = params.get("amount") || "";
+            console.log("Detected ?success=1 — verifying recent payment...");
+
+            firebase.auth().onAuthStateChanged(async function (user) {
+                if (!user) return;
+
+                try {
+                    const idToken = await user.getIdToken(true);
+
+                    const res = await fetch("/api-php/verify-recent-payment.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ token: idToken })
+                    });
+
+                    const result = await res.json();
+                    console.log("Verify result:", result);
+
+                    if (result.success) {
+                        const cleanUrl = window.location.pathname;
+                        window.history.replaceState({}, "", cleanUrl);
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error("Verify error:", err);
+                }
+            });
         });
     </script>
 
