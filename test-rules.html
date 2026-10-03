@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rules Test</title>
+  <style>
+    body { font-family: monospace; padding: 16px; background: #111; color: #eee; }
+    .pass { color: #4ade80; }
+    .fail { color: #f87171; }
+    .info { color: #60a5fa; }
+    pre { background: #222; padding: 8px; border-radius: 4px; white-space: pre-wrap; word-break: break-all; }
+    button { padding: 12px 20px; font-size: 16px; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h2>users_private Rules Test</h2>
+  <button id="run">▶ RUN TESTS</button>
+  <div id="out"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const out = document.getElementById('out');
+    function log(msg, cls) {
+      const d = document.createElement('div');
+      d.className = cls || 'info';
+      d.textContent = msg;
+      out.appendChild(d);
+    }
+    function logPre(msg) {
+      const p = document.createElement('pre');
+      p.textContent = msg;
+      out.appendChild(p);
+    }
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyADhpdfM0GaMJIkeQw7Q6eBK3u9CaWUC9k",
+      authDomain: "hkdmservices-7d59f.firebaseapp.com",
+      databaseURL: "https://hkdmservices-7d59f-default-rtdb.firebaseio.com",
+      projectId: "hkdmservices-7d59f",
+      storageBucket: "hkdmservices-7d59f.firebasestorage.app",
+      messagingSenderId: "839538334772",
+      appId: "1:839538334772:web:7d8785f87363b6e5d8fe61"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    document.getElementById('run').onclick = async () => {
+      out.innerHTML = '';
+      const db = firebase.database();
+      const auth = firebase.auth();
+
+      log('Signing in as test user...');
+      try {
+        await auth.signInWithEmailAndPassword('mayaknoxliberty@gmail.com', prompt('Enter password for mayaknoxliberty@gmail.com'));
+      } catch (e) {
+        log('LOGIN FAILED: ' + e.message, 'fail');
+        return;
+      }
+      const uid = auth.currentUser.uid;
+      log('Signed in. UID = ' + uid, 'pass');
+      logPre(uid);
+
+      const fakeUid = 'someotheruid12345';
+
+      // Test 3: read other user's users_private
+      log('\n[Test 3] Read users_private/' + fakeUid + ' (expect PERMISSION_DENIED)');
+      try {
+        await db.ref('users_private/' + fakeUid).once('value');
+        log('FAIL — read succeeded, should have been denied', 'fail');
+      } catch (e) {
+        if (e.code === 'PERMISSION_DENIED' || /permission_denied/i.test(e.message)) {
+          log('PASS — ' + e.code, 'pass');
+        } else {
+          log('FAIL — unexpected error: ' + e.message, 'fail');
+        }
+      }
+
+      // Test 4: read own users_private
+      log('\n[Test 4] Read users_private/' + uid + ' (expect null, no error)');
+      try {
+        const snap = await db.ref('users_private/' + uid).once('value');
+        log('PASS — value = ' + JSON.stringify(snap.val()), 'pass');
+      } catch (e) {
+        log('FAIL — ' + e.message, 'fail');
+      }
+
+      // Test 5: write own users_private/wallet
+      log('\n[Test 5] Write users_private/' + uid + '/wallet = 999 (expect PERMISSION_DENIED)');
+      try {
+        await db.ref('users_private/' + uid + '/wallet').set(999);
+        log('FAIL — write succeeded, should have been denied', 'fail');
+      } catch (e) {
+        if (e.code === 'PERMISSION_DENIED' || /permission_denied/i.test(e.message)) {
+          log('PASS — ' + e.code, 'pass');
+        } else {
+          log('FAIL — unexpected error: ' + e.message, 'fail');
+        }
+      }
+
+      log('\n--- DONE ---', 'info');
+    };
+  </script>
+</body>
+</html>
