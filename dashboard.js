@@ -44,6 +44,54 @@ setPersistence(auth, browserLocalPersistence).catch((error) => {
 });
 
 
+// =========================================================
+//   PAYMENT VERIFICATION (runs when ?success=1)
+//   This calls verify-recent-payment.php to credit the wallet
+//   before the page displays the balance.
+// =========================================================
+
+async function checkAndVerifyPendingPayment() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") !== "1") return;
+
+    console.log("Detected ?success=1 — calling verify-recent-payment.php");
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        const idToken = await user.getIdToken(true);
+
+        const res = await fetch("/api-php/verify-recent-payment.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: idToken })
+        });
+
+        const text = await res.text();
+        console.log("Verify raw response:", text);
+
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error("Non-JSON response from verify endpoint:", text);
+            return;
+        }
+
+        console.log("Verify result:", result);
+
+        if (result.success) {
+            // Clean the URL so future reloads don't re-trigger
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, "", cleanUrl);
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error("Verify call error:", err);
+    }
+}
+
 
 /* =========================================================
    ELEMENTS
@@ -1505,6 +1553,9 @@ onAuthStateChanged(
             return;
 
         }
+
+
+        await checkAndVerifyPendingPayment();
 
 
         await Promise.allSettled([
