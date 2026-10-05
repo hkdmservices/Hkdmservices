@@ -1621,7 +1621,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Update Order Status</h5>
+                <>
+h5 class="modal-title">Update Order Status</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -1629,8 +1630,7 @@
                     <input type="hidden" id="statusOrderKey">
                     <input type="hidden" id="statusOrderId">
                     <div class="mb-3">
-                        <label class="form-label">New Status</label>
-                        <select class="form-select" id="newOrderStatus">
+                        <label class="form-label">New Status</label                        <select class="form-select" id="newOrderStatus">
                             <option value="pending">Pending</option>
                             <option value="processing">Processing</option>
                             <option value="completed">Completed</option>
@@ -1883,9 +1883,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><!-- ============================================================
-     THEME TOGGLE SCRIPT (Auto + Manual)
-     ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><!-- THEME TOGGLE SCRIPT -->
 <script>
 (function() {
     const themeToggle = document.getElementById('themeToggle');
@@ -1988,9 +1986,7 @@
 })();
 </script>
 
-<!-- ============================================================
-     FIREBASE & ADMIN SCRIPTS
-     ============================================================ -->
+<!-- FIREBASE & ADMIN SCRIPTS -->
 <script>
 // ============================================================
 // FIREBASE CONFIG
@@ -2012,24 +2008,6 @@ const database = firebase.database();
 let currentUser = null;
 let currentOrderFilter = 'all';
 let selectedOrders = new Set();
-
-// ============================================================
-// CACHE FOR USER_PRIVATE (Stage 3)
-// ============================================================
-const userPrivateCache = {};
-
-async function fetchUserPrivate(uid) {
-    if (!uid) return null;
-    try {
-        const snap = await database.ref('user_private/' + uid).once('value');
-        const data = snap.val() || {};
-        userPrivateCache[uid] = data;
-        return data;
-    } catch (err) {
-        console.error('fetchUserPrivate error:', uid, err);
-        return userPrivateCache[uid] || null;
-    }
-}
 
 // POST to admin PHP endpoints with bearer token
 async function adminPost(endpoint, payload) {
@@ -2067,7 +2045,6 @@ auth.onAuthStateChanged(async (user) => {
 
     try {
         // Stage 3: role now lives in user_private/{uid}.
-        // Also check config/admins (rules use it as source of truth).
         const [privSnap, adminSnap] = await Promise.all([
             database.ref('user_private/' + user.uid).once('value'),
             database.ref('config/admins/' + user.uid).once('value')
@@ -2078,13 +2055,12 @@ auth.onAuthStateChanged(async (user) => {
         const isConfigAdmin = adminSnap.exists();
         const isAdmin = role === 'admin' || isConfigAdmin;
 
-        // ✅ Redirect moderators to their own panel
+        // Redirect moderators to their own panel
         if (role === 'moderator') {
             window.location.href = 'moderator-panel.html';
             return;
         }
 
-        // Only admins allowed here
         if (!isAdmin) {
             await auth.signOut();
             window.location.href = 'admin-login.html';
@@ -2904,7 +2880,6 @@ function viewOrderDetails(orderKey, orderId) {
             return;
         }
 
-        // Stage 3: fetch from user_private
         let userData = {};
         try {
             const privSnap = await database.ref('user_private/' + order.uid).once('value');
@@ -2997,7 +2972,6 @@ document.getElementById('confirmCancelBtn').addEventListener('click', async func
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
     try {
-        // Stage 3: refund handled server-side by admin-update-order.php
         const result = await adminPost('admin-update-order.php', {
             orderKey: orderKey,
             newStatus: 'refunded',
@@ -3033,7 +3007,6 @@ async function loadAllUsers() {
     tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted"><div class="spinner-border spinner-border-sm text-success"></div> Loading users...</td></tr>';
 
     try {
-        // Read both nodes: user_private (identity + wallet) + users (referralCode)
         const [privSnap, usersSnap] = await Promise.all([
             database.ref('user_private').once('value'),
             database.ref('users').once('value')
@@ -3125,12 +3098,10 @@ async function loadAllUsers() {
             `;
         }).join('');
 
-        // Wire up view buttons
         tbody.querySelectorAll('.view-user-btn').forEach(btn => {
             btn.addEventListener('click', () => viewUserDetails(btn.dataset.uid));
         });
 
-        // Wire up edit buttons
         tbody.querySelectorAll('.edit-user-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById('editUserUid').value = btn.dataset.uid;
@@ -3143,7 +3114,6 @@ async function loadAllUsers() {
             });
         });
 
-        // Wire up toggle status buttons (via PHP)
         tbody.querySelectorAll('.toggle-status-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const uid = btn.dataset.uid;
@@ -3179,7 +3149,6 @@ async function loadAllUsers() {
             });
         });
 
-        // Wire up delete buttons (via PHP, requires email confirmation)
         tbody.querySelectorAll('.delete-user-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const uid = btn.dataset.uid;
@@ -3326,7 +3295,7 @@ document.getElementById('saveUserBtn').addEventListener('click', async () => {
 });
 
 // ============================================================
-// SERVICE MANAGEMENT (unchanged — file-based, no DB migration needed)
+// SERVICE MANAGEMENT
 // ============================================================
 async function loadServicesFromFile(catalog = 'global') {
     try {
@@ -3830,7 +3799,7 @@ async function deleteService(serviceId, catalog) {
 }
 
 // ============================================================
-// SHOP (unchanged)
+// SHOP
 // ============================================================
 function loadAllProducts() {
     const productsRef = database.ref('shop');
@@ -3913,7 +3882,8 @@ function updateShopStats(data) {
 
 function viewShopDetails(productKey) {
     const modalBody = document.getElementById('shopDetailsBody');
-    modalBody.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading product details...</p></div>`;
+    modalBody.innerHTML =
+        `<div class="text-center py-4"><div class="spinner-border text-success" role="status"></div><p class="mt-2">Loading product details...</p></div>`;
     const modal = new bootstrap.Modal(document.getElementById('shopDetailsModal'));
     modal.show();
     database.ref('shop/' + productKey).once('value', (snapshot) => {
@@ -3922,25 +3892,27 @@ function viewShopDetails(productKey) {
             modalBody.innerHTML = `<div class="alert alert-danger">Product not found</div>`;
             return;
         }
-        const statusColors = { 'available': 'success', 'sold': 'danger', 'pending': 'warning' };
+        const statusColors = {
+            'available': 'success',
+            'sold': 'danger',
+            'pending': 'warning'
+        };
         const statusColor = statusColors[product.status] || 'secondary';
 
-        database.ref('shop_private/' + productKey).once('value', (privSnap) => {
-            const priv = privSnap.val() || {};
-            modalBody.innerHTML = `
-                <div class="mb-3"><h6 class="text-success">Product Information</h6>
-                    <div class="service-detail-row"><span class="service-detail-label">Product Key</span><span class="service-detail-value"><code>${productKey}</code></span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Platform</span><span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Title</span><span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Price</span><span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Status</span><span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Login</span><span class="service-detail-value"><code>${priv.login || 'N/A'}</code></span></div>
-                    <div class="service-detail-row"><span class="service-detail-label">Password</span><span class="service-detail-value"><code>${priv.password || 'N/A'}</code></span></div>
-                    ${priv.notes ? `<div class="service-detail-row"><span class="service-detail-label">Notes</span><span class="service-detail-value">${priv.notes}</span></div>` : ''}
-                    <div class="service-detail-row"><span class="service-detail-label">Description</span><span class="service-detail-value">${product.description || 'N/A'}</span></div>
-                </div>
-            `;
-        });
+        modalBody.innerHTML = `
+            <div class="mb-3"><h6 class="text-success">Product Information</h6>
+                <div class="service-detail-row"><span class="service-detail-label">Product Key</span><span class="service-detail-value"><code>${productKey}</code></span></div>
+                <div class="service-detail-row"><span class="service-detail-label">Platform</span><span class="service-detail-value"><span class="badge bg-info">${product.platform || 'N/A'}</span></span></div>
+                <div class="service-detail-row"><span class="service-detail-label">Title</span><span class="service-detail-value"><strong>${product.title || 'N/A'}</strong></span></div>
+                <div class="service-detail-row"><span class="service-detail-label">Price</span><span class="service-detail-value fw-bold text-success">${formatNaira(product.price)}</span></div>
+                <div class="service-detail-row"><span class="service-detail-label">Status</span><span class="service-detail-value"><span class="badge bg-${statusColor}">${product.status || 'available'}</span></span></div>
+                <div class="service-detail-row"><span class="service-detail-label">Description</span><span class="service-detail-value">${product.description || 'N/A'}</span></div>
+            </div>
+            ${product.status === 'sold'
+                ? '<div class="alert alert-secondary mb-0"><i class="bi bi-info-circle"></i> This product has been sold. Credentials are stored securely with the buyer.</div>'
+                : '<div class="alert alert-success mb-0"><i class="bi bi-shield-lock"></i> Pre-purchase credentials are locked down. They will be delivered to the buyer on purchase.</div>'
+            }
+        `;
     });
 }
 
@@ -3987,7 +3959,7 @@ document.getElementById('saveProductBtn').addEventListener('click', async functi
 });
 
 // ============================================================
-// ANALYTICS (unchanged — reads orders only)
+// ANALYTICS
 // ============================================================
 function loadAnalytics() {
     database.ref('orders').once('value', (snapshot) => {
@@ -4042,7 +4014,7 @@ function loadAnalytics() {
 }
 
 // ============================================================
-// TRANSACTIONS (unchanged data source; user info from user_private)
+// TRANSACTIONS
 // ============================================================
 function loadAllTransactions() {
     database.ref('transactions').once('value', (snapshot) => {
@@ -4149,7 +4121,7 @@ async function viewTransactionDetails(txKey) {
 }
 
 // ============================================================
-// VOUCHERS (unchanged data source; usedBy user info from user_private)
+// VOUCHERS
 // ============================================================
 function loadAllVouchers() {
     database.ref('vouchers').once('value', (snapshot) => {
@@ -4377,6 +4349,7 @@ document.addEventListener('DOMContentLoaded', function() {
 console.log('✅ Admin dashboard loaded — Stage 3 (user_private migration)');
 console.log('📊 Users read from user_private; writes via admin-update-user.php');
 console.log('💸 Refunds handled server-side by admin-update-order.php');
+console.log('🔐 shop_private locked — credentials delivered via user_private/purchases');
 </script>
 </body>
 </html>
